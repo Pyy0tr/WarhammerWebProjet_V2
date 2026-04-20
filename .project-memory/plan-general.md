@@ -111,8 +111,9 @@ Utilisateur
 ### Phase 2 — Pipeline données ✓ TERMINÉE
 - [x] fetch_bsdata.py — téléchargement zipball BSData via API GitHub
 - [x] parse_bsdata.py — parser XML complet avec résolution multi-niveaux
-- [x] 1349 unités, 2809 armes, 44 factions, 0 erreur de stats
+- [x] 1349 unités, 4751 armes, 44 factions, 0 erreur de stats
 - [x] Mapping factions jouables → unit_ids (Library pattern)
+- [x] 16 unités sans armes : 12 fortifications + 4 unités à dégâts via ability (correct)
 - [ ] Azure Function Timer (sync automatique toutes les 12h) — pour plus tard
 
 ### Phase 3 — Frontend

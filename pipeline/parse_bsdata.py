@@ -318,6 +318,11 @@ def collect_weapon_options(node: ET.Element, index: GlobalIndex,
                     w = _extract_weapon_from_entry(se, index, depth + 1)
                     if w:
                         weapons_in_group.extend(w)
+                    # Si le SE est un model avec ses propres SEGs (ex: Deathwing Knights,
+                    # Lychguard), récurser pour capturer ses weapon options internes
+                    se_inner = collect_weapon_options(se, index, depth + 1)
+                    if se_inner:
+                        sub_groups.extend(se_inner)
 
             # récursion dans les sous-groupes du seg
             sub_g2 = collect_weapon_options(seg, index, depth + 1)
@@ -332,9 +337,17 @@ def collect_weapon_options(node: ET.Element, index: GlobalIndex,
                     "sub_groups": sub_groups,
                 })
 
-    # --- entryLinks directs ---
-    _, sub_g = _collect_entry_links(node, index, depth + 1)
+    # --- entryLinks directs (armes sans groupe explicite) ---
+    direct_weapons, sub_g = _collect_entry_links(node, index, depth + 1)
     groups.extend(sub_g)
+    if direct_weapons:
+        groups.append({
+            "group_name": "",
+            "min_select": None,
+            "max_select": None,
+            "weapons": direct_weapons,
+            "sub_groups": [],
+        })
 
     return groups
 
@@ -379,15 +392,33 @@ def _collect_entry_links(node: ET.Element, index: GlobalIndex,
             if w:
                 weapons.extend(w)
         elif tag == "selectionEntryGroup":
-            sub = collect_weapon_options(target, index, depth)
-            if sub:
-                min_sel, max_sel = _get_constraints(link)
+            # Traiter les SEs directes du SEG cible (ex: Terminator Weapons SEG)
+            # collect_weapon_options ne traite que les SEGs imbriqués et entryLinks,
+            # pas les selectionEntries directes du noeud passé en argument.
+            seg_weapons = []
+            seg_sub = []
+            min_sel, max_sel = _get_constraints(link)
+            seg_name = attr(target, "name", attr(link, "name", ""))
+
+            se_inside = find_tag(target, "selectionEntries")
+            if se_inside is not None:
+                for se in iter_tag(se_inside, "selectionEntry"):
+                    w = _extract_weapon_from_entry(se, index, depth + 1)
+                    seg_weapons.extend(w)
+                    se_opts = collect_weapon_options(se, index, depth + 1)
+                    seg_sub.extend(se_opts)
+
+            # Nested SEGs et entryLinks dans le SEG cible
+            inner_groups = collect_weapon_options(target, index, depth + 1)
+            seg_sub.extend(inner_groups)
+
+            if seg_weapons or seg_sub:
                 groups.append({
-                    "group_name": attr(target, "name", attr(link, "name", "")),
+                    "group_name": seg_name,
                     "min_select": min_sel,
                     "max_select": max_sel,
-                    "weapons": [],
-                    "sub_groups": sub,
+                    "weapons": seg_weapons,
+                    "sub_groups": seg_sub,
                 })
     return weapons, groups
 
@@ -575,6 +606,35 @@ def extract_unit(entry: ET.Element, faction: str, index: GlobalIndex) -> dict | 
 
     # 3. Options d'armes (selectionEntryGroups récursifs)
     weapon_options = collect_weapon_options(entry, index)
+
+    # 3b. Descendre dans les selectionEntries (sub-models) pour leurs armes
+    #     Pattern : unit → selectionEntries → model → selectionEntryGroups → armes
+    #     Pattern : unit → selectionEntries → model → selectionEntries → upgrade → profiles (ex: Plaguebearers, Flamers)
+    sub_entries_node = find_tag(entry, "selectionEntries")
+    if sub_entries_node is not None:
+        for sub in iter_tag(sub_entries_node, "selectionEntry"):
+            # Profils directs du sub-model
+            collect_from_profiles(sub, weapons, abilities, [], [])
+            collect_infolinks(sub, index, weapons, abilities)
+            # Options d'armes du sub-model (SEGs et entryLinks)
+            sub_options = collect_weapon_options(sub, index)
+            weapon_options.extend(sub_options)
+            # Nested selectionEntries directes dans le sub-model
+            # (type="upgrade" avec profils d'armes, ex: Plaguebearers/Flamers/Screamers)
+            nested_se_node = find_tag(sub, "selectionEntries")
+            if nested_se_node is not None:
+                nested_weapons = []
+                for nested_se in iter_tag(nested_se_node, "selectionEntry"):
+                    w = _extract_weapon_from_entry(nested_se, index, 1)
+                    nested_weapons.extend(w)
+                if nested_weapons:
+                    weapon_options.append({
+                        "group_name": "",
+                        "min_select": None,
+                        "max_select": None,
+                        "weapons": nested_weapons,
+                        "sub_groups": [],
+                    })
 
     # 4. Keywords
     keywords = extract_keywords(entry)

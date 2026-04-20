@@ -1,0 +1,666 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>WH40K Data Browser</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: monospace;
+      background: #111;
+      color: #ccc;
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    /* --- HEADER --- */
+    header {
+      background: #1a1a1a;
+      border-bottom: 1px solid #333;
+      padding: 10px 16px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      flex-shrink: 0;
+    }
+    header h1 { color: #c8a84b; font-size: 14px; letter-spacing: 2px; text-transform: uppercase; }
+    header input {
+      flex: 1;
+      background: #222;
+      border: 1px solid #444;
+      color: #ccc;
+      padding: 6px 10px;
+      font-family: monospace;
+      font-size: 13px;
+      outline: none;
+      max-width: 400px;
+    }
+    header input:focus { border-color: #c8a84b; }
+    #stats-bar { font-size: 11px; color: #666; margin-left: auto; }
+
+    /* --- LAYOUT --- */
+    .main {
+      display: flex;
+      flex: 1;
+      overflow: hidden;
+    }
+
+    /* --- SIDEBAR FACTIONS --- */
+    .sidebar {
+      width: 240px;
+      background: #161616;
+      border-right: 1px solid #2a2a2a;
+      overflow-y: auto;
+      flex-shrink: 0;
+    }
+    .sidebar-title {
+      padding: 8px 12px;
+      font-size: 10px;
+      text-transform: uppercase;
+      color: #555;
+      letter-spacing: 1px;
+      border-bottom: 1px solid #222;
+      position: sticky;
+      top: 0;
+      background: #161616;
+    }
+    .faction-item {
+      padding: 7px 12px;
+      cursor: pointer;
+      font-size: 12px;
+      border-bottom: 1px solid #1e1e1e;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .faction-item:hover { background: #1f1f1f; color: #fff; }
+    .faction-item.active { background: #2a1f00; color: #c8a84b; border-left: 2px solid #c8a84b; }
+    .faction-count { font-size: 10px; color: #555; }
+    .faction-item.active .faction-count { color: #8a6a20; }
+
+    /* --- LISTE UNITÉS --- */
+    .unit-list {
+      width: 280px;
+      background: #141414;
+      border-right: 1px solid #2a2a2a;
+      overflow-y: auto;
+      flex-shrink: 0;
+    }
+    .unit-list-title {
+      padding: 8px 12px;
+      font-size: 10px;
+      text-transform: uppercase;
+      color: #555;
+      letter-spacing: 1px;
+      border-bottom: 1px solid #222;
+      position: sticky;
+      top: 0;
+      background: #141414;
+    }
+    .unit-item {
+      padding: 7px 12px;
+      cursor: pointer;
+      font-size: 12px;
+      border-bottom: 1px solid #1c1c1c;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+    }
+    .unit-item:hover { background: #1e1e1e; }
+    .unit-item.active { background: #1a2a1a; color: #6dbf6d; border-left: 2px solid #6dbf6d; }
+    .unit-name { flex: 1; }
+    .unit-pts { font-size: 10px; color: #666; white-space: nowrap; }
+    .unit-item.active .unit-pts { color: #4a8f4a; }
+    .badge-legends {
+      font-size: 9px;
+      background: #3a2000;
+      color: #c8a84b;
+      padding: 1px 4px;
+      border-radius: 2px;
+    }
+
+    /* --- DETAIL UNITÉ --- */
+    .detail {
+      flex: 1;
+      overflow-y: auto;
+      padding: 16px 20px;
+    }
+    .detail-empty {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100%;
+      color: #333;
+      font-size: 13px;
+    }
+
+    .unit-header { margin-bottom: 16px; }
+    .unit-header h2 { color: #fff; font-size: 18px; margin-bottom: 4px; }
+    .unit-header .meta { font-size: 11px; color: #555; display: flex; gap: 12px; flex-wrap: wrap; }
+    .unit-header .meta span { }
+    .unit-header .meta .pts-val { color: #c8a84b; font-size: 13px; font-weight: bold; }
+
+    /* sections */
+    .section { margin-bottom: 20px; }
+    .section-title {
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: #555;
+      border-bottom: 1px solid #2a2a2a;
+      padding-bottom: 4px;
+      margin-bottom: 10px;
+    }
+
+    /* stats grid */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(6, 1fr);
+      gap: 4px;
+      max-width: 420px;
+    }
+    .stat-cell {
+      background: #1a1a1a;
+      border: 1px solid #2a2a2a;
+      text-align: center;
+      padding: 6px 4px;
+    }
+    .stat-cell .stat-name { font-size: 9px; color: #666; text-transform: uppercase; }
+    .stat-cell .stat-val { font-size: 15px; color: #fff; font-weight: bold; }
+
+    /* keywords */
+    .keywords { display: flex; flex-wrap: wrap; gap: 4px; }
+    .keyword-tag {
+      background: #1e1e2e;
+      border: 1px solid #2a2a3a;
+      color: #8888cc;
+      font-size: 10px;
+      padding: 2px 6px;
+      border-radius: 2px;
+    }
+
+    /* abilities */
+    .ability-item {
+      background: #161616;
+      border: 1px solid #222;
+      padding: 8px 10px;
+      margin-bottom: 6px;
+      border-radius: 2px;
+    }
+    .ability-name {
+      font-size: 12px;
+      color: #c8a84b;
+      margin-bottom: 3px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .ability-desc { font-size: 11px; color: #888; line-height: 1.5; white-space: pre-wrap; }
+    .badge-invuln {
+      font-size: 9px;
+      background: #003a3a;
+      color: #4dbfbf;
+      padding: 1px 5px;
+      border-radius: 2px;
+    }
+
+    /* armes */
+    .weapon-table { width: 100%; border-collapse: collapse; font-size: 11px; }
+    .weapon-table th {
+      background: #1a1a1a;
+      color: #666;
+      text-transform: uppercase;
+      font-size: 9px;
+      letter-spacing: 1px;
+      padding: 5px 8px;
+      text-align: left;
+      border-bottom: 1px solid #2a2a2a;
+    }
+    .weapon-table td {
+      padding: 5px 8px;
+      border-bottom: 1px solid #1e1e1e;
+      color: #bbb;
+    }
+    .weapon-table tr:hover td { background: #1a1a1a; }
+    .weapon-name { color: #fff; }
+    .weapon-type-ranged { color: #6dbf6d; font-size: 9px; }
+    .weapon-type-melee { color: #bf6d6d; font-size: 9px; }
+    .weapon-keywords { color: #888; font-size: 10px; }
+
+    /* option group */
+    .option-group {
+      background: #141420;
+      border: 1px solid #1e1e30;
+      border-radius: 3px;
+      margin-bottom: 8px;
+      overflow: hidden;
+    }
+    .option-group-header {
+      padding: 5px 10px;
+      font-size: 10px;
+      color: #6666aa;
+      background: #161624;
+      border-bottom: 1px solid #1e1e30;
+      display: flex;
+      justify-content: space-between;
+    }
+    .option-group-constraint { color: #444; font-size: 9px; }
+
+    /* issues */
+    .issue-badge {
+      display: inline-block;
+      background: #3a0000;
+      color: #ff6666;
+      font-size: 9px;
+      padding: 1px 5px;
+      border-radius: 2px;
+      margin-left: 6px;
+    }
+
+    /* Tabs */
+    .tabs { display: flex; gap: 0; margin-bottom: 16px; border-bottom: 1px solid #2a2a2a; }
+    .tab {
+      padding: 6px 14px;
+      font-size: 11px;
+      cursor: pointer;
+      color: #555;
+      border-bottom: 2px solid transparent;
+      margin-bottom: -1px;
+    }
+    .tab:hover { color: #888; }
+    .tab.active { color: #c8a84b; border-bottom-color: #c8a84b; }
+
+    /* Search mode */
+    .search-results-title {
+      padding: 8px 12px;
+      font-size: 10px;
+      text-transform: uppercase;
+      color: #555;
+      letter-spacing: 1px;
+      border-bottom: 1px solid #222;
+    }
+
+    /* Scrollbar */
+    ::-webkit-scrollbar { width: 4px; }
+    ::-webkit-scrollbar-track { background: #111; }
+    ::-webkit-scrollbar-thumb { background: #333; }
+    ::-webkit-scrollbar-thumb:hover { background: #555; }
+
+    .no-data { color: #444; font-size: 12px; padding: 12px; }
+  </style>
+</head>
+<body>
+
+<header>
+  <h1>⚙ WH40K Data Browser</h1>
+  <input type="text" id="search" placeholder="Rechercher une unité, une arme..." autocomplete="off">
+  <div id="stats-bar">chargement...</div>
+</header>
+
+<div class="main">
+  <div class="sidebar" id="sidebar">
+    <div class="sidebar-title">Factions</div>
+    <div id="faction-list"></div>
+  </div>
+
+  <div class="unit-list" id="unit-list-panel">
+    <div class="unit-list-title" id="unit-list-title">— sélectionner une faction —</div>
+    <div id="unit-list"></div>
+  </div>
+
+  <div class="detail" id="detail">
+    <div class="detail-empty">← sélectionner une unité</div>
+  </div>
+</div>
+
+<script>
+// ---------------------------------------------------------------------------
+// Données globales
+// ---------------------------------------------------------------------------
+let UNITS = [];
+let FACTION_UNITS = {};
+let WEAPONS_MAP = {};
+let currentFaction = null;
+let currentUnit = null;
+let searchMode = false;
+
+// ---------------------------------------------------------------------------
+// Chargement
+// ---------------------------------------------------------------------------
+async function load() {
+  const [unitsRaw, factionsRaw, factionUnitsRaw, weaponsRaw] = await Promise.all([
+    fetch('/data/cache/units.json').then(r => r.json()),
+    fetch('/data/cache/factions.json').then(r => r.json()),
+    fetch('/data/cache/faction_units.json').then(r => r.json()),
+    fetch('/data/cache/weapons.json').then(r => r.json()),
+  ]);
+
+  UNITS = unitsRaw;
+  FACTION_UNITS = factionUnitsRaw;
+
+  // Index armes par bsdata_id
+  weaponsRaw.forEach(w => { WEAPONS_MAP[w.bsdata_id] = w; });
+
+  // Stats bar
+  const noWeapons = UNITS.filter(u => countAllWeapons(u) === 0).length;
+  document.getElementById('stats-bar').textContent =
+    `${UNITS.length} unités · ${weaponsRaw.length} armes · ${factionsRaw.length} factions · ⚠ ${noWeapons} sans armes`;
+
+  renderFactions(factionsRaw);
+}
+
+// ---------------------------------------------------------------------------
+// Factions
+// ---------------------------------------------------------------------------
+function renderFactions(factions) {
+  const container = document.getElementById('faction-list');
+
+  // Compter les unités par faction jouable
+  const counts = {};
+  Object.entries(FACTION_UNITS).forEach(([faction, ids]) => {
+    counts[faction] = ids.length;
+  });
+  // Factions avec leurs propres unités (non Library)
+  UNITS.forEach(u => {
+    if (!counts[u.faction]) counts[u.faction] = 0;
+    if (u.playable_in && u.playable_in.length === 1 && u.playable_in[0] === u.faction) {
+      counts[u.faction] = (counts[u.faction] || 0) + 1;
+    }
+  });
+
+  container.innerHTML = factions.map(f => `
+    <div class="faction-item" data-faction="${esc(f)}" onclick="selectFaction('${esc(f)}')">
+      <span>${f}</span>
+      <span class="faction-count">${counts[f] || '—'}</span>
+    </div>
+  `).join('');
+}
+
+function selectFaction(faction) {
+  currentFaction = faction;
+  searchMode = false;
+  document.getElementById('search').value = '';
+
+  // Highlight faction
+  document.querySelectorAll('.faction-item').forEach(el => {
+    el.classList.toggle('active', el.dataset.faction === faction);
+  });
+
+  // Unités de cette faction
+  let units;
+  if (FACTION_UNITS[faction]) {
+    const ids = new Set(FACTION_UNITS[faction]);
+    units = UNITS.filter(u => ids.has(u.bsdata_id));
+  } else {
+    units = UNITS.filter(u => u.faction === faction || (u.playable_in && u.playable_in.includes(faction)));
+  }
+
+  // Trier : non-legends d'abord, puis par nom
+  units.sort((a, b) => {
+    if (a.is_legends !== b.is_legends) return a.is_legends ? 1 : -1;
+    return a.name.localeCompare(b.name);
+  });
+
+  renderUnitList(units, faction);
+}
+
+// ---------------------------------------------------------------------------
+// Liste unités
+// ---------------------------------------------------------------------------
+function renderUnitList(units, title) {
+  document.getElementById('unit-list-title').textContent = `${title} (${units.length})`;
+  const container = document.getElementById('unit-list');
+
+  if (!units.length) {
+    container.innerHTML = '<div class="no-data">Aucune unité trouvée</div>';
+    return;
+  }
+
+  const issues = (u) => {
+    const w = countAllWeapons(u);
+    const issues = [];
+    if (!u.stats || !u.stats.T) issues.push('stats?');
+    if (w === 0) issues.push('armes?');
+    return issues;
+  };
+
+  container.innerHTML = units.map(u => {
+    const iss = issues(u);
+    return `
+    <div class="unit-item ${iss.length ? 'has-issue' : ''}" data-id="${esc(u.bsdata_id)}" onclick="selectUnit('${esc(u.bsdata_id)}')">
+      <span class="unit-name">
+        ${u.name}
+        ${u.is_legends ? '<span class="badge-legends">L</span>' : ''}
+        ${iss.map(i => `<span class="issue-badge">⚠ ${i}</span>`).join('')}
+      </span>
+      <span class="unit-pts">${u.pts > 0 ? u.pts + ' pts' : ''}</span>
+    </div>`;
+  }).join('');
+}
+
+// ---------------------------------------------------------------------------
+// Détail unité
+// ---------------------------------------------------------------------------
+function selectUnit(id) {
+  currentUnit = UNITS.find(u => u.bsdata_id === id);
+  if (!currentUnit) return;
+
+  document.querySelectorAll('.unit-item').forEach(el => {
+    el.classList.toggle('active', el.dataset.id === id);
+  });
+
+  renderDetail(currentUnit);
+}
+
+function renderDetail(u) {
+  const detail = document.getElementById('detail');
+
+  const allWeapons = collectAllWeapons(u);
+  const ranged = allWeapons.filter(w => w.type === 'Ranged');
+  const melee = allWeapons.filter(w => w.type === 'Melee');
+
+  detail.innerHTML = `
+    <div class="unit-header">
+      <h2>${u.name} ${u.is_legends ? '<span class="badge-legends">LEGENDS</span>' : ''}</h2>
+      <div class="meta">
+        <span>Faction : <b>${u.faction}</b></span>
+        <span>Pts : <span class="pts-val">${u.pts}</span></span>
+        ${u.playable_in && u.playable_in.length > 1 ? `<span>Jouable dans : ${u.playable_in.join(', ')}</span>` : ''}
+        ${u.constraints?.max_models ? `<span>Max : ${u.constraints.max_models} modèles/roster</span>` : ''}
+      </div>
+    </div>
+
+    <!-- Stats -->
+    <div class="section">
+      <div class="section-title">Profil</div>
+      ${renderStats(u.stats)}
+    </div>
+
+    <!-- Keywords -->
+    ${u.keywords?.length ? `
+    <div class="section">
+      <div class="section-title">Keywords</div>
+      <div class="keywords">
+        ${u.keywords.map(k => `<span class="keyword-tag">${k}</span>`).join('')}
+      </div>
+    </div>` : ''}
+
+    <!-- Abilities -->
+    ${u.abilities?.length ? `
+    <div class="section">
+      <div class="section-title">Abilities (${u.abilities.length})</div>
+      ${u.abilities.map(a => renderAbility(a)).join('')}
+    </div>` : ''}
+
+    <!-- Armes à distance -->
+    ${ranged.length ? `
+    <div class="section">
+      <div class="section-title">Armes à distance (${ranged.length})</div>
+      ${renderWeaponTable(ranged)}
+    </div>` : ''}
+
+    <!-- Armes de mêlée -->
+    ${melee.length ? `
+    <div class="section">
+      <div class="section-title">Armes de mêlée (${melee.length})</div>
+      ${renderWeaponTable(melee)}
+    </div>` : ''}
+
+    <!-- Options d'équipement -->
+    ${u.weapon_options?.length ? `
+    <div class="section">
+      <div class="section-title">Options d'équipement</div>
+      ${renderWeaponOptions(u.weapon_options)}
+    </div>` : ''}
+
+    <!-- Debug JSON -->
+    <div class="section">
+      <div class="section-title" style="cursor:pointer" onclick="toggleJson(this)">▶ JSON brut (debug)</div>
+      <pre id="json-debug" style="display:none;font-size:10px;color:#555;background:#111;padding:10px;overflow:auto;max-height:300px">${esc(JSON.stringify(u, null, 2))}</pre>
+    </div>
+  `;
+}
+
+function toggleJson(el) {
+  const pre = document.getElementById('json-debug');
+  const show = pre.style.display === 'none';
+  pre.style.display = show ? 'block' : 'none';
+  el.textContent = (show ? '▼' : '▶') + ' JSON brut (debug)';
+}
+
+function renderStats(stats) {
+  if (!stats || !Object.keys(stats).length) return '<div class="no-data">⚠ Stats manquantes</div>';
+  const fields = ['M', 'T', 'SV', 'W', 'LD', 'OC'];
+  return `<div class="stats-grid">
+    ${fields.map(f => `
+      <div class="stat-cell">
+        <div class="stat-name">${f}</div>
+        <div class="stat-val">${stats[f] || '—'}</div>
+      </div>`).join('')}
+  </div>`;
+}
+
+function renderAbility(a) {
+  return `<div class="ability-item">
+    <div class="ability-name">
+      ${a.name}
+      ${a.is_invuln_save ? `<span class="badge-invuln">INVULN ${a.invuln_value}</span>` : ''}
+    </div>
+    ${a.description ? `<div class="ability-desc">${esc(a.description)}</div>` : ''}
+  </div>`;
+}
+
+function renderWeaponTable(weapons) {
+  return `<table class="weapon-table">
+    <thead>
+      <tr>
+        <th>Nom</th><th>Type</th><th>Portée</th><th>A</th><th>BS/WS</th>
+        <th>F</th><th>PA</th><th>D</th><th>Keywords</th>
+      </tr>
+    </thead>
+    <tbody>
+      ${weapons.map(w => `
+        <tr>
+          <td class="weapon-name">${w.name}</td>
+          <td><span class="weapon-type-${w.type.toLowerCase()}">${w.type}</span></td>
+          <td>${w.range || '—'}</td>
+          <td>${w.A || '—'}</td>
+          <td>${w.BS_WS || '—'}</td>
+          <td>${w.S || '—'}</td>
+          <td>${w.AP || '—'}</td>
+          <td>${w.D || '—'}</td>
+          <td class="weapon-keywords">${(w.keywords || []).filter(k => k && k !== '-').join(', ') || '—'}</td>
+        </tr>`).join('')}
+    </tbody>
+  </table>`;
+}
+
+function renderWeaponOptions(options, depth = 0) {
+  return options.map(g => {
+    const weapons = g.weapons || [];
+    const sub = g.sub_groups || [];
+    const constraint = `${g.min_select ?? '0'}–${g.max_select ?? '∞'} choix`;
+    return `
+      <div class="option-group" style="margin-left:${depth * 12}px">
+        <div class="option-group-header">
+          <span>${g.group_name || '—'}</span>
+          <span class="option-group-constraint">${constraint}</span>
+        </div>
+        ${weapons.length ? renderWeaponTable(weapons) : ''}
+        ${sub.length ? renderWeaponOptions(sub, depth + 1) : ''}
+      </div>`;
+  }).join('');
+}
+
+// ---------------------------------------------------------------------------
+// Helpers armes
+// ---------------------------------------------------------------------------
+function collectAllWeapons(u) {
+  const weapons = [...(u.weapons_default || [])];
+  function fromGroups(groups) {
+    (groups || []).forEach(g => {
+      weapons.push(...(g.weapons || []));
+      fromGroups(g.sub_groups);
+    });
+  }
+  fromGroups(u.weapon_options);
+  // Déduplique par bsdata_id
+  const seen = new Set();
+  return weapons.filter(w => {
+    const key = w.bsdata_id || w.name;
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
+}
+
+function countAllWeapons(u) {
+  return collectAllWeapons(u).length;
+}
+
+// ---------------------------------------------------------------------------
+// Recherche
+// ---------------------------------------------------------------------------
+document.getElementById('search').addEventListener('input', function() {
+  const q = this.value.trim().toLowerCase();
+  if (!q) {
+    searchMode = false;
+    if (currentFaction) selectFaction(currentFaction);
+    else {
+      document.getElementById('unit-list-title').textContent = '— sélectionner une faction —';
+      document.getElementById('unit-list').innerHTML = '';
+    }
+    return;
+  }
+
+  searchMode = true;
+  document.querySelectorAll('.faction-item').forEach(el => el.classList.remove('active'));
+
+  const results = UNITS.filter(u =>
+    u.name.toLowerCase().includes(q) ||
+    u.faction.toLowerCase().includes(q) ||
+    (u.keywords || []).some(k => k.toLowerCase().includes(q))
+  );
+
+  renderUnitList(results, `Résultats "${this.value}"`);
+});
+
+// ---------------------------------------------------------------------------
+// Utils
+// ---------------------------------------------------------------------------
+function esc(str) {
+  if (typeof str !== 'string') str = String(str);
+  return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+}
+
+// ---------------------------------------------------------------------------
+// Init
+// ---------------------------------------------------------------------------
+load();
+</script>
+</body>
+</html>

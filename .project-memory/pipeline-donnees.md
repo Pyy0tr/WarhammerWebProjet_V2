@@ -154,6 +154,31 @@ Les `selectionEntry type="model"` sans stats et 0 pts sont des composants intern
 (ex: Jakhal dans Jakhals, Burna Boy dans Burna Boyz). Ils sont ignorés.  
 **Règle** : `not stats AND pts == 0` → ignoré.
 
+### Patterns d'armes — 3 niveaux de complexité supplémentaires
+
+**Pattern A — armes dans selectionEntries imbriquées du sous-model** (ex: Plaguebearers, Flamers) :
+```
+unit → selectionEntries → model → selectionEntries → upgrade → profiles[weapon]
+```
+**Solution** : dans step 3b de `extract_unit`, après `collect_weapon_options(sub_model)`,
+itérer aussi les `selectionEntries` directes du sub-model et appeler
+`_extract_weapon_from_entry(nested_se, index, 1)`.
+
+**Pattern B — armes dans SEGs internes d'un sub-model dans un SEG** (ex: Deathwing Knights, Lychguard, Genestealers) :
+```
+unit → SEG → selectionEntries → model → selectionEntryGroups → upgrade → profiles[weapon]
+```
+**Solution** : dans `collect_weapon_options`, pour chaque SE dans un SEG, appeler
+en plus `collect_weapon_options(se, index, depth+1)` pour capturer les SEGs internes du SE.
+
+**Pattern C — armes via entryLink type=selectionEntryGroup depuis un sub-model** (ex: Deathwatch Terminator Squad - Legends) :
+```
+unit → SEG → selectionEntries → model → entryLinks[type=SEG] → target_SEG → selectionEntries → upgrade → profiles[weapon]
+```
+**Solution** : dans `_collect_entry_links`, quand le target est un `selectionEntryGroup`,
+traiter ses `selectionEntries` directes en plus des SEGs imbriqués (via `_extract_weapon_from_entry`
++ `collect_weapon_options` pour chaque SE).
+
 ---
 
 ## Sortie — fichiers JSON cache
@@ -161,10 +186,18 @@ Les `selectionEntry type="model"` sans stats et 0 pts sont des composants intern
 | Fichier | Contenu | Taille |
 |---|---|---|
 | `data/cache/units.json` | 1349 unités complètes | ~15 MB |
-| `data/cache/weapons.json` | 2809 armes dédupliquées | ~2 MB |
+| `data/cache/weapons.json` | 4751 armes dédupliquées | ~3 MB |
 | `data/cache/factions.json` | 44 factions | < 1 KB |
 | `data/cache/faction_units.json` | 41 factions → unit_ids | ~50 KB |
 | `data/cache/rules.json` | 32 règles universelles (.gst) | ~50 KB |
+
+### Bilan extraction des armes
+
+- **1349 unités** parsées
+- **16 sans armes** au total :
+  - 12 **fortifications** (Webway Gate, Skull Altar, Battle Sanctum, Aegis Defence Line...) — correct, elles n'ont pas de profils d'armes dans le XML
+  - 4 **unités à dégâts via ability** (Cyclops Demolition Vehicle, Dreadnought Drop Pod, Mucolid Spores, Spore Mines) — damage via capacités spéciales, pas de profils d'armes dans le XML
+- **4751 armes uniques** dédupliquées (y compris les variantes, ex: ➤ Plasma Cannon - Standard / Supercharge)
 
 ### Structure d'une unité JSON
 
