@@ -33,6 +33,18 @@ _Dernière mise à jour : 2026-04-20_
 **Décision** : Les listes d'attaquants/défenseurs ne sont plus stockées en BDD.  
 **Raison** : Simplifie le backend, réduit les requêtes. Géré en state React (Zustand), persisté en localStorage si besoin.
 
-### Parser XML : lxml (Python)
-**Décision** : Utiliser `lxml` pour parser les fichiers .cat.  
-**Raison** : Cohérent avec la stack Python, supporte XPath pour navigation hiérarchique BSData.
+### Parser XML : xml.etree.ElementTree (stdlib Python)
+**Décision initiale** : `lxml`. **Décision finale** : `xml.etree.ElementTree` (stdlib).  
+**Raison** : Suffisant pour la navigation hiérarchique BSData, 0 dépendance supplémentaire.  
+**Impact** : Aucune installation requise, fonctionne partout.
+
+### Données jeu : JSON cache (pas de BDD)
+**Décision** : Les données BSData (unités, armes, factions) sont stockées en JSON dans `data/cache/`
+et chargées en mémoire au démarrage de l'API. Pas de PostgreSQL pour cette partie.  
+**Raison** : ~15 MB de JSON, peu d'utilisateurs, simplicité > performance. Réduit les coûts Azure.  
+**BDD utilisateurs** : SQLite pour les comptes et armées sauvegardées.
+
+### Stratégie de téléchargement BSData : zipball (pas git clone)
+**Décision** : Télécharger le zipball du dernier release GitHub via API, pas `git clone`.  
+**Raison** : ~50-100 MB vs ~500 MB pour un clone complet. Pas besoin de l'historique git.
+C'est aussi exactement la logique qu'on utilisera pour l'Azure Function de mise à jour automatique.

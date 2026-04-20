@@ -4,120 +4,222 @@ _Dernière mise à jour : 2026-04-20_
 
 ---
 
+## Statut : TERMINÉ ✓
+
+Scripts livrés et fonctionnels :
+- `pipeline/fetch_bsdata.py` — téléchargement du dernier release BSData
+- `pipeline/parse_bsdata.py` — parsing complet → JSON cache
+
+---
+
 ## Source
 
 **Dépôt GitHub** : https://github.com/BSData/wh40k-10e  
-**Format** : fichiers `.cat` (XML non compressé), ~50 fichiers par faction  
+**Format** : fichiers `.cat` (XML non compressé) + 1 fichier `.gst` (système de jeu)  
 **Versioning** : sémantique `vX.Y.Z` (ex: v10.6.0), releases publiées par BSData-bot  
 **Fréquence releases** : 2-3 par semaine  
-**API releases** : `https://api.github.com/repos/BSData/wh40k-10e/releases/latest`
+**API releases** : `https://api.github.com/repos/BSData/wh40k-10e/releases/latest`  
+**Version parsée** : v10.6.0 (45 fichiers, 335 000 lignes XML)
 
 ---
 
-## Format des fichiers .cat
+## fetch_bsdata.py — récupération des données
 
-XML hiérarchique BattleScribe. Structure principale :
+**Stratégie** : téléchargement du zipball du dernier release GitHub (pas de clone git).
 
-```xml
-<catalogue>
-  <profileTypes>        <!-- définition des colonnes de stats -->
-  <sharedProfiles>      <!-- stats des unités/armes -->
-  <sharedSelectionEntries>  <!-- unités réutilisables -->
-  <sharedRules>         <!-- règles/abilities -->
-  <rootSelectionEntries>    <!-- entrées racine -->
-</catalogue>
-```
+**Pourquoi le zipball et pas git clone** :
+- On n'a pas besoin de l'historique git
+- ~50-100 MB vs ~500 MB pour un clone complet
+- C'est exactement ce qu'on utilisera en production (Azure Function)
+- Le script vérifie la version locale (`data/version.json`) et ne re-télécharge que si un nouveau release existe
 
-### Attributs clés
-- `revision` : s'incrémente à chaque modification — **utiliser pour détecter les changements**
-- `id` : identifiant unique BSData (stable entre versions)
-- `name` : nom affiché
-- `type` : `unit` | `model` | `upgrade`
-- `hidden` : true/false — **ignorer les entrées hidden=true**
-
-### Extraction des stats d'unité
-Les stats (M, T, SV, W, LD, OC) sont dans les `<profile>` de type "Unit" :
-```xml
-<profile name="Mon Unité" typeName="Unit">
-  <characteristics>
-    <characteristic name="M">6"</characteristic>
-    <characteristic name="T">4</characteristic>
-    <characteristic name="SV">3+</characteristic>
-    <characteristic name="W">2</characteristic>
-    <characteristic name="LD">6+</characteristic>
-    <characteristic name="OC">1</characteristic>
-  </characteristics>
-</profile>
-```
-
-### Extraction des armes
-Les armes sont dans les `<profile>` de type "Ranged Weapon" ou "Melee Weapon" :
-```xml
-<profile typeName="Ranged Weapon">
-  <characteristics>
-    <characteristic name="Range">24"</characteristic>
-    <characteristic name="A">2</characteristic>
-    <characteristic name="BS">3+</characteristic>
-    <characteristic name="S">4</characteristic>
-    <characteristic name="AP">-1</characteristic>
-    <characteristic name="D">1</characteristic>
-    <characteristic name="Keywords">RAPID FIRE 1</characteristic>
-  </characteristics>
-</profile>
-```
+**Sortie** : 45 fichiers `.cat` + 1 `.gst` dans `data/raw/`  
+**Suivi de version** : `data/version.json` (tag GitHub + date de publication)  
+**Variable d'env** : `BSDATA_REPO` (défaut: `BSData/wh40k-10e`) — à changer pour V11  
+**Variable d'env** : `GITHUB_TOKEN` (optionnel, évite le rate-limit API)
 
 ---
 
-## Stratégie de sync
+## parse_bsdata.py — parsing XML
 
-### Méthode retenue : Azure Function Timer
+### Architecture globale
 
 ```
-Toutes les 12h :
-1. GET https://api.github.com/repos/BSData/wh40k-10e/releases/latest
-2. Comparer le tag avec la version en BDD (table `data_versions`)
-3. Si nouvelle version → télécharger le zipball
-4. Parser tous les .cat modifiés (comparer `revision` par fichier)
-5. Upsert dans PostgreSQL (entries, weapons, abilities)
-6. Mettre à jour `data_versions` avec le nouveau tag
+1. Charger .gst en premier (règles universelles)
+2. Charger tous les .cat dans l'index global {id → noeud XML}
+3. Extraire les règles universelles depuis le .gst
+4. Pour chaque .cat : extraire les unités depuis sharedSelectionEntries
+5. Construire le mapping factions jouables → unit_ids
+6. Ajouter playable_in sur chaque unité
+7. Écrire les JSON dans data/cache/
 ```
 
-### Table de suivi de version (PostgreSQL)
-```sql
-CREATE TABLE data_versions (
-    id SERIAL PRIMARY KEY,
-    source VARCHAR(50) DEFAULT 'bsdata-wh40k-10e',
-    github_tag VARCHAR(20),          -- ex: v10.6.0
-    applied_at TIMESTAMP DEFAULT NOW(),
-    files_updated INTEGER,
-    status VARCHAR(20)               -- 'success' | 'error'
-);
+### Index global multi-fichiers
+
+**Principe critique** : tous les `targetId` dans les `infoLink`/`entryLink` pointent vers
+un noeud qui peut être dans n'importe quel fichier (même .cat, autre .cat, ou .gst).
+On construit donc un index `{bsdata_id: ET.Element}` en chargeant TOUS les fichiers avant
+de commencer la résolution.
+
+### Structure XML réelle — 5 patterns de stats
+
+Les stats d'unité (M/T/SV/W/LD/OC) peuvent se trouver à différents niveaux selon la faction :
+
+**Pattern 1** — Profil direct dans la `selectionEntry` :
+```
+selectionEntry type="model"
+  profiles/
+    profile typeName="Unit"  ← stats ici
 ```
 
-### Compatibilité V11
-- Le format .cat est stable et géré par BattleScribe/Battleforge
-- Lors de la sortie V11 : vérifier le nom du nouveau repo BSData (ex: `wh40k-11e`)
-- Le parser XML restera identique — seul le repo source change
-- Prévoir une variable de config `BSDATA_REPO` pour switcher facilement
+**Pattern 2** — Stats dans un sous-modèle (selectionEntries) :
+```
+selectionEntry type="unit"
+  selectionEntries/
+    selectionEntry type="model"
+      profiles/
+        profile typeName="Unit"  ← stats ici (ex: Wraithguard)
+```
+
+**Pattern 3** — Stats dans selectionEntryGroups → selectionEntries :
+```
+selectionEntry type="unit"
+  selectionEntryGroups/
+    selectionEntryGroup name="4-9 Dire Avengers and 1 Exarch"
+      selectionEntries/
+        selectionEntry type="model"
+          profiles/
+            profile typeName="Unit"  ← stats ici (ex: Dire Avengers)
+```
+
+**Pattern 4** — Stats dans un infoLink d'un sous-modèle :
+```
+selectionEntry type="unit"
+  selectionEntryGroups/
+    selectionEntryGroup name="Windriders"
+      selectionEntries/
+        selectionEntry type="model"
+          infoLinks/
+            infoLink → profile typeName="Unit"  ← stats ici (ex: Windriders)
+```
+
+**Pattern 5** — Stats 5 niveaux de profondeur via entryLinks :
+```
+selectionEntry type="unit"
+  selectionEntryGroups/
+    selectionEntryGroup "Unit Composition"
+      selectionEntries/
+        selectionEntry type="upgrade" "1 Sergeant and 9 Troopers"
+          entryLinks/
+            entryLink → selectionEntry type="model" "Shock Trooper Sergeant"
+              infoLinks/
+                infoLink → profile typeName="Unit"  ← stats ici (ex: Cadian Shock Troops)
+```
+
+**Solution** : fonction `_find_stats_recursive()` qui descend jusqu'à depth=6 dans tout le sous-arbre.
+
+### Pattern factions Library vs factions jouables
+
+Certaines factions (Craftworlds, Drukhari, Astra Militarum, Chaos Daemons...) ne définissent
+PAS leurs propres unités. Elles ont uniquement des `entryLinks` racine pointant vers des unités
+définies dans une Library associée.
+
+```
+Aeldari - Aeldari Library.cat     → définit 120 unités (sharedSelectionEntries)
+Aeldari - Craftworlds.cat         → 96 entryLinks vers la Library + catalogueLink
+Aeldari - Drukhari.cat            → 37 entryLinks vers la Library + catalogueLink
+Aeldari - Ynnari.cat              → X entryLinks vers la Library + catalogueLink
+```
+
+**Solution** : `build_faction_unit_map()` lit les entryLinks racine de chaque .cat et construit
+un mapping `{faction_name: [bsdata_id, ...]}`. Chaque unité reçoit un champ `playable_in`
+listant les factions qui peuvent l'utiliser.
+
+### Legends
+
+Le tag `[Legends]` n'est pas un attribut XML — il est dans le `name` de l'entryLink ou
+de la selectionEntry (ex: `name="Assault Squad [Legends]"`).  
+**Solution** : regex sur le nom, stocké comme booléen `is_legends: true/false`.  
+Le nom nettoyé (sans `[Legends]`) est stocké dans `name`.
+
+### Invulnerable Save
+
+Pas de champ dédié. C'est un profil de type `Abilities` nommé `"Invulnerable Save"`
+avec comme `Description` la valeur (`"4+"`, `"5+"`...).  
+**Solution** : détection sur le nom, stocké avec `is_invuln_save: true` et `invuln_value: "4+"`.
+
+### Composants de squad filtrés
+
+Les `selectionEntry type="model"` sans stats et 0 pts sont des composants internes
+(ex: Jakhal dans Jakhals, Burna Boy dans Burna Boyz). Ils sont ignorés.  
+**Règle** : `not stats AND pts == 0` → ignoré.
 
 ---
 
-## Outils de parsing recommandés
+## Sortie — fichiers JSON cache
 
-| Outil | Langage | Notes |
+| Fichier | Contenu | Taille |
 |---|---|---|
-| `xml.etree.ElementTree` (stdlib) | Python | Suffisant, pas de dépendance |
-| `lxml` | Python | Plus rapide, XPath support |
-| `WarHub.ArmouryModel` | .NET/C# | Officiel BSData mais hors-stack |
-| `bs-xml-reshaper` | - | Utilitaire reshaping, usage ponctuel |
+| `data/cache/units.json` | 1349 unités complètes | ~15 MB |
+| `data/cache/weapons.json` | 2809 armes dédupliquées | ~2 MB |
+| `data/cache/factions.json` | 44 factions | < 1 KB |
+| `data/cache/faction_units.json` | 41 factions → unit_ids | ~50 KB |
+| `data/cache/rules.json` | 32 règles universelles (.gst) | ~50 KB |
 
-**Choix : `lxml` en Python** — cohérent avec la stack FastAPI, XPath facilite l'extraction.
+### Structure d'une unité JSON
+
+```json
+{
+  "bsdata_id": "1d56-1cc3-de57-10e2",
+  "name": "Captain in Gravis Armour",
+  "faction": "Imperium - Space Marines",
+  "is_legends": false,
+  "pts": 80,
+  "stats": { "M": "5\"", "T": "6", "SV": "3+", "W": "6", "LD": "6+", "OC": "1" },
+  "keywords": ["Character", "Infantry", "Captain", "Imperium", "Faction: Adeptus Astartes", "Gravis"],
+  "abilities": [
+    { "name": "Refuse to Yield", "description": "...", "is_invuln_save": false, "invuln_value": null },
+    { "name": "Invulnerable Save", "description": "4+", "is_invuln_save": true, "invuln_value": "4+" }
+  ],
+  "weapons_default": [],
+  "weapon_options": [
+    {
+      "group_name": "Wargear",
+      "min_select": 1,
+      "max_select": 1,
+      "weapons": [
+        {
+          "bsdata_id": "1581-69b-5b7b-d849",
+          "name": "Master-crafted Heavy Bolt Rifle",
+          "type": "Ranged",
+          "range": "30\"",
+          "A": "2", "BS_WS": "2+", "S": "5", "AP": "-1", "D": "3",
+          "keywords": ["Assault", "Heavy"]
+        }
+      ],
+      "sub_groups": []
+    }
+  ],
+  "transport": null,
+  "playable_in": ["Imperium - Space Marines"],
+  "constraints": { "min_models": null, "max_models": 3 }
+}
+```
 
 ---
 
-## Points d'attention
+## Compatibilité V11
 
-- Certains fichiers ont `hidden="true"` → ignorer complètement
-- Les stats peuvent être dans des `<infoLink>` (références à des profiles partagés) → résoudre les liens avant l'import
-- Les keywords sont dans le champ `Keywords` de l'arme, séparés par des virgules ou espaces
-- Les coûts en points sont dans `<costs><cost name="pts" value="X"/></costs>`
+- Format .cat identique attendu
+- Changer `BSDATA_REPO=BSData/wh40k-11e` dans fetch_bsdata.py
+- Le parser XML reste inchangé
+- Seules les règles de combat pourraient nécessiter des ajustements dans le moteur de simulation
+
+---
+
+## Choix techniques
+
+- **Parser XML** : `xml.etree.ElementTree` (stdlib Python) — suffisant, 0 dépendance supplémentaire
+- **Stratégie données** : JSON en cache (pas de BDD pour les données jeu) → chargé en mémoire par l'API
+- **Pas de BDD pour les données jeu** : suffisant pour le volume (~15 MB JSON), évite PostgreSQL pour cette partie
+- **BDD utilisateurs** : SQLite (comptes, armées sauvegardées) — décidé séparément

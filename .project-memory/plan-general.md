@@ -103,16 +103,17 @@ Utilisateur
 ## Roadmap
 
 ### Phase 1 — Fondations
-- [ ] Initialiser repo GitHub WarhammerWebProjet_V2
-- [ ] Setup FastAPI + SQLAlchemy + PostgreSQL local
-- [ ] Migrer le schéma BDD (entries, weapons, abilities, users)
+- [x] Initialiser repo GitHub WarhammerWebProjet_V2
+- [ ] Setup FastAPI + structure projet backend
 - [ ] Porter regleCalcProba.py en module FastAPI
 - [ ] CI/CD GitHub Actions basique
 
-### Phase 2 — Pipeline données
-- [ ] Écrire parser .cat V2 (XML → PostgreSQL)
-- [ ] Azure Function Timer (sync BSData toutes les 12h)
-- [ ] Gestion des versions (tag GitHub → révision BDD)
+### Phase 2 — Pipeline données ✓ TERMINÉE
+- [x] fetch_bsdata.py — téléchargement zipball BSData via API GitHub
+- [x] parse_bsdata.py — parser XML complet avec résolution multi-niveaux
+- [x] 1349 unités, 2809 armes, 44 factions, 0 erreur de stats
+- [x] Mapping factions jouables → unit_ids (Library pattern)
+- [ ] Azure Function Timer (sync automatique toutes les 12h) — pour plus tard
 
 ### Phase 3 — Frontend
 - [ ] Setup React + Vite + Tailwind
