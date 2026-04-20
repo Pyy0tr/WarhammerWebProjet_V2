@@ -3,98 +3,101 @@
 ```
 WarhammerWebProjet_V2/
 │
-├── pipeline/                         # Scripts de récupération et parsing des données
+├── backend/                          # API FastAPI (Python)
+│   ├── app/
+│   │   ├── main.py                   # Point d'entrée — app FastAPI, CORS, routers
+│   │   ├── data_loader.py            # Charge les JSON BSData en mémoire au démarrage
+│   │   ├── routers/
+│   │   │   ├── factions.py           # GET /factions, /factions/{name}/units
+│   │   │   ├── units.py              # GET /units, /units/{id}
+│   │   │   ├── weapons.py            # GET /weapons, /weapons/{id}
+│   │   │   └── simulator.py          # POST /simulate
+│   │   ├── schemas/                  # Modèles Pydantic (à remplir)
+│   │   └── engine/
+│   │       └── simulation.py         # Moteur Monte Carlo (à porter depuis V1)
+│   ├── requirements.txt              # Dépendances Python backend
+│   └── .env.example                  # Variables d'environnement (copier en .env)
+│
+├── frontend/                         # React + Vite + Tailwind (à initialiser)
+│   └── .gitkeep                      # npm create vite@latest . -- --template react-ts
+│
+├── pipeline/                         # Scripts BSData (Python stdlib uniquement)
 │   ├── fetch_bsdata.py               # Télécharge le dernier release BSData via GitHub API
-│   └── parse_bsdata.py               # Parse les .cat/.gst → fichiers JSON cache
+│   ├── parse_bsdata.py               # Parse .cat/.gst → JSON cache (1349 unités, 4751 armes)
+│   └── requirements.txt              # Aucune dépendance externe (stdlib only)
 │
 ├── data/
-│   ├── raw/                          # Fichiers BSData bruts (non commités, ~100 MB)
-│   │   ├── *.cat                     # 45 catalogues de factions (XML)
-│   │   └── *.gst                     # 1 fichier système de jeu (XML)
-│   ├── cache/                        # Données parsées, prêtes pour l'API
-│   │   ├── units.json                # 1349 unités (stats, armes, abilities, pts, keywords)
-│   │   ├── weapons.json              # 4751 armes dédupliquées
+│   ├── raw/                          # [gitignore] Fichiers BSData XML (~100 MB)
+│   ├── cache/                        # [gitignore] JSON générés par parse_bsdata.py
+│   │   ├── units.json                # 1349 unités
+│   │   ├── weapons.json              # 4751 armes
 │   │   ├── factions.json             # 44 factions
-│   │   ├── faction_units.json        # Mapping 41 factions jouables → unit_ids
-│   │   └── rules.json                # 32 règles universelles (depuis le .gst)
-│   └── version.json                  # Version BSData actuellement parsée (ex: v10.6.0)
+│   │   ├── faction_units.json        # 41 factions jouables → unit_ids
+│   │   └── rules.json                # 32 règles universelles
+│   └── version.json                  # Version BSData parsée (ex: v10.6.0)
 │
 ├── browser/
-│   └── index.html                    # Browser HTML local (single-file, sans dépendance)
-│                                     # Usage : python -m http.server 8080
-│                                     #         → http://localhost:8080/browser/index.html
+│   └── index.html                    # Browser local single-file pour vérifier les données
+│                                     # → make browser (http://localhost:8080/browser/index.html)
 │
-├── backend/                          # (à créer) API FastAPI
-│   ├── main.py                       # Point d'entrée FastAPI
-│   ├── routers/
-│   │   ├── units.py                  # GET /units, /units/{id}
-│   │   ├── factions.py               # GET /factions
-│   │   ├── weapons.py                # GET /weapons
-│   │   └── simulator.py              # POST /simulate
-│   ├── engine/
-│   │   └── simulation.py             # Moteur Monte Carlo (regleCalcProba.py refactorisé)
-│   ├── models/                       # Schemas Pydantic
-│   └── db/                           # SQLite pour comptes utilisateurs et armées
+├── .project-memory/                  # Notes internes Claude (non pertinent pour les devs)
 │
-├── frontend/                         # (à créer) React + Vite + Tailwind
-│   ├── src/
-│   │   ├── pages/
-│   │   │   ├── Home.tsx
-│   │   │   ├── Factions.tsx
-│   │   │   ├── Units.tsx
-│   │   │   ├── Simulator.tsx
-│   │   │   └── Results.tsx
-│   │   ├── components/
-│   │   ├── store/                    # Zustand (state armées attaquant/défenseur)
-│   │   └── api/                      # Appels FastAPI
-│   └── public/
-│
-├── .project-memory/                  # Notes de projet (usage interne Claude)
-│   ├── MEMORY.md                     # Index des notes
-│   ├── plan-general.md               # Stack, architecture, roadmap
-│   ├── pipeline-donnees.md           # Documentation complète du parser BSData
-│   ├── decisions.md                  # Journal des décisions techniques
-│   └── v1-bilan.md                   # Ce qui est réutilisable depuis la V1
-│
+├── Makefile                          # Commandes courantes (make help)
 ├── .gitignore
-├── README.md                         # Présentation du projet
-└── STRUCTURE.md                      # Ce fichier
+├── README.md
+└── STRUCTURE.md
 ```
 
 ---
 
-## Fichiers clés
+## Commandes
 
-### `pipeline/fetch_bsdata.py`
-- Interroge l'API GitHub pour récupérer le dernier release de `BSData/wh40k-10e`
-- Compare avec `data/version.json` — ne re-télécharge que si nouvelle version
-- Télécharge le zipball (~100 MB) et extrait les `.cat` / `.gst` dans `data/raw/`
-- Variable d'env : `GITHUB_TOKEN` (optionnel, évite le rate-limit)
+```bash
+make help            # Liste toutes les commandes disponibles
 
-### `pipeline/parse_bsdata.py`
-- Charge tous les fichiers en une passe et construit un index global `{id → noeud XML}`
-- Résout les `targetId` inter-fichiers (unité dans fichier A référencée par fichier B)
-- Gère 8 patterns XML différents pour extraire stats, armes, abilities, options
-- Détecte automatiquement les unités Legends (`[Legends]` dans le nom)
-- Construit le mapping `faction jouable → unit_ids` pour les factions qui utilisent des Libraries
-- Écrit les 5 fichiers JSON dans `data/cache/`
+make data            # fetch + parse BSData en une fois
+make data-fetch      # Télécharge data/raw/ depuis GitHub BSData
+make data-parse      # Génère data/cache/*.json depuis data/raw/
 
-### `browser/index.html`
-- Application HTML/CSS/JS en un seul fichier, zéro dépendance externe
-- Charge les JSON depuis `data/cache/` via fetch
-- Navigation : sidebar factions → liste unités → panneau détail
-- Affiche stats, keywords, abilities, armes (tableau), options d'équipement (arborescence)
-- Badge ⚠ sur les unités avec données incomplètes
-- Recherche en temps réel (nom, faction, keyword)
-- Toggle JSON brut pour debug
+make browser         # Lance le browser local sur :8080
+
+make backend-install # Crée le venv et installe les dépendances
+make backend-dev     # Lance FastAPI en mode dev sur :8000
+```
 
 ---
 
-## Données non commitées (`.gitignore`)
+## Flux de données
 
 ```
-data/raw/        # ~100 MB de XML BSData — regénérable via fetch_bsdata.py
-data/cache/      # ~18 MB de JSON — regénérable via parse_bsdata.py
+BSData GitHub (releases)
+        ↓  pipeline/fetch_bsdata.py
+   data/raw/*.cat + *.gst    (XML, ~100 MB, gitignored)
+        ↓  pipeline/parse_bsdata.py
+   data/cache/*.json          (JSON, ~18 MB, gitignored)
+        ↓  backend/app/data_loader.py
+   Mémoire API                (chargé au startup, ~15 MB)
+        ↓  backend/app/routers/
+   REST API FastAPI            (:8000)
+        ↓
+   Frontend React              (:5173)
 ```
 
-Les données sont toujours regénérables en relançant le pipeline.
+---
+
+## Démarrage rapide
+
+```bash
+# 1. Données (une seule fois, ou à chaque nouvelle version BSData)
+make data
+
+# 2. Backend
+make backend-install
+cp backend/.env.example backend/.env
+make backend-dev
+# → http://localhost:8000/docs  (Swagger auto-généré)
+
+# 3. Browser de vérification des données
+make browser
+# → http://localhost:8080/browser/index.html
+```

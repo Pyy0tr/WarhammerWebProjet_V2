@@ -5,21 +5,29 @@ __pycache__/
 .venv/
 venv/
 *.egg-info/
+*.egg
 
 # Data — fichiers générés, jamais versionnés
 data/raw/
 data/cache/
-data/*.json
+data/users.db
 
 # Environnement
 .env
 .env.local
-*.env
+
+# Node / Frontend
+node_modules/
+dist/
+.next/
+.nuxt/
+build/
 
 # IDE
 .vscode/
 .idea/
 *.swp
+*.swo
 
 # OS
 .DS_Store
@@ -27,3 +35,4 @@ Thumbs.db
 
 # Logs
 *.log
+logs/

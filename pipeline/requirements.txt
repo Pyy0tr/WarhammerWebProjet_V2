@@ -1,0 +1,3 @@
+# Le pipeline utilise uniquement la stdlib Python (xml.etree, json, pathlib, re)
+# Aucune dépendance externe requise.
+# Variable d'env optionnelle : GITHUB_TOKEN (évite le rate-limit GitHub API)
