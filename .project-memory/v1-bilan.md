@@ -34,12 +34,11 @@ Tables à **supprimer** en V2 :
 - `classification` → non utilisée
 
 ### Images factions
-`static/images/` — ~30 logos de factions → migrer vers Azure Blob Storage.
+`static/images/` — ~30 logos de factions → migrer vers **Cloudflare R2**.
 
 ### Logique d'authentification
-- bcrypt pour les mots de passe → garder
-- JWT pour les tokens → garder (python-jose en V2)
-- Validation password (8+ chars, upper, lower, digit) → garder
+Remplacée par **Supabase Auth** en V2 (email/password, OAuth, tokens gérés automatiquement).
+Plus besoin de bcrypt custom ni de JWT maison.
 
 ---
 
@@ -48,12 +47,12 @@ Tables à **supprimer** en V2 :
 | V1 | V2 |
 |---|---|
 | Flask (WSGI, sync) | FastAPI (ASGI, async) |
-| SQLite (fichier local) | PostgreSQL (Azure) |
+| SQLite (fichier local) | Supabase PostgreSQL (managé, gratuit) |
 | HTML/CSS/JS vanilla | React + Tailwind CSS |
 | Templates Jinja2 | API REST → frontend React |
-| Scripts manuels (update_db.py, fix_wounds.py) | Azure Function automatisée |
-| Déploiement Render.com | Azure App Service |
-| Session-based auth + JWT séparé | JWT uniquement (API REST) |
+| Scripts manuels (update_db.py, fix_wounds.py) | GitHub Actions cron (toutes les 12h) |
+| Déploiement manuel | Auto-deploy GitHub → Render.com |
+| Session-based auth + JWT custom | Supabase Auth (email/password, OAuth) |
 | Résultats texte brut | Graphiques Recharts (distributions) |
 
 ---

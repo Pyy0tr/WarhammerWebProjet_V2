@@ -6,7 +6,7 @@ _Dernière mise à jour : 2026-04-21_
 
 ## Objectif
 
-Refonte complète de l'application de calcul de probabilités Warhammer 40K V10, avec :
+Refonte complète de l'application de calcul de probabilités Warhammer 40K 10e, avec :
 - Stack moderne, simple à maintenir, accessible publiquement
 - Hébergement gratuit (Cloudflare + Render + Supabase)
 - Interface repensée, épurée, mobile-friendly
@@ -67,7 +67,9 @@ Refonte complète de l'application de calcul de probabilités Warhammer 40K V10,
 ### Nouveau en V2
 - Graphiques interactifs sur les résultats de simulation
 - Comparaison multi-armes sur un même défenseur (side-by-side)
-- Pipeline BSData automatisé (GitHub Actions, toutes les 12h)
+- Pipeline BSData automatisé (GitHub Actions, toutes les 12h, branche main)
+- Pts scalables par taille de squad (pts_options)
+- Multi-profils stats par unité (ex: Grimaldus + Cenobyte Servitor)
 - Interface mobile-friendly (Tailwind responsive)
 - Assets (images factions) servis depuis Cloudflare R2
 
@@ -81,13 +83,13 @@ Refonte complète de l'application de calcul de probabilités Warhammer 40K V10,
 ## Architecture globale
 
 ```
-BSData/wh40k-10e (GitHub)
+BSData/wh40k-10e (GitHub — branche main)
         │
         ▼ GitHub Actions (cron toutes les 12h)
-   pipeline/fetch_bsdata.py + parse_bsdata.py
+   pipeline/fetch_bsdata.py + parse_bsdata.py + audit.py
         │
         ▼
-   data/cache/*.json  (JSON stockés dans le repo ou Supabase Storage)
+   data/cache/*.json  +  data/cache_stable/  (snapshot versionné)
         │
         ▼
 FastAPI Backend (Render.com) ←→ Supabase (users, armies)
@@ -105,40 +107,42 @@ Utilisateur
 
 ## Roadmap
 
-### Phase 1 — Fondations ✓ TERMINÉE
+### Phase 1 — Fondations ✅ TERMINÉE
 - [x] Initialiser repo GitHub WarhammerWebProjet_V2
 - [x] Structure projet (backend/, frontend/, pipeline/, browser/)
 - [x] Makefile, .gitignore, README, STRUCTURE
 
-### Phase 2 — Pipeline données ✓ TERMINÉE
-- [x] fetch_bsdata.py — téléchargement zipball BSData via API GitHub
-- [x] parse_bsdata.py — parser XML complet avec résolution multi-niveaux
-- [x] 1349 unités, 4751 armes, 44 factions, 32 règles universelles
+### Phase 2 — Pipeline données ✅ TERMINÉE
+- [x] fetch_bsdata.py — téléchargement zipball BSData branche main via GitHub API
+- [x] parse_bsdata.py — parser XML complet (8+ patterns résolus)
+- [x] audit.py — contrôle qualité (0 erreur, ~16 warnings légitimes)
+- [x] **1487 unités, 5372 armes, 46 factions, 33 règles universelles**
+- [x] Pts scalables par taille de squad (pts_options) — ~200+ unités concernées
+- [x] Multi-profils stats (model_profiles) — 6 unités avec 2 blocs de stats
+- [x] Résolution entryLink pts (Legends, nouveaux persos) — link_pts patch
 - [x] Mapping factions jouables → unit_ids (Library pattern)
-- [x] 16 unités sans armes : 12 fortifications + 4 unités à dégâts via ability (correct)
+- [x] Filtrage sous-composants (type="model" sans faction_unit_map)
 - [x] Browser HTML local de vérification des données
-- [ ] GitHub Actions cron (sync automatique toutes les 12h)
+- [x] GitHub Actions cron (sync automatique toutes les 12h)
+- [x] cache_stable/ — snapshot versionné du parse de référence
 
 ### Phase 3 — Backend FastAPI
-- [ ] Setup venv + installer requirements.txt
-- [ ] Tester les endpoints /factions, /units, /weapons en local
 - [ ] Porter regleCalcProba.py → engine/simulation.py
-- [ ] Intégrer Supabase Auth (remplace JWT custom)
+- [ ] Endpoint POST /simulate fonctionnel
+- [ ] Modèles Pydantic (schemas/)
+- [ ] Intégrer Supabase Auth (valider tokens côté FastAPI)
 - [ ] Déployer sur Render.com
 
 ### Phase 4 — Frontend React
 - [ ] Initialiser Vite + Tailwind + Recharts + Zustand
 - [ ] Pages : home, factions, unités, simulateur, résultats
-- [ ] Graphiques distributions
+- [ ] Graphiques distributions (hits, wounds, damage)
 - [ ] Comparaison multi-armes
 - [ ] Déployer sur Cloudflare Pages
 
-### Phase 5 — Assets & Pipeline auto
+### Phase 5 — Assets & Finitions
 - [ ] Cloudflare R2 pour les images de factions
-- [ ] GitHub Actions cron BSData (toutes les 12h)
 - [ ] Domaine custom
-
-### Phase 6 — Finitions
 - [ ] Tests (pytest backend, Vitest frontend)
 - [ ] Monitoring (Render logs + Supabase dashboard)
 - [ ] Documentation API (FastAPI /docs auto-généré)
