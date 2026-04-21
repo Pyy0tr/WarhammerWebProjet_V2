@@ -1,15 +1,15 @@
 # Plan général — WarhammerWebProjet V2
 
-_Dernière mise à jour : 2026-04-20_
+_Dernière mise à jour : 2026-04-21_
 
 ---
 
 ## Objectif
 
 Refonte complète de l'application de calcul de probabilités Warhammer 40K V10, avec :
-- Stack moderne et scalable
-- Hébergement Azure
-- Interface repensée, épurée
+- Stack moderne, simple à maintenir, accessible publiquement
+- Hébergement gratuit (Cloudflare + Render + Supabase)
+- Interface repensée, épurée, mobile-friendly
 - Pipeline de données automatisé depuis BSData/wh40k-10e
 - Compatibilité future V11 (même format .cat attendu)
 
@@ -21,9 +21,9 @@ Refonte complète de l'application de calcul de probabilités Warhammer 40K V10,
 | Composant | Choix | Raison |
 |---|---|---|
 | Framework | **FastAPI** (Python) | Async natif, auto-docs OpenAPI, plus rapide que Flask |
-| Base de données | **PostgreSQL** (Azure Database for PostgreSQL Flexible Server) | Scalable, remplace SQLite |
-| ORM | **SQLAlchemy 2.0** + Alembic (migrations) | Standard Python, compatible FastAPI |
-| Auth | **JWT** (python-jose) + bcrypt | Même logique V1, standardisé |
+| Base de données | **Supabase** (PostgreSQL managé) | Gratuit, auth intégré, pas de gestion serveur |
+| ORM | **SQLAlchemy 2.0** | Standard Python, compatible FastAPI |
+| Auth | **Supabase Auth** | Évite JWT custom, sécurisé, gratuit jusqu'à 50k users |
 | Moteur proba | **Réutilisé depuis V1** (regleCalcProba.py) + refactorisé | Déjà complet et correct |
 
 ### Frontend
@@ -34,65 +34,68 @@ Refonte complète de l'application de calcul de probabilités Warhammer 40K V10,
 | Graphiques | **Recharts** | Léger, compatible React, pour les distributions |
 | State | **Zustand** | Simple, sans boilerplate Redux |
 
-### Hébergement Azure
-| Service | Usage |
-|---|---|
-| **Azure App Service** (B1 ou F1 free tier) | Backend FastAPI (via gunicorn/uvicorn) |
-| **Azure Static Web Apps** | Frontend React (CI/CD GitHub intégré) |
-| **Azure Database for PostgreSQL Flexible Server** (Burstable B1ms) | Base de données |
-| **Azure Blob Storage** | Assets statiques (images factions) |
-| **Azure Functions** (Timer Trigger) | Pipeline sync BSData — toutes les 12h |
-| **GitHub Actions** | CI/CD backend + frontend |
+### Hébergement
+| Service | Usage | Coût |
+|---|---|---|
+| **Render.com** | Backend FastAPI (auto-deploy GitHub) | Gratuit |
+| **Cloudflare Pages** | Frontend React (bandwidth illimité) | Gratuit |
+| **Cloudflare R2** | Assets statiques (images, animations) | Gratuit (10 GB, egress gratuit) |
+| **Supabase** | PostgreSQL + Auth utilisateurs | Gratuit (500 MB, 50k users) |
+| **GitHub Actions** | Pipeline sync BSData toutes les 12h | Gratuit |
+| **Domaine custom** | OVH / Namecheap | ~10€/an |
+| **Total** | | **~10€/an** |
 
-### Coût estimé Azure (tier minimal)
-- App Service F1 : **gratuit**
-- PostgreSQL Burstable B1ms : ~**12€/mois**
-- Static Web Apps : **gratuit**
-- Functions : **gratuit** (1M appels/mois)
-- Blob Storage : **< 1€/mois**
-- **Total estimé : ~12-15€/mois**
+### Pourquoi pas Azure
+- App Service F1 : cold start 60s après 20 min d'inactivité → inutilisable
+- App Service B1 payant : 13€/mois pour quasi zéro trafic
+- Azure Blob : egress facturé (contrairement à Cloudflare R2)
+- Azure Functions : plus complexe que GitHub Actions pour ce besoin
+- Supabase remplace PostgreSQL Azure (~12€/mois) gratuitement
 
 ---
 
-## Fonctionnalités à garder (scope V2)
+## Fonctionnalités
 
-### Oui (core)
+### Core (V2)
 - Simulateur de combat (Monte Carlo, moteur V1 refactorisé)
-- Navigateur factions/unités depuis BDD
-- Gestion armées attaquant/défenseur
-- Authentification utilisateur
+- Navigateur factions/unités depuis données BSData
+- Authentification utilisateur (Supabase Auth)
+- Gestion armées attaquant/défenseur (state Zustand, localStorage)
 - Tableau de comparaison armes × unités
 - Graphiques distributions (hits, wounds, damage)
-
-### Non (supprimé pour simplifier)
-- Endpoint API mobile/JWT séparé (on fait une seule API REST propre)
-- `sim_results` pré-calculés en base (remplacé par cache Redis si besoin plus tard)
-- Scripts de maintenance manuels (update_db.py, fix_wounds.py, etc.) → remplacés par pipeline automatisé
 
 ### Nouveau en V2
 - Graphiques interactifs sur les résultats de simulation
 - Comparaison multi-armes sur un même défenseur (side-by-side)
-- Pipeline de mise à jour automatique BSData (Azure Functions, toutes les 12h)
+- Pipeline BSData automatisé (GitHub Actions, toutes les 12h)
 - Interface mobile-friendly (Tailwind responsive)
+- Assets (images factions) servis depuis Cloudflare R2
+
+### Hors scope
+- App mobile native
+- Résultats pré-calculés en BDD (cache en mémoire suffit)
+- Scripts de maintenance manuels (tout est automatisé)
 
 ---
 
 ## Architecture globale
 
 ```
-GitHub BSData/wh40k-10e
+BSData/wh40k-10e (GitHub)
         │
-        ▼ (Azure Function Timer, toutes les 12h)
-   Parser .cat (Python XML)
-        │
-        ▼
-PostgreSQL (Azure)
+        ▼ GitHub Actions (cron toutes les 12h)
+   pipeline/fetch_bsdata.py + parse_bsdata.py
         │
         ▼
-FastAPI Backend (Azure App Service)
+   data/cache/*.json  (JSON stockés dans le repo ou Supabase Storage)
         │
         ▼
-React Frontend (Azure Static Web Apps)
+FastAPI Backend (Render.com) ←→ Supabase (users, armies)
+        │
+        ▼
+React Frontend (Cloudflare Pages)
+        │
+   Assets (images) ← Cloudflare R2
         │
         ▼
 Utilisateur
@@ -102,33 +105,40 @@ Utilisateur
 
 ## Roadmap
 
-### Phase 1 — Fondations
+### Phase 1 — Fondations ✓ TERMINÉE
 - [x] Initialiser repo GitHub WarhammerWebProjet_V2
-- [ ] Setup FastAPI + structure projet backend
-- [ ] Porter regleCalcProba.py en module FastAPI
-- [ ] CI/CD GitHub Actions basique
+- [x] Structure projet (backend/, frontend/, pipeline/, browser/)
+- [x] Makefile, .gitignore, README, STRUCTURE
 
 ### Phase 2 — Pipeline données ✓ TERMINÉE
 - [x] fetch_bsdata.py — téléchargement zipball BSData via API GitHub
 - [x] parse_bsdata.py — parser XML complet avec résolution multi-niveaux
-- [x] 1349 unités, 4751 armes, 44 factions, 0 erreur de stats
+- [x] 1349 unités, 4751 armes, 44 factions, 32 règles universelles
 - [x] Mapping factions jouables → unit_ids (Library pattern)
 - [x] 16 unités sans armes : 12 fortifications + 4 unités à dégâts via ability (correct)
-- [ ] Azure Function Timer (sync automatique toutes les 12h) — pour plus tard
+- [x] Browser HTML local de vérification des données
+- [ ] GitHub Actions cron (sync automatique toutes les 12h)
 
-### Phase 3 — Frontend
-- [ ] Setup React + Vite + Tailwind
-- [ ] Pages : home, login, factions, unités, simulateur, résultats
-- [ ] Graphiques Recharts sur les résultats
+### Phase 3 — Backend FastAPI
+- [ ] Setup venv + installer requirements.txt
+- [ ] Tester les endpoints /factions, /units, /weapons en local
+- [ ] Porter regleCalcProba.py → engine/simulation.py
+- [ ] Intégrer Supabase Auth (remplace JWT custom)
+- [ ] Déployer sur Render.com
+
+### Phase 4 — Frontend React
+- [ ] Initialiser Vite + Tailwind + Recharts + Zustand
+- [ ] Pages : home, factions, unités, simulateur, résultats
+- [ ] Graphiques distributions
 - [ ] Comparaison multi-armes
+- [ ] Déployer sur Cloudflare Pages
 
-### Phase 4 — Déploiement Azure
-- [ ] Provisionner ressources Azure
-- [ ] Déployer backend App Service
-- [ ] Déployer frontend Static Web Apps
-- [ ] Configurer domaine custom (40k.probhammer.com)
+### Phase 5 — Assets & Pipeline auto
+- [ ] Cloudflare R2 pour les images de factions
+- [ ] GitHub Actions cron BSData (toutes les 12h)
+- [ ] Domaine custom
 
-### Phase 5 — Finitions
+### Phase 6 — Finitions
 - [ ] Tests (pytest backend, Vitest frontend)
-- [ ] Monitoring (Azure Application Insights)
-- [ ] Documentation API (FastAPI auto-docs)
+- [ ] Monitoring (Render logs + Supabase dashboard)
+- [ ] Documentation API (FastAPI /docs auto-généré)

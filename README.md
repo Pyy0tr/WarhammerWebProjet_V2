@@ -1,105 +1,96 @@
 # WarhammerWebProjet V2
 
-Refonte complète de l'application de calcul de probabilités Warhammer 40K V10.  
-Simulateur de combat, navigateur de factions/unités, gestion d'armées, graphiques de distributions.
+Simulateur de probabilités de combat Warhammer 40K V10.  
+Navigateur de factions/unités, gestion d'armées, graphiques de distributions.
 
 ---
 
-## Objectif
+## Stack
 
-Remplacer la V1 (Flask + SQLite + Jinja2) par une stack moderne, hébergée sur Azure, avec :
-- Un pipeline de données automatisé depuis [BSData/wh40k-10e](https://github.com/BSData/wh40k-10e)
-- Une API REST FastAPI
-- Un frontend React + Tailwind CSS
-- Un moteur de simulation Monte Carlo (réutilisé et refactorisé depuis la V1)
-
----
-
-## Stack technique
-
-| Couche | Technologie |
+| Composant | Technologie |
 |---|---|
-| Backend | FastAPI (Python), SQLAlchemy 2.0, SQLite (users) |
-| Frontend | React + Vite, Tailwind CSS, Recharts, Zustand |
-| Données jeu | JSON cache (~15 MB, chargé en mémoire) |
-| Hébergement | Azure App Service + Static Web Apps |
-| Pipeline data | Azure Function Timer (sync BSData toutes les 12h) |
+| Backend | **FastAPI** (Python) |
+| Frontend | **React** + Vite + Tailwind CSS + Recharts |
+| Auth + DB | **Supabase** (PostgreSQL + Auth) |
+| Hébergement backend | **Render.com** (gratuit) |
+| Hébergement frontend | **Cloudflare Pages** (gratuit, bandwidth illimité) |
+| Assets (images) | **Cloudflare R2** (gratuit, egress gratuit) |
+| Pipeline BSData | **GitHub Actions** (cron toutes les 12h) |
+| Domaine | OVH / Namecheap (~10€/an) |
+| **Coût total** | **~10€/an** |
 
 ---
 
 ## Avancement
 
-### Phase 1 — Fondations
-- [x] Initialisation du repo GitHub
-- [ ] Setup FastAPI + structure backend
-- [ ] Porter le moteur de simulation (regleCalcProba.py) en module FastAPI
-- [ ] CI/CD GitHub Actions basique
+### Phase 1 — Fondations ✅
+- [x] Repo GitHub initialisé
+- [x] Structure projet (backend/, frontend/, pipeline/, browser/)
+- [x] Makefile, .gitignore, README, STRUCTURE
 
-### Phase 2 — Pipeline données ✅ TERMINÉE
-- [x] `pipeline/fetch_bsdata.py` — téléchargement du dernier release BSData (zipball, pas git clone)
-- [x] `pipeline/parse_bsdata.py` — parser XML complet, résolution multi-niveaux
-- [x] 1349 unités, 4751 armes, 44 factions, 32 règles universelles
-- [x] Mapping factions jouables → unités (pattern Library)
-- [x] Browser HTML local pour vérifier les données (`browser/index.html`)
-- [ ] Azure Function Timer (sync automatique) — pour plus tard
+### Phase 2 — Pipeline données ✅
+- [x] `pipeline/fetch_bsdata.py` — téléchargement zipball BSData via API GitHub
+- [x] `pipeline/parse_bsdata.py` — parser XML complet (8 patterns résolus)
+- [x] 1349 unités · 4751 armes · 44 factions · 32 règles universelles
+- [x] Browser HTML local de vérification (`browser/index.html`)
+- [ ] GitHub Actions cron (sync BSData automatique toutes les 12h)
 
-### Phase 3 — Frontend
-- [ ] Setup React + Vite + Tailwind
+### Phase 3 — Backend FastAPI
+- [ ] Setup venv + tester les endpoints en local
+- [ ] Porter le moteur Monte Carlo (regleCalcProba.py → engine/simulation.py)
+- [ ] Intégrer Supabase Auth
+- [ ] Déployer sur Render.com
+
+### Phase 4 — Frontend React
+- [ ] Init Vite + Tailwind + Recharts + Zustand
 - [ ] Pages : home, factions, unités, simulateur, résultats
-- [ ] Graphiques Recharts sur les distributions (hits, wounds, damage)
-- [ ] Comparaison multi-armes sur un même défenseur
+- [ ] Graphiques distributions (hits, wounds, damage)
+- [ ] Comparaison multi-armes
+- [ ] Déployer sur Cloudflare Pages
 
-### Phase 4 — Déploiement Azure
-- [ ] Provisionner les ressources Azure
-- [ ] Déployer le backend (App Service)
-- [ ] Déployer le frontend (Static Web Apps)
-- [ ] Configurer le domaine custom
+### Phase 5 — Assets & Pipeline auto
+- [ ] Cloudflare R2 pour les images de factions
+- [ ] GitHub Actions cron BSData (toutes les 12h)
+- [ ] Domaine custom
 
-### Phase 5 — Finitions
-- [ ] Tests (pytest backend, Vitest frontend)
-- [ ] Monitoring (Azure Application Insights)
-- [ ] Documentation API (FastAPI auto-docs)
+### Phase 6 — Finitions
+- [ ] Tests (pytest + Vitest)
+- [ ] Monitoring
+- [ ] Documentation API (/docs auto-généré par FastAPI)
 
 ---
 
 ## Lancer en local
 
-### Données BSData (à faire une fois)
-
+### Données BSData (une fois, ou à chaque nouvelle version)
 ```bash
-python pipeline/fetch_bsdata.py   # télécharge data/raw/ (~100 MB)
-python pipeline/parse_bsdata.py   # génère data/cache/*.json
+make data
 ```
 
-### Browser de données
-
+### Browser de vérification des données
 ```bash
-python -m http.server 8080
-# ouvrir http://localhost:8080/browser/index.html
+make browser
+# → http://localhost:8080/browser/index.html
+```
+
+### Backend FastAPI
+```bash
+make backend-install   # crée le venv + installe les dépendances
+cp backend/.env.example backend/.env
+make backend-dev
+# → http://localhost:8000/docs
 ```
 
 ---
 
-## Données parsées (v10.6.0)
+## Données parsées (BSData v10.6.0)
 
 | Fichier | Contenu |
 |---|---|
-| `data/cache/units.json` | 1349 unités (stats, armes, abilities, keywords, pts) |
+| `data/cache/units.json` | 1349 unités (stats, armes, abilities, pts, keywords) |
 | `data/cache/weapons.json` | 4751 armes dédupliquées |
 | `data/cache/factions.json` | 44 factions |
 | `data/cache/faction_units.json` | 41 factions jouables → unit_ids |
 | `data/cache/rules.json` | 32 règles universelles |
 
-Source : [BSData/wh40k-10e](https://github.com/BSData/wh40k-10e) — mise à jour automatique prévue toutes les 12h via Azure Functions.
-
----
-
-## Coût Azure estimé
-
-| Service | Coût |
-|---|---|
-| App Service F1 (backend) | Gratuit |
-| Static Web Apps (frontend) | Gratuit |
-| Azure Functions (pipeline) | Gratuit (< 1M appels/mois) |
-| Blob Storage (assets) | < 1 €/mois |
-| **Total** | **< 2 €/mois** (sans base de données dédiée) |
+Source : [BSData/wh40k-10e](https://github.com/BSData/wh40k-10e)
