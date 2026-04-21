@@ -1,30 +1,13 @@
 import { useSimulatorStore } from '../store/simulatorStore'
-import { runSimulation } from '../api/simulate'
 import { AttackerPanel } from '../components/AttackerPanel'
 import { DefenderPanel } from '../components/DefenderPanel'
 import { ResultsPanel } from '../components/ResultsPanel'
 
 export function SimulatorPage() {
-  const attacker = useSimulatorStore((s) => s.attacker)
-  const defender = useSimulatorStore((s) => s.defender)
-  const context = useSimulatorStore((s) => s.context)
-  const n_trials = useSimulatorStore((s) => s.n_trials)
-  const result = useSimulatorStore((s) => s.result)
-  const loading = useSimulatorStore((s) => s.loading)
-  const error = useSimulatorStore((s) => s.error)
-  const setResult = useSimulatorStore((s) => s.setResult)
-  const setLoading = useSimulatorStore((s) => s.setLoading)
-  const setError = useSimulatorStore((s) => s.setError)
-
-  async function handleSimulate() {
-    setLoading(true)
-    try {
-      const data = await runSimulation({ attacker, defender, context, n_trials })
-      setResult(data)
-    } catch (e) {
-      setError(e.message)
-    }
-  }
+  const result       = useSimulatorStore((s) => s.result)
+  const loading      = useSimulatorStore((s) => s.loading)
+  const error        = useSimulatorStore((s) => s.error)
+  const runSimulation = useSimulatorStore((s) => s.runSimulation)
 
   return (
     <div className="min-h-screen bg-gray-950 text-white">
@@ -47,7 +30,7 @@ export function SimulatorPage() {
         )}
 
         <button
-          onClick={handleSimulate}
+          onClick={runSimulation}
           disabled={loading}
           className="w-full bg-red-600 hover:bg-red-500 disabled:bg-gray-700 disabled:text-gray-500
                      text-white font-semibold py-3 rounded-xl transition-colors text-sm tracking-wide"

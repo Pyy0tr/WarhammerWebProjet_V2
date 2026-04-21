@@ -1,4 +1,5 @@
 import { create } from 'zustand'
+import { simulate } from '../engine/simulation.js'
 
 const defaultWeapon = {
   name: '',
@@ -57,6 +58,22 @@ export const useSimulatorStore = create((set) => ({
 
   setContext: (patch) =>
     set((s) => ({ context: { ...s.context, ...patch } })),
+
+  runSimulation: () => {
+    set({ loading: true, error: null })
+    try {
+      const s = useSimulatorStore.getState()
+      const result = simulate({
+        attacker: s.attacker,
+        defender: s.defender,
+        context:  s.context,
+        n_trials: s.n_trials,
+      })
+      set({ result, loading: false })
+    } catch (e) {
+      set({ error: e.message, loading: false })
+    }
+  },
 
   setResult: (result) => set({ result, loading: false, error: null }),
   setLoading: (loading) => set({ loading }),
