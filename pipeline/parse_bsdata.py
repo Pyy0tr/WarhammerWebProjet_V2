@@ -495,6 +495,61 @@ def extract_pts(node: ET.Element) -> int:
     return 0
 
 
+# ID du costType "pts" dans le .gst BSData wh40k-10e
+_PTS_FIELD_ID = "51b2-306e-1021-d207"
+
+
+def extract_pts_options(entry: ET.Element) -> list[dict]:
+    """
+    Extrait les options de coût par taille d'escouade depuis les <modifiers>.
+
+    WH40K 10e stocke les pts comme modifiers conditionnels sur le champ pts :
+      - type="set" field=<pts_field_id> value=X
+        avec conditions equalTo/atLeast sur field="selections" childId="model"
+
+    Retourne une liste triée de dicts :
+      [{"n_models": N, "pts": P, "condition": "exact"|"atLeast"}, ...]
+    """
+    options = []
+    modifiers_node = find_tag(entry, "modifiers")
+    if modifiers_node is None:
+        return options
+
+    for mod in iter_tag(modifiers_node, "modifier"):
+        if attr(mod, "type", "") != "set":
+            continue
+        if attr(mod, "field", "") != _PTS_FIELD_ID:
+            continue
+        try:
+            pts_val = int(float(attr(mod, "value", "0")))
+        except ValueError:
+            continue
+
+        # Lire la condition (equalTo / atLeast sur nombre de modèles)
+        conditions_node = find_tag(mod, "conditions")
+        if conditions_node is None:
+            continue
+        for cond in iter_tag(conditions_node, "condition"):
+            ctype = attr(cond, "type", "")
+            cfield = attr(cond, "field", "")
+            child_id = attr(cond, "childId", "")
+            if cfield != "selections" or child_id not in ("model", ""):
+                # childId peut être un ID concret de sous-entrée type=model
+                # on accepte tout childId non vide
+                if not child_id:
+                    continue
+            try:
+                n = int(float(attr(cond, "value", "0")))
+            except ValueError:
+                continue
+            condition_type = "exact" if ctype == "equalTo" else "atLeast"
+            options.append({"n_models": n, "pts": pts_val, "condition": condition_type})
+
+    # Trier par n_models croissant
+    options.sort(key=lambda x: x["n_models"])
+    return options
+
+
 # ---------------------------------------------------------------------------
 # Recherche récursive des stats d'unité dans tout le sous-arbre
 # ---------------------------------------------------------------------------
@@ -641,6 +696,37 @@ def extract_unit(entry: ET.Element, faction: str, index: GlobalIndex) -> dict | 
 
     # 5. Coût en pts
     pts = extract_pts(entry)
+    # Options de coût par taille d'escouade (système WH40K 10e — pts via modifiers conditionnels)
+    pts_options = extract_pts_options(entry)
+
+    if pts_options:
+        # Le pts de base (<costs>) correspond à la taille minimale.
+        # Si base=0, prendre le minimum des options (ex: Ripper Swarms 1 model = 25 pts).
+        if pts == 0:
+            pts = min(o["pts"] for o in pts_options)
+    else:
+        # Fallback : certaines unités stockent les pts dans les sous-entrées (ex: War Walkers, Carnifexes)
+        if pts == 0:
+            sub_entries_node = find_tag(entry, "selectionEntries")
+            if sub_entries_node is not None:
+                for sub in iter_tag(sub_entries_node, "selectionEntry"):
+                    sub_pts = extract_pts(sub)
+                    if sub_pts > 0:
+                        pts = sub_pts
+                        break
+            if pts == 0:
+                seg_node = find_tag(entry, "selectionEntryGroups")
+                if seg_node is not None:
+                    for seg in iter_tag(seg_node, "selectionEntryGroup"):
+                        se_node = find_tag(seg, "selectionEntries")
+                        if se_node is not None:
+                            for se in iter_tag(se_node, "selectionEntry"):
+                                se_pts = extract_pts(se)
+                                if se_pts > 0:
+                                    pts = se_pts
+                                    break
+                        if pts > 0:
+                            break
 
     # 6. Contraintes min/max modèles dans l'escouade (scope=roster)
     min_models = None
@@ -677,10 +763,12 @@ def extract_unit(entry: ET.Element, faction: str, index: GlobalIndex) -> dict | 
         "weapons_default": weapons,
         "weapon_options": weapon_options,
         "transport": transport,
+        "pts_options": pts_options,  # [{n_models, pts, condition}] — vide si pts fixe
         "constraints": {
             "min_models": min_models,
             "max_models": max_models,
         },
+        "_entry_type": entry_type,  # temporaire, utilisé pour le post-filtrage dans main()
     }
 
 
@@ -854,6 +942,25 @@ def main():
     # 4b. Construire le mapping faction jouable → unit_ids
     print("\nConstruction du mapping factions jouables → unités...")
     faction_unit_map = build_faction_unit_map(cat_files, index)
+
+    # Post-filtrage : supprimer les sous-composants type="model" pts=0 non référencés
+    # dans faction_unit_map. Ex: Geminae Superia (incluse avec Saint Celestine),
+    # Celestian Sacresant (Anointed Halberd) (variante d'arme), etc.
+    # Les vrais type="model" standalone (Land Speeder Storm, Imperial Fortress Walls…)
+    # apparaissent dans faction_unit_map même si leurs pts sont sur l'entryLink.
+    faction_unit_ids = {uid for ids in faction_unit_map.values() for uid in ids}
+    before_filter = len(all_units)
+    all_units = [
+        u for u in all_units
+        if not (u["pts"] == 0 and u["_entry_type"] == "model" and u["bsdata_id"] not in faction_unit_ids)
+    ]
+    filtered_count = before_filter - len(all_units)
+    if filtered_count:
+        print(f"  → {filtered_count} sous-composants type=model filtrés (pts=0, hors faction_units)")
+
+    # Supprimer le champ temporaire avant l'écriture JSON
+    for u in all_units:
+        u.pop("_entry_type", None)
 
     # Ajouter playable_in à chaque unité
     unit_by_id = {u["bsdata_id"]: u for u in all_units}
