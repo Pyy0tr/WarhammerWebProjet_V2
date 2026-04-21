@@ -18,13 +18,9 @@ Refonte complète de l'application de calcul de probabilités Warhammer 40K 10e,
 ## Stack technique cible
 
 ### Backend
-| Composant | Choix | Raison |
-|---|---|---|
-| Framework | **FastAPI** (Python) | Async natif, auto-docs OpenAPI, plus rapide que Flask |
-| Base de données | **Supabase** (PostgreSQL managé) | Gratuit, auth intégré, pas de gestion serveur |
-| ORM | **SQLAlchemy 2.0** | Standard Python, compatible FastAPI |
-| Auth | **Supabase Auth** | Évite JWT custom, sécurisé, gratuit jusqu'à 50k users |
-| Moteur proba | **Réutilisé depuis V1** (regleCalcProba.py) + refactorisé | Déjà complet et correct |
+**Supprimé** — le backend FastAPI/Render a été retiré (cold start ~50s en gratuit, inutilisable).
+La simulation tourne désormais en JavaScript dans le navigateur.
+Auth + saves = Supabase JS SDK directement depuis le frontend.
 
 ### Frontend
 | Composant | Choix | Raison |
@@ -37,20 +33,17 @@ Refonte complète de l'application de calcul de probabilités Warhammer 40K 10e,
 ### Hébergement
 | Service | Usage | Coût |
 |---|---|---|
-| **Render.com** | Backend FastAPI (auto-deploy GitHub) | Gratuit |
-| **Cloudflare Pages** | Frontend React (bandwidth illimité) | Gratuit |
+| **Cloudflare Pages** | Frontend React + moteur JS (bandwidth illimité) | Gratuit |
 | **Cloudflare R2** | Assets statiques (images, animations) | Gratuit (10 GB, egress gratuit) |
-| **Supabase** | PostgreSQL + Auth utilisateurs | Gratuit (500 MB, 50k users) |
+| **Supabase** | PostgreSQL + Auth utilisateurs (SDK JS direct) | Gratuit (500 MB, 50k users) |
 | **GitHub Actions** | Pipeline sync BSData toutes les 12h | Gratuit |
 | **Domaine custom** | OVH / Namecheap | ~10€/an |
 | **Total** | | **~10€/an** |
 
-### Pourquoi pas Azure
-- App Service F1 : cold start 60s après 20 min d'inactivité → inutilisable
-- App Service B1 payant : 13€/mois pour quasi zéro trafic
-- Azure Blob : egress facturé (contrairement à Cloudflare R2)
-- Azure Functions : plus complexe que GitHub Actions pour ce besoin
-- Supabase remplace PostgreSQL Azure (~12€/mois) gratuitement
+### Pourquoi pas Azure ni Render
+- Azure App Service F1 : cold start 60s → inutilisable
+- Render.com gratuit : cold start ~50s après inactivité → UX inacceptable
+- Solution : pas de backend du tout — moteur JS dans le browser
 
 ---
 
@@ -91,13 +84,11 @@ BSData/wh40k-10e (GitHub — branche main)
         ▼
    data/cache/*.json  +  data/cache_stable/  (snapshot versionné)
         │
-        ▼
-FastAPI Backend (Render.com) ←→ Supabase (users, armies)
-        │
-        ▼
+        ▼ servis comme fichiers statiques
 React Frontend (Cloudflare Pages)
-        │
-   Assets (images) ← Cloudflare R2
+   ├── engine/simulation.js (Monte Carlo dans le browser)
+   ├── Supabase JS SDK (Auth + saves utilisateur)
+   └── Assets (images) ← Cloudflare R2
         │
         ▼
 Utilisateur
@@ -126,12 +117,11 @@ Utilisateur
 - [x] GitHub Actions cron (sync automatique toutes les 12h)
 - [x] cache_stable/ — snapshot versionné du parse de référence
 
-### Phase 3 — Backend FastAPI
-- [ ] Porter regleCalcProba.py → engine/simulation.py
-- [ ] Endpoint POST /simulate fonctionnel
-- [ ] Modèles Pydantic (schemas/)
-- [ ] Intégrer Supabase Auth (valider tokens côté FastAPI)
-- [ ] Déployer sur Render.com
+### Phase 3 — Moteur simulation ✅ TERMINÉE
+- [x] engine/dice.py + simulation.py Python (validé < 1% erreur sur 5 cas)
+- [x] Port en JS : frontend/src/engine/dice.js + simulation.js
+- [x] Backend FastAPI SUPPRIMÉ (cold start Render inacceptable)
+- [x] Moteur JS branché sur le store Zustand (zéro appel réseau)
 
 ### Phase 4 — Frontend React
 - [ ] Initialiser Vite + Tailwind + Recharts + Zustand

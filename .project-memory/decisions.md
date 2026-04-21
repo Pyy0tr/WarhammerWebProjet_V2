@@ -4,6 +4,30 @@ _Dernière mise à jour : 2026-04-21_
 
 ---
 
+## 2026-04-21 (mise à jour)
+
+### Suppression du backend Render — moteur porté en JS
+**Décision** : Supprimer le backend FastAPI / Render.com. Le moteur de simulation tourne désormais dans le navigateur (JavaScript).
+**Raison** : Render.com gratuit = cold start ~50s après inactivité → UX inacceptable.
+**Impact** :
+- `frontend/src/engine/dice.js` + `simulation.js` — port exact de `backend/engine/`
+- `frontend/src/api/simulate.js` supprimé (plus d'appel HTTP)
+- Le store Zustand appelle directement `simulate()` en local
+- Render.com retiré de la stack
+- Supabase reste pour Auth + saves utilisateur (SDK JS, pas besoin de backend)
+
+**Stack finale** :
+| Besoin | Solution | Coût |
+|---|---|---|
+| Simulation | JS dans le browser | 0€ |
+| Données BSData | JSON statiques Cloudflare Pages | 0€ |
+| Auth + comptes | Supabase JS SDK | 0€ |
+| Saves | Supabase PostgreSQL + RLS | 0€ |
+| Hébergement front | Cloudflare Pages | 0€ |
+| Pipeline BSData | GitHub Actions | 0€ |
+
+---
+
 ## 2026-04-21
 
 ### Hébergeur : Cloudflare + Render + Supabase (remplace Azure)
