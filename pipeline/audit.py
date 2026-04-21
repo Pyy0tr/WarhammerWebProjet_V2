@@ -50,8 +50,9 @@ FORTIFICATION_KW = "fortification"
 ABILITY_DAMAGE_UNITS = {
     "Cyclops Demolition Vehicle", "Dreadnought Drop Pod",
     "Mucolid Spores", "Spore Mines",
-    # Variantes spawned (créées en jeu par Biovore / Sporocyst)
+    # Variantes spawned (créées en jeu par Biovore / Sporocyst / Parasite of Mortrex)
     "Spore Mines (Biovore)", "Mucolid Spores (Sporocyst)",
+    "Ripper Swarms (Parasite of Mortrex)",
 }
 # Marqueurs / terrain features sans stats Unit (pas des unités jouables)
 TERRAIN_MARKERS = {"Searchlight"}
