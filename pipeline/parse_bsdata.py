@@ -810,55 +810,65 @@ def extract_rules(root: ET.Element) -> list[dict]:
 # Mapping faction jouable → unit_ids (pour les factions qui utilisent des Libraries)
 # ---------------------------------------------------------------------------
 
-def build_faction_unit_map(cat_files: list[Path], index: GlobalIndex) -> dict[str, list[str]]:
+def build_faction_unit_map(
+    cat_files: list[Path], index: GlobalIndex
+) -> tuple[dict[str, list[str]], dict[str, int]]:
     """
     Pour chaque fichier .cat, extrait les entryLinks de premier niveau
     pointant vers des selectionEntry de type model/unit.
-    Retourne {faction_name: [bsdata_id, ...]}.
+
+    Retourne :
+      faction_map  — {faction_name: [bsdata_id, ...]}
+      link_pts     — {bsdata_id: pts} pour les entryLinks qui portent les pts
+                     (cas Legends et persos dont le coût est sur le lien, pas la définition)
     """
     faction_map: dict[str, list[str]] = {}
+    link_pts: dict[str, int] = {}
+
+    def _process_link(link):
+        if attr(link, "type", "") != "selectionEntry":
+            return None
+        target_id = attr(link, "targetId", "")
+        target = index.resolve(target_id)
+        if target is None or attr(target, "type", "") not in ("model", "unit"):
+            return None
+        # Récupérer les pts portés par le lien lui-même
+        pts = extract_pts(link)
+        if pts > 0:
+            # Ne remplacer que si aucun pts déjà connu ou si le lien est plus précis
+            if target_id not in link_pts or link_pts[target_id] == 0:
+                link_pts[target_id] = pts
+        return target_id
 
     for path in cat_files:
         faction = path.stem
         tree = ET.parse(path)
         root = tree.getroot()
-
         linked_ids: list[str] = []
 
-        # entryLinks racine (Craftworlds, Drukhari, Astra Militarum...)
+        # entryLinks racine
         el_node = find_tag(root, "entryLinks")
         if el_node is not None:
             for link in iter_tag(el_node, "entryLink"):
-                if attr(link, "type", "") != "selectionEntry":
-                    continue
-                target_id = attr(link, "targetId", "")
-                target = index.resolve(target_id)
-                if target is None:
-                    continue
-                if attr(target, "type", "") in ("model", "unit"):
-                    linked_ids.append(target_id)
+                tid = _process_link(link)
+                if tid:
+                    linked_ids.append(tid)
 
-        # forceEntries → entryLinks (structure alternative)
+        # forceEntries → entryLinks
         fe_node = find_tag(root, "forceEntries")
         if fe_node is not None:
             for fe in iter_tag(fe_node, "forceEntry"):
                 sub_el = find_tag(fe, "entryLinks")
                 if sub_el is not None:
                     for link in iter_tag(sub_el, "entryLink"):
-                        if attr(link, "type", "") != "selectionEntry":
-                            continue
-                        target_id = attr(link, "targetId", "")
-                        target = index.resolve(target_id)
-                        if target is None:
-                            continue
-                        if attr(target, "type", "") in ("model", "unit"):
-                            if target_id not in linked_ids:
-                                linked_ids.append(target_id)
+                        tid = _process_link(link)
+                        if tid and tid not in linked_ids:
+                            linked_ids.append(tid)
 
         if linked_ids:
             faction_map[faction] = linked_ids
 
-    return faction_map
+    return faction_map, link_pts
 
 
 # ---------------------------------------------------------------------------
@@ -954,9 +964,19 @@ def main():
             factions.add(faction)
         print(f"  {faction:<45} → {len(new_units):>3} unités")
 
-    # 4b. Construire le mapping faction jouable → unit_ids
+    # 4b. Construire le mapping faction jouable → unit_ids + pts des entryLinks
     print("\nConstruction du mapping factions jouables → unités...")
-    faction_unit_map = build_faction_unit_map(cat_files, index)
+    faction_unit_map, link_pts = build_faction_unit_map(cat_files, index)
+
+    # Patcher les pts=0 pour les unités dont le coût est sur l'entryLink
+    # (ex: Kravek Morne 120pts, Land Speeder Storm 70pts, Celestian Sacresant Aveline 45pts)
+    patched = 0
+    for u in all_units:
+        if u["pts"] == 0 and u["bsdata_id"] in link_pts:
+            u["pts"] = link_pts[u["bsdata_id"]]
+            patched += 1
+    if patched:
+        print(f"  → {patched} unités patchées avec les pts de leur entryLink")
 
     # Post-filtrage : supprimer les sous-composants type="model" pts=0 non référencés
     # dans faction_unit_map. Ex: Geminae Superia (incluse avec Saint Celestine),
