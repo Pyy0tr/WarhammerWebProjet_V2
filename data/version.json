@@ -1,5 +1,6 @@
 {
-  "tag": "v10.6.0",
-  "zipball_url": "https://api.github.com/repos/BSData/wh40k-10e/zipball/v10.6.0",
-  "published_at": "2025-03-17T21:17:10Z"
+  "sha": "fabfc3f11ff6ce73c2b45c1056d6103f80d61ae4",
+  "sha_short": "fabfc3f1",
+  "committed_at": "2026-04-20T18:59:49Z",
+  "message": "Fixes #7055"
 }

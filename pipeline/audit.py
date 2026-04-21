@@ -47,8 +47,14 @@ STAT_FIELDS = ["M", "T", "SV", "W", "LD", "OC"]
 WEAPON_FIELDS = ["A", "BS_WS", "S", "AP", "D"]
 
 FORTIFICATION_KW = "fortification"
-ABILITY_DAMAGE_UNITS = {"Cyclops Demolition Vehicle", "Dreadnought Drop Pod",
-                        "Mucolid Spores", "Spore Mines"}
+ABILITY_DAMAGE_UNITS = {
+    "Cyclops Demolition Vehicle", "Dreadnought Drop Pod",
+    "Mucolid Spores", "Spore Mines",
+    # Variantes spawned (créées en jeu par Biovore / Sporocyst)
+    "Spore Mines (Biovore)", "Mucolid Spores (Sporocyst)",
+}
+# Marqueurs / terrain features sans stats Unit (pas des unités jouables)
+TERRAIN_MARKERS = {"Searchlight"}
 
 def has_weapons_recursive(groups):
     for g in groups:
@@ -93,9 +99,14 @@ def stat_missing_strict(val, field):
         return field != "M"  # M="-" est OK (Drop Pod, fortifications, Sporocyst...)
     return False
 
+def is_terrain_marker(unit):
+    return unit["name"] in TERRAIN_MARKERS
+
 def check_units_stats(units):
     issues = []
     for u in units:
+        if is_terrain_marker(u):
+            continue  # terrain features sans stats Unit — attendu
         stats = u.get("stats", {})
         missing = [f for f in STAT_FIELDS if stat_missing_strict(stats.get(f), f)]
         if missing:
@@ -116,6 +127,7 @@ def check_units_weapons(units):
             category = (
                 "fortification" if is_fortification(u)
                 else "ability-based" if is_ability_damage(u)
+                else "terrain-marker" if is_terrain_marker(u)
                 else "INATTENDU"
             )
             no_weapons.append({

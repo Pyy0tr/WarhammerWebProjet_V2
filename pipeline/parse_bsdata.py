@@ -745,8 +745,22 @@ def extract_unit(entry: ET.Element, faction: str, index: GlobalIndex) -> dict | 
                 elif ctype == "max":
                     max_models = val
 
-    # Stats : prendre la première occurrence (unité principale)
+    # Stats : profil principal = première occurrence
     stats = stats_list[0] if stats_list else {}
+
+    # Profils secondaires : autres blocs de stats dans les <profiles> directs
+    # (ex: Grimaldus + Cenobyte Servitor, Calgar + Victrix Honour Guard)
+    secondary_profiles = []
+    profiles_node = find_tag(entry, "profiles")
+    if profiles_node is not None:
+        unit_profiles = [
+            (attr(p, "name", ""), extract_unit_stats(p))
+            for p in iter_tag(profiles_node, "profile")
+            if extract_unit_stats(p) is not None
+        ]
+        # Le premier est le profil principal (déjà dans stats), les suivants sont secondaires
+        for prof_name, prof_stats in unit_profiles[1:]:
+            secondary_profiles.append({"name": prof_name, "stats": prof_stats})
 
     # Transport capacity
     transport = transport_list[0] if transport_list else None
@@ -763,6 +777,7 @@ def extract_unit(entry: ET.Element, faction: str, index: GlobalIndex) -> dict | 
         "weapons_default": weapons,
         "weapon_options": weapon_options,
         "transport": transport,
+        "model_profiles": secondary_profiles,  # profils de stats secondaires (ex: Cenobyte Servitor)
         "pts_options": pts_options,  # [{n_models, pts, condition}] — vide si pts fixe
         "constraints": {
             "min_models": min_models,

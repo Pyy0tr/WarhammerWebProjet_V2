@@ -1,8 +1,9 @@
 """
 fetch_bsdata.py
 ---------------
-Télécharge le dernier release BSData wh40k-10e depuis GitHub
-et extrait les fichiers .cat dans data/raw/.
+Télécharge la dernière version du repo BSData wh40k-10e depuis GitHub
+(branche main — plus récente que les releases taguées) et extrait
+les fichiers .cat/.gst dans data/raw/.
 
 Usage :
     python pipeline/fetch_bsdata.py
@@ -20,13 +21,15 @@ from pathlib import Path
 
 import requests
 
-BSDATA_REPO = os.getenv("BSDATA_REPO", "BSData/wh40k-10e")
-GITHUB_TOKEN = os.getenv("GITHUB_TOKEN", "")
-API_URL = f"https://api.github.com/repos/{BSDATA_REPO}/releases/latest"
+BSDATA_REPO   = os.getenv("BSDATA_REPO", "BSData/wh40k-10e")
+GITHUB_TOKEN  = os.getenv("GITHUB_TOKEN", "")
+BRANCH        = "main"
+COMMIT_URL    = f"https://api.github.com/repos/{BSDATA_REPO}/commits/{BRANCH}"
+ZIPBALL_URL   = f"https://api.github.com/repos/{BSDATA_REPO}/zipball/{BRANCH}"
 
-PROJECT_ROOT = Path(__file__).resolve().parent.parent
-DATA_RAW_DIR = PROJECT_ROOT / "data" / "raw"
-VERSION_FILE = PROJECT_ROOT / "data" / "version.json"
+PROJECT_ROOT  = Path(__file__).resolve().parent.parent
+DATA_RAW_DIR  = PROJECT_ROOT / "data" / "raw"
+VERSION_FILE  = PROJECT_ROOT / "data" / "version.json"
 
 
 def get_headers():
@@ -36,96 +39,94 @@ def get_headers():
     return headers
 
 
-def get_latest_release():
-    print(f"Interrogation de l'API GitHub : {API_URL}")
-    response = requests.get(API_URL, headers=get_headers(), timeout=10)
+def get_latest_commit():
+    """Retourne le SHA et la date du dernier commit sur main."""
+    response = requests.get(COMMIT_URL, headers=get_headers(), timeout=10)
     response.raise_for_status()
     data = response.json()
     return {
-        "tag": data["tag_name"],
-        "zipball_url": data["zipball_url"],
-        "published_at": data["published_at"],
+        "sha":          data["sha"],
+        "sha_short":    data["sha"][:8],
+        "committed_at": data["commit"]["committer"]["date"],
+        "message":      data["commit"]["message"].splitlines()[0][:80],
     }
 
 
-def get_current_version():
+def get_current_sha():
     if VERSION_FILE.exists():
-        with open(VERSION_FILE) as f:
-            return json.load(f).get("tag")
+        return json.load(open(VERSION_FILE)).get("sha")
     return None
 
 
-def save_version(release_info):
+def save_version(commit_info):
     with open(VERSION_FILE, "w") as f:
-        json.dump(release_info, f, indent=2)
+        json.dump(commit_info, f, indent=2)
 
 
-def download_and_extract(zipball_url):
-    print(f"Téléchargement du release...")
+def download_and_extract():
+    print(f"Téléchargement de la branche {BRANCH}...")
     response = requests.get(
-        zipball_url, headers=get_headers(), timeout=120, stream=True
+        ZIPBALL_URL, headers=get_headers(), timeout=180, stream=True
     )
     response.raise_for_status()
 
     total = int(response.headers.get("content-length", 0))
     downloaded = 0
     chunks = []
-
     for chunk in response.iter_content(chunk_size=1024 * 1024):
         chunks.append(chunk)
         downloaded += len(chunk)
         if total:
             pct = downloaded / total * 100
-            print(f"\r  {downloaded // (1024*1024)} MB / {total // (1024*1024)} MB ({pct:.0f}%)", end="", flush=True)
-
+            print(f"\r  {downloaded // (1024*1024)} MB / {total // (1024*1024)} MB ({pct:.0f}%)",
+                  end="", flush=True)
     print()
-    content = b"".join(chunks)
 
-    print(f"Extraction des fichiers .cat...")
+    content = b"".join(chunks)
+    print("Extraction des fichiers .cat/.gst...")
     DATA_RAW_DIR.mkdir(parents=True, exist_ok=True)
 
-    # Vider le dossier raw avant d'extraire
     for existing in DATA_RAW_DIR.glob("*.cat"):
         existing.unlink()
+    for existing in DATA_RAW_DIR.glob("*.gst"):
+        existing.unlink()
 
-    extracted_count = 0
+    count = 0
     with zipfile.ZipFile(io.BytesIO(content)) as zf:
         for name in zf.namelist():
             if name.endswith(".cat") or name.endswith(".gst"):
-                # Aplatir la structure — on garde juste le nom de fichier
                 filename = Path(name).name
-                target = DATA_RAW_DIR / filename
-                target.write_bytes(zf.read(name))
-                extracted_count += 1
+                (DATA_RAW_DIR / filename).write_bytes(zf.read(name))
+                count += 1
 
-    return extracted_count
+    return count
 
 
 def main():
-    print("=== BSData Fetch ===")
-    print(f"Repo : {BSDATA_REPO}")
+    print("=== BSData Fetch (branche main) ===")
+    print(f"Repo        : {BSDATA_REPO}")
     print(f"Destination : {DATA_RAW_DIR}")
     print()
 
-    release = get_latest_release()
-    print(f"Dernier release : {release['tag']} (publié le {release['published_at']})")
+    commit = get_latest_commit()
+    print(f"Dernier commit : {commit['sha_short']}  ({commit['committed_at']})")
+    print(f"  → {commit['message']}")
 
-    current = get_current_version()
-    if current == release["tag"]:
-        print(f"Déjà à jour ({current}). Rien à faire.")
+    current_sha = get_current_sha()
+    if current_sha == commit["sha"]:
+        print(f"\nDéjà à jour ({commit['sha_short']}). Rien à faire.")
         return
 
-    if current:
-        print(f"Mise à jour : {current} → {release['tag']}")
+    if current_sha:
+        print(f"\nMise à jour : {current_sha[:8]} → {commit['sha_short']}")
     else:
-        print("Première installation.")
+        print("\nPremière installation.")
 
-    count = download_and_extract(release["zipball_url"])
-    save_version(release)
+    count = download_and_extract()
+    save_version(commit)
 
-    print()
-    print(f"Terminé. {count} fichiers extraits dans data/raw/")
-    print(f"Version enregistrée : {release['tag']}")
+    print(f"\nTerminé. {count} fichiers extraits dans data/raw/")
+    print(f"SHA enregistré : {commit['sha_short']}")
 
 
 if __name__ == "__main__":
