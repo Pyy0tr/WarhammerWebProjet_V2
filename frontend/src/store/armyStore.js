@@ -20,15 +20,38 @@ function withArmy(armies, id, fn) {
 }
 
 export const useArmyStore = create((set, get) => ({
-  armies:   [],
-  activeId: null,
-  loaded:   false,
+  armies:     [],
+  activeId:   null,
+  loaded:     false,
+  _loadedFor: undefined,   // uid | null — tracks which user context was loaded
 
   // ── Init ──────────────────────────────────────────────────────────────────
   init: async (user) => {
-    if (get().loaded) return
+    const currentUid = user?.id ?? null
+    // Skip if already loaded for the same user context
+    if (get().loaded && get()._loadedFor === currentUid) return
+
     let armies = []
+
     if (user) {
+      // Migrate any anonymous localStorage armies to Supabase first
+      const local = lsLoad()
+      if (local.length > 0) {
+        const inserts = await Promise.all(
+          local.map((a) =>
+            supabase
+              .from('armies')
+              .insert({ name: a.name, units: a.units ?? [], user_id: user.id })
+              .select('id, name, units, created_at, updated_at')
+              .single()
+          )
+        )
+        lsSave([])   // clear local storage after migration
+        const migrated = inserts.map((r) => r.data).filter(Boolean)
+        armies = migrated
+      }
+
+      // Load all armies from Supabase (includes just-migrated ones)
       const { data } = await supabase
         .from('armies')
         .select('id, name, units, created_at, updated_at')
@@ -37,7 +60,8 @@ export const useArmyStore = create((set, get) => ({
     } else {
       armies = lsLoad()
     }
-    set({ armies, activeId: armies[0]?.id ?? null, loaded: true })
+
+    set({ armies, activeId: armies[0]?.id ?? null, loaded: true, _loadedFor: currentUid })
   },
 
   setActive: (id) => set({ activeId: id }),
