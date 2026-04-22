@@ -269,8 +269,22 @@ function simulateOnce(req) {
 
 export function simulate(req) {
   const n = req.n_trials ?? 1000
+
+  // Support multi-attack: req.attacks[] array OR legacy single req.attacker
+  const attackList = req.attacks ?? [req.attacker ?? { models: req.attacker?.models ?? 1, weapon: req.attacker?.weapon, buffs: req.attacker?.buffs ?? [] }]
+
   const trials = []
-  for (let i = 0; i < n; i++) trials.push(simulateOnce(req))
+  for (let i = 0; i < n; i++) {
+    let totalDmg = 0
+    for (const atk of attackList) {
+      totalDmg += simulateOnce({
+        attacker: { models: atk.models, weapon: atk.weapon, buffs: atk.buffs ?? [] },
+        defender: req.defender,
+        context:  req.context,
+      })
+    }
+    trials.push(totalDmg)
+  }
 
   const sorted = [...trials].sort((a, b) => a - b)
   const mean   = trials.reduce((s, v) => s + v, 0) / n

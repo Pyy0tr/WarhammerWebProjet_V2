@@ -204,13 +204,6 @@ const TEXT_H     = '#FFFFFF'
 const PANEL      = '#071e38'
 const BORDER     = 'rgba(9,162,196,0.15)'
 
-const inputStyle = {
-  background: 'transparent', border: `1px solid rgba(9,162,196,0.35)`,
-  color: BLUE, fontFamily: 'Space Mono, monospace', fontSize: '10px',
-  letterSpacing: '1px', padding: '5px 8px', outline: 'none',
-  borderRadius: 0, width: '100%',
-}
-
 // ── Army Picker ───────────────────────────────────────────────────────────────
 
 function ArmyPicker() {
