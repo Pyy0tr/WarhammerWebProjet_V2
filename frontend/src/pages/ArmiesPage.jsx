@@ -216,26 +216,40 @@ function ArmyUnitCard({ entry, user }) {
           </div>
 
           {/* Models */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <span style={{ fontFamily: 'Space Mono, monospace', fontSize: '9px', color: TEXT_MUTED, letterSpacing: '1px' }}>
-              Models
-            </span>
-            <input
-              type="number"
-              min={1}
-              value={entry.models}
-              onChange={(e) => {
-                const v = Math.max(1, parseInt(e.target.value) || 1)
-                updateUnit(entry.uid, { models: v }, user)
-              }}
-              style={{
-                width: '52px', background: 'rgba(9,162,196,0.05)',
-                border: `1px solid ${BORDER}`, color: BLUE,
-                fontFamily: 'Space Mono, monospace', fontSize: '11px',
-                padding: '3px 6px', outline: 'none', textAlign: 'center',
-              }}
-            />
-          </div>
+          {(() => {
+            const minM = entry.constraints?.min_models ?? 1
+            const maxM = entry.constraints?.max_models ?? null
+            return (
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <span style={{ fontFamily: 'Space Mono, monospace', fontSize: '9px', color: TEXT_MUTED, letterSpacing: '1px' }}>
+                  Models
+                </span>
+                <input
+                  type="number"
+                  min={minM}
+                  max={maxM ?? undefined}
+                  value={entry.models}
+                  onChange={(e) => {
+                    let v = parseInt(e.target.value) || minM
+                    v = Math.max(minM, v)
+                    if (maxM !== null) v = Math.min(maxM, v)
+                    updateUnit(entry.uid, { models: v }, user)
+                  }}
+                  style={{
+                    width: '52px', background: 'rgba(9,162,196,0.05)',
+                    border: `1px solid ${BORDER}`, color: BLUE,
+                    fontFamily: 'Space Mono, monospace', fontSize: '11px',
+                    padding: '3px 6px', outline: 'none', textAlign: 'center',
+                  }}
+                />
+                {maxM !== null && (
+                  <span style={{ fontFamily: 'Space Mono, monospace', fontSize: '8px', color: TEXT_MUTED }}>
+                    / {maxM}
+                  </span>
+                )}
+              </div>
+            )
+          })()}
         </div>
 
         {/* Right: actions */}
@@ -277,15 +291,15 @@ function ArmyEditor({ user, onNewArmy }) {
 
   const handleAdd = (unit) => {
     addUnit({
-      unit_id: unit.id,
-      name:    unit.name,
-      T:       unit.T,
-      Sv:      unit.Sv,
-      W:       unit.W,
-      invuln:  unit.invuln ?? null,
-      kw:      unit.kw ?? [],
-      weapons: unit.weapons ?? [],
-      max_models: unit.max_models,
+      unit_id:     unit.id,
+      name:        unit.name,
+      T:           unit.T,
+      Sv:          unit.Sv,
+      W:           unit.W,
+      invuln:      unit.invuln ?? null,
+      kw:          unit.kw ?? [],
+      weapons:     unit.weapons ?? [],
+      constraints: unit.constraints ?? { min_models: null, max_models: null },
     }, user)
     setQuery('')
     setResults([])
@@ -501,7 +515,7 @@ function ArmySidebar({ user, onNewArmy }) {
   const activeId  = useArmyStore((s) => s.activeId)
   const setActive = useArmyStore((s) => s.setActive)
 
-  const fmt = (iso) => new Date(iso).toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit', year: '2-digit' })
+  const fmt = (iso) => new Date(iso).toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: '2-digit' })
 
   return (
     <div style={{

@@ -80,7 +80,8 @@ export const useArmyStore = create((set, get) => ({
 
   // ── Add unit ──────────────────────────────────────────────────────────────
   addUnit: async (unitData, user) => {
-    const entry = { uid: uid(), models: unitData.max_models === 1 ? 1 : 5, ...unitData }
+    const minModels = unitData.constraints?.min_models ?? (unitData.max_models === 1 ? 1 : 5)
+    const entry = { uid: uid(), models: minModels, ...unitData }
     const ts = now()
     set((s) => ({
       armies: withArmy(s.armies, s.activeId, (a) => ({

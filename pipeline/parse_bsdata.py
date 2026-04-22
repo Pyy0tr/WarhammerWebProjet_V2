@@ -728,22 +728,111 @@ def extract_unit(entry: ET.Element, faction: str, index: GlobalIndex) -> dict | 
                         if pts > 0:
                             break
 
-    # 6. Contraintes min/max modèles dans l'escouade (scope=roster)
+    # 6. Contraintes min/max modèles dans l'escouade (scope=parent, field=selections)
+    #    Source correcte : contraintes sur le modèle ou le groupe de modèles,
+    #    PAS scope=roster qui donne les limites de liste d'armée.
     min_models = None
     max_models = None
-    constraints_node = find_tag(entry, "constraints")
-    if constraints_node is not None:
-        for c in iter_tag(constraints_node, "constraint"):
-            if attr(c, "scope", "") == "roster" and attr(c, "field", "") == "selections":
-                try:
-                    val = int(float(attr(c, "value", "0")))
-                except ValueError:
+
+    def _extract_squad_constraints(node) -> tuple[int | None, int | None]:
+        """Cherche scope=parent, field=selections dans les constraints directes d'un noeud."""
+        mn, mx = None, None
+        cn = find_tag(node, "constraints")
+        if cn is not None:
+            for c in iter_tag(cn, "constraint"):
+                if attr(c, "field", "") == "selections" and attr(c, "scope", "") == "parent":
+                    try:
+                        val = int(float(attr(c, "value", "0")))
+                    except ValueError:
+                        continue
+                    ctype = attr(c, "type", "")
+                    if ctype == "min" and mn is None:
+                        mn = val
+                    elif ctype == "max" and mx is None:
+                        mx = val
+        return mn, mx
+
+    # a) Contraintes directes sur l'unité (ex: modèle unique type=model)
+    min_models, max_models = _extract_squad_constraints(entry)
+
+    # b) Si pas trouvé, chercher dans les selectionEntryGroups contenant des models
+    if min_models is None and max_models is None:
+        seg_node = find_tag(entry, "selectionEntryGroups")
+        if seg_node is not None:
+            for seg in iter_tag(seg_node, "selectionEntryGroup"):
+                # Vérifier si ce SEG contient des selectionEntry de type model
+                se_node = find_tag(seg, "selectionEntries")
+                if se_node is None:
                     continue
-                ctype = attr(c, "type", "")
-                if ctype == "min":
-                    min_models = val
-                elif ctype == "max":
-                    max_models = val
+                has_models = any(
+                    attr(se, "type", "") == "model"
+                    for se in iter_tag(se_node, "selectionEntry")
+                )
+                if not has_models:
+                    continue
+                # Contraintes sur le SEG lui-même
+                mn, mx = _extract_squad_constraints(seg)
+                if mn is not None or mx is not None:
+                    min_models, max_models = mn, mx
+                    break
+                # Contraintes sur les modèles eux-mêmes (ex: Sword Brethren Squad)
+                for se in iter_tag(se_node, "selectionEntry"):
+                    if attr(se, "type", "") == "model":
+                        mn, mx = _extract_squad_constraints(se)
+                        if mn is not None or mx is not None:
+                            min_models, max_models = mn, mx
+                            break
+                if min_models is not None or max_models is not None:
+                    break
+
+    # c) Chercher dans les selectionEntries directes (type=model sous une unit)
+    if min_models is None and max_models is None:
+        sub_entries_node = find_tag(entry, "selectionEntries")
+        if sub_entries_node is not None:
+            for sub in iter_tag(sub_entries_node, "selectionEntry"):
+                if attr(sub, "type", "") == "model":
+                    mn, mx = _extract_squad_constraints(sub)
+                    if mn is not None or mx is not None:
+                        min_models, max_models = mn, mx
+                        break
+
+    # 6b. Model options : parse chaque selectionEntry type=model avec ses groupes d'armes
+    #     Format : [{name, weapon_options}] — vide si l'unité n'a qu'un seul type de modèle
+    model_options = []
+
+    def _collect_model_entries(node) -> list[ET.Element]:
+        """Retourne tous les selectionEntry de type model sous un noeud."""
+        models = []
+        # Dans les selectionEntryGroups
+        seg_n = find_tag(node, "selectionEntryGroups")
+        if seg_n is not None:
+            for seg in iter_tag(seg_n, "selectionEntryGroup"):
+                se_n = find_tag(seg, "selectionEntries")
+                if se_n is not None:
+                    for se in iter_tag(se_n, "selectionEntry"):
+                        if attr(se, "type", "") == "model":
+                            models.append(se)
+        # Dans les selectionEntries directes
+        se_n = find_tag(node, "selectionEntries")
+        if se_n is not None:
+            for se in iter_tag(se_n, "selectionEntry"):
+                if attr(se, "type", "") == "model":
+                    models.append(se)
+        return models
+
+    model_entries = _collect_model_entries(entry)
+    # On ne peuple model_options que s'il y a des modèles avec des armes différenciées
+    for m_entry in model_entries:
+        m_name = attr(m_entry, "name", "")
+        if is_hidden(m_entry):
+            continue
+        m_opts = collect_weapon_options(m_entry, index)
+        # Inclure ce modèle seulement s'il a des options d'armes propres
+        if m_opts:
+            model_options.append({
+                "name": m_name,
+                "weapon_options": m_opts,
+            })
 
     # Stats : profil principal = première occurrence
     stats = stats_list[0] if stats_list else {}
@@ -783,6 +872,7 @@ def extract_unit(entry: ET.Element, faction: str, index: GlobalIndex) -> dict | 
             "min_models": min_models,
             "max_models": max_models,
         },
+        "model_options": model_options,  # [{name, weapon_options}] — vide si modèle unique
         "_entry_type": entry_type,  # temporaire, utilisé pour le post-filtrage dans main()
     }
 
