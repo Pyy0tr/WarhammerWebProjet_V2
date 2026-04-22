@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useSimulatorStore } from '../store/simulatorStore'
 import { useDataStore }      from '../store/dataStore'
 import { useArmyStore }      from '../store/armyStore'
@@ -31,23 +31,45 @@ const TEXT_H     = '#FFFFFF'
 const PANEL      = '#071e38'
 const BORDER     = 'rgba(9,162,196,0.15)'
 
-function ArmyPicker({ onLoad }) {
-  const armies     = useArmyStore((s) => s.armies)
+function ArmyPicker() {
+  const armies      = useArmyStore((s) => s.armies)
   const weaponsById = useDataStore((s) => s.weaponsById)
   const user        = useAuthStore((s) => s.user)
   const init        = useArmyStore((s) => s.init)
+  const setWeapon   = useSimulatorStore((s) => s.setWeapon)
+  const setAttacker = useSimulatorStore((s) => s.setAttacker)
 
   // Ensure armies are loaded
   useState(() => { init(user) })
 
-  const [armyId,    setArmyId]    = useState(armies[0]?.id ?? '')
-  const [unitUid,   setUnitUid]   = useState('')
-  const [weaponId,  setWeaponId]  = useState('')
-  const [firing,    setFiring]    = useState(1)
+  const [armyId,   setArmyId]   = useState(armies[0]?.id ?? '')
+  const [unitUid,  setUnitUid]  = useState('')
+  const [weaponId, setWeaponId] = useState('')
+  const [firing,   setFiring]   = useState(1)
 
   const army    = armies.find((a) => a.id === armyId) ?? null
   const unit    = army?.units.find((u) => u.uid === unitUid) ?? null
   const weapons = (unit?.weapons ?? []).map((ref) => ({ ref, w: weaponsById[ref.id] })).filter((x) => x.w)
+  const selectedWeapon = weapons.find((x) => x.ref.id === weaponId)?.w ?? null
+
+  // Sync to simulator store whenever weapon or firing count changes
+  useEffect(() => {
+    if (selectedWeapon) {
+      setWeapon({
+        name:     selectedWeapon.name,
+        attacks:  selectedWeapon.A,
+        skill:    selectedWeapon.BS,
+        strength: selectedWeapon.S,
+        ap:       selectedWeapon.AP,
+        damage:   selectedWeapon.D,
+        keywords: mapKeywords(selectedWeapon.kw ?? []),
+      })
+    }
+  }, [selectedWeapon, setWeapon])   // eslint-disable-line
+
+  useEffect(() => {
+    setAttacker({ models: firing })
+  }, [firing, setAttacker])         // eslint-disable-line
 
   // Reset downstream selections on change
   const handleArmyChange = (id) => { setArmyId(id); setUnitUid(''); setWeaponId(''); setFiring(1) }
@@ -58,24 +80,6 @@ function ArmyPicker({ onLoad }) {
     setFiring(u?.models ?? 1)
   }
   const handleWeaponChange = (id) => setWeaponId(id)
-
-  const selectedWeapon = weapons.find((x) => x.ref.id === weaponId)?.w ?? null
-
-  const handleLoad = () => {
-    if (!unit || !selectedWeapon) return
-    onLoad({
-      models:  firing,
-      weapon: {
-        name:     selectedWeapon.name,
-        attacks:  selectedWeapon.A,
-        skill:    selectedWeapon.BS,
-        strength: selectedWeapon.S,
-        ap:       selectedWeapon.AP,
-        damage:   selectedWeapon.D,
-        keywords: mapKeywords(selectedWeapon.kw ?? []),
-      },
-    })
-  }
 
   if (armies.length === 0) {
     return (
@@ -228,21 +232,17 @@ function ArmyPicker({ onLoad }) {
         </div>
       )}
 
-      {/* Load button */}
+      {/* Confirmation indicator */}
       {unit && selectedWeapon && (
-        <button
-          onClick={handleLoad}
-          style={{
-            background: BLUE, border: 'none', color: BG,
-            fontFamily: 'Space Mono, monospace', fontSize: '9px',
-            letterSpacing: '2px', textTransform: 'uppercase', fontWeight: 700,
-            padding: '11px', cursor: 'pointer', transition: 'opacity 100ms',
-          }}
-          onMouseEnter={(e) => { e.currentTarget.style.opacity = '0.85' }}
-          onMouseLeave={(e) => { e.currentTarget.style.opacity = '1' }}
-        >
-          Load into simulator →
-        </button>
+        <div style={{
+          padding: '10px 12px',
+          border: `1px solid rgba(9,162,196,0.25)`,
+          background: 'rgba(9,162,196,0.04)',
+          fontFamily: 'Space Mono, monospace', fontSize: '9px',
+          color: BLUE, letterSpacing: '1px',
+        }}>
+          ✓ {firing}× {selectedWeapon.name} — ready, click Run Simulation
+        </div>
       )}
     </div>
   )
@@ -267,12 +267,6 @@ export function AttackerPanel() {
   const [pickerValue, setPickerValue]         = useState('1')
   const [pickerTarget, setPickerTarget]       = useState('INFANTRY')
   const [pickerThreshold, setPickerThreshold] = useState('4')
-
-  function handleArmyLoad({ models: m, weapon: w }) {
-    setAttacker({ models: m })
-    setWeapon(w)
-    setMode('manual')   // switch to manual so user sees the filled fields
-  }
 
   function handleWeaponSearch(query) {
     setWeaponResults(searchWeapons(query))
@@ -383,7 +377,7 @@ export function AttackerPanel() {
       </div>
 
       {mode === 'army' ? (
-        <ArmyPicker onLoad={handleArmyLoad} />
+        <ArmyPicker />
       ) : (<>
 
       {/* Selected unit chip */}
