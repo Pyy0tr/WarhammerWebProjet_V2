@@ -1,6 +1,6 @@
 # Plan général — WarhammerWebProjet V2
 
-_Dernière mise à jour : 2026-04-21_
+_Dernière mise à jour : 2026-04-22_
 
 ---
 
@@ -8,131 +8,76 @@ _Dernière mise à jour : 2026-04-21_
 
 Refonte complète de l'application de calcul de probabilités Warhammer 40K 10e, avec :
 - Stack moderne, simple à maintenir, accessible publiquement
-- Hébergement gratuit (Cloudflare + Render + Supabase)
-- Interface repensée, épurée, mobile-friendly
+- Hébergement gratuit (Cloudflare + Supabase)
+- Interface épurée, dark theme
 - Pipeline de données automatisé depuis BSData/wh40k-10e
 - Compatibilité future V11 (même format .cat attendu)
 
 ---
 
-## Stack technique cible
+## Stack technique
 
 ### Backend
 **Supprimé** — le backend FastAPI/Render a été retiré (cold start ~50s en gratuit, inutilisable).
-La simulation tourne désormais en JavaScript dans le navigateur.
+La simulation tourne en JavaScript dans le navigateur.
 Auth + saves = Supabase JS SDK directement depuis le frontend.
 
 ### Frontend
-| Composant | Choix | Raison |
+| Composant | Choix | Note |
 |---|---|---|
-| Framework | **React** (Vite) | Composants réutilisables, éco-système riche |
-| Style | **Tailwind CSS** | Dark theme épuré, rapide à personnaliser |
-| Graphiques | **Recharts** | Léger, compatible React, pour les distributions |
-| State | **Zustand** | Simple, sans boilerplate Redux |
+| Framework | **React 19** (Vite) | Composants réutilisables |
+| Style | **Inline styles** (pas Tailwind) | Constantes couleur par fichier |
+| Graphiques | **Recharts** | Distributions de dégâts |
+| State | **Zustand** | simulatorStore, armyStore, authStore, dataStore |
+| Router | **React Router v7** | Home, Factions, Simulator, Armies |
 
 ### Hébergement
 | Service | Usage | Coût |
 |---|---|---|
-| **Cloudflare Pages** | Frontend React + moteur JS (bandwidth illimité) | Gratuit |
-| **Cloudflare R2** | Assets statiques (images, animations) | Gratuit (10 GB, egress gratuit) |
-| **Supabase** | PostgreSQL + Auth utilisateurs (SDK JS direct) | Gratuit (500 MB, 50k users) |
+| **Cloudflare Pages** | Frontend React + JSON statiques (bandwidth illimité) | Gratuit |
+| **Cloudflare R2** | Images factions | Gratuit (10 GB, egress gratuit) |
+| **Supabase** | PostgreSQL (armées) + Auth (email/password) | Gratuit |
 | **GitHub Actions** | Pipeline sync BSData toutes les 12h | Gratuit |
 | **Domaine custom** | OVH / Namecheap | ~10€/an |
 | **Total** | | **~10€/an** |
 
-### Pourquoi pas Azure ni Render
-- Azure App Service F1 : cold start 60s → inutilisable
-- Render.com gratuit : cold start ~50s après inactivité → UX inacceptable
-- Solution : pas de backend du tout — moteur JS dans le browser
-
 ---
 
-## Fonctionnalités
+## Fonctionnalités livrées
 
-### Core (V2)
-- Simulateur de combat (Monte Carlo, moteur V1 refactorisé)
-- Navigateur factions/unités depuis données BSData
-- Authentification utilisateur (Supabase Auth)
-- Gestion armées attaquant/défenseur (state Zustand, localStorage)
-- Tableau de comparaison armes × unités
-- Graphiques distributions (hits, wounds, damage)
+### Simulateur
+- Monte Carlo 1000 itérations, moteur JS dans le browser
+- Phases : Hit → Wound → Save → FNP
+- Mode Manuel : recherche arme, stats éditables, keyword chip picker
+- Mode From Army : sélection armée → escouade → arme → firing models
+- Keywords par phase (chip grid) : TORRENT, LETHAL_HITS, SUSTAINED_HITS, DEVASTATING_WOUNDS, TWIN_LINKED, HEAVY, LANCE, BLAST, RAPID_FIRE, MELTA, ANTI, IGNORES_COVER, INDIRECT_FIRE, EXTRA_ATTACKS, CRITICAL_HIT_ON
+- Buffs attaquant : reroll hit 1s, reroll failed hits, reroll wound 1s, reroll failed wounds
+- Synergie Sustained Hits + Lethal Hits + Critical Hit On X+ (toutes compatibles)
+- Résultats : mean/median/std, percentiles p10/p25/p75/p90, histogramme, kill probabilities
 
-### Nouveau en V2
-- Graphiques interactifs sur les résultats de simulation
-- Comparaison multi-armes sur un même défenseur (side-by-side)
-- Pipeline BSData automatisé (GitHub Actions, toutes les 12h, branche main)
-- Pts scalables par taille de squad (pts_options)
-- Multi-profils stats par unité (ex: Grimaldus + Cenobyte Servitor)
-- Interface mobile-friendly (Tailwind responsive)
-- Assets (images factions) servis depuis Cloudflare R2
+### Armées
+- Création / renommage / suppression d'armées
+- Ajout d'unités depuis FactionsPage ("Add to Army")
+- Ajustement du nombre de modèles par unité (min/max respectés)
+- Persistance localStorage (anonyme) → Supabase PostgreSQL (connecté)
+- Migration automatique localStorage → Supabase à la connexion
 
-### Hors scope
-- App mobile native
-- Résultats pré-calculés en BDD (cache en mémoire suffit)
-- Scripts de maintenance manuels (tout est automatisé)
-
----
-
-## Architecture globale
-
-```
-BSData/wh40k-10e (GitHub — branche main)
-        │
-        ▼ GitHub Actions (cron toutes les 12h)
-   pipeline/fetch_bsdata.py + parse_bsdata.py + audit.py
-        │
-        ▼
-   data/cache/*.json  +  data/cache_stable/  (snapshot versionné)
-        │
-        ▼ servis comme fichiers statiques
-React Frontend (Cloudflare Pages)
-   ├── engine/simulation.js (Monte Carlo dans le browser)
-   ├── Supabase JS SDK (Auth + saves utilisateur)
-   └── Assets (images) ← Cloudflare R2
-        │
-        ▼
-Utilisateur
-```
+### Données
+- 1487 unités · 5372 armes · 46 factions
+- Slim format JSON servi en statique (`frontend/public/data/`)
+- Déduplication armes avec `id_aliases` (100% des weapon lookups résolus)
 
 ---
 
 ## Roadmap
 
 ### Phase 1 — Fondations ✅ TERMINÉE
-- [x] Initialiser repo GitHub WarhammerWebProjet_V2
-- [x] Structure projet (backend/, frontend/, pipeline/, browser/)
-- [x] Makefile, .gitignore, README, STRUCTURE
-
 ### Phase 2 — Pipeline données ✅ TERMINÉE
-- [x] fetch_bsdata.py — téléchargement zipball BSData branche main via GitHub API
-- [x] parse_bsdata.py — parser XML complet (8+ patterns résolus)
-- [x] audit.py — contrôle qualité (0 erreur, ~16 warnings légitimes)
-- [x] **1487 unités, 5372 armes, 46 factions, 33 règles universelles**
-- [x] Pts scalables par taille de squad (pts_options) — ~200+ unités concernées
-- [x] Multi-profils stats (model_profiles) — 6 unités avec 2 blocs de stats
-- [x] Résolution entryLink pts (Legends, nouveaux persos) — link_pts patch
-- [x] Mapping factions jouables → unit_ids (Library pattern)
-- [x] Filtrage sous-composants (type="model" sans faction_unit_map)
-- [x] Browser HTML local de vérification des données
-- [x] GitHub Actions cron (sync automatique toutes les 12h)
-- [x] cache_stable/ — snapshot versionné du parse de référence
-
 ### Phase 3 — Moteur simulation ✅ TERMINÉE
-- [x] engine/dice.py + simulation.py Python (validé < 1% erreur sur 5 cas)
-- [x] Port en JS : frontend/src/engine/dice.js + simulation.js
-- [x] Backend FastAPI SUPPRIMÉ (cold start Render inacceptable)
-- [x] Moteur JS branché sur le store Zustand (zéro appel réseau)
+### Phase 4 — Frontend React ✅ TERMINÉE
 
-### Phase 4 — Frontend React
-- [ ] Initialiser Vite + Tailwind + Recharts + Zustand
-- [ ] Pages : home, factions, unités, simulateur, résultats
-- [ ] Graphiques distributions (hits, wounds, damage)
-- [ ] Comparaison multi-armes
-- [ ] Déployer sur Cloudflare Pages
-
-### Phase 5 — Assets & Finitions
-- [ ] Cloudflare R2 pour les images de factions
+### Phase 5 — Finitions
 - [ ] Domaine custom
-- [ ] Tests (pytest backend, Vitest frontend)
-- [ ] Monitoring (Render logs + Supabase dashboard)
-- [ ] Documentation API (FastAPI /docs auto-généré)
+- [ ] Tests Vitest
+- [ ] Déploiement Cloudflare Pages
+- [ ] Comparaison multi-armes (side-by-side)

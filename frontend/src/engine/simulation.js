@@ -69,8 +69,8 @@ function simulateOnce(req) {
   const bufCritWound = buf(bufs, 'CRITICAL_WOUND_ON')
 
   const critHitThr   = Math.min(
-    kwCritHit  ? kwCritHit.value  : 6,
-    bufCritHit ? bufCritHit.value : 6,
+    kwCritHit  ? parseInt(kwCritHit.value)  || 6 : 6,
+    bufCritHit ? parseInt(bufCritHit.value) || 6 : 6,
   )
   const critWoundThr = bufCritWound ? bufCritWound.value : 6
 
