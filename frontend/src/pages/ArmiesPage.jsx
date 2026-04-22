@@ -217,8 +217,8 @@ function ArmyUnitCard({ entry, user }) {
 
           {/* Models */}
           {(() => {
-            const minM = entry.constraints?.min_models ?? 1
-            const maxM = entry.constraints?.max_models ?? null
+            const minM = entry.min_models ?? 1
+            const maxM = entry.max_models ?? null
             return (
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                 <span style={{ fontFamily: 'Space Mono, monospace', fontSize: '9px', color: TEXT_MUTED, letterSpacing: '1px' }}>
@@ -291,15 +291,16 @@ function ArmyEditor({ user, onNewArmy }) {
 
   const handleAdd = (unit) => {
     addUnit({
-      unit_id:     unit.id,
-      name:        unit.name,
-      T:           unit.T,
-      Sv:          unit.Sv,
-      W:           unit.W,
-      invuln:      unit.invuln ?? null,
-      kw:          unit.kw ?? [],
-      weapons:     unit.weapons ?? [],
-      constraints: unit.constraints ?? { min_models: null, max_models: null },
+      unit_id:    unit.id,
+      name:       unit.name,
+      T:          unit.T,
+      Sv:         unit.Sv,
+      W:          unit.W,
+      invuln:     unit.invuln ?? null,
+      kw:         unit.kw ?? [],
+      weapons:    unit.weapons ?? [],
+      min_models: unit.min_models ?? null,
+      max_models: unit.max_models ?? null,
     }, user)
     setQuery('')
     setResults([])

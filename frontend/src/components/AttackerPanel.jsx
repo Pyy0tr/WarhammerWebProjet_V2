@@ -1,7 +1,9 @@
 import { useState } from 'react'
 import { useSimulatorStore } from '../store/simulatorStore'
-import { useDataStore } from '../store/dataStore'
-import { StatInput } from './StatInput'
+import { useDataStore }      from '../store/dataStore'
+import { useArmyStore }      from '../store/armyStore'
+import { useAuthStore }      from '../store/authStore'
+import { StatInput }  from './StatInput'
 import { SearchInput } from './SearchInput'
 import { UnitDrawer } from './UnitDrawer'
 
@@ -22,6 +24,232 @@ function fmtKw(kw) {
   return kw.type.replace(/_/g, ' ')
 }
 
+// ── Army Picker ───────────────────────────────────────────────────────────────
+
+const TEXT_MUTED = 'rgba(184,210,228,0.45)'
+const TEXT_H     = '#FFFFFF'
+const PANEL      = '#071e38'
+const BORDER     = 'rgba(9,162,196,0.15)'
+
+function ArmyPicker({ onLoad }) {
+  const armies     = useArmyStore((s) => s.armies)
+  const weaponsById = useDataStore((s) => s.weaponsById)
+  const user        = useAuthStore((s) => s.user)
+  const init        = useArmyStore((s) => s.init)
+
+  // Ensure armies are loaded
+  useState(() => { init(user) })
+
+  const [armyId,    setArmyId]    = useState(armies[0]?.id ?? '')
+  const [unitUid,   setUnitUid]   = useState('')
+  const [weaponId,  setWeaponId]  = useState('')
+  const [firing,    setFiring]    = useState(1)
+
+  const army    = armies.find((a) => a.id === armyId) ?? null
+  const unit    = army?.units.find((u) => u.uid === unitUid) ?? null
+  const weapons = (unit?.weapons ?? []).map((ref) => ({ ref, w: weaponsById[ref.id] })).filter((x) => x.w)
+
+  // Reset downstream selections on change
+  const handleArmyChange = (id) => { setArmyId(id); setUnitUid(''); setWeaponId(''); setFiring(1) }
+  const handleUnitChange = (uid) => {
+    setUnitUid(uid)
+    setWeaponId('')
+    const u = army?.units.find((x) => x.uid === uid)
+    setFiring(u?.models ?? 1)
+  }
+  const handleWeaponChange = (id) => setWeaponId(id)
+
+  const selectedWeapon = weapons.find((x) => x.ref.id === weaponId)?.w ?? null
+
+  const handleLoad = () => {
+    if (!unit || !selectedWeapon) return
+    onLoad({
+      models:  firing,
+      weapon: {
+        name:     selectedWeapon.name,
+        attacks:  selectedWeapon.A,
+        skill:    selectedWeapon.BS,
+        strength: selectedWeapon.S,
+        ap:       selectedWeapon.AP,
+        damage:   selectedWeapon.D,
+        keywords: mapKeywords(selectedWeapon.kw ?? []),
+      },
+    })
+  }
+
+  if (armies.length === 0) {
+    return (
+      <div style={{
+        padding: '20px 0',
+        fontFamily: 'Space Mono, monospace', fontSize: '10px',
+        color: TEXT_MUTED, lineHeight: 1.7,
+      }}>
+        No saved armies.{' '}
+        <a href="/armies" style={{ color: BLUE, textDecoration: 'none' }}>
+          Create one →
+        </a>
+      </div>
+    )
+  }
+
+  const selectStyle = {
+    width: '100%', background: PANEL,
+    border: `1px solid rgba(9,162,196,0.3)`,
+    color: TEXT_H, fontFamily: 'Space Mono, monospace',
+    fontSize: '11px', padding: '8px 10px',
+    outline: 'none', cursor: 'pointer',
+  }
+
+  const labelStyle = {
+    fontFamily: 'Space Mono, monospace', fontSize: '8px',
+    letterSpacing: '2px', textTransform: 'uppercase',
+    color: TEXT_MUTED, marginBottom: '6px', display: 'block',
+  }
+
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+
+      {/* Army */}
+      <div>
+        <span style={labelStyle}>Army</span>
+        <select value={armyId} onChange={(e) => handleArmyChange(e.target.value)} style={selectStyle}>
+          {armies.map((a) => (
+            <option key={a.id} value={a.id}>{a.name}</option>
+          ))}
+        </select>
+      </div>
+
+      {/* Unit */}
+      {army && (
+        <div>
+          <span style={labelStyle}>Squad</span>
+          {army.units.length === 0 ? (
+            <div style={{ fontFamily: 'Space Mono, monospace', fontSize: '10px', color: TEXT_MUTED }}>
+              No units in this army.
+            </div>
+          ) : (
+            <div style={{
+              border: `1px solid ${BORDER}`, maxHeight: '180px', overflowY: 'auto',
+            }}>
+              {army.units.map((u) => {
+                const active = u.uid === unitUid
+                return (
+                  <div
+                    key={u.uid}
+                    onClick={() => handleUnitChange(u.uid)}
+                    style={{
+                      padding: '10px 12px', cursor: 'pointer',
+                      background: active ? 'rgba(9,162,196,0.1)' : 'transparent',
+                      borderLeft: `2px solid ${active ? BLUE : 'transparent'}`,
+                      borderBottom: `1px solid ${BORDER}`,
+                      transition: 'background 80ms',
+                    }}
+                    onMouseEnter={(e) => { if (!active) e.currentTarget.style.background = 'rgba(9,162,196,0.04)' }}
+                    onMouseLeave={(e) => { if (!active) e.currentTarget.style.background = 'transparent' }}
+                  >
+                    <div style={{ fontFamily: 'Space Mono, monospace', fontSize: '11px', color: active ? BLUE : TEXT_H, fontWeight: active ? 700 : 400 }}>
+                      {u.name}
+                    </div>
+                    <div style={{ fontFamily: 'Space Mono, monospace', fontSize: '8px', color: TEXT_MUTED, marginTop: '2px' }}>
+                      {u.models} models · T{u.T} · Sv{u.Sv}+
+                    </div>
+                  </div>
+                )
+              })}
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Weapon */}
+      {unit && weapons.length > 0 && (
+        <div>
+          <span style={labelStyle}>Weapon</span>
+          <div style={{ border: `1px solid ${BORDER}`, maxHeight: '200px', overflowY: 'auto' }}>
+            {weapons.map(({ ref, w }) => {
+              const active = ref.id === weaponId
+              return (
+                <div
+                  key={ref.id}
+                  onClick={() => handleWeaponChange(ref.id)}
+                  style={{
+                    padding: '10px 12px', cursor: 'pointer',
+                    background: active ? 'rgba(9,162,196,0.1)' : 'transparent',
+                    borderLeft: `2px solid ${active ? BLUE : 'transparent'}`,
+                    borderBottom: `1px solid ${BORDER}`,
+                    transition: 'background 80ms',
+                  }}
+                  onMouseEnter={(e) => { if (!active) e.currentTarget.style.background = 'rgba(9,162,196,0.04)' }}
+                  onMouseLeave={(e) => { if (!active) e.currentTarget.style.background = 'transparent' }}
+                >
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
+                    <span style={{ fontFamily: 'Space Mono, monospace', fontSize: '11px', color: active ? BLUE : TEXT_H, fontWeight: active ? 700 : 400 }}>
+                      {ref.name}
+                    </span>
+                    <span style={{ fontFamily: 'Space Mono, monospace', fontSize: '9px', color: TEXT_MUTED }}>
+                      A{w.A} · S{w.S} · AP{w.AP} · D{w.D}
+                    </span>
+                  </div>
+                  {(w.kw ?? []).filter((k) => k !== '-').length > 0 && (
+                    <div style={{ fontFamily: 'Space Mono, monospace', fontSize: '8px', color: TEXT_MUTED, marginTop: '2px', letterSpacing: '0.5px' }}>
+                      {(w.kw ?? []).filter((k) => k !== '-').join(', ')}
+                    </div>
+                  )}
+                </div>
+              )
+            })}
+          </div>
+        </div>
+      )}
+
+      {/* Firing models */}
+      {unit && (
+        <div>
+          <span style={labelStyle}>Firing models</span>
+          <input
+            type="number"
+            min={1}
+            max={unit.max_models ?? undefined}
+            value={firing}
+            onChange={(e) => setFiring(Math.max(1, parseInt(e.target.value) || 1))}
+            style={{
+              width: '80px', background: PANEL,
+              border: `1px solid rgba(9,162,196,0.3)`,
+              color: BLUE, fontFamily: 'Space Mono, monospace',
+              fontSize: '13px', padding: '7px 10px',
+              outline: 'none', textAlign: 'center',
+            }}
+          />
+          {unit.max_models && (
+            <span style={{ fontFamily: 'Space Mono, monospace', fontSize: '9px', color: TEXT_MUTED, marginLeft: '8px' }}>
+              / {unit.max_models}
+            </span>
+          )}
+        </div>
+      )}
+
+      {/* Load button */}
+      {unit && selectedWeapon && (
+        <button
+          onClick={handleLoad}
+          style={{
+            background: BLUE, border: 'none', color: BG,
+            fontFamily: 'Space Mono, monospace', fontSize: '9px',
+            letterSpacing: '2px', textTransform: 'uppercase', fontWeight: 700,
+            padding: '11px', cursor: 'pointer', transition: 'opacity 100ms',
+          }}
+          onMouseEnter={(e) => { e.currentTarget.style.opacity = '0.85' }}
+          onMouseLeave={(e) => { e.currentTarget.style.opacity = '1' }}
+        >
+          Load into simulator →
+        </button>
+      )}
+    </div>
+  )
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+
 export function AttackerPanel() {
   const weapon      = useSimulatorStore((s) => s.attacker.weapon)
   const models      = useSimulatorStore((s) => s.attacker.models)
@@ -32,12 +260,19 @@ export function AttackerPanel() {
   const [weaponResults, setWeaponResults] = useState([])
   const [drawerOpen, setDrawerOpen]       = useState(false)
   const [selectedUnit, setSelectedUnit]   = useState(null)
+  const [mode, setMode]                   = useState('manual')  // 'manual' | 'army'
 
   // Keyword picker state
   const [pickerType, setPickerType]           = useState('')
   const [pickerValue, setPickerValue]         = useState('1')
   const [pickerTarget, setPickerTarget]       = useState('INFANTRY')
   const [pickerThreshold, setPickerThreshold] = useState('4')
+
+  function handleArmyLoad({ models: m, weapon: w }) {
+    setAttacker({ models: m })
+    setWeapon(w)
+    setMode('manual')   // switch to manual so user sees the filled fields
+  }
 
   function handleWeaponSearch(query) {
     setWeaponResults(searchWeapons(query))
@@ -95,7 +330,8 @@ export function AttackerPanel() {
   return (
     <>
     <section>
-      <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', marginBottom: '24px' }}>
+      {/* ── Header ── */}
+      <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', marginBottom: '20px' }}>
         <div style={{ display: 'flex', alignItems: 'baseline', gap: '10px' }}>
           <span style={{
             fontFamily: 'Space Mono, monospace', fontSize: '8px',
@@ -106,21 +342,49 @@ export function AttackerPanel() {
             fontWeight: 700, letterSpacing: '3px', textTransform: 'uppercase',
           }}>Attacker</span>
         </div>
-        <button
-          onClick={() => setDrawerOpen(true)}
-          style={{
-            background: 'transparent', border: `1px solid rgba(9,162,196,0.4)`,
-            color: BLUE, fontFamily: 'Space Mono, monospace', fontSize: '8.5px',
-            letterSpacing: '2px', textTransform: 'uppercase', padding: '5px 12px',
-            cursor: 'pointer', borderRadius: 0,
-            transition: 'border-color 100ms, background 100ms',
-          }}
-          onMouseEnter={(e) => { e.currentTarget.style.borderColor = BLUE; e.currentTarget.style.background = 'rgba(9,162,196,0.05)' }}
-          onMouseLeave={(e) => { e.currentTarget.style.borderColor = 'rgba(9,162,196,0.4)'; e.currentTarget.style.background = 'transparent' }}
-        >
-          Browse units →
-        </button>
+        {mode === 'manual' && (
+          <button
+            onClick={() => setDrawerOpen(true)}
+            style={{
+              background: 'transparent', border: `1px solid rgba(9,162,196,0.4)`,
+              color: BLUE, fontFamily: 'Space Mono, monospace', fontSize: '8.5px',
+              letterSpacing: '2px', textTransform: 'uppercase', padding: '5px 12px',
+              cursor: 'pointer', borderRadius: 0,
+              transition: 'border-color 100ms, background 100ms',
+            }}
+            onMouseEnter={(e) => { e.currentTarget.style.borderColor = BLUE; e.currentTarget.style.background = 'rgba(9,162,196,0.05)' }}
+            onMouseLeave={(e) => { e.currentTarget.style.borderColor = 'rgba(9,162,196,0.4)'; e.currentTarget.style.background = 'transparent' }}
+          >
+            Browse units →
+          </button>
+        )}
       </div>
+
+      {/* ── Mode tabs ── */}
+      <div style={{ display: 'flex', borderBottom: `1px solid rgba(9,162,196,0.15)`, marginBottom: '20px' }}>
+        {[['manual', 'Manual'], ['army', 'From Army']].map(([id, label]) => (
+          <button
+            key={id}
+            onClick={() => setMode(id)}
+            style={{
+              flex: 1, padding: '8px 0',
+              background: 'none', border: 'none',
+              borderBottom: mode === id ? `2px solid ${BLUE}` : '2px solid transparent',
+              color: mode === id ? BLUE : 'rgba(200,216,232,0.35)',
+              fontFamily: 'Space Mono, monospace', fontSize: '9px',
+              letterSpacing: '2px', textTransform: 'uppercase',
+              cursor: 'pointer', marginBottom: '-1px',
+              transition: 'color 100ms',
+            }}
+          >
+            {label}
+          </button>
+        ))}
+      </div>
+
+      {mode === 'army' ? (
+        <ArmyPicker onLoad={handleArmyLoad} />
+      ) : (<>
 
       {/* Selected unit chip */}
       {selectedUnit && (
@@ -356,6 +620,7 @@ export function AttackerPanel() {
           </div>
         </div>
       </div>
+      </>)}
     </section>
 
     <UnitDrawer

@@ -52,15 +52,19 @@ def slim_weapon(w: dict) -> dict:
     }
 
 
-def collect_weapons(u: dict) -> list[dict]:
-    """Collect all weapon refs (default + options) as flat deduped list of {id, name}."""
+def collect_weapons(u: dict, id_aliases: dict[str, str]) -> list[dict]:
+    """Collect all weapon refs (default + options) as flat deduped list of {id, name}.
+    Uses id_aliases to resolve bsdata_ids to their canonical dedup id."""
     seen, result = set(), []
 
     def add(w: dict):
-        wid = w.get("bsdata_id")
-        if wid and wid not in seen:
-            seen.add(wid)
-            result.append({"id": wid, "name": w["name"]})
+        raw_id = w.get("bsdata_id")
+        if not raw_id:
+            return
+        canonical = id_aliases.get(raw_id, raw_id)  # fallback to raw if not in aliases
+        if canonical not in seen:
+            seen.add(canonical)
+            result.append({"id": canonical, "name": w["name"]})
 
     for w in u.get("weapons_default", []):
         add(w)
@@ -78,11 +82,11 @@ def collect_weapons(u: dict) -> list[dict]:
     return result
 
 
-def slim_unit(u: dict) -> dict:
+def slim_unit(u: dict, id_aliases: dict[str, str]) -> dict:
     stats       = u.get("stats", {}) or {}
     invuln      = extract_invuln(u)
     constraints = u.get("constraints", {}) or {}
-    weapons     = collect_weapons(u)
+    weapons     = collect_weapons(u, id_aliases)
 
     # Keywords — strip BSData internal "Faction:" prefixes for the UI
     useful_kw = [k for k in u.get("keywords", []) if not k.startswith("Faction:")]
@@ -155,7 +159,10 @@ def main():
     w2u = build_weapon_users(units_raw)
 
     # Weapons — deduplicate by (name, A, BS, S, AP, D, keywords) and merge users
-    seen: dict[str, dict] = {}  # dedup key → merged weapon
+    # Also build id_aliases: original bsdata_id → canonical id (first occurrence kept)
+    seen: dict[str, dict] = {}       # dedup key → merged weapon
+    id_aliases: dict[str, str] = {}  # bsdata_id → canonical id
+
     for w in weapons_raw:
         sw = slim_weapon(w)
         kw_key = ",".join(sorted(sw["kw"]))
@@ -164,12 +171,15 @@ def main():
         users = w2u.get(w["bsdata_id"], [])
 
         if dedup_key in seen:
+            canonical_id = seen[dedup_key]["id"]
+            id_aliases[w["bsdata_id"]] = canonical_id
             # Merge users into existing entry (cap at 3 examples)
             existing = seen[dedup_key]
             for u in users:
                 if u not in existing["users"] and len(existing["users"]) < 3:
                     existing["users"].append(u)
         else:
+            id_aliases[w["bsdata_id"]] = sw["id"]   # maps to itself (canonical)
             sw["users"] = users[:3]
             seen[dedup_key] = sw
 
@@ -177,8 +187,8 @@ def main():
     (OUT_DIR / "weapons.json").write_text(json.dumps(weapons, separators=(",", ":")))
     print(f"[build] {len(weapons)} weapons (deduped from {len(weapons_raw)}) → {(OUT_DIR / 'weapons.json').stat().st_size // 1024} KB")
 
-    # Units
-    units = [slim_unit(u) for u in units_raw]
+    # Units — pass id_aliases so weapon refs use canonical ids
+    units = [slim_unit(u, id_aliases) for u in units_raw]
     (OUT_DIR / "units.json").write_text(json.dumps(units, separators=(",", ":")))
     print(f"[build] {len(units)} units → {(OUT_DIR / 'units.json').stat().st_size // 1024} KB")
 
