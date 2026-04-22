@@ -383,11 +383,32 @@ function ArmyPicker() {
 
 // ─────────────────────────────────────────────────────────────────────────────
 
+const BUFF_LABELS = {
+  'REROLL_HITS:ones': 'Reroll hit 1s',
+  'REROLL_HITS:all':  'Reroll failed hits',
+  'REROLL_WOUNDS:ones': 'Reroll wound 1s',
+  'REROLL_WOUNDS:all':  'Reroll failed wounds',
+}
+
 export function AttackerPanel() {
   const weapon      = useSimulatorStore((s) => s.attacker.weapon)
   const models      = useSimulatorStore((s) => s.attacker.models)
+  const buffs       = useSimulatorStore((s) => s.attacker.buffs)
   const setWeapon   = useSimulatorStore((s) => s.setWeapon)
   const setAttacker = useSimulatorStore((s) => s.setAttacker)
+
+  function hasBuff(type, value) {
+    return buffs.some((b) => b.type === type && b.value === value)
+  }
+  function toggleBuff(type, value) {
+    if (hasBuff(type, value)) {
+      setAttacker({ buffs: buffs.filter((b) => !(b.type === type && b.value === value)) })
+    } else {
+      // Rerolls are mutually exclusive per category
+      const filtered = buffs.filter((b) => b.type !== type)
+      setAttacker({ buffs: [...filtered, { type, value }] })
+    }
+  }
 
   const searchWeapons = useDataStore((s) => s.searchWeapons)
   const [weaponResults, setWeaponResults] = useState([])
@@ -743,6 +764,46 @@ export function AttackerPanel() {
         </div>
       </div>
       </>)}
+
+      {/* ── Attacker abilities (always visible) ──────────────────────────── */}
+      <div style={{ marginTop: '24px', paddingTop: '20px', borderTop: `1px solid ${BORDER}` }}>
+        <div style={{
+          fontFamily: 'Space Mono, monospace', fontSize: '8px',
+          letterSpacing: '2px', textTransform: 'uppercase', color: TEXT_MUTED,
+          marginBottom: '12px',
+        }}>
+          Attacker abilities
+        </div>
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+          {[
+            ['REROLL_HITS',   'ones', 'Reroll hit 1s'],
+            ['REROLL_HITS',   'all',  'Reroll failed hits'],
+            ['REROLL_WOUNDS', 'ones', 'Reroll wound 1s'],
+            ['REROLL_WOUNDS', 'all',  'Reroll failed wounds'],
+          ].map(([type, value, label]) => {
+            const active = hasBuff(type, value)
+            return (
+              <button
+                key={`${type}:${value}`}
+                onClick={() => toggleBuff(type, value)}
+                style={{
+                  background: active ? 'rgba(9,162,196,0.15)' : 'transparent',
+                  border: `1px solid ${active ? BLUE : 'rgba(9,162,196,0.25)'}`,
+                  color: active ? BLUE : TEXT_MUTED,
+                  fontFamily: 'Space Mono, monospace', fontSize: '8.5px',
+                  letterSpacing: '1px', textTransform: 'uppercase',
+                  padding: '5px 10px', cursor: 'pointer',
+                  transition: 'all 100ms',
+                }}
+                onMouseEnter={(e) => { if (!active) { e.currentTarget.style.borderColor = 'rgba(9,162,196,0.5)'; e.currentTarget.style.color = 'rgba(184,210,228,0.7)' } }}
+                onMouseLeave={(e) => { if (!active) { e.currentTarget.style.borderColor = 'rgba(9,162,196,0.25)'; e.currentTarget.style.color = TEXT_MUTED } }}
+              >
+                {active ? `✓ ${label}` : label}
+              </button>
+            )
+          })}
+        </div>
+      </div>
     </section>
 
     <UnitDrawer
