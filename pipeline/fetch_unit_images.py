@@ -38,6 +38,19 @@ SKIP_KEYWORDS = [
     "icon", "logo", "banner", "symbol", "badge", "crest",
     "warscroll", "datasheet", "map", "artwork_old", "portrait",
     "screenshot", "warhammer_fantasy", "age_of_sigmar",
+    "cover", "codex", "rulebook", "book_cover",
+]
+
+# Boost: likely a painted miniature / studio model photo
+MINIATURE_KEYWORDS = [
+    "miniature", "mini", "model", "painted", "render",
+    "fig", "figure", "squad", "unit",
+]
+
+# Penalise: likely concept art / illustration
+ARTWORK_KEYWORDS = [
+    "artwork", "art_by", "illustration", "concept", "drawing",
+    "official_art",
 ]
 
 # ── HTTP helper ───────────────────────────────────────────────────────────────
@@ -74,6 +87,17 @@ def score_image(file_title: str, unit_name: str) -> int:
     file_tokens = set(re.sub(r"[^a-z0-9]", " ", name).split())
     overlap = len(unit_tokens & file_tokens)
     score += overlap * 10
+
+    # Boost: miniature/model indicators (only count the first match to avoid stacking)
+    for kw in MINIATURE_KEYWORDS:
+        if kw in name:
+            score += 8
+            break
+
+    # Penalise: artwork/illustration indicators
+    for kw in ARTWORK_KEYWORDS:
+        if kw in name:
+            score -= 8
 
     # Slight preference for jpg (more likely a render than a .png icon)
     if name.endswith(".jpg"):
@@ -125,7 +149,7 @@ def search_unit(unit_name: str) -> str | None:
             "action": "query",
             "titles": page_title,
             "prop": "images",
-            "imlimit": 15,
+            "imlimit": 25,
         })
         pages = data2.get("query", {}).get("pages", {})
         all_images = []

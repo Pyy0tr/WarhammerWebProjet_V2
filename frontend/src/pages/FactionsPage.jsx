@@ -385,10 +385,7 @@ function UnitsView({ faction, initialUnit, onSelectUnit, onBack }) {
 }
 
 function UnitCard({ unit, onClick }) {
-  const [hover,    setHover]    = useState(false)
-  const [imgError, setImgError] = useState(false)
-  const imageUrl = useDataStore((s) => s.unitImages[unit.id])
-  const hasImage = imageUrl && !imgError
+  const [hover, setHover] = useState(false)
 
   return (
     <div
@@ -397,40 +394,23 @@ function UnitCard({ unit, onClick }) {
       onMouseLeave={() => setHover(false)}
       style={{
         border: `1px solid ${hover ? BLUE : 'rgba(9,162,196,0.2)'}`,
-        cursor: 'pointer', position: 'relative', overflow: 'hidden',
+        cursor: 'pointer',
         transition: 'border-color 150ms, transform 150ms',
         transform: hover ? 'translateY(-2px)' : 'none',
-        minHeight: hasImage ? '190px' : 'auto',
-        display: 'flex', flexDirection: 'column', justifyContent: 'flex-end',
       }}
     >
-      {hasImage && (
-        <>
-          <img src={imageUrl} alt="" onError={() => setImgError(true)} style={{
-            position: 'absolute', inset: 0, width: '100%', height: '100%',
-            objectFit: 'cover', objectPosition: 'top center',
-            opacity: hover ? 0.55 : 0.4, transition: 'opacity 200ms', pointerEvents: 'none',
-          }} />
-          <div style={{
-            position: 'absolute', inset: 0,
-            background: 'linear-gradient(to bottom, rgba(4,20,40,0.1) 0%, rgba(4,20,40,0.55) 45%, rgba(4,20,40,0.97) 75%)',
-            pointerEvents: 'none',
-          }} />
-        </>
-      )}
-
       <div style={{
-        position: 'relative', zIndex: 1, padding: '14px 16px',
-        background: hasImage ? 'transparent' : (hover ? 'rgba(9,162,196,0.05)' : 'transparent'),
+        padding: '14px 16px',
+        background: hover ? 'rgba(9,162,196,0.05)' : 'transparent',
         transition: 'background 100ms',
       }}>
         {unit.is_legends && (
           <div style={{
-            position: 'absolute', top: '-118px', right: '10px',
+            display: 'inline-block', marginBottom: '6px',
             fontFamily: 'Space Mono, monospace', fontSize: '8px',
             letterSpacing: '1px', textTransform: 'uppercase',
             color: TEXT_MUTED, border: '1px solid rgba(9,162,196,0.35)',
-            padding: '2px 6px', background: 'rgba(4,20,40,0.7)',
+            padding: '2px 6px',
           }}>
             Legends
           </div>

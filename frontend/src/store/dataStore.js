@@ -7,16 +7,14 @@ export const useDataStore = create((set, get) => ({
   unitsById: {},
   factions: [],
   unitsByFaction: {},   // faction name → unit[]
-  unitImages: {},       // unit_id → image_url
   loaded: false,
 
   load: async () => {
     if (get().loaded) return
-    const [units, weapons, factions, unitImages] = await Promise.all([
+    const [units, weapons, factions] = await Promise.all([
       fetch('/data/units.json').then((r) => r.json()),
       fetch('/data/weapons.json').then((r) => r.json()),
       fetch('/data/factions.json').then((r) => r.json()),
-      fetch('/data/unit_images.json').then((r) => r.json()).catch(() => ({})),
     ])
 
     const weaponsById = {}
@@ -35,11 +33,10 @@ export const useDataStore = create((set, get) => ({
       }
     }
 
-    set({ units, weapons, weaponsById, unitsById, factions, unitsByFaction, unitImages, loaded: true })
+    set({ units, weapons, weaponsById, unitsById, factions, unitsByFaction, loaded: true })
   },
 
-  getUnitById:    (id) => get().unitsById[id] ?? null,
-  getUnitImage:   (id) => get().unitImages[id] ?? null,
+  getUnitById: (id) => get().unitsById[id] ?? null,
 
   // Return full weapon objects for a unit's weapon id list
   getUnitWeapons: (unit) => {
