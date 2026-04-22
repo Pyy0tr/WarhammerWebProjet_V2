@@ -4,8 +4,11 @@ import { AttackerPanel } from '../components/AttackerPanel'
 import { DefenderPanel } from '../components/DefenderPanel'
 import { ResultsPanel } from '../components/ResultsPanel'
 
-const BLUE = '#09A2C4'
-const BG   = '#041428'
+const BLUE       = '#09A2C4'
+const BG         = '#041428'
+const TEXT_H     = '#FFFFFF'
+const TEXT_BODY  = '#C8DCE8'
+const TEXT_MUTED = 'rgba(184,210,228,0.5)'
 
 function Separator() {
   return (
@@ -38,7 +41,7 @@ export function SimulatorPage() {
   }, [result])
 
   return (
-    <div style={{ color: BLUE, minHeight: '100vh', paddingTop: '52px' }}>
+    <div style={{ color: TEXT_BODY, minHeight: '100vh', paddingTop: '52px' }}>
 
       {/* ── Header ────────────────────────────────────────────────────────── */}
       <div style={{ padding: '0 48px' }}>
@@ -47,14 +50,14 @@ export function SimulatorPage() {
           <div style={{ display: 'flex', alignItems: 'baseline', gap: '16px' }}>
             <h1 style={{
               fontFamily: 'Space Mono, monospace', fontWeight: 700,
-              fontSize: 'clamp(16px, 2vw, 24px)', letterSpacing: '0.05em',
-              textTransform: 'uppercase', lineHeight: 1,
+              fontSize: 'clamp(18px, 2vw, 26px)', letterSpacing: '0.05em',
+              textTransform: 'uppercase', lineHeight: 1, color: TEXT_H,
             }}>
               Probability Simulator
             </h1>
             <span style={{
-              fontFamily: 'Space Mono, monospace', fontSize: '8px',
-              letterSpacing: '2px', textTransform: 'uppercase', opacity: 0.4,
+              fontFamily: 'Space Mono, monospace', fontSize: '10px',
+              letterSpacing: '2px', textTransform: 'uppercase', color: TEXT_MUTED,
             }}>
               Monte Carlo · WH40K 10e
             </span>
@@ -63,42 +66,28 @@ export function SimulatorPage() {
         <Separator />
       </div>
 
-      {/* ── Selection section (fills viewport) ───────────────────────────── */}
+      {/* ── Panels ────────────────────────────────────────────────────────── */}
       <section style={{ display: 'flex', flexDirection: 'column', minHeight: 'calc(100vh - 112px)' }}>
-
-        {/* Two panels side by side */}
         <div style={{ display: 'flex', flex: 1 }}>
-
-          {/* LEFT — Attacker */}
           <div style={{
-            flex: 1,
-            borderRight: `1px solid rgba(9,162,196,0.25)`,
-            padding: '36px 40px 36px 48px',
-            overflowY: 'auto',
+            flex: 1, borderRight: `1px solid rgba(9,162,196,0.25)`,
+            padding: '36px 40px 36px 48px', overflowY: 'auto',
           }}>
             <AttackerPanel />
           </div>
-
-          {/* RIGHT — Defender */}
-          <div style={{
-            flex: 1,
-            padding: '36px 48px 36px 40px',
-            overflowY: 'auto',
-          }}>
+          <div style={{ flex: 1, padding: '36px 48px 36px 40px', overflowY: 'auto' }}>
             <DefenderPanel />
           </div>
         </div>
 
-        {/* Run button — full width at the bottom */}
-        <div style={{
-          borderTop: `1px solid rgba(9,162,196,0.25)`,
-          padding: '20px 48px 28px',
-        }}>
+        {/* Run button */}
+        <div style={{ borderTop: `1px solid rgba(9,162,196,0.25)`, padding: '20px 48px 28px' }}>
           {error && (
             <div style={{
-              marginBottom: '12px', border: `1px solid ${BLUE}`,
+              marginBottom: '12px', border: `1px solid rgba(224,92,92,0.5)`,
               padding: '10px 14px', fontFamily: 'Space Mono, monospace',
-              fontSize: '8.5px', letterSpacing: '1.5px', textTransform: 'uppercase',
+              fontSize: '10px', letterSpacing: '1.5px', textTransform: 'uppercase',
+              color: '#e05c5c',
             }}>
               ERROR — {error}
             </div>
@@ -110,8 +99,8 @@ export function SimulatorPage() {
               display: 'block', width: '100%',
               border: `1px solid ${BLUE}`,
               background: loading ? `rgba(9,162,196,0.06)` : 'transparent',
-              color: BLUE,
-              fontFamily: 'Space Mono, monospace', fontSize: '11px',
+              color: loading ? TEXT_MUTED : TEXT_H,
+              fontFamily: 'Space Mono, monospace', fontSize: '12px',
               fontWeight: 700, letterSpacing: '4px', textTransform: 'uppercase',
               padding: '16px', borderRadius: 0,
               cursor: loading ? 'default' : 'pointer',
@@ -123,7 +112,7 @@ export function SimulatorPage() {
             }}
             onMouseLeave={(e) => {
               e.currentTarget.style.background = 'transparent'
-              e.currentTarget.style.color = BLUE
+              e.currentTarget.style.color = TEXT_H
             }}
           >
             {loading ? 'Running…' : 'Run Simulation →'}
@@ -131,25 +120,19 @@ export function SimulatorPage() {
         </div>
       </section>
 
-      {/* ── Separator ─────────────────────────────────────────────────────── */}
-      <div style={{ padding: '0 48px' }}>
-        <Separator />
-      </div>
+      <div style={{ padding: '0 48px' }}><Separator /></div>
 
-      {/* ── Results section ───────────────────────────────────────────────── */}
+      {/* ── Results ───────────────────────────────────────────────────────── */}
       <section ref={resultsRef} style={{ minHeight: '80vh', padding: '36px 48px 80px' }}>
         <div style={{
-          fontFamily: 'Space Mono, monospace', fontSize: '8.5px',
+          fontFamily: 'Space Mono, monospace', fontSize: '10px',
           letterSpacing: '3px', textTransform: 'uppercase',
-          opacity: 0.45, marginBottom: '32px',
+          color: TEXT_MUTED, marginBottom: '32px',
         }}>
           Results
         </div>
-
-        <div
-          key={result ? `${result.summary.mean_damage}-${result.n_trials}` : 'empty'}
-          className={result ? 'results-enter' : undefined}
-        >
+        <div key={result ? `${result.summary.mean_damage}-${result.n_trials}` : 'empty'}
+          className={result ? 'results-enter' : undefined}>
           <ResultsPanel result={result} />
         </div>
       </section>
@@ -159,14 +142,13 @@ export function SimulatorPage() {
         <Separator />
         <div style={{
           display: 'flex', justifyContent: 'space-between', paddingTop: '12px',
-          fontFamily: 'Space Mono, monospace', fontSize: '8px',
-          letterSpacing: '2px', textTransform: 'uppercase', opacity: 0.35,
+          fontFamily: 'Space Mono, monospace', fontSize: '9px',
+          letterSpacing: '2px', textTransform: 'uppercase', color: TEXT_MUTED,
         }}>
           <span>WH40K PROBABILITY ENGINE — V2</span>
           <span>SIMULATION RUNS IN BROWSER — ZERO LATENCY</span>
         </div>
       </div>
-
     </div>
   )
 }

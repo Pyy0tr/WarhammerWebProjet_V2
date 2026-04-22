@@ -5,6 +5,7 @@ import { SimulatorPage } from './pages/SimulatorPage'
 import { FactionsPage } from './pages/FactionsPage'
 import { Navbar } from './components/Navbar'
 import { useDataStore } from './store/dataStore'
+import { useAuthStore } from './store/authStore'
 
 function HalftoneOverlay() {
   return (
@@ -58,8 +59,10 @@ function HalftoneOverlay() {
 }
 
 export default function App() {
-  const load = useDataStore((s) => s.load)
+  const load     = useDataStore((s) => s.load)
+  const authInit = useAuthStore((s) => s.init)
   useEffect(() => { load() }, [load])
+  useEffect(() => authInit(), [authInit])
 
   return (
     <BrowserRouter>
