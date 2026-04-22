@@ -1,9 +1,7 @@
 import { useState, useEffect, useRef } from 'react'
-import { useNavigate } from 'react-router-dom'
-import { useArmyStore }      from '../store/armyStore'
-import { useAuthStore }      from '../store/authStore'
-import { useDataStore }      from '../store/dataStore'
-import { useSimulatorStore } from '../store/simulatorStore'
+import { useArmyStore } from '../store/armyStore'
+import { useAuthStore } from '../store/authStore'
+import { useDataStore } from '../store/dataStore'
 
 const BLUE       = '#09A2C4'
 const BG         = '#041428'
@@ -15,27 +13,7 @@ const TEXT_BODY  = '#C8DCE8'
 const TEXT_MUTED = 'rgba(184,210,228,0.45)'
 const RED        = '#e05c5c'
 
-// ── Keyword mapper (subset of AttackerPanel's mapKeywords) ────────────────────
 
-function mapKeywords(kwStrings) {
-  if (!kwStrings?.length) return []
-  const result = []
-  for (const raw of kwStrings) {
-    const sus   = raw.match(/sustained\s*hits\s*(\d+|D\d+)/i)
-    const rf    = raw.match(/rapid\s*fire\s*(\d+|D\d+)/i)
-    const melta = raw.match(/melta\s*(\d+|D\d+)/i)
-    const anti  = raw.match(/anti-(\w+)\s*(\d+)\+/i)
-    const ea    = raw.match(/extra\s*attacks?\s*(\d+|D\d+)/i)
-    if (sus)   { result.push({ type: 'SUSTAINED_HITS', value: sus[1] }); continue }
-    if (rf)    { result.push({ type: 'RAPID_FIRE', value: rf[1] }); continue }
-    if (melta) { result.push({ type: 'MELTA', value: melta[1] }); continue }
-    if (anti)  { result.push({ type: 'ANTI', target: anti[1].toUpperCase(), threshold: parseInt(anti[2]) }); continue }
-    if (ea)    { result.push({ type: 'EXTRA_ATTACKS', value: ea[1] }); continue }
-    const simple = raw.toUpperCase().replace(/[\s-]/g, '_')
-    result.push({ type: simple })
-  }
-  return result
-}
 
 // ── Small helpers ─────────────────────────────────────────────────────────────
 
@@ -144,47 +122,9 @@ function EditableName({ value, onSave, style }) {
 // ── Army unit card ────────────────────────────────────────────────────────────
 
 function ArmyUnitCard({ entry, user }) {
-  const removeUnit    = useArmyStore((s) => s.removeUnit)
-  const updateUnit    = useArmyStore((s) => s.updateUnit)
-  const weaponsById   = useDataStore((s) => s.weaponsById)
-  const setAttacker   = useSimulatorStore((s) => s.setAttacker)
-  const setWeapon     = useSimulatorStore((s) => s.setWeapon)
-  const setDefender   = useSimulatorStore((s) => s.setDefender)
-  const navigate      = useNavigate()
-
+  const removeUnit = useArmyStore((s) => s.removeUnit)
+  const updateUnit = useArmyStore((s) => s.updateUnit)
   const [hov, setHov] = useState(false)
-
-  const loadAsAttacker = () => {
-    // Use first weapon of the unit
-    const weaponRef = entry.weapons?.[0]
-    const weapon    = weaponRef ? weaponsById[weaponRef.id] : null
-    setAttacker({ models: entry.models })
-    if (weapon) {
-      setWeapon({
-        name:     weapon.name,
-        attacks:  weapon.A  ?? '2',
-        skill:    weapon.BS ?? weapon.WS ?? 4,
-        strength: weapon.S  ?? 4,
-        ap:       weapon.AP ?? 0,
-        damage:   weapon.D  ?? '1',
-        keywords: mapKeywords(weapon.kw ?? []),
-      })
-    }
-    navigate('/simulator')
-  }
-
-  const loadAsDefender = () => {
-    setDefender({
-      toughness: entry.T     ?? 4,
-      save:      entry.Sv    ?? 4,
-      invuln:    entry.invuln ?? null,
-      wounds:    entry.W     ?? 2,
-      models:    entry.models,
-      fnp:       null,
-      keywords:  entry.kw    ?? [],
-    })
-    navigate('/simulator')
-  }
 
   return (
     <div
@@ -252,13 +192,9 @@ function ArmyUnitCard({ entry, user }) {
           })()}
         </div>
 
-        {/* Right: actions */}
-        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '6px', flexShrink: 0 }}>
-          <IconBtn danger onClick={() => removeUnit(entry.uid, user)}>×</IconBtn>
-          <div style={{ display: 'flex', gap: '4px', marginTop: '6px' }}>
-            <SmallBtn onClick={loadAsAttacker}>ATT →</SmallBtn>
-            <SmallBtn onClick={loadAsDefender}>CIB →</SmallBtn>
-          </div>
+        {/* Right: delete */}
+        <div style={{ flexShrink: 0 }}>
+          <IconBtn danger onClick={() => removeUnit(entry.uid, user)} title="Remove unit">×</IconBtn>
         </div>
       </div>
     </div>

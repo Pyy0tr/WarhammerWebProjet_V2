@@ -1,7 +1,7 @@
 import { useState, useMemo } from 'react'
-import { useNavigate } from 'react-router-dom'
-import { useDataStore } from '../store/dataStore'
-import { useSimulatorStore } from '../store/simulatorStore'
+import { useDataStore }  from '../store/dataStore'
+import { useArmyStore }  from '../store/armyStore'
+import { useAuthStore }  from '../store/authStore'
 
 const BLUE       = '#09A2C4'
 const BG         = '#041428'
@@ -528,23 +528,38 @@ const tdStyle = {
 }
 
 function UnitDetailView({ unit, onBack, factionLabel }) {
-  const navigate    = useNavigate()
-  const setDefender = useSimulatorStore((s) => s.setDefender)
-  const setWeapon   = useSimulatorStore((s) => s.setWeapon)
-  const weaponsById = useDataStore((s) => s.weaponsById)
+  const armies  = useArmyStore((s) => s.armies)
+  const activeId = useArmyStore((s) => s.activeId)
+  const addUnit  = useArmyStore((s) => s.addUnit)
+  const user     = useAuthStore((s) => s.user)
+
   const [expandAbilities, setExpandAbilities] = useState(false)
+  const [targetArmyId, setTargetArmyId]       = useState(() => activeId ?? armies[0]?.id ?? '')
+  const [added, setAdded]                     = useState(false)
 
-  function simulateAsDefender() {
-    setDefender({ toughness: unit.T, save: unit.Sv, wounds: unit.W, invuln: unit.invuln, fnp: null, keywords: unit.kw })
-    navigate('/simulator')
-  }
+  async function handleAddToArmy() {
+    if (!targetArmyId) return
+    // Temporarily switch active army if needed
+    const store = useArmyStore.getState()
+    const prevActive = store.activeId
+    if (prevActive !== targetArmyId) store.setActive(targetArmyId)
 
-  function simulateAsAttacker() {
-    const firstWeapon = unit.weapons?.[0] ? weaponsById[unit.weapons[0].id] : null
-    if (firstWeapon) {
-      setWeapon({ name: firstWeapon.name, attacks: firstWeapon.A, skill: firstWeapon.BS, strength: firstWeapon.S, ap: firstWeapon.AP, damage: firstWeapon.D, keywords: mapKeywords(firstWeapon.kw || []) })
-    }
-    navigate('/simulator')
+    await addUnit({
+      unit_id:    unit.id,
+      name:       unit.name,
+      T:          unit.T,
+      Sv:         unit.Sv,
+      W:          unit.W,
+      invuln:     unit.invuln ?? null,
+      kw:         unit.kw ?? [],
+      weapons:    unit.weapons ?? [],
+      min_models: unit.min_models ?? null,
+      max_models: unit.max_models ?? null,
+    }, user)
+
+    if (prevActive !== targetArmyId) store.setActive(prevActive)
+    setAdded(true)
+    setTimeout(() => setAdded(false), 2000)
   }
 
   const pts = unit.pts, minM = unit.min_models, maxM = unit.max_models
@@ -686,34 +701,51 @@ function UnitDetailView({ unit, onBack, factionLabel }) {
       )}
 
       {/* Actions */}
-      <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap', paddingTop: '24px', borderTop: '1px solid rgba(9,162,196,0.12)' }}>
-        <ActionButton onClick={simulateAsAttacker} primary>→ Simuler en tant qu'attaquant</ActionButton>
-        <ActionButton onClick={simulateAsDefender}>→ Simuler en tant que défenseur</ActionButton>
+      <div style={{ paddingTop: '24px', borderTop: '1px solid rgba(9,162,196,0.12)' }}>
+        {armies.length === 0 ? (
+          <div style={{ fontFamily: 'Space Mono, monospace', fontSize: '10px', color: TEXT_MUTED, lineHeight: 1.7 }}>
+            No armies yet.{' '}
+            <a href="/armies" style={{ color: BLUE, textDecoration: 'none' }}>Create one →</a>
+          </div>
+        ) : (
+          <div style={{ display: 'flex', gap: '10px', alignItems: 'center', flexWrap: 'wrap' }}>
+            {armies.length > 1 && (
+              <select
+                value={targetArmyId}
+                onChange={(e) => setTargetArmyId(e.target.value)}
+                style={{
+                  background: '#071e38', border: '1px solid rgba(9,162,196,0.3)',
+                  color: TEXT_H, fontFamily: 'Space Mono, monospace', fontSize: '10px',
+                  padding: '10px 12px', outline: 'none', cursor: 'pointer',
+                }}
+              >
+                {armies.map((a) => (
+                  <option key={a.id} value={a.id}>{a.name}</option>
+                ))}
+              </select>
+            )}
+            <button
+              onClick={handleAddToArmy}
+              disabled={added}
+              style={{
+                background: added ? 'rgba(9,162,196,0.15)' : BLUE,
+                border: `1px solid ${BLUE}`,
+                color: added ? BLUE : BG,
+                fontFamily: 'Space Mono, monospace', fontSize: '10px',
+                fontWeight: 700, letterSpacing: '2px', textTransform: 'uppercase',
+                padding: '12px 24px', cursor: added ? 'default' : 'pointer',
+                transition: 'background 150ms, color 150ms',
+              }}
+            >
+              {added
+                ? `✓ Added to ${armies.find((a) => a.id === targetArmyId)?.name ?? 'army'}`
+                : `+ Add to ${armies.length === 1 ? armies[0].name : 'army'}`
+              }
+            </button>
+          </div>
+        )}
       </div>
     </div>
-  )
-}
-
-function ActionButton({ children, onClick, primary }) {
-  const [hover, setHover] = useState(false)
-  return (
-    <button
-      onClick={onClick}
-      onMouseEnter={() => setHover(true)}
-      onMouseLeave={() => setHover(false)}
-      style={{
-        background: primary ? (hover ? 'rgba(9,162,196,0.85)' : BLUE) : (hover ? 'rgba(9,162,196,0.1)' : 'transparent'),
-        border: `1px solid ${BLUE}`,
-        color: primary ? BG : (hover ? TEXT_H : TEXT_BODY),
-        fontFamily: 'Space Mono, monospace', fontSize: '10px',
-        fontWeight: primary ? 700 : 400,
-        letterSpacing: '2px', textTransform: 'uppercase',
-        padding: '13px 26px', cursor: 'pointer', borderRadius: 0,
-        transition: 'background 100ms, color 100ms',
-      }}
-    >
-      {children}
-    </button>
   )
 }
 
