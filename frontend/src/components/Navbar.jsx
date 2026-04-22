@@ -118,7 +118,7 @@ function UserChip({ user, onLogout }) {
           transition: 'border-color 100ms',
         }}
       >
-        Déconnexion
+        Sign out
       </button>
     </div>
   )
@@ -170,6 +170,10 @@ export function Navbar() {
             Factions
           </NavLink>
 
+          <NavLink to="/armies" active={pathname === '/armies'}>
+            Armies
+          </NavLink>
+
           <NavLink to="/simulator" active={pathname === '/simulator'}>
             Simulator
           </NavLink>
@@ -186,10 +190,10 @@ export function Navbar() {
           ) : (
             <>
               <GhostButton onClick={() => setModal('login')}>
-                Connexion
+                Sign in
               </GhostButton>
               <SolidButton onClick={() => setModal('register')}>
-                Créer un compte
+                Create account
               </SolidButton>
             </>
           )}

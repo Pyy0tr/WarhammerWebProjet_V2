@@ -79,7 +79,7 @@ function StrengthBar({ password }) {
   if (!password) return null
   const score  = strengthScore(password)
   const colors = ['#e05c5c', '#e07c3c', '#e0b03c', '#7cc47c', '#09A2C4']
-  const labels = ['Très faible', 'Faible', 'Moyen', 'Fort', 'Excellent']
+  const labels = ['Very weak', 'Weak', 'Fair', 'Strong', 'Excellent']
   return (
     <div style={{ marginTop: '-4px', display: 'flex', flexDirection: 'column', gap: '4px' }}>
       <div style={{ height: '3px', background: 'rgba(9,162,196,0.1)', borderRadius: '2px' }}>
@@ -97,7 +97,7 @@ function StrengthBar({ password }) {
         fontFamily: 'Space Mono, monospace',
         letterSpacing: '1px',
       }}>
-        {labels[score - 1] ?? 'Trop court'}
+        {labels[score - 1] ?? 'Too short'}
       </span>
     </div>
   )
@@ -142,15 +142,15 @@ export function AuthModal({ isOpen, onClose, initialTab = 'login' }) {
 
   const handleRegister = useCallback(async () => {
     setError('')
-    if (password !== confirm) { setError('Les mots de passe ne correspondent pas'); return }
-    if (strengthScore(password) < 2) { setError('Mot de passe trop faible'); return }
+    if (password !== confirm) { setError('Passwords do not match'); return }
+    if (strengthScore(password) < 2) { setError('Password too weak'); return }
     setBusy(true)
     try {
       await register(email.trim(), password)
-      setInfo('Un email de confirmation t\'a été envoyé. Vérifie ta boîte mail.')
+      setInfo('A confirmation email has been sent. Check your inbox.')
       setPassword(''); setConfirm('')
     } catch (e) {
-      setError(e.message ?? 'Erreur lors de la création du compte')
+      setError(e.message ?? 'Error creating account')
     } finally {
       setBusy(false)
     }
@@ -209,7 +209,7 @@ export function AuthModal({ isOpen, onClose, initialTab = 'login' }) {
 
         {/* Tabs */}
         <div style={{ display: 'flex', borderBottom: `1px solid ${BORDER}` }}>
-          {[['login', 'Connexion'], ['register', 'Créer un compte']].map(([id, label]) => (
+          {[['login', 'Sign in'], ['register', 'Create account']].map(([id, label]) => (
             <button
               key={id}
               onClick={() => setTab(id)}
@@ -245,7 +245,7 @@ export function AuthModal({ isOpen, onClose, initialTab = 'login' }) {
 
           <Input
             type="password"
-            placeholder="Mot de passe"
+            placeholder="Password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             disabled={busy}
@@ -255,7 +255,7 @@ export function AuthModal({ isOpen, onClose, initialTab = 'login' }) {
             <StrengthBar password={password} />
             <Input
               type="password"
-              placeholder="Confirmer le mot de passe"
+              placeholder="Confirm password"
               value={confirm}
               onChange={(e) => setConfirm(e.target.value)}
               disabled={busy}
@@ -267,7 +267,7 @@ export function AuthModal({ isOpen, onClose, initialTab = 'login' }) {
             disabled={tab === 'login' ? (!email || !password) : (!email || !password || !confirm)}
             loading={busy}
           >
-            {tab === 'login' ? 'Se connecter' : 'Créer mon compte'}
+            {tab === 'login' ? 'Sign in' : 'Create account'}
           </PrimaryBtn>
 
           {/* Switch tab link */}
@@ -275,12 +275,12 @@ export function AuthModal({ isOpen, onClose, initialTab = 'login' }) {
             fontFamily: 'Space Mono, monospace', fontSize: '10px',
             color: 'rgba(200,216,232,0.4)', margin: 0, textAlign: 'center',
           }}>
-            {tab === 'login' ? 'Pas encore de compte ? ' : 'Déjà un compte ? '}
+            {tab === 'login' ? 'No account yet? ' : 'Already have an account? '}
             <span
               onClick={() => setTab(tab === 'login' ? 'register' : 'login')}
               style={{ color: BLUE, cursor: 'pointer', textDecoration: 'underline' }}
             >
-              {tab === 'login' ? 'Créer un compte' : 'Se connecter'}
+              {tab === 'login' ? 'Create account' : 'Sign in'}
             </span>
           </p>
 

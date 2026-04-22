@@ -165,7 +165,7 @@ function FactionsView({ onSelectFaction }) {
         }}>
           Factions
         </h1>
-        <SearchBar value={search} onChange={setSearch} placeholder="Rechercher une unité ou une faction…" />
+        <SearchBar value={search} onChange={setSearch} placeholder="Search a unit or faction…" />
       </div>
 
       {search.length >= 2 ? (

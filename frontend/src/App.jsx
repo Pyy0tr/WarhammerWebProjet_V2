@@ -3,6 +3,7 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import { HomePage } from './pages/HomePage'
 import { SimulatorPage } from './pages/SimulatorPage'
 import { FactionsPage } from './pages/FactionsPage'
+import { ArmiesPage } from './pages/ArmiesPage'
 import { Navbar } from './components/Navbar'
 import { useDataStore } from './store/dataStore'
 import { useAuthStore } from './store/authStore'
@@ -73,6 +74,7 @@ export default function App() {
         <Route path="/"          element={<HomePage />} />
         <Route path="/simulator" element={<SimulatorPage />} />
         <Route path="/factions"  element={<FactionsPage />} />
+        <Route path="/armies"    element={<ArmiesPage />} />
         <Route path="*"          element={<Navigate to="/" replace />} />
       </Routes>
     </BrowserRouter>

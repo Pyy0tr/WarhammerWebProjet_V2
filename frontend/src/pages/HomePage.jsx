@@ -178,9 +178,9 @@ export function HomePage() {
               lineHeight: 1.75, maxWidth: '420px',
               color: TEXT_BODY, marginBottom: '36px',
             }}>
-              Calculez les probabilités de vos attaques avant de jouer vos dés.
-              Sélectionnez une unité, configurez l'attaque, et obtenez
-              la distribution complète des dégâts en moins d'une seconde.
+              Calculate your attack probabilities before you roll.
+              Pick a unit, configure the attack, and get
+              the full damage distribution in under a second.
             </p>
 
             <div style={{ display: 'flex', alignItems: 'center', gap: '20px', flexWrap: 'wrap' }}>
@@ -247,24 +247,24 @@ export function HomePage() {
           letterSpacing: '3px', textTransform: 'uppercase',
           color: TEXT_MUTED, marginBottom: '44px',
         }}>
-          Comment ça fonctionne
+          How it works
         </div>
 
         <div style={{ display: 'flex', gap: '48px', flexWrap: 'wrap' }}>
           <StepCard
-            num="01 — Sélectionner"
-            title="Choisir les unités"
-            desc="Parcourez 1 487 unités par faction ou recherchez directement. Sélectionnez une unité attaquante avec son arme, puis une unité défenseur — les statistiques se remplissent automatiquement."
+            num="01 — Select"
+            title="Pick your units"
+            desc="Browse 1,487 units by faction or search directly. Select an attacking unit with its weapon, then a defender — stats fill in automatically."
           />
           <StepCard
-            num="02 — Configurer"
-            title="Ajuster le contexte"
-            desc="Activez les keywords pertinents (Lethal Hits, Devastating Wounds, ANTI, Melta…), précisez si l'attaquant est à demi-portée, en cover, ou s'il vient de charger."
+            num="02 — Configure"
+            title="Set the context"
+            desc="Toggle relevant keywords (Lethal Hits, Devastating Wounds, ANTI, Melta…), specify if the attacker is within half range, in cover, or just charged."
           />
           <StepCard
-            num="03 — Analyser"
-            title="Lire la distribution"
-            desc="Le moteur exécute jusqu'à 10 000 simulations Monte Carlo dans le navigateur et affiche l'histogramme des dégâts, la moyenne, la médiane et les percentiles P10–P90."
+            num="03 — Analyse"
+            title="Read the distribution"
+            desc="The engine runs up to 10,000 Monte Carlo simulations in the browser and displays the damage histogram, mean, median, and P10–P90 percentiles."
           />
         </div>
       </section>
@@ -278,7 +278,7 @@ export function HomePage() {
         letterSpacing: '2px', textTransform: 'uppercase', color: TEXT_MUTED,
       }}>
         <span>Prob'Hammer — V2</span>
-        <span>Données BSData Community</span>
+        <span>Data by BSData Community</span>
         <span>Warhammer 40,000 © Games Workshop</span>
       </div>
     </div>
