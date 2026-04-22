@@ -24,12 +24,21 @@ function fmtKw(kw) {
   return kw.type.replace(/_/g, ' ')
 }
 
-// ── Army Picker ───────────────────────────────────────────────────────────────
+// ── Shared constants ──────────────────────────────────────────────────────────
 
 const TEXT_MUTED = 'rgba(184,210,228,0.45)'
 const TEXT_H     = '#FFFFFF'
 const PANEL      = '#071e38'
 const BORDER     = 'rgba(9,162,196,0.15)'
+
+const inputStyle = {
+  background: 'transparent', border: `1px solid rgba(9,162,196,0.35)`,
+  color: BLUE, fontFamily: 'Space Mono, monospace', fontSize: '10px',
+  letterSpacing: '1px', padding: '5px 8px', outline: 'none',
+  borderRadius: 0, width: '100%',
+}
+
+// ── Army Picker ───────────────────────────────────────────────────────────────
 
 function ArmyPicker() {
   const armies      = useArmyStore((s) => s.armies)
@@ -38,6 +47,7 @@ function ArmyPicker() {
   const init        = useArmyStore((s) => s.init)
   const setWeapon   = useSimulatorStore((s) => s.setWeapon)
   const setAttacker = useSimulatorStore((s) => s.setAttacker)
+  const weapon      = useSimulatorStore((s) => s.attacker.weapon)
 
   // Ensure armies are loaded
   useState(() => { init(user) })
@@ -46,6 +56,12 @@ function ArmyPicker() {
   const [unitUid,  setUnitUid]  = useState('')
   const [weaponId, setWeaponId] = useState('')
   const [firing,   setFiring]   = useState(1)
+
+  // Keyword picker state
+  const [pickerType,      setPickerType]      = useState('')
+  const [pickerValue,     setPickerValue]     = useState('1')
+  const [pickerTarget,    setPickerTarget]    = useState('INFANTRY')
+  const [pickerThreshold, setPickerThreshold] = useState('4')
 
   const army    = armies.find((a) => a.id === armyId) ?? null
   const unit    = army?.units.find((u) => u.uid === unitUid) ?? null
@@ -80,6 +96,24 @@ function ArmyPicker() {
     setFiring(u?.models ?? 1)
   }
   const handleWeaponChange = (id) => setWeaponId(id)
+
+  function addKeyword() {
+    if (!pickerType) return
+    let kw
+    if (VALUED_KEYWORDS.includes(pickerType)) {
+      kw = { type: pickerType, value: pickerValue }
+    } else if (pickerType === 'ANTI') {
+      kw = { type: 'ANTI', target: pickerTarget.toUpperCase(), threshold: parseInt(pickerThreshold) }
+    } else {
+      kw = { type: pickerType }
+    }
+    setWeapon({ keywords: [...(weapon.keywords ?? []), kw] })
+    setPickerType(''); setPickerValue('1')
+  }
+
+  function removeKeyword(idx) {
+    setWeapon({ keywords: weapon.keywords.filter((_, i) => i !== idx) })
+  }
 
   if (armies.length === 0) {
     return (
@@ -232,18 +266,117 @@ function ArmyPicker() {
         </div>
       )}
 
-      {/* Confirmation indicator */}
-      {unit && selectedWeapon && (
+      {/* ── Weapon stats + keywords (editable) ── */}
+      {unit && selectedWeapon && (<>
+
+        <div style={{ borderTop: `1px solid ${BORDER}`, paddingTop: '16px' }}>
+          <span style={labelStyle}>Weapon stats</span>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+            <StatInput label="Attacks (A)" type="text" value={weapon.attacks}
+              placeholder="D6, 2D3+1…" onChange={(v) => setWeapon({ attacks: v })} />
+            <StatInput label="Skill (BS/WS)" value={weapon.skill}
+              min={2} max={6} onChange={(v) => setWeapon({ skill: v })} />
+            <StatInput label="Strength (S)" value={weapon.strength}
+              min={1} max={20} onChange={(v) => setWeapon({ strength: v })} />
+            <StatInput label="AP" value={weapon.ap}
+              min={-6} max={0} onChange={(v) => setWeapon({ ap: v })} />
+            <StatInput label="Damage (D)" type="text" value={weapon.damage}
+              placeholder="D3, D6+1…" onChange={(v) => setWeapon({ damage: v })} />
+          </div>
+        </div>
+
+        {/* Keywords */}
+        <div>
+          <span style={labelStyle}>Keywords</span>
+
+          {weapon.keywords?.length > 0 && (
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', marginBottom: '10px' }}>
+              {weapon.keywords.map((kw, i) => (
+                <span key={i} style={{
+                  display: 'inline-flex', alignItems: 'center', gap: '6px',
+                  border: `1px solid rgba(9,162,196,0.3)`,
+                  padding: '3px 6px 3px 8px',
+                  fontFamily: 'Space Mono, monospace',
+                  fontSize: '8.5px', letterSpacing: '1px', textTransform: 'uppercase',
+                  opacity: 0.8,
+                }}>
+                  {fmtKw(kw)}
+                  <button onClick={() => removeKeyword(i)} style={{
+                    background: 'none', border: 'none', color: BLUE,
+                    cursor: 'pointer', padding: '0 2px', lineHeight: 1,
+                    fontSize: '11px', opacity: 0.5,
+                  }}
+                    onMouseEnter={(e) => { e.currentTarget.style.opacity = '1' }}
+                    onMouseLeave={(e) => { e.currentTarget.style.opacity = '0.5' }}
+                  >×</button>
+                </span>
+              ))}
+            </div>
+          )}
+
+          <div style={{ display: 'flex', gap: '8px', alignItems: 'center', flexWrap: 'wrap' }}>
+            <select value={pickerType}
+              onChange={(e) => { setPickerType(e.target.value); setPickerValue('1') }}
+              style={{ ...inputStyle, width: 'auto', flex: '1', minWidth: '160px', cursor: 'pointer' }}
+            >
+              <option value="">+ Add keyword…</option>
+              <optgroup label="Simple">
+                {SIMPLE_KEYWORDS.map((k) => (
+                  <option key={k} value={k}>{k.replace(/_/g, ' ')}</option>
+                ))}
+              </optgroup>
+              <optgroup label="Valued">
+                <option value="SUSTAINED_HITS">SUSTAINED HITS X</option>
+                <option value="RAPID_FIRE">RAPID FIRE X</option>
+                <option value="MELTA">MELTA X</option>
+                <option value="EXTRA_ATTACKS">EXTRA ATTACKS X</option>
+              </optgroup>
+              <optgroup label="Special">
+                <option value="ANTI">ANTI-X Y+</option>
+              </optgroup>
+            </select>
+
+            {VALUED_KEYWORDS.includes(pickerType) && (
+              <input type="text" value={pickerValue}
+                onChange={(e) => setPickerValue(e.target.value)}
+                placeholder="1" style={{ ...inputStyle, width: '52px', flex: 'none' }} />
+            )}
+
+            {pickerType === 'ANTI' && (<>
+              <input type="text" value={pickerTarget}
+                onChange={(e) => setPickerTarget(e.target.value)}
+                placeholder="INFANTRY" style={{ ...inputStyle, width: '100px', flex: 'none' }} />
+              <input type="number" value={pickerThreshold}
+                onChange={(e) => setPickerThreshold(e.target.value)}
+                min={2} max={6} placeholder="4"
+                style={{ ...inputStyle, width: '48px', flex: 'none' }} />
+              <span style={{ fontFamily: 'Space Mono, monospace', fontSize: '11px', opacity: 0.4 }}>+</span>
+            </>)}
+
+            {pickerType && (
+              <button onClick={addKeyword} style={{
+                background: 'transparent', border: `1px solid ${BLUE}`,
+                color: BLUE, fontFamily: 'Space Mono, monospace',
+                fontSize: '9px', letterSpacing: '1.5px', textTransform: 'uppercase',
+                padding: '5px 12px', cursor: 'pointer', borderRadius: 0,
+                transition: 'background 100ms, color 100ms',
+              }}
+                onMouseEnter={(e) => { e.currentTarget.style.background = BLUE; e.currentTarget.style.color = BG }}
+                onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = BLUE }}
+              >Add</button>
+            )}
+          </div>
+        </div>
+
         <div style={{
-          padding: '10px 12px',
-          border: `1px solid rgba(9,162,196,0.25)`,
-          background: 'rgba(9,162,196,0.04)',
+          padding: '10px 12px', border: `1px solid rgba(9,162,196,0.2)`,
+          background: 'rgba(9,162,196,0.03)',
           fontFamily: 'Space Mono, monospace', fontSize: '9px',
           color: BLUE, letterSpacing: '1px',
         }}>
-          ✓ {firing}× {selectedWeapon.name} — ready, click Run Simulation
+          ✓ {firing}× {selectedWeapon.name} — click Run Simulation
         </div>
-      )}
+      </>)}
     </div>
   )
 }
@@ -314,12 +447,7 @@ export function AttackerPanel() {
     setWeapon({ keywords: weapon.keywords.filter((_, i) => i !== idx) })
   }
 
-  const inputStyle = {
-    background: 'transparent', border: `1px solid rgba(9,162,196,0.35)`,
-    color: BLUE, fontFamily: 'Space Mono, monospace', fontSize: '10px',
-    letterSpacing: '1px', padding: '5px 8px', outline: 'none',
-    borderRadius: 0, width: '100%',
-  }
+
 
   return (
     <>
