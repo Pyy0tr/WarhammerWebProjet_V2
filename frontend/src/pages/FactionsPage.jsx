@@ -227,13 +227,51 @@ function Chip({ children, dim }) {
   )
 }
 
+function AlliancePills({ active, onChange }) {
+  const pills = [
+    { key: null,       label: 'All',      color: ACCENT },
+    { key: 'Imperium', label: 'Imperium', color: ALLIANCE_META.Imperium.color },
+    { key: 'Chaos',    label: 'Chaos',    color: ALLIANCE_META.Chaos.color },
+    { key: 'Xenos',    label: 'Xenos',    color: ALLIANCE_META.Xenos.color },
+  ]
+  return (
+    <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
+      {pills.map(({ key, label, color }) => {
+        const isActive = active === key
+        return (
+          <button
+            key={key ?? 'all'}
+            onClick={() => onChange(isActive && key !== null ? null : key)}
+            style={{
+              background: isActive ? color : 'transparent',
+              border: `1px solid ${isActive ? color : BORDER}`,
+              color: isActive ? BG : TEXT_WEAK,
+              fontFamily: 'Space Mono, monospace', fontSize: '9px',
+              letterSpacing: '2px', textTransform: 'uppercase',
+              padding: '6px 14px', cursor: 'pointer', borderRadius: 0,
+              transition: 'all 100ms',
+              display: 'flex', alignItems: 'center', gap: '7px',
+            }}
+            onMouseEnter={(e) => { if (!isActive) { e.currentTarget.style.borderColor = color; e.currentTarget.style.color = color } }}
+            onMouseLeave={(e) => { if (!isActive) { e.currentTarget.style.borderColor = BORDER; e.currentTarget.style.color = TEXT_WEAK } }}
+          >
+            {key && <AllianceIcon alliance={key} color={isActive ? BG : color} size={11}/>}
+            {label}
+          </button>
+        )
+      })}
+    </div>
+  )
+}
+
 // ── VIEW 1: Factions grid ─────────────────────────────────────────────────────
 
 function FactionsView({ onSelectFaction }) {
   const factions       = useDataStore((s) => s.factions)
   const unitsByFaction = useDataStore((s) => s.unitsByFaction)
   const units          = useDataStore((s) => s.units)
-  const [search, setSearch] = useState('')
+  const [search, setSearch]               = useState('')
+  const [activeAlliance, setActiveAlliance] = useState(null)
 
   const { alliances, library } = useMemo(
     () => organizeByAlliance(factions, unitsByFaction),
@@ -243,11 +281,18 @@ function FactionsView({ onSelectFaction }) {
   const searchResults = useMemo(() => {
     const q = search.toLowerCase().trim()
     if (q.length < 2) return []
-    return units.filter((u) => u.name.toLowerCase().includes(q)).slice(0, 40)
+    return units.filter((u) => u.name.toLowerCase().includes(q)).slice(0, 48)
   }, [search, units])
+
+  const visibleAlliances = activeAlliance
+    ? ALLIANCE_ORDER.filter((a) => a === activeAlliance)
+    : ALLIANCE_ORDER
+
+  const isSearching = search.length >= 2
 
   return (
     <div>
+      {/* ── Page header ── */}
       <div style={{ marginBottom: '36px' }}>
         <div style={{
           fontFamily: 'Space Mono, monospace', fontSize: '10px',
@@ -263,27 +308,63 @@ function FactionsView({ onSelectFaction }) {
         }}>
           Factions
         </h1>
-        <SearchBar value={search} onChange={setSearch} placeholder="Search a unit or faction…" />
+
+        {/* Search + pills row */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+          <SearchBar
+            value={search}
+            onChange={(v) => { setSearch(v); if (v) setActiveAlliance(null) }}
+            placeholder="Search units by name…"
+          />
+          {!isSearching && (
+            <AlliancePills active={activeAlliance} onChange={setActiveAlliance}/>
+          )}
+        </div>
       </div>
 
-      {search.length >= 2 ? (
+      {/* ── Search results ── */}
+      {isSearching ? (
         <div>
           <div style={{
             fontFamily: 'Space Mono, monospace', fontSize: '10px',
             letterSpacing: '2px', textTransform: 'uppercase',
             color: TEXT_WEAK, marginBottom: '20px',
+            display: 'flex', alignItems: 'baseline', gap: '16px',
           }}>
-            {searchResults.length} results
+            <span>
+              {searchResults.length > 0
+                ? `${searchResults.length} unit${searchResults.length !== 1 ? 's' : ''} found`
+                : 'No units found'}
+            </span>
+            {searchResults.length > 0 && (
+              <span style={{ opacity: 0.5, fontSize: '9px' }}>
+                · click a card to browse its faction
+              </span>
+            )}
           </div>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(240px, 1fr))', gap: '12px' }}>
-            {searchResults.map((u) => (
-              <UnitCard key={u.id} unit={u} onClick={() => onSelectFaction(u.factions?.[0] || u.faction, u)} />
-            ))}
-          </div>
+          {searchResults.length > 0 ? (
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(240px, 1fr))', gap: '12px' }}>
+              {searchResults.map((u) => (
+                <UnitCard
+                  key={u.id} unit={u} showFaction
+                  onClick={() => onSelectFaction(u.factions?.[0] || u.faction, u)}
+                />
+              ))}
+            </div>
+          ) : (
+            <div style={{
+              padding: '48px 0',
+              fontFamily: 'Space Mono, monospace', fontSize: '10px',
+              letterSpacing: '2px', color: TEXT_WEAK, textTransform: 'uppercase',
+            }}>
+              Try a unit name like "Intercessors", "Wraithknight" or "Necron Warriors"
+            </div>
+          )}
         </div>
       ) : (
+        /* ── Faction grid ── */
         <div style={{ display: 'flex', flexDirection: 'column', gap: '48px' }}>
-          {ALLIANCE_ORDER.map((alliance) => (
+          {visibleAlliances.map((alliance) => (
             <AllianceSection
               key={alliance}
               alliance={alliance}
@@ -291,7 +372,7 @@ function FactionsView({ onSelectFaction }) {
               onSelect={onSelectFaction}
             />
           ))}
-          {library.length > 0 && (
+          {!activeAlliance && library.length > 0 && (
             <LibrarySection items={library} onSelect={onSelectFaction} />
           )}
         </div>
@@ -300,10 +381,17 @@ function FactionsView({ onSelectFaction }) {
   )
 }
 
-function AllianceHeader({ alliance, count }) {
+function AllianceHeader({ alliance, count, collapsed, onToggle }) {
   const { color } = ALLIANCE_META[alliance]
   return (
-    <div style={{ marginBottom: '28px' }}>
+    <div
+      onClick={onToggle}
+      style={{
+        marginBottom: collapsed ? '0' : '28px',
+        cursor: 'pointer',
+        userSelect: 'none',
+      }}
+    >
       <div style={{
         display: 'flex', alignItems: 'center', gap: '14px', marginBottom: '12px',
       }}>
@@ -322,6 +410,15 @@ function AllianceHeader({ alliance, count }) {
           marginLeft: 'auto',
         }}>
           {count} faction{count !== 1 ? 's' : ''}
+        </span>
+        <span style={{
+          fontFamily: 'Space Mono, monospace', fontSize: '10px',
+          color: TEXT_WEAK, opacity: 0.5, marginLeft: '4px',
+          transition: 'transform 150ms',
+          display: 'inline-block',
+          transform: collapsed ? 'rotate(-90deg)' : 'none',
+        }}>
+          ▾
         </span>
       </div>
       <div style={{
@@ -382,6 +479,8 @@ function FactionChip({ name, count, label, onClick }) {
 // Flat alliance (Imperium / Chaos): one group key = all factions as chips
 // Xenos: mix of sub-groups (Aeldari) + standalone factions
 function AllianceSection({ alliance, groups, onSelect }) {
+  const [collapsed, setCollapsed] = useState(false)
+
   const groupKeys = Object.keys(groups)
   if (groupKeys.length === 0) return null
 
@@ -391,12 +490,17 @@ function AllianceSection({ alliance, groups, onSelect }) {
     const chips = [...groups[alliance]].sort((a, b) => a.label.localeCompare(b.label))
     return (
       <div>
-        <AllianceHeader alliance={alliance} count={chips.length}/>
-        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px' }}>
-          {chips.map((sf) => (
-            <FactionChip key={sf.name} {...sf} onClick={() => onSelect(sf.name)} />
-          ))}
-        </div>
+        <AllianceHeader
+          alliance={alliance} count={chips.length}
+          collapsed={collapsed} onToggle={() => setCollapsed((v) => !v)}
+        />
+        {!collapsed && (
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px' }}>
+            {chips.map((sf) => (
+              <FactionChip key={sf.name} {...sf} onClick={() => onSelect(sf.name)} />
+            ))}
+          </div>
+        )}
       </div>
     )
   }
@@ -415,24 +519,29 @@ function AllianceSection({ alliance, groups, onSelect }) {
 
   return (
     <div>
-      <AllianceHeader alliance={alliance} count={totalCount}/>
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
-        {subGroups.map(([group, subs]) => (
-          <div key={group}>
-            <SubGroupLabel>{group}</SubGroupLabel>
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px' }}>
-              {subs.map((sf) => (
-                <FactionChip key={sf.name} {...sf} onClick={() => onSelect(sf.name)} />
-              ))}
+      <AllianceHeader
+        alliance={alliance} count={totalCount}
+        collapsed={collapsed} onToggle={() => setCollapsed((v) => !v)}
+      />
+      {!collapsed && (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+          {subGroups.map(([group, subs]) => (
+            <div key={group}>
+              <SubGroupLabel>{group}</SubGroupLabel>
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px' }}>
+                {subs.map((sf) => (
+                  <FactionChip key={sf.name} {...sf} onClick={() => onSelect(sf.name)} />
+                ))}
+              </div>
             </div>
-          </div>
-        ))}
-        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px' }}>
-          {standalone.map((sf) => (
-            <FactionChip key={sf.name} {...sf} onClick={() => onSelect(sf.name)} />
           ))}
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px' }}>
+            {standalone.map((sf) => (
+              <FactionChip key={sf.name} {...sf} onClick={() => onSelect(sf.name)} />
+            ))}
+          </div>
         </div>
-      </div>
+      )}
     </div>
   )
 }
@@ -579,8 +688,17 @@ function UnitsView({ faction, initialUnit, onSelectUnit, onBack }) {
   )
 }
 
-function UnitCard({ unit, onClick }) {
+function UnitCard({ unit, onClick, showFaction = false }) {
   const [hover, setHover] = useState(false)
+
+  // Derive faction label for search results
+  const factionLabel = showFaction
+    ? (() => {
+        const raw = unit.factions?.[0] || unit.faction || ''
+        const idx = raw.indexOf(' - ')
+        return idx !== -1 ? raw.slice(idx + 3) : raw
+      })()
+    : null
 
   return (
     <div
@@ -618,6 +736,16 @@ function UnitCard({ unit, onClick }) {
         }}>
           {unit.name}
         </div>
+
+        {factionLabel && (
+          <div style={{
+            fontFamily: 'Space Mono, monospace', fontSize: '8px',
+            letterSpacing: '1.5px', textTransform: 'uppercase',
+            color: ACCENT, opacity: 0.7, marginBottom: '6px',
+          }}>
+            {factionLabel}
+          </div>
+        )}
 
         <div style={{
           fontFamily: 'Space Mono, monospace', fontSize: '9px',
