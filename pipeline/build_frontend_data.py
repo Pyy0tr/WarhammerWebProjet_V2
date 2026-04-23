@@ -97,7 +97,7 @@ def slim_unit(u: dict, id_aliases: dict[str, str]) -> dict:
         name = ab.get("name", "").strip()
         desc = (ab.get("description", "") or "").strip()
         if name:
-            abilities.append({"name": name, "desc": desc[:400]})
+            abilities.append({"name": name, "desc": desc})
 
     return {
         "id":         u["bsdata_id"],

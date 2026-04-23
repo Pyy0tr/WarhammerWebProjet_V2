@@ -272,6 +272,7 @@ function FactionsView({ onSelectFaction }) {
   const units          = useDataStore((s) => s.units)
   const [search, setSearch]               = useState('')
   const [activeAlliance, setActiveAlliance] = useState(null)
+  const [dense, setDense]                   = useState(false)
 
   const { alliances, library } = useMemo(
     () => organizeByAlliance(factions, unitsByFaction),
@@ -317,7 +318,33 @@ function FactionsView({ onSelectFaction }) {
             placeholder="Search units by name…"
           />
           {!isSearching && (
-            <AlliancePills active={activeAlliance} onChange={setActiveAlliance}/>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap' }}>
+              <AlliancePills active={activeAlliance} onChange={setActiveAlliance}/>
+              <button
+                onClick={() => setDense((v) => !v)}
+                title={dense ? 'Expanded view' : 'Compact view'}
+                style={{
+                  background: dense ? 'rgba(47,224,255,0.08)' : 'transparent',
+                  border: `1px solid ${dense ? ACCENT : BORDER}`,
+                  color: dense ? ACCENT : TEXT_WEAK,
+                  fontFamily: 'Space Mono, monospace', fontSize: '9px',
+                  letterSpacing: '2px', textTransform: 'uppercase',
+                  padding: '6px 12px', cursor: 'pointer', borderRadius: 0,
+                  transition: 'all 100ms',
+                  display: 'flex', alignItems: 'center', gap: '6px',
+                }}
+                onMouseEnter={(e) => { if (!dense) { e.currentTarget.style.borderColor = ACCENT; e.currentTarget.style.color = ACCENT } }}
+                onMouseLeave={(e) => { if (!dense) { e.currentTarget.style.borderColor = BORDER; e.currentTarget.style.color = TEXT_WEAK } }}
+              >
+                <svg width="12" height="10" viewBox="0 0 12 10" fill="none">
+                  <rect x="0" y="0" width="4" height="4" stroke="currentColor" strokeWidth="1"/>
+                  <rect x="5" y="0" width="4" height="4" stroke="currentColor" strokeWidth="1"/>
+                  <rect x="0" y="5" width="4" height="4" stroke="currentColor" strokeWidth="1"/>
+                  <rect x="5" y="5" width="4" height="4" stroke="currentColor" strokeWidth="1"/>
+                </svg>
+                {dense ? 'Compact' : 'Full'}
+              </button>
+            </div>
           )}
         </div>
       </div>
@@ -370,10 +397,11 @@ function FactionsView({ onSelectFaction }) {
               alliance={alliance}
               groups={alliances[alliance]}
               onSelect={onSelectFaction}
+              dense={dense}
             />
           ))}
           {!activeAlliance && library.length > 0 && (
-            <LibrarySection items={library} onSelect={onSelectFaction} />
+            <LibrarySection items={library} onSelect={onSelectFaction} dense={dense} />
           )}
         </div>
       )}
@@ -443,43 +471,61 @@ function SubGroupLabel({ children }) {
   )
 }
 
-function FactionChip({ name, count, label, onClick }) {
+function FactionChip({ name, count, label, onClick, allianceColor, dense }) {
   const [hover, setHover] = useState(false)
+  const ac = allianceColor || ACCENT
   return (
     <button
       onClick={onClick}
       onMouseEnter={() => setHover(true)}
       onMouseLeave={() => setHover(false)}
+      title={dense ? `${count} unit${count !== 1 ? 's' : ''}` : undefined}
       style={{
-        background: hover ? 'rgba(47,224,255,0.08)' : 'rgba(47,224,255,0.03)',
-        border: `1px solid ${hover ? ACCENT : BORDER}`,
+        position: 'relative',
+        background: hover ? `${ac}14` : `${ac}05`,
+        border: `1px solid ${hover ? ac : BORDER}`,
+        boxShadow: hover ? `inset 3px 0 0 ${ac}` : 'inset 3px 0 0 transparent',
         cursor: 'pointer', borderRadius: 0,
-        padding: '11px 20px', textAlign: 'left',
-        transition: 'border-color 100ms, background 100ms',
+        padding: dense ? '8px 30px 8px 14px' : '11px 34px 11px 16px',
+        textAlign: 'left',
+        transition: 'border-color 100ms, background 100ms, box-shadow 100ms',
       }}
     >
       <div style={{
-        fontFamily: 'Space Mono, monospace', fontSize: '12px',
+        fontFamily: 'Space Mono, monospace', fontSize: dense ? '10px' : '12px',
         fontWeight: 700, letterSpacing: '1px', textTransform: 'uppercase',
-        color: hover ? TEXT : TEXT_SEC, marginBottom: '5px',
+        color: hover ? TEXT : TEXT_SEC,
         transition: 'color 100ms',
       }}>
         {label}
       </div>
-      <div style={{
-        fontFamily: 'Space Mono, monospace', fontSize: '9px',
-        letterSpacing: '1px', color: TEXT_WEAK,
+      {!dense && (
+        <div style={{
+          fontFamily: 'Space Mono, monospace', fontSize: '9px',
+          letterSpacing: '1px', color: TEXT_WEAK, marginTop: '5px',
+        }}>
+          {`${count} unit${count !== 1 ? 's' : ''}`}
+        </div>
+      )}
+      <span style={{
+        position: 'absolute', right: '9px', top: '50%',
+        transform: 'translateY(-50%)',
+        fontFamily: 'Space Mono, monospace', fontSize: '11px',
+        color: ac, opacity: hover ? 0.75 : 0,
+        transition: 'opacity 100ms',
+        pointerEvents: 'none',
       }}>
-        {`${count} unit${count !== 1 ? 's' : ''}`}
-      </div>
+        →
+      </span>
     </button>
   )
 }
 
 // Flat alliance (Imperium / Chaos): one group key = all factions as chips
 // Xenos: mix of sub-groups (Aeldari) + standalone factions
-function AllianceSection({ alliance, groups, onSelect }) {
+function AllianceSection({ alliance, groups, onSelect, dense }) {
   const [collapsed, setCollapsed] = useState(false)
+  const allianceColor = ALLIANCE_META[alliance].color
 
   const groupKeys = Object.keys(groups)
   if (groupKeys.length === 0) return null
@@ -495,9 +541,10 @@ function AllianceSection({ alliance, groups, onSelect }) {
           collapsed={collapsed} onToggle={() => setCollapsed((v) => !v)}
         />
         {!collapsed && (
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px' }}>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: dense ? '6px' : '10px' }}>
             {chips.map((sf) => (
-              <FactionChip key={sf.name} {...sf} onClick={() => onSelect(sf.name)} />
+              <FactionChip key={sf.name} {...sf} allianceColor={allianceColor} dense={dense}
+                onClick={() => onSelect(sf.name)} />
             ))}
           </div>
         )}
@@ -528,16 +575,18 @@ function AllianceSection({ alliance, groups, onSelect }) {
           {subGroups.map(([group, subs]) => (
             <div key={group}>
               <SubGroupLabel>{group}</SubGroupLabel>
-              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px' }}>
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: dense ? '6px' : '10px' }}>
                 {subs.map((sf) => (
-                  <FactionChip key={sf.name} {...sf} onClick={() => onSelect(sf.name)} />
+                  <FactionChip key={sf.name} {...sf} allianceColor={allianceColor} dense={dense}
+                    onClick={() => onSelect(sf.name)} />
                 ))}
               </div>
             </div>
           ))}
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px' }}>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: dense ? '6px' : '10px' }}>
             {standalone.map((sf) => (
-              <FactionChip key={sf.name} {...sf} onClick={() => onSelect(sf.name)} />
+              <FactionChip key={sf.name} {...sf} allianceColor={allianceColor} dense={dense}
+                onClick={() => onSelect(sf.name)} />
             ))}
           </div>
         </div>
@@ -546,36 +595,62 @@ function AllianceSection({ alliance, groups, onSelect }) {
   )
 }
 
-function LibrarySection({ items, onSelect }) {
+function LibrarySection({ items, onSelect, dense }) {
   const [open, setOpen] = useState(false)
+  const [showInfo, setShowInfo] = useState(false)
   return (
     <div>
-      <button
-        onClick={() => setOpen((v) => !v)}
-        style={{
-          background: 'none', border: 'none', cursor: 'pointer', padding: 0,
-          fontFamily: 'Space Mono, monospace', fontSize: '10px',
-          letterSpacing: '2px', textTransform: 'uppercase', color: TEXT_WEAK,
-          display: 'flex', alignItems: 'center', gap: '8px',
-          opacity: 0.7,
-        }}
-        onMouseEnter={(e) => { e.currentTarget.style.opacity = '1' }}
-        onMouseLeave={(e) => { e.currentTarget.style.opacity = '0.7' }}
-      >
-        {open ? '▲' : '▼'} Library & Legends
-      </button>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+        <button
+          onClick={() => setOpen((v) => !v)}
+          style={{
+            background: 'none', border: 'none', cursor: 'pointer', padding: 0,
+            fontFamily: 'Space Mono, monospace', fontSize: '10px',
+            letterSpacing: '2px', textTransform: 'uppercase', color: TEXT_WEAK,
+            display: 'flex', alignItems: 'center', gap: '8px',
+            opacity: 0.7,
+          }}
+          onMouseEnter={(e) => { e.currentTarget.style.opacity = '1' }}
+          onMouseLeave={(e) => { e.currentTarget.style.opacity = '0.7' }}
+        >
+          {open ? '▲' : '▼'} Library & Legends
+        </button>
+        <button
+          onClick={() => setShowInfo((v) => !v)}
+          title="What is Library & Legends?"
+          style={{
+            background: 'none', border: `1px solid ${showInfo ? TEXT_WEAK : BORDER}`,
+            cursor: 'pointer', padding: '1px 6px', borderRadius: '50%',
+            fontFamily: 'Space Mono, monospace', fontSize: '9px',
+            color: showInfo ? TEXT_SEC : TEXT_WEAK,
+            lineHeight: 1.4, transition: 'border-color 100ms, color 100ms',
+          }}
+          onMouseEnter={(e) => { e.currentTarget.style.borderColor = TEXT_WEAK; e.currentTarget.style.color = TEXT_SEC }}
+          onMouseLeave={(e) => { if (!showInfo) { e.currentTarget.style.borderColor = BORDER; e.currentTarget.style.color = TEXT_WEAK } }}
+        >
+          i
+        </button>
+      </div>
+      {showInfo && (
+        <div style={{
+          marginTop: '10px',
+          padding: '12px 16px',
+          background: 'rgba(255,255,255,0.02)',
+          border: `1px solid ${BORDER}`,
+          fontFamily: 'Space Mono, monospace', fontSize: '9px',
+          letterSpacing: '1px', color: TEXT_WEAK, lineHeight: 1.8,
+          maxWidth: '560px',
+        }}>
+          Extended datasheets from older publications and supplements. These units are not part of the main competitive roster
+          and may not reflect current balance. Use them for casual or narrative play.
+        </div>
+      )}
       {open && (
         <div style={{ marginTop: '20px' }}>
-          <div style={{
-            fontFamily: 'Space Mono, monospace', fontSize: '9px',
-            letterSpacing: '1.5px', color: TEXT_WEAK, marginBottom: '14px',
-            lineHeight: 1.6,
-          }}>
-            Extended datasheets — includes units from older publications and supplements not in the main competitive lists.
-          </div>
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px' }}>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: dense ? '6px' : '10px' }}>
             {items.map(({ name, count, label }) => (
-              <FactionChip key={name} name={name} count={count} label={label} onClick={() => onSelect(name)} />
+              <FactionChip key={name} name={name} count={count} label={label} dense={dense}
+                onClick={() => onSelect(name)} />
             ))}
           </div>
         </div>
@@ -1012,7 +1087,7 @@ function UnitDetailView({ unit, onBack, factionLabel }) {
                   </div>
                   {ab.desc && (
                     <p style={{ fontFamily: 'Georgia, serif', fontSize: '14px', lineHeight: 1.7, color: TEXT_SEC, margin: 0 }}>
-                      {ab.desc}{ab.desc.length >= 400 ? '…' : ''}
+                      {ab.desc}
                     </p>
                   )}
                 </div>

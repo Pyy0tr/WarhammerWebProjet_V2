@@ -56,6 +56,10 @@ export const useSimulatorStore = create((set) => ({
   context: { ...defaultContext },
   n_trials: 1000,
 
+  // Hovered keyword (for definition panel)
+  hoveredKeyword: null,
+  setHoveredKeyword: (kw) => set({ hoveredKeyword: kw }),
+
   // Results
   result: null,
   loading: false,

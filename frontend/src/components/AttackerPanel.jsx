@@ -4,7 +4,6 @@ import { useDataStore }      from '../store/dataStore'
 import { useArmyStore }      from '../store/armyStore'
 import { useAuthStore }      from '../store/authStore'
 import { StatInput }  from './StatInput'
-import { SearchInput } from './SearchInput'
 import { UnitDrawer } from './UnitDrawer'
 import { ACCENT, ACCENT_H, BG, SURFACE, SURFACE_E, BORDER, TEXT, TEXT_SEC, TEXT_WEAK, TEXT_OFF } from '../theme'
 
@@ -53,6 +52,7 @@ const KW_GROUPS = [
 function KeywordPicker() {
   const keywords  = useSimulatorStore((s) => s.attacker.weapon.keywords)
   const setWeapon = useSimulatorStore((s) => s.setWeapon)
+  const setHoveredKeyword = useSimulatorStore((s) => s.setHoveredKeyword)
 
   const [drafts, setDrafts] = useState({})
   const [antiTarget,    setAntiTarget]    = useState('INFANTRY')
@@ -134,8 +134,8 @@ function KeywordPicker() {
                     title={kd.tip}
                     onClick={() => toggle(kd)}
                     style={style}
-                    onMouseEnter={(e) => { if (!active) { e.currentTarget.style.borderColor = ACCENT; e.currentTarget.style.color = TEXT } }}
-                    onMouseLeave={(e) => { if (!active) { e.currentTarget.style.borderColor = BORDER; e.currentTarget.style.color = TEXT_SEC } }}
+                    onMouseEnter={(e) => { setHoveredKeyword(kd.type); if (!active) { e.currentTarget.style.borderColor = ACCENT; e.currentTarget.style.color = TEXT } }}
+                    onMouseLeave={(e) => { setHoveredKeyword(null); if (!active) { e.currentTarget.style.borderColor = BORDER; e.currentTarget.style.color = TEXT_SEC } }}
                   >
                     {active ? '✓ ' : ''}{kd.label}
                     {active && kd.valued && <span style={{ opacity: 0.7 }}>: {active.value}</span>}
@@ -435,20 +435,9 @@ export function AttackerPanel() {
     }
   }
 
-  const searchWeapons = useDataStore((s) => s.searchWeapons)
-  const [weaponResults, setWeaponResults] = useState([])
   const [drawerOpen, setDrawerOpen]       = useState(false)
   const [selectedUnit, setSelectedUnit]   = useState(null)
-  const [mode, setMode]                   = useState('manual')
-
-  function handleWeaponSearch(query) {
-    setWeaponResults(searchWeapons(query))
-  }
-
-  function handleWeaponSelect(w) {
-    applyWeapon(w)
-    setWeaponResults([])
-  }
+  const [mode, setMode]                   = useState('browse')
 
   function applyWeapon(w) {
     setWeapon({
@@ -465,42 +454,28 @@ export function AttackerPanel() {
   function handleDrawerSelect(unit, weapon) {
     setSelectedUnit(unit)
     if (weapon) applyWeapon(weapon)
+    const m = unit.min_models ?? unit.max_models ?? 1
+    setAttacker({ models: m })
   }
+
+  const hasWeapon = Boolean(weapon.name)
 
   return (
     <>
     <section>
-      <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', marginBottom: '20px' }}>
-        <div style={{ display: 'flex', alignItems: 'baseline', gap: '10px' }}>
-          <span style={{
-            fontFamily: 'Space Mono, monospace', fontSize: '8px',
-            letterSpacing: '2px', textTransform: 'uppercase', color: TEXT_OFF,
-          }}>UNIT.001</span>
-          <span style={{
-            fontFamily: 'Space Mono, monospace', fontSize: '11px',
-            fontWeight: 700, letterSpacing: '3px', textTransform: 'uppercase', color: TEXT,
-          }}>Attacker</span>
-        </div>
-        {mode === 'manual' && (
-          <button
-            onClick={() => setDrawerOpen(true)}
-            style={{
-              background: 'transparent', border: `1px solid ${BORDER}`,
-              color: ACCENT, fontFamily: 'Space Mono, monospace', fontSize: '8.5px',
-              letterSpacing: '2px', textTransform: 'uppercase', padding: '5px 12px',
-              cursor: 'pointer', borderRadius: 0,
-              transition: 'border-color 100ms, background 100ms',
-            }}
-            onMouseEnter={(e) => { e.currentTarget.style.borderColor = ACCENT; e.currentTarget.style.background = 'rgba(47,224,255,0.07)' }}
-            onMouseLeave={(e) => { e.currentTarget.style.borderColor = BORDER; e.currentTarget.style.background = 'transparent' }}
-          >
-            Browse units →
-          </button>
-        )}
+      <div style={{ display: 'flex', alignItems: 'baseline', gap: '10px', marginBottom: '20px' }}>
+        <span style={{
+          fontFamily: 'Space Mono, monospace', fontSize: '8px',
+          letterSpacing: '2px', textTransform: 'uppercase', color: TEXT_OFF,
+        }}>UNIT.001</span>
+        <span style={{
+          fontFamily: 'Space Mono, monospace', fontSize: '11px',
+          fontWeight: 700, letterSpacing: '3px', textTransform: 'uppercase', color: TEXT,
+        }}>Attacker</span>
       </div>
 
       <div style={{ display: 'flex', borderBottom: `1px solid ${BORDER}`, marginBottom: '20px' }}>
-        {[['manual', 'Manual'], ['army', 'From Army']].map(([id, label]) => (
+        {[['browse', 'Browse Units'], ['army', 'From Army']].map(([id, label]) => (
           <button
             key={id}
             onClick={() => setMode(id)}
@@ -524,108 +499,176 @@ export function AttackerPanel() {
         <ArmyPicker />
       ) : (<>
 
-      {selectedUnit && (
+      {/* Browse Units mode */}
+      {!hasWeapon ? (
         <div style={{
-          marginBottom: '20px', padding: '10px 14px',
-          border: `1px solid ${BORDER}`,
-          background: SURFACE,
-          display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+          padding: '32px', border: `1px dashed ${BORDER}`,
+          textAlign: 'center',
+          display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '16px',
         }}>
-          <div>
-            <div style={{
-              fontFamily: 'Space Mono, monospace', fontSize: '12px',
-              fontWeight: 700, color: ACCENT,
-            }}>
-              {selectedUnit.name}
-            </div>
-            <div style={{
-              fontFamily: 'Space Mono, monospace', fontSize: '8.5px',
-              color: TEXT_WEAK, marginTop: '3px', letterSpacing: '1px',
-            }}>
-              T{selectedUnit.T} · SV{selectedUnit.Sv}+ · W{selectedUnit.W}
-              {selectedUnit.invuln ? ` · ${selectedUnit.invuln}++` : ''}
-            </div>
+          <div style={{
+            fontFamily: 'Space Mono, monospace', fontSize: '10px',
+            letterSpacing: '1.5px', textTransform: 'uppercase',
+            color: TEXT_WEAK, lineHeight: 1.7,
+          }}>
+            Select a unit and weapon to configure your attack
           </div>
           <button
             onClick={() => setDrawerOpen(true)}
             style={{
-              background: 'none', border: 'none', color: ACCENT,
-              fontFamily: 'Space Mono, monospace', fontSize: '8px',
-              letterSpacing: '1.5px', textTransform: 'uppercase',
-              cursor: 'pointer', opacity: 0.6, padding: 0,
+              background: ACCENT, border: `1px solid ${ACCENT}`,
+              color: BG, fontFamily: 'Space Mono, monospace', fontSize: '10px',
+              fontWeight: 700, letterSpacing: '2px', textTransform: 'uppercase',
+              padding: '12px 28px', cursor: 'pointer', borderRadius: 0,
+              transition: 'opacity 100ms',
             }}
-            onMouseEnter={(e) => { e.currentTarget.style.opacity = '1' }}
-            onMouseLeave={(e) => { e.currentTarget.style.opacity = '0.6' }}
+            onMouseEnter={(e) => { e.currentTarget.style.opacity = '0.85' }}
+            onMouseLeave={(e) => { e.currentTarget.style.opacity = '1' }}
           >
-            Change
+            Browse units →
           </button>
         </div>
-      )}
-
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-        <SearchInput
-          label="Search weapon"
-          value={weapon.name}
-          placeholder="Type to search (e.g. bolter, lascannon…)"
-          onSearch={handleWeaponSearch}
-          results={weaponResults}
-          onSelect={handleWeaponSelect}
-          renderItem={(w) => (
-            <div>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
-                <span style={{ fontFamily: 'Space Mono, monospace', fontSize: '13px', fontWeight: 700, color: TEXT }}>
-                  {w.name}
-                </span>
-                <span style={{
-                  fontFamily: 'Space Mono, monospace', fontSize: '11px', color: TEXT_WEAK,
-                }}>
-                  {`${w.A} · S${w.S} · AP${w.AP} · D${w.D}`}
-                </span>
-              </div>
-              {w.users?.length > 0 && (
-                <div style={{
-                  fontFamily: 'Georgia, serif', fontSize: '12px', fontStyle: 'italic',
-                  color: TEXT_OFF, marginTop: '2px',
-                }}>
-                  {w.users.join(', ')}
-                </div>
-              )}
-            </div>
-          )}
-        />
-
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
-          <StatInput label="Attacks (A)" type="text" value={weapon.attacks}
-            placeholder="D6, 2D3+1…" onChange={(v) => setWeapon({ attacks: v })} />
-          <StatInput label="Skill (BS/WS)" value={weapon.skill}
-            min={2} max={6} onChange={(v) => setWeapon({ skill: v })} />
-        </div>
-
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
-          <StatInput label="Strength (S)" value={weapon.strength}
-            min={1} max={20} onChange={(v) => setWeapon({ strength: v })} />
-          <StatInput label="AP" value={weapon.ap}
-            min={-6} max={0} onChange={(v) => setWeapon({ ap: v })} />
-        </div>
-
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
-          <StatInput label="Damage (D)" type="text" value={weapon.damage}
-            placeholder="D3, D6+1…" onChange={(v) => setWeapon({ damage: v })} />
-          <StatInput label="Number of models" value={models}
-            min={1} onChange={(v) => setAttacker({ models: v })} />
-        </div>
-
-        <div>
+      ) : (
+        <>
+        {selectedUnit && (
           <div style={{
-            fontFamily: 'Space Mono, monospace', fontSize: '8px',
-            letterSpacing: '2px', textTransform: 'uppercase', color: TEXT_WEAK,
-            marginBottom: '10px',
+            marginBottom: '20px', padding: '10px 14px',
+            border: `1px solid ${BORDER}`,
+            background: SURFACE,
+            display: 'flex', justifyContent: 'space-between', alignItems: 'center',
           }}>
-            Keywords
+            <div>
+              <div style={{
+                fontFamily: 'Space Mono, monospace', fontSize: '12px',
+                fontWeight: 700, color: ACCENT,
+              }}>
+                {selectedUnit.name}
+              </div>
+              <div style={{
+                fontFamily: 'Space Mono, monospace', fontSize: '8.5px',
+                color: TEXT_WEAK, marginTop: '3px', letterSpacing: '1px',
+              }}>
+                T{selectedUnit.T} · SV{selectedUnit.Sv}+ · W{selectedUnit.W}
+                {selectedUnit.invuln ? ` · ${selectedUnit.invuln}++` : ''}
+              </div>
+            </div>
+            <button
+              onClick={() => setDrawerOpen(true)}
+              style={{
+                background: 'none', border: 'none', color: ACCENT,
+                fontFamily: 'Space Mono, monospace', fontSize: '8px',
+                letterSpacing: '1.5px', textTransform: 'uppercase',
+                cursor: 'pointer', opacity: 0.6, padding: 0,
+              }}
+              onMouseEnter={(e) => { e.currentTarget.style.opacity = '1' }}
+              onMouseLeave={(e) => { e.currentTarget.style.opacity = '0.6' }}
+            >
+              Change
+            </button>
           </div>
-          <KeywordPicker />
+        )}
+
+        {!selectedUnit && (
+          <div style={{
+            marginBottom: '20px', display: 'flex', justifyContent: 'flex-end',
+          }}>
+            <button
+              onClick={() => setDrawerOpen(true)}
+              style={{
+                background: 'transparent', border: `1px solid ${BORDER}`,
+                color: ACCENT, fontFamily: 'Space Mono, monospace', fontSize: '8.5px',
+                letterSpacing: '2px', textTransform: 'uppercase', padding: '5px 12px',
+                cursor: 'pointer', borderRadius: 0,
+                transition: 'border-color 100ms, background 100ms',
+              }}
+              onMouseEnter={(e) => { e.currentTarget.style.borderColor = ACCENT; e.currentTarget.style.background = 'rgba(47,224,255,0.07)' }}
+              onMouseLeave={(e) => { e.currentTarget.style.borderColor = BORDER; e.currentTarget.style.background = 'transparent' }}
+            >
+              Change unit →
+            </button>
+          </div>
+        )}
+
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+          <div style={{
+            padding: '10px 14px', border: `1px solid ${BORDER}`, background: SURFACE,
+          }}>
+            <div style={{
+              fontFamily: 'Space Mono, monospace', fontSize: '12px',
+              fontWeight: 700, color: TEXT, letterSpacing: '0.5px',
+            }}>
+              {weapon.name}
+            </div>
+            <div style={{
+              fontFamily: 'Space Mono, monospace', fontSize: '9px',
+              color: TEXT_WEAK, marginTop: '4px', letterSpacing: '0.5px',
+            }}>
+              A{weapon.attacks} · BS{weapon.skill}+ · S{weapon.strength} · AP{weapon.ap} · D{weapon.damage}
+            </div>
+          </div>
+
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
+            <StatInput label="Attacks (A)" type="text" value={weapon.attacks}
+              placeholder="D6, 2D3+1…" onChange={(v) => setWeapon({ attacks: v })} />
+            <StatInput label="Skill (BS/WS)" value={weapon.skill}
+              min={2} max={6} onChange={(v) => setWeapon({ skill: v })} />
+          </div>
+
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
+            <StatInput label="Strength (S)" value={weapon.strength}
+              min={1} max={20} onChange={(v) => setWeapon({ strength: v })} />
+            <StatInput label="AP" value={weapon.ap}
+              min={-6} max={0} onChange={(v) => setWeapon({ ap: v })} />
+          </div>
+
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
+            <StatInput label="Damage (D)" type="text" value={weapon.damage}
+              placeholder="D3, D6+1…" onChange={(v) => setWeapon({ damage: v })} />
+            <div>
+              <div style={{
+                fontFamily: 'Space Mono, monospace', fontSize: '8px',
+                letterSpacing: '2px', textTransform: 'uppercase',
+                color: TEXT_WEAK, marginBottom: '6px',
+                display: 'flex', alignItems: 'baseline', gap: '6px',
+              }}>
+                <span>Firing models</span>
+                {selectedUnit && (selectedUnit.min_models || selectedUnit.max_models) && (
+                  <span style={{ fontSize: '7px', color: TEXT_OFF }}>
+                    ({selectedUnit.min_models ?? 1}–{selectedUnit.max_models ?? '?'})
+                  </span>
+                )}
+              </div>
+              <input
+                type="number"
+                min={1}
+                max={selectedUnit?.max_models ?? undefined}
+                value={models}
+                onChange={(e) => setAttacker({ models: Math.max(1, parseInt(e.target.value) || 1) })}
+                style={{
+                  width: '100%', boxSizing: 'border-box',
+                  background: 'rgba(47,224,255,0.04)',
+                  border: `1px solid ${BORDER}`,
+                  color: TEXT, fontFamily: 'Space Mono, monospace',
+                  fontSize: '13px', padding: '9px 10px',
+                  outline: 'none',
+                }}
+              />
+            </div>
+          </div>
+
+          <div>
+            <div style={{
+              fontFamily: 'Space Mono, monospace', fontSize: '8px',
+              letterSpacing: '2px', textTransform: 'uppercase', color: TEXT_WEAK,
+              marginBottom: '10px',
+            }}>
+              Keywords
+            </div>
+            <KeywordPicker />
+          </div>
         </div>
-      </div>
+        </>
+      )}
       </>)}
 
       <div style={{ marginTop: '24px', paddingTop: '20px', borderTop: `1px solid ${BORDER}` }}>
