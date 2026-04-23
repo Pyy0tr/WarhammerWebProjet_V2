@@ -12,18 +12,41 @@ function parseFaction(name) {
   return { group: name.slice(0, idx), sub: name.slice(idx + 3) }
 }
 
-function groupFactions(factions, unitsByFaction) {
-  const map = {}
-  for (const f of factions) {
-    const { group } = parseFaction(f)
-    if (!map[group]) map[group] = []
-    map[group].push({ name: f, count: (unitsByFaction[f] || []).length })
-  }
-  return map
+const ALLIANCE_ORDER = ['Imperium', 'Chaos', 'Xenos']
+
+function isLibraryFaction(name) {
+  return name.includes('Library') || name.includes('Legends')
 }
 
-function isLibrary(name) {
-  return name.includes('Library') || name.includes('Legends')
+function getGrandAlliance(name) {
+  if (name.startsWith('Imperium')) return 'Imperium'
+  if (name.startsWith('Chaos'))    return 'Chaos'
+  return 'Xenos'
+}
+
+// Returns { alliances: { Imperium: {group: [...]}, Chaos: {...}, Xenos: {...} }, library: [{name, count, label}] }
+function organizeByAlliance(factions, unitsByFaction) {
+  const alliances = { Imperium: {}, Chaos: {}, Xenos: {} }
+  const library = []
+
+  for (const f of factions) {
+    const count = (unitsByFaction[f] || []).length
+    if (count === 0) continue
+
+    if (isLibraryFaction(f)) {
+      const { sub } = parseFaction(f)
+      library.push({ name: f, count, label: sub ?? f })
+      continue
+    }
+
+    const alliance = getGrandAlliance(f)
+    const { group, sub } = parseFaction(f)
+
+    if (!alliances[alliance][group]) alliances[alliance][group] = []
+    alliances[alliance][group].push({ name: f, count, label: sub ?? f })
+  }
+
+  return { alliances, library }
 }
 
 function mapKeywords(kwStrings) {
@@ -132,16 +155,16 @@ function FactionsView({ onSelectFaction }) {
   const units          = useDataStore((s) => s.units)
   const [search, setSearch] = useState('')
 
-  const grouped = useMemo(() => groupFactions(factions, unitsByFaction), [factions, unitsByFaction])
+  const { alliances, library } = useMemo(
+    () => organizeByAlliance(factions, unitsByFaction),
+    [factions, unitsByFaction]
+  )
 
   const searchResults = useMemo(() => {
     const q = search.toLowerCase().trim()
     if (q.length < 2) return []
     return units.filter((u) => u.name.toLowerCase().includes(q)).slice(0, 40)
   }, [search, units])
-
-  const mainGroups    = Object.keys(grouped).filter((g) => !isLibrary(g)).sort()
-  const libraryGroups = Object.keys(grouped).filter((g) => isLibrary(g)).sort()
 
   return (
     <div>
@@ -179,12 +202,17 @@ function FactionsView({ onSelectFaction }) {
           </div>
         </div>
       ) : (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '40px' }}>
-          {mainGroups.map((group) => (
-            <FactionGroup key={group} group={group} subfactions={grouped[group]} onSelect={onSelectFaction} />
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '48px' }}>
+          {ALLIANCE_ORDER.map((alliance) => (
+            <AllianceSection
+              key={alliance}
+              alliance={alliance}
+              groups={alliances[alliance]}
+              onSelect={onSelectFaction}
+            />
           ))}
-          {libraryGroups.length > 0 && (
-            <LibrarySection groups={libraryGroups} grouped={grouped} onSelect={onSelectFaction} />
+          {library.length > 0 && (
+            <LibrarySection items={library} onSelect={onSelectFaction} />
           )}
         </div>
       )}
@@ -192,32 +220,34 @@ function FactionsView({ onSelectFaction }) {
   )
 }
 
-function FactionGroup({ group, subfactions, onSelect }) {
+function AllianceHeader({ children }) {
   return (
-    <div>
-      <div style={{
-        fontFamily: 'Space Mono, monospace', fontSize: '10px',
-        fontWeight: 700, letterSpacing: '3px', textTransform: 'uppercase',
-        color: TEXT_WEAK, marginBottom: '16px',
-        display: 'flex', alignItems: 'center', gap: '16px',
-      }}>
-        {group}
-        <div style={{ flex: 1, height: '1px', background: BORDER }} />
-      </div>
-      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px' }}>
-        {subfactions.map(({ name, count }) => (
-          <FactionChip key={name} name={name} count={count} onClick={() => onSelect(name)} />
-        ))}
-      </div>
+    <div style={{
+      fontFamily: 'Space Mono, monospace', fontSize: '10px',
+      fontWeight: 700, letterSpacing: '3px', textTransform: 'uppercase',
+      color: TEXT_WEAK, marginBottom: '20px',
+      display: 'flex', alignItems: 'center', gap: '16px',
+    }}>
+      {children}
+      <div style={{ flex: 1, height: '1px', background: BORDER }} />
     </div>
   )
 }
 
-function FactionChip({ name, count, onClick }) {
-  const [hover, setHover] = useState(false)
-  const { sub } = parseFaction(name)
-  const label = sub ?? name
+function SubGroupLabel({ children }) {
+  return (
+    <div style={{
+      fontFamily: 'Space Mono, monospace', fontSize: '9px',
+      fontWeight: 700, letterSpacing: '2.5px', textTransform: 'uppercase',
+      color: TEXT_WEAK, marginBottom: '10px', opacity: 0.7,
+    }}>
+      {children}
+    </div>
+  )
+}
 
+function FactionChip({ name, count, label, onClick }) {
+  const [hover, setHover] = useState(false)
   return (
     <button
       onClick={onClick}
@@ -249,7 +279,63 @@ function FactionChip({ name, count, onClick }) {
   )
 }
 
-function LibrarySection({ groups, grouped, onSelect }) {
+// Flat alliance (Imperium / Chaos): one group key = all factions as chips
+// Xenos: mix of sub-groups (Aeldari) + standalone factions
+function AllianceSection({ alliance, groups, onSelect }) {
+  const groupKeys = Object.keys(groups)
+  if (groupKeys.length === 0) return null
+
+  const isFlat = groupKeys.length === 1 && groupKeys[0] === alliance
+
+  if (isFlat) {
+    const chips = [...groups[alliance]].sort((a, b) => a.label.localeCompare(b.label))
+    return (
+      <div>
+        <AllianceHeader>{alliance}</AllianceHeader>
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px' }}>
+          {chips.map((sf) => (
+            <FactionChip key={sf.name} {...sf} onClick={() => onSelect(sf.name)} />
+          ))}
+        </div>
+      </div>
+    )
+  }
+
+  // Xenos layout: sub-groups first, then standalone chips
+  const subGroups = Object.entries(groups)
+    .filter(([, subs]) => subs.length > 1)
+    .sort(([a], [b]) => a.localeCompare(b))
+
+  const standalone = Object.values(groups)
+    .filter((subs) => subs.length === 1)
+    .map((subs) => subs[0])
+    .sort((a, b) => a.label.localeCompare(b.label))
+
+  return (
+    <div>
+      <AllianceHeader>{alliance}</AllianceHeader>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+        {subGroups.map(([group, subs]) => (
+          <div key={group}>
+            <SubGroupLabel>{group}</SubGroupLabel>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px' }}>
+              {subs.map((sf) => (
+                <FactionChip key={sf.name} {...sf} onClick={() => onSelect(sf.name)} />
+              ))}
+            </div>
+          </div>
+        ))}
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px' }}>
+          {standalone.map((sf) => (
+            <FactionChip key={sf.name} {...sf} onClick={() => onSelect(sf.name)} />
+          ))}
+        </div>
+      </div>
+    </div>
+  )
+}
+
+function LibrarySection({ items, onSelect }) {
   const [open, setOpen] = useState(false)
   return (
     <div>
@@ -260,15 +346,27 @@ function LibrarySection({ groups, grouped, onSelect }) {
           fontFamily: 'Space Mono, monospace', fontSize: '10px',
           letterSpacing: '2px', textTransform: 'uppercase', color: TEXT_WEAK,
           display: 'flex', alignItems: 'center', gap: '8px',
+          opacity: 0.7,
         }}
+        onMouseEnter={(e) => { e.currentTarget.style.opacity = '1' }}
+        onMouseLeave={(e) => { e.currentTarget.style.opacity = '0.7' }}
       >
         {open ? '▲' : '▼'} Library & Legends
       </button>
       {open && (
-        <div style={{ marginTop: '20px', display: 'flex', flexDirection: 'column', gap: '32px' }}>
-          {groups.map((group) => (
-            <FactionGroup key={group} group={group} subfactions={grouped[group]} onSelect={onSelect} />
-          ))}
+        <div style={{ marginTop: '20px' }}>
+          <div style={{
+            fontFamily: 'Space Mono, monospace', fontSize: '9px',
+            letterSpacing: '1.5px', color: TEXT_WEAK, marginBottom: '14px',
+            lineHeight: 1.6,
+          }}>
+            Extended datasheets — includes units from older publications and supplements not in the main competitive lists.
+          </div>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px' }}>
+            {items.map(({ name, count, label }) => (
+              <FactionChip key={name} name={name} count={count} label={label} onClick={() => onSelect(name)} />
+            ))}
+          </div>
         </div>
       )}
     </div>
