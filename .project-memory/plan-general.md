@@ -1,6 +1,6 @@
 # Plan général — WarhammerWebProjet V2
 
-_Dernière mise à jour : 2026-04-22_
+_Dernière mise à jour : 2026-04-23_
 
 ---
 
@@ -26,7 +26,7 @@ Auth + saves = Supabase JS SDK directement depuis le frontend.
 | Composant | Choix | Note |
 |---|---|---|
 | Framework | **React 19** (Vite) | Composants réutilisables |
-| Style | **Inline styles** (pas Tailwind) | Constantes couleur par fichier |
+| Style | **Inline styles** (pas Tailwind) | Palette centralisée dans `src/theme.js` |
 | Graphiques | **Recharts** | Distributions de dégâts |
 | State | **Zustand** | simulatorStore, armyStore, authStore, dataStore |
 | Router | **React Router v7** | Home, Factions, Simulator, Armies |

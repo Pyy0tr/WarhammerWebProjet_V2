@@ -1,6 +1,25 @@
 # Journal des décisions
 
-_Dernière mise à jour : 2026-04-22_
+_Dernière mise à jour : 2026-04-23_
+
+---
+
+## 2026-04-23
+
+### Refonte palette couleurs — `src/theme.js` comme source unique
+**Décision** : Créer `frontend/src/theme.js` exportant toutes les constantes couleur. Tous les fichiers importent depuis ce module, les constantes locales `BLUE/BG/TEXT_H/TEXT_BODY/TEXT_MUTED/PANEL` sont supprimées.
+**Raison** : L'ancienne palette (`#09A2C4`, fond `#041428`) manquait de lisibilité. Les constantes dupliquées dans 14 fichiers rendaient tout changement de couleur laborieux.
+**Nouvelle palette** :
+- `BG #0A1621` / `SURFACE #0F2230` / `SURFACE_E #143247` / `BORDER #1E3A4C`
+- `TEXT #E6F1FF` / `TEXT_SEC #9DB7C6` / `TEXT_WEAK #5F7C8A` / `TEXT_OFF #3E5A68`
+- `ACCENT #2FE0FF` (interactions uniquement) · `SUCCESS #3DDC97` · `WARNING #FFB547` · `ERROR #FF5C7A` · `HIGHLIGHT #C28F85`
+- Boutons primaires : fond `ACCENT` + texte `BG`. Boutons secondaires : fond transparent + bordure `BORDER` + texte `ACCENT`.
+
+### Simulateur — Wizard 4 étapes
+**Décision** : Refondre `SimulatorPage.jsx` en wizard 4 étapes (`StepBar` + state `step` dans Zustand).
+**Étapes** : Step 1 Sélection arme (par nom, browse unit, ou depuis armée) → Step 2 Review (résumé attaques + "Add another" ou "Next") → Step 3 Défenseur → Step 4 Résultats.
+**Raison** : L'ancienne page présentait tout en même temps — peu lisible, ajout de plusieurs armes non guidé.
+**Fix moteur** : `runSimulation` utilisait `s.attacker.weapon` + `s.attacks` (doublon). Corrigé pour n'utiliser que `s.attacks`.
 
 ---
 
