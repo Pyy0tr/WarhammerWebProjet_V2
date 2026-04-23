@@ -1,4 +1,4 @@
-const BLUE = '#09A2C4'
+import { ACCENT, ACCENT_H, SURFACE, BORDER, TEXT, TEXT_WEAK } from '../theme'
 
 export function StatInput({ label, value, onChange, type = 'number', min, max, step = 1, placeholder }) {
   const isNum = type === 'number'
@@ -26,8 +26,7 @@ export function StatInput({ label, value, onChange, type = 'number', min, max, s
         fontSize: '9px',
         letterSpacing: '2px',
         textTransform: 'uppercase',
-        color: BLUE,
-        opacity: 0.55,
+        color: TEXT_WEAK,
       }}>
         {label}
       </label>
@@ -40,10 +39,10 @@ export function StatInput({ label, value, onChange, type = 'number', min, max, s
           onChange={handleChange}
           style={{
             width: '100%',
-            background: 'transparent',
-            border: `1px solid rgba(9,162,196,0.3)`,
+            background: SURFACE,
+            border: `1px solid ${BORDER}`,
             borderRadius: 0,
-            color: BLUE,
+            color: TEXT,
             fontFamily: 'Space Mono, monospace',
             fontSize: '15px',
             fontWeight: 700,
@@ -52,10 +51,9 @@ export function StatInput({ label, value, onChange, type = 'number', min, max, s
             outline: 'none',
             transition: 'border-color 100ms',
           }}
-          onFocus={(e) => { e.target.style.borderColor = BLUE }}
-          onBlur={(e) => { e.target.style.borderColor = 'rgba(9,162,196,0.3)' }}
+          onFocus={(e) => { e.target.style.borderColor = ACCENT }}
+          onBlur={(e) => { e.target.style.borderColor = BORDER }}
         />
-        {/* Custom stepper for numeric inputs */}
         {isNum && (
           <div style={{
             position: 'absolute', right: '1px', top: '1px', bottom: '1px',
@@ -66,17 +64,17 @@ export function StatInput({ label, value, onChange, type = 'number', min, max, s
               tabIndex={-1}
               onClick={() => nudge(1)}
               style={{
-                flex: 1, border: 'none', borderLeft: `1px solid rgba(9,162,196,0.15)`,
-                borderBottom: `1px solid rgba(9,162,196,0.15)`,
-                background: 'transparent', color: BLUE, cursor: 'pointer',
+                flex: 1, border: 'none', borderLeft: `1px solid ${BORDER}`,
+                borderBottom: `1px solid ${BORDER}`,
+                background: 'transparent', color: ACCENT, cursor: 'pointer',
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
-                padding: 0, opacity: 0.4, transition: 'opacity 100ms',
+                padding: 0, opacity: 0.5, transition: 'opacity 100ms',
               }}
-              onMouseEnter={(e) => { e.currentTarget.style.opacity = '0.8' }}
-              onMouseLeave={(e) => { e.currentTarget.style.opacity = '0.4' }}
+              onMouseEnter={(e) => { e.currentTarget.style.opacity = '1' }}
+              onMouseLeave={(e) => { e.currentTarget.style.opacity = '0.5' }}
             >
               <svg width="8" height="5" viewBox="0 0 8 5">
-                <polyline points="1,4 4,1 7,4" fill="none" stroke={BLUE} strokeWidth="1.2" />
+                <polyline points="1,4 4,1 7,4" fill="none" stroke={ACCENT} strokeWidth="1.2" />
               </svg>
             </button>
             <button
@@ -84,16 +82,16 @@ export function StatInput({ label, value, onChange, type = 'number', min, max, s
               tabIndex={-1}
               onClick={() => nudge(-1)}
               style={{
-                flex: 1, border: 'none', borderLeft: `1px solid rgba(9,162,196,0.15)`,
-                background: 'transparent', color: BLUE, cursor: 'pointer',
+                flex: 1, border: 'none', borderLeft: `1px solid ${BORDER}`,
+                background: 'transparent', color: ACCENT, cursor: 'pointer',
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
-                padding: 0, opacity: 0.4, transition: 'opacity 100ms',
+                padding: 0, opacity: 0.5, transition: 'opacity 100ms',
               }}
-              onMouseEnter={(e) => { e.currentTarget.style.opacity = '0.8' }}
-              onMouseLeave={(e) => { e.currentTarget.style.opacity = '0.4' }}
+              onMouseEnter={(e) => { e.currentTarget.style.opacity = '1' }}
+              onMouseLeave={(e) => { e.currentTarget.style.opacity = '0.5' }}
             >
               <svg width="8" height="5" viewBox="0 0 8 5">
-                <polyline points="1,1 4,4 7,1" fill="none" stroke={BLUE} strokeWidth="1.2" />
+                <polyline points="1,1 4,4 7,1" fill="none" stroke={ACCENT} strokeWidth="1.2" />
               </svg>
             </button>
           </div>

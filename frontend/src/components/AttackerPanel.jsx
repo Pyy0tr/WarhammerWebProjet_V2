@@ -6,13 +6,10 @@ import { useAuthStore }      from '../store/authStore'
 import { StatInput }  from './StatInput'
 import { SearchInput } from './SearchInput'
 import { UnitDrawer } from './UnitDrawer'
-
-const BLUE = '#09A2C4'
-const BG   = '#041428'
+import { ACCENT, ACCENT_H, BG, SURFACE, SURFACE_E, BORDER, TEXT, TEXT_SEC, TEXT_WEAK, TEXT_OFF } from '../theme'
 
 // ── Keyword definitions ───────────────────────────────────────────────────────
 
-// Organised by game phase for the visual picker
 const KW_GROUPS = [
   {
     label: 'Hit phase',
@@ -51,21 +48,13 @@ const KW_GROUPS = [
   },
 ]
 
-function fmtKw(kw) {
-  if (kw.type === 'ANTI') return `Anti-${kw.target} ${kw.threshold}+`
-  if (kw.value !== undefined) return `${kw.type.replace(/_/g, ' ')} ${kw.value}`
-  return kw.type.replace(/_/g, ' ')
-}
-
 // ── KeywordPicker ─────────────────────────────────────────────────────────────
 
 function KeywordPicker() {
   const keywords  = useSimulatorStore((s) => s.attacker.weapon.keywords)
   const setWeapon = useSimulatorStore((s) => s.setWeapon)
 
-  // Pending valued state: type → draft value (before confirming)
   const [drafts, setDrafts] = useState({})
-  // ANTI special state
   const [antiTarget,    setAntiTarget]    = useState('INFANTRY')
   const [antiThreshold, setAntiThreshold] = useState('4')
 
@@ -76,11 +65,9 @@ function KeywordPicker() {
   function toggle(kd) {
     const active = getActive(kd.type)
     if (active) {
-      // Remove
       setWeapon({ keywords: keywords.filter((k) => k.type !== kd.type) })
       setDrafts((d) => { const n = { ...d }; delete n[kd.type]; return n })
     } else {
-      // Add
       if (kd.special === 'anti') {
         setWeapon({ keywords: [...keywords, { type: 'ANTI', target: antiTarget.toUpperCase(), threshold: parseInt(antiThreshold) || 4 }] })
       } else if (kd.valued) {
@@ -114,16 +101,16 @@ function KeywordPicker() {
     fontFamily: 'Space Mono, monospace', fontSize: '8.5px',
     letterSpacing: '1px', textTransform: 'uppercase',
     padding: '5px 9px', cursor: 'pointer',
-    border: '1px solid rgba(9,162,196,0.25)',
-    background: 'transparent', color: TEXT_MUTED,
+    border: `1px solid ${BORDER}`,
+    background: SURFACE, color: TEXT_SEC,
     transition: 'all 80ms', lineHeight: 1.2,
     display: 'inline-flex', alignItems: 'center', gap: '5px',
   }
   const chipActive = {
     ...chipBase,
-    border: `1px solid ${BLUE}`,
-    background: 'rgba(9,162,196,0.12)',
-    color: BLUE,
+    border: `1px solid ${ACCENT}`,
+    background: 'rgba(47,224,255,0.15)',
+    color: TEXT,
   }
 
   return (
@@ -133,7 +120,7 @@ function KeywordPicker() {
           <div style={{
             fontFamily: 'Space Mono, monospace', fontSize: '7.5px',
             letterSpacing: '2px', textTransform: 'uppercase',
-            color: 'rgba(184,210,228,0.3)', marginBottom: '7px',
+            color: TEXT_OFF, marginBottom: '7px',
           }}>
             {group.label}
           </div>
@@ -147,15 +134,14 @@ function KeywordPicker() {
                     title={kd.tip}
                     onClick={() => toggle(kd)}
                     style={style}
-                    onMouseEnter={(e) => { if (!active) { e.currentTarget.style.borderColor = 'rgba(9,162,196,0.5)'; e.currentTarget.style.color = 'rgba(184,210,228,0.7)' } }}
-                    onMouseLeave={(e) => { if (!active) { e.currentTarget.style.borderColor = 'rgba(9,162,196,0.25)'; e.currentTarget.style.color = TEXT_MUTED } }}
+                    onMouseEnter={(e) => { if (!active) { e.currentTarget.style.borderColor = ACCENT; e.currentTarget.style.color = TEXT } }}
+                    onMouseLeave={(e) => { if (!active) { e.currentTarget.style.borderColor = BORDER; e.currentTarget.style.color = TEXT_SEC } }}
                   >
                     {active ? '✓ ' : ''}{kd.label}
                     {active && kd.valued && <span style={{ opacity: 0.7 }}>: {active.value}</span>}
                     {active && kd.special === 'anti' && <span style={{ opacity: 0.7 }}>: {active.target} {active.threshold}+</span>}
                   </button>
 
-                  {/* Valued inline controls when active */}
                   {active && kd.valued && (
                     <input
                       type="text"
@@ -163,28 +149,27 @@ function KeywordPicker() {
                       onChange={(e) => updateValue(kd.type, e.target.value)}
                       onClick={(e) => e.stopPropagation()}
                       style={{
-                        width: '36px', background: PANEL,
-                        border: `1px solid ${BLUE}`,
-                        color: BLUE, fontFamily: 'Space Mono, monospace',
+                        width: '36px', background: SURFACE,
+                        border: `1px solid ${ACCENT}`,
+                        color: TEXT, fontFamily: 'Space Mono, monospace',
                         fontSize: '10px', padding: '4px 6px',
                         outline: 'none', textAlign: 'center',
                       }}
                     />
                   )}
 
-                  {/* Anti inline controls when active */}
                   {active && kd.special === 'anti' && (
                     <>
                       <input type="text" value={antiTarget}
                         onChange={(e) => updateAnti('target', e.target.value)}
                         placeholder="INFANTRY"
-                        style={{ width: '78px', background: PANEL, border: `1px solid ${BLUE}`, color: BLUE, fontFamily: 'Space Mono, monospace', fontSize: '9px', padding: '4px 6px', outline: 'none' }}
+                        style={{ width: '78px', background: SURFACE, border: `1px solid ${ACCENT}`, color: TEXT, fontFamily: 'Space Mono, monospace', fontSize: '9px', padding: '4px 6px', outline: 'none' }}
                       />
                       <input type="number" value={antiThreshold} min={2} max={6}
                         onChange={(e) => updateAnti('threshold', e.target.value)}
-                        style={{ width: '36px', background: PANEL, border: `1px solid ${BLUE}`, color: BLUE, fontFamily: 'Space Mono, monospace', fontSize: '10px', padding: '4px 6px', outline: 'none', textAlign: 'center' }}
+                        style={{ width: '36px', background: SURFACE, border: `1px solid ${ACCENT}`, color: TEXT, fontFamily: 'Space Mono, monospace', fontSize: '10px', padding: '4px 6px', outline: 'none', textAlign: 'center' }}
                       />
-                      <span style={{ fontFamily: 'Space Mono, monospace', fontSize: '9px', color: BLUE }}>+</span>
+                      <span style={{ fontFamily: 'Space Mono, monospace', fontSize: '9px', color: ACCENT }}>+</span>
                     </>
                   )}
                 </div>
@@ -197,13 +182,6 @@ function KeywordPicker() {
   )
 }
 
-// ── Shared constants ──────────────────────────────────────────────────────────
-
-const TEXT_MUTED = 'rgba(184,210,228,0.45)'
-const TEXT_H     = '#FFFFFF'
-const PANEL      = '#071e38'
-const BORDER     = 'rgba(9,162,196,0.15)'
-
 // ── Army Picker ───────────────────────────────────────────────────────────────
 
 function ArmyPicker() {
@@ -215,7 +193,6 @@ function ArmyPicker() {
   const setAttacker = useSimulatorStore((s) => s.setAttacker)
   const weapon      = useSimulatorStore((s) => s.attacker.weapon)
 
-  // Ensure armies are loaded
   useState(() => { init(user) })
 
   const [armyId,   setArmyId]   = useState(armies[0]?.id ?? '')
@@ -228,7 +205,6 @@ function ArmyPicker() {
   const weapons = (unit?.weapons ?? []).map((ref) => ({ ref, w: weaponsById[ref.id] })).filter((x) => x.w)
   const selectedWeapon = weapons.find((x) => x.ref.id === weaponId)?.w ?? null
 
-  // Sync to simulator store whenever weapon or firing count changes
   useEffect(() => {
     if (selectedWeapon) {
       setWeapon({
@@ -247,7 +223,6 @@ function ArmyPicker() {
     setAttacker({ models: firing })
   }, [firing, setAttacker])         // eslint-disable-line
 
-  // Reset downstream selections on change
   const handleArmyChange = (id) => { setArmyId(id); setUnitUid(''); setWeaponId(''); setFiring(1) }
   const handleUnitChange = (uid) => {
     setUnitUid(uid)
@@ -262,10 +237,10 @@ function ArmyPicker() {
       <div style={{
         padding: '20px 0',
         fontFamily: 'Space Mono, monospace', fontSize: '10px',
-        color: TEXT_MUTED, lineHeight: 1.7,
+        color: TEXT_WEAK, lineHeight: 1.7,
       }}>
         No saved armies.{' '}
-        <a href="/armies" style={{ color: BLUE, textDecoration: 'none' }}>
+        <a href="/armies" style={{ color: ACCENT, textDecoration: 'none' }}>
           Create one →
         </a>
       </div>
@@ -273,9 +248,9 @@ function ArmyPicker() {
   }
 
   const selectStyle = {
-    width: '100%', background: PANEL,
-    border: `1px solid rgba(9,162,196,0.3)`,
-    color: TEXT_H, fontFamily: 'Space Mono, monospace',
+    width: '100%', background: SURFACE,
+    border: `1px solid ${BORDER}`,
+    color: TEXT, fontFamily: 'Space Mono, monospace',
     fontSize: '11px', padding: '8px 10px',
     outline: 'none', cursor: 'pointer',
   }
@@ -283,13 +258,12 @@ function ArmyPicker() {
   const labelStyle = {
     fontFamily: 'Space Mono, monospace', fontSize: '8px',
     letterSpacing: '2px', textTransform: 'uppercase',
-    color: TEXT_MUTED, marginBottom: '6px', display: 'block',
+    color: TEXT_WEAK, marginBottom: '6px', display: 'block',
   }
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
 
-      {/* Army */}
       <div>
         <span style={labelStyle}>Army</span>
         <select value={armyId} onChange={(e) => handleArmyChange(e.target.value)} style={selectStyle}>
@@ -299,12 +273,11 @@ function ArmyPicker() {
         </select>
       </div>
 
-      {/* Unit */}
       {army && (
         <div>
           <span style={labelStyle}>Squad</span>
           {army.units.length === 0 ? (
-            <div style={{ fontFamily: 'Space Mono, monospace', fontSize: '10px', color: TEXT_MUTED }}>
+            <div style={{ fontFamily: 'Space Mono, monospace', fontSize: '10px', color: TEXT_WEAK }}>
               No units in this army.
             </div>
           ) : (
@@ -319,18 +292,18 @@ function ArmyPicker() {
                     onClick={() => handleUnitChange(u.uid)}
                     style={{
                       padding: '10px 12px', cursor: 'pointer',
-                      background: active ? 'rgba(9,162,196,0.1)' : 'transparent',
-                      borderLeft: `2px solid ${active ? BLUE : 'transparent'}`,
+                      background: active ? SURFACE_E : 'transparent',
+                      borderLeft: `2px solid ${active ? ACCENT : 'transparent'}`,
                       borderBottom: `1px solid ${BORDER}`,
                       transition: 'background 80ms',
                     }}
-                    onMouseEnter={(e) => { if (!active) e.currentTarget.style.background = 'rgba(9,162,196,0.04)' }}
+                    onMouseEnter={(e) => { if (!active) e.currentTarget.style.background = SURFACE }}
                     onMouseLeave={(e) => { if (!active) e.currentTarget.style.background = 'transparent' }}
                   >
-                    <div style={{ fontFamily: 'Space Mono, monospace', fontSize: '11px', color: active ? BLUE : TEXT_H, fontWeight: active ? 700 : 400 }}>
+                    <div style={{ fontFamily: 'Space Mono, monospace', fontSize: '11px', color: active ? ACCENT : TEXT, fontWeight: active ? 700 : 400 }}>
                       {u.name}
                     </div>
-                    <div style={{ fontFamily: 'Space Mono, monospace', fontSize: '8px', color: TEXT_MUTED, marginTop: '2px' }}>
+                    <div style={{ fontFamily: 'Space Mono, monospace', fontSize: '8px', color: TEXT_WEAK, marginTop: '2px' }}>
                       {u.models} models · T{u.T} · Sv{u.Sv}+
                     </div>
                   </div>
@@ -341,7 +314,6 @@ function ArmyPicker() {
         </div>
       )}
 
-      {/* Weapon */}
       {unit && weapons.length > 0 && (
         <div>
           <span style={labelStyle}>Weapon</span>
@@ -354,24 +326,24 @@ function ArmyPicker() {
                   onClick={() => handleWeaponChange(ref.id)}
                   style={{
                     padding: '10px 12px', cursor: 'pointer',
-                    background: active ? 'rgba(9,162,196,0.1)' : 'transparent',
-                    borderLeft: `2px solid ${active ? BLUE : 'transparent'}`,
+                    background: active ? SURFACE_E : 'transparent',
+                    borderLeft: `2px solid ${active ? ACCENT : 'transparent'}`,
                     borderBottom: `1px solid ${BORDER}`,
                     transition: 'background 80ms',
                   }}
-                  onMouseEnter={(e) => { if (!active) e.currentTarget.style.background = 'rgba(9,162,196,0.04)' }}
+                  onMouseEnter={(e) => { if (!active) e.currentTarget.style.background = SURFACE }}
                   onMouseLeave={(e) => { if (!active) e.currentTarget.style.background = 'transparent' }}
                 >
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
-                    <span style={{ fontFamily: 'Space Mono, monospace', fontSize: '11px', color: active ? BLUE : TEXT_H, fontWeight: active ? 700 : 400 }}>
+                    <span style={{ fontFamily: 'Space Mono, monospace', fontSize: '11px', color: active ? ACCENT : TEXT, fontWeight: active ? 700 : 400 }}>
                       {ref.name}
                     </span>
-                    <span style={{ fontFamily: 'Space Mono, monospace', fontSize: '9px', color: TEXT_MUTED }}>
+                    <span style={{ fontFamily: 'Space Mono, monospace', fontSize: '9px', color: TEXT_WEAK }}>
                       A{w.A} · S{w.S} · AP{w.AP} · D{w.D}
                     </span>
                   </div>
                   {(w.kw ?? []).filter((k) => k !== '-').length > 0 && (
-                    <div style={{ fontFamily: 'Space Mono, monospace', fontSize: '8px', color: TEXT_MUTED, marginTop: '2px', letterSpacing: '0.5px' }}>
+                    <div style={{ fontFamily: 'Space Mono, monospace', fontSize: '8px', color: TEXT_WEAK, marginTop: '2px', letterSpacing: '0.5px' }}>
                       {(w.kw ?? []).filter((k) => k !== '-').join(', ')}
                     </div>
                   )}
@@ -382,7 +354,6 @@ function ArmyPicker() {
         </div>
       )}
 
-      {/* Firing models */}
       {unit && (
         <div>
           <span style={labelStyle}>Firing models</span>
@@ -393,24 +364,22 @@ function ArmyPicker() {
             value={firing}
             onChange={(e) => setFiring(Math.max(1, parseInt(e.target.value) || 1))}
             style={{
-              width: '80px', background: PANEL,
-              border: `1px solid rgba(9,162,196,0.3)`,
-              color: BLUE, fontFamily: 'Space Mono, monospace',
+              width: '80px', background: SURFACE,
+              border: `1px solid ${BORDER}`,
+              color: TEXT, fontFamily: 'Space Mono, monospace',
               fontSize: '13px', padding: '7px 10px',
               outline: 'none', textAlign: 'center',
             }}
           />
           {unit.max_models && (
-            <span style={{ fontFamily: 'Space Mono, monospace', fontSize: '9px', color: TEXT_MUTED, marginLeft: '8px' }}>
+            <span style={{ fontFamily: 'Space Mono, monospace', fontSize: '9px', color: TEXT_WEAK, marginLeft: '8px' }}>
               / {unit.max_models}
             </span>
           )}
         </div>
       )}
 
-      {/* ── Weapon stats + keywords (editable) ── */}
       {unit && selectedWeapon && (<>
-
         <div style={{ borderTop: `1px solid ${BORDER}`, paddingTop: '16px' }}>
           <span style={labelStyle}>Weapon stats</span>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
@@ -427,19 +396,18 @@ function ArmyPicker() {
           </div>
         </div>
 
-        {/* Keywords */}
         <div>
           <span style={labelStyle}>Keywords</span>
           <KeywordPicker />
         </div>
 
         <div style={{
-          padding: '10px 12px', border: `1px solid rgba(9,162,196,0.2)`,
-          background: 'rgba(9,162,196,0.03)',
+          padding: '10px 12px', border: `1px solid ${BORDER}`,
+          background: 'rgba(47,224,255,0.05)',
           fontFamily: 'Space Mono, monospace', fontSize: '9px',
-          color: BLUE, letterSpacing: '1px',
+          color: ACCENT, letterSpacing: '1px',
         }}>
-          ✓ {firing}× {selectedWeapon.name} — click Run Simulation
+          ✓ {firing}× {selectedWeapon.name} — click Confirm attack
         </div>
       </>)}
     </div>
@@ -447,13 +415,6 @@ function ArmyPicker() {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-
-const BUFF_LABELS = {
-  'REROLL_HITS:ones': 'Reroll hit 1s',
-  'REROLL_HITS:all':  'Reroll failed hits',
-  'REROLL_WOUNDS:ones': 'Reroll wound 1s',
-  'REROLL_WOUNDS:all':  'Reroll failed wounds',
-}
 
 export function AttackerPanel() {
   const weapon      = useSimulatorStore((s) => s.attacker.weapon)
@@ -469,7 +430,6 @@ export function AttackerPanel() {
     if (hasBuff(type, value)) {
       setAttacker({ buffs: buffs.filter((b) => !(b.type === type && b.value === value)) })
     } else {
-      // Rerolls are mutually exclusive per category
       const filtered = buffs.filter((b) => b.type !== type)
       setAttacker({ buffs: [...filtered, { type, value }] })
     }
@@ -479,7 +439,7 @@ export function AttackerPanel() {
   const [weaponResults, setWeaponResults] = useState([])
   const [drawerOpen, setDrawerOpen]       = useState(false)
   const [selectedUnit, setSelectedUnit]   = useState(null)
-  const [mode, setMode]                   = useState('manual')  // 'manual' | 'army'
+  const [mode, setMode]                   = useState('manual')
 
   function handleWeaponSearch(query) {
     setWeaponResults(searchWeapons(query))
@@ -504,45 +464,42 @@ export function AttackerPanel() {
 
   function handleDrawerSelect(unit, weapon) {
     setSelectedUnit(unit)
-    // Also set model count from unit data if useful
     if (weapon) applyWeapon(weapon)
   }
 
   return (
     <>
     <section>
-      {/* ── Header ── */}
       <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', marginBottom: '20px' }}>
         <div style={{ display: 'flex', alignItems: 'baseline', gap: '10px' }}>
           <span style={{
             fontFamily: 'Space Mono, monospace', fontSize: '8px',
-            letterSpacing: '2px', textTransform: 'uppercase', opacity: 0.3,
+            letterSpacing: '2px', textTransform: 'uppercase', color: TEXT_OFF,
           }}>UNIT.001</span>
           <span style={{
             fontFamily: 'Space Mono, monospace', fontSize: '11px',
-            fontWeight: 700, letterSpacing: '3px', textTransform: 'uppercase',
+            fontWeight: 700, letterSpacing: '3px', textTransform: 'uppercase', color: TEXT,
           }}>Attacker</span>
         </div>
         {mode === 'manual' && (
           <button
             onClick={() => setDrawerOpen(true)}
             style={{
-              background: 'transparent', border: `1px solid rgba(9,162,196,0.4)`,
-              color: BLUE, fontFamily: 'Space Mono, monospace', fontSize: '8.5px',
+              background: 'transparent', border: `1px solid ${BORDER}`,
+              color: ACCENT, fontFamily: 'Space Mono, monospace', fontSize: '8.5px',
               letterSpacing: '2px', textTransform: 'uppercase', padding: '5px 12px',
               cursor: 'pointer', borderRadius: 0,
               transition: 'border-color 100ms, background 100ms',
             }}
-            onMouseEnter={(e) => { e.currentTarget.style.borderColor = BLUE; e.currentTarget.style.background = 'rgba(9,162,196,0.05)' }}
-            onMouseLeave={(e) => { e.currentTarget.style.borderColor = 'rgba(9,162,196,0.4)'; e.currentTarget.style.background = 'transparent' }}
+            onMouseEnter={(e) => { e.currentTarget.style.borderColor = ACCENT; e.currentTarget.style.background = 'rgba(47,224,255,0.07)' }}
+            onMouseLeave={(e) => { e.currentTarget.style.borderColor = BORDER; e.currentTarget.style.background = 'transparent' }}
           >
             Browse units →
           </button>
         )}
       </div>
 
-      {/* ── Mode tabs ── */}
-      <div style={{ display: 'flex', borderBottom: `1px solid rgba(9,162,196,0.15)`, marginBottom: '20px' }}>
+      <div style={{ display: 'flex', borderBottom: `1px solid ${BORDER}`, marginBottom: '20px' }}>
         {[['manual', 'Manual'], ['army', 'From Army']].map(([id, label]) => (
           <button
             key={id}
@@ -550,8 +507,8 @@ export function AttackerPanel() {
             style={{
               flex: 1, padding: '8px 0',
               background: 'none', border: 'none',
-              borderBottom: mode === id ? `2px solid ${BLUE}` : '2px solid transparent',
-              color: mode === id ? BLUE : 'rgba(200,216,232,0.35)',
+              borderBottom: mode === id ? `2px solid ${ACCENT}` : '2px solid transparent',
+              color: mode === id ? ACCENT : TEXT_OFF,
               fontFamily: 'Space Mono, monospace', fontSize: '9px',
               letterSpacing: '2px', textTransform: 'uppercase',
               cursor: 'pointer', marginBottom: '-1px',
@@ -567,24 +524,23 @@ export function AttackerPanel() {
         <ArmyPicker />
       ) : (<>
 
-      {/* Selected unit chip */}
       {selectedUnit && (
         <div style={{
           marginBottom: '20px', padding: '10px 14px',
-          border: `1px solid rgba(9,162,196,0.25)`,
-          background: 'rgba(9,162,196,0.04)',
+          border: `1px solid ${BORDER}`,
+          background: SURFACE,
           display: 'flex', justifyContent: 'space-between', alignItems: 'center',
         }}>
           <div>
             <div style={{
               fontFamily: 'Space Mono, monospace', fontSize: '12px',
-              fontWeight: 700, color: BLUE,
+              fontWeight: 700, color: ACCENT,
             }}>
               {selectedUnit.name}
             </div>
             <div style={{
               fontFamily: 'Space Mono, monospace', fontSize: '8.5px',
-              opacity: 0.45, marginTop: '3px', letterSpacing: '1px',
+              color: TEXT_WEAK, marginTop: '3px', letterSpacing: '1px',
             }}>
               T{selectedUnit.T} · SV{selectedUnit.Sv}+ · W{selectedUnit.W}
               {selectedUnit.invuln ? ` · ${selectedUnit.invuln}++` : ''}
@@ -593,13 +549,13 @@ export function AttackerPanel() {
           <button
             onClick={() => setDrawerOpen(true)}
             style={{
-              background: 'none', border: 'none', color: BLUE,
+              background: 'none', border: 'none', color: ACCENT,
               fontFamily: 'Space Mono, monospace', fontSize: '8px',
               letterSpacing: '1.5px', textTransform: 'uppercase',
-              cursor: 'pointer', opacity: 0.5, padding: 0,
+              cursor: 'pointer', opacity: 0.6, padding: 0,
             }}
             onMouseEnter={(e) => { e.currentTarget.style.opacity = '1' }}
-            onMouseLeave={(e) => { e.currentTarget.style.opacity = '0.5' }}
+            onMouseLeave={(e) => { e.currentTarget.style.opacity = '0.6' }}
           >
             Change
           </button>
@@ -617,11 +573,11 @@ export function AttackerPanel() {
           renderItem={(w) => (
             <div>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
-                <span style={{ fontFamily: 'Space Mono, monospace', fontSize: '13px', fontWeight: 700 }}>
+                <span style={{ fontFamily: 'Space Mono, monospace', fontSize: '13px', fontWeight: 700, color: TEXT }}>
                   {w.name}
                 </span>
                 <span style={{
-                  fontFamily: 'Space Mono, monospace', fontSize: '11px', opacity: 0.45,
+                  fontFamily: 'Space Mono, monospace', fontSize: '11px', color: TEXT_WEAK,
                 }}>
                   {`${w.A} · S${w.S} · AP${w.AP} · D${w.D}`}
                 </span>
@@ -629,7 +585,7 @@ export function AttackerPanel() {
               {w.users?.length > 0 && (
                 <div style={{
                   fontFamily: 'Georgia, serif', fontSize: '12px', fontStyle: 'italic',
-                  opacity: 0.3, marginTop: '2px',
+                  color: TEXT_OFF, marginTop: '2px',
                 }}>
                   {w.users.join(', ')}
                 </div>
@@ -639,57 +595,30 @@ export function AttackerPanel() {
         />
 
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
-          <StatInput
-            label="Attacks (A)"
-            type="text"
-            value={weapon.attacks}
-            placeholder="D6, 2D3+1…"
-            onChange={(v) => setWeapon({ attacks: v })}
-          />
-          <StatInput
-            label="Skill (BS/WS)"
-            value={weapon.skill}
-            min={2} max={6}
-            onChange={(v) => setWeapon({ skill: v })}
-          />
+          <StatInput label="Attacks (A)" type="text" value={weapon.attacks}
+            placeholder="D6, 2D3+1…" onChange={(v) => setWeapon({ attacks: v })} />
+          <StatInput label="Skill (BS/WS)" value={weapon.skill}
+            min={2} max={6} onChange={(v) => setWeapon({ skill: v })} />
         </div>
 
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
-          <StatInput
-            label="Strength (S)"
-            value={weapon.strength}
-            min={1} max={20}
-            onChange={(v) => setWeapon({ strength: v })}
-          />
-          <StatInput
-            label="AP"
-            value={weapon.ap}
-            min={-6} max={0}
-            onChange={(v) => setWeapon({ ap: v })}
-          />
+          <StatInput label="Strength (S)" value={weapon.strength}
+            min={1} max={20} onChange={(v) => setWeapon({ strength: v })} />
+          <StatInput label="AP" value={weapon.ap}
+            min={-6} max={0} onChange={(v) => setWeapon({ ap: v })} />
         </div>
 
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
-          <StatInput
-            label="Damage (D)"
-            type="text"
-            value={weapon.damage}
-            placeholder="D3, D6+1…"
-            onChange={(v) => setWeapon({ damage: v })}
-          />
-          <StatInput
-            label="Number of models"
-            value={models}
-            min={1}
-            onChange={(v) => setAttacker({ models: v })}
-          />
+          <StatInput label="Damage (D)" type="text" value={weapon.damage}
+            placeholder="D3, D6+1…" onChange={(v) => setWeapon({ damage: v })} />
+          <StatInput label="Number of models" value={models}
+            min={1} onChange={(v) => setAttacker({ models: v })} />
         </div>
 
-        {/* ── Keywords ─────────────────────────────────────────────────────── */}
         <div>
           <div style={{
             fontFamily: 'Space Mono, monospace', fontSize: '8px',
-            letterSpacing: '2px', textTransform: 'uppercase', opacity: 0.4,
+            letterSpacing: '2px', textTransform: 'uppercase', color: TEXT_WEAK,
             marginBottom: '10px',
           }}>
             Keywords
@@ -699,11 +628,10 @@ export function AttackerPanel() {
       </div>
       </>)}
 
-      {/* ── Attacker abilities (always visible) ──────────────────────────── */}
       <div style={{ marginTop: '24px', paddingTop: '20px', borderTop: `1px solid ${BORDER}` }}>
         <div style={{
           fontFamily: 'Space Mono, monospace', fontSize: '8px',
-          letterSpacing: '2px', textTransform: 'uppercase', color: TEXT_MUTED,
+          letterSpacing: '2px', textTransform: 'uppercase', color: TEXT_WEAK,
           marginBottom: '12px',
         }}>
           Attacker abilities
@@ -721,16 +649,16 @@ export function AttackerPanel() {
                 key={`${type}:${value}`}
                 onClick={() => toggleBuff(type, value)}
                 style={{
-                  background: active ? 'rgba(9,162,196,0.15)' : 'transparent',
-                  border: `1px solid ${active ? BLUE : 'rgba(9,162,196,0.25)'}`,
-                  color: active ? BLUE : TEXT_MUTED,
+                  background: active ? 'rgba(47,224,255,0.15)' : SURFACE,
+                  border: `1px solid ${active ? ACCENT : BORDER}`,
+                  color: active ? TEXT : TEXT_SEC,
                   fontFamily: 'Space Mono, monospace', fontSize: '8.5px',
                   letterSpacing: '1px', textTransform: 'uppercase',
                   padding: '5px 10px', cursor: 'pointer',
                   transition: 'all 100ms',
                 }}
-                onMouseEnter={(e) => { if (!active) { e.currentTarget.style.borderColor = 'rgba(9,162,196,0.5)'; e.currentTarget.style.color = 'rgba(184,210,228,0.7)' } }}
-                onMouseLeave={(e) => { if (!active) { e.currentTarget.style.borderColor = 'rgba(9,162,196,0.25)'; e.currentTarget.style.color = TEXT_MUTED } }}
+                onMouseEnter={(e) => { if (!active) { e.currentTarget.style.borderColor = ACCENT; e.currentTarget.style.color = TEXT } }}
+                onMouseLeave={(e) => { if (!active) { e.currentTarget.style.borderColor = BORDER; e.currentTarget.style.color = TEXT_SEC } }}
               >
                 {active ? `✓ ${label}` : label}
               </button>
@@ -750,9 +678,6 @@ export function AttackerPanel() {
   )
 }
 
-/**
- * Map BSData keyword strings to engine keyword objects.
- */
 function mapKeywords(kwStrings) {
   if (!kwStrings?.length) return []
   const result = []
@@ -772,23 +697,18 @@ function mapKeywords(kwStrings) {
       continue
     }
 
-    // Sustained Hits X
     const sus = raw.match(/sustained\s*hits\s*(\d+|D\d+)/i)
     if (sus) { result.push({ type: 'SUSTAINED_HITS', value: sus[1] }); continue }
 
-    // Rapid Fire X
     const rf = raw.match(/rapid\s*fire\s*(\d+|D\d+)/i)
     if (rf) { result.push({ type: 'RAPID_FIRE', value: rf[1] }); continue }
 
-    // Melta X
     const melta = raw.match(/melta\s*(\d+|D\d+)/i)
     if (melta) { result.push({ type: 'MELTA', value: melta[1] }); continue }
 
-    // Anti-X Y+
     const anti = raw.match(/anti-(\w+)\s*(\d+)\+/i)
     if (anti) { result.push({ type: 'ANTI', target: anti[1].toUpperCase(), threshold: parseInt(anti[2]) }); continue }
 
-    // Extra Attacks X
     const ea = raw.match(/extra\s*attacks?\s*(\d+|D\d+)/i)
     if (ea) { result.push({ type: 'EXTRA_ATTACKS', value: ea[1] }); continue }
   }

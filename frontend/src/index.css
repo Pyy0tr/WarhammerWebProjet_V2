@@ -7,18 +7,18 @@
 }
 
 :root {
-  --primary: #09A2C4;
-  --bg:      #041428;
+  --primary: #2FE0FF;
+  --bg:      #0A1621;
   --accent:  #C28F85;
-  --mid:     #07375F;
+  --mid:     #143247;
   --warm:    #BC7158;
   --mono: 'Space Mono', 'Courier New', monospace;
   --serif: Georgia, 'Times New Roman', serif;
 }
 
 body {
-  background-color: #041428;
-  color: var(--primary);
+  background-color: #0A1621;
+  color: #9DB7C6;
   font-family: var(--serif);
   -webkit-font-smoothing: antialiased;
 }
@@ -29,13 +29,13 @@ body::before {
   position: fixed;
   inset: 0;
   background:
-    radial-gradient(ellipse 70% 55% at 8%  85%, #07375F 0%, transparent 70%),
-    radial-gradient(ellipse 55% 50% at 82% 12%, rgba(30,91,103,0.65) 0%, transparent 60%),
-    radial-gradient(ellipse 65% 70% at 50% 50%, rgba(7,55,95,0.45) 0%, transparent 55%),
-    radial-gradient(ellipse 45% 55% at 88% 70%, rgba(30,91,103,0.40) 0%, transparent 55%),
-    radial-gradient(ellipse 50% 40% at 22% 25%, rgba(9,162,196,0.20) 0%, transparent 50%),
-    radial-gradient(ellipse 35% 30% at 65% 38%, rgba(194,143,133,0.08) 0%, transparent 55%),
-    radial-gradient(ellipse 30% 35% at 15% 65%, rgba(188,113,88,0.06) 0%, transparent 50%);
+    radial-gradient(ellipse 70% 55% at 8%  85%, #0F2230 0%, transparent 70%),
+    radial-gradient(ellipse 55% 50% at 82% 12%, rgba(20,50,71,0.65) 0%, transparent 60%),
+    radial-gradient(ellipse 65% 70% at 50% 50%, rgba(15,34,48,0.45) 0%, transparent 55%),
+    radial-gradient(ellipse 45% 55% at 88% 70%, rgba(20,50,71,0.40) 0%, transparent 55%),
+    radial-gradient(ellipse 50% 40% at 22% 25%, rgba(47,224,255,0.08) 0%, transparent 50%),
+    radial-gradient(ellipse 35% 30% at 65% 38%, rgba(194,143,133,0.06) 0%, transparent 55%),
+    radial-gradient(ellipse 30% 35% at 15% 65%, rgba(188,113,88,0.04) 0%, transparent 50%);
   pointer-events: none;
   z-index: 0;
 }

@@ -3,13 +3,7 @@ import { useSimulatorStore } from '../store/simulatorStore'
 import { AttackerPanel } from '../components/AttackerPanel'
 import { DefenderPanel } from '../components/DefenderPanel'
 import { ResultsPanel } from '../components/ResultsPanel'
-
-const BLUE       = '#09A2C4'
-const BG         = '#041428'
-const TEXT_H     = '#FFFFFF'
-const TEXT_MUTED = 'rgba(184,210,228,0.45)'
-const PANEL      = '#071e38'
-const BORDER     = 'rgba(9,162,196,0.15)'
+import { ACCENT, ACCENT_H, BG, SURFACE, SURFACE_E, BORDER, TEXT, TEXT_SEC, TEXT_WEAK, TEXT_OFF, ERROR } from '../theme'
 
 // ── Step indicator ───────────────────────────────────────────────────────────
 
@@ -37,7 +31,7 @@ function StepBar({ current, onStep }) {
             style={{
               flex: 1, padding: '14px 0 12px',
               background: 'none', border: 'none',
-              borderBottom: active ? `2px solid ${BLUE}` : '2px solid transparent',
+              borderBottom: active ? `2px solid ${ACCENT}` : '2px solid transparent',
               cursor: clickable ? 'pointer' : 'default',
               display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px',
               transition: 'border-color 150ms',
@@ -46,10 +40,10 @@ function StepBar({ current, onStep }) {
             <span style={{
               width: '20px', height: '20px', borderRadius: '50%',
               display: 'flex', alignItems: 'center', justifyContent: 'center',
-              background: active ? BLUE : completed ? 'rgba(9,162,196,0.2)' : 'transparent',
-              border: `1px solid ${active || completed ? BLUE : 'rgba(9,162,196,0.25)'}`,
+              background: active ? ACCENT : completed ? SURFACE_E : 'transparent',
+              border: `1px solid ${active || completed ? ACCENT : BORDER}`,
               fontFamily: 'Space Mono, monospace', fontSize: '9px', fontWeight: 700,
-              color: active ? BG : completed ? BLUE : TEXT_MUTED,
+              color: active ? BG : completed ? ACCENT : TEXT_OFF,
               transition: 'all 150ms',
             }}>
               {completed ? '\u2713' : s.n}
@@ -57,7 +51,7 @@ function StepBar({ current, onStep }) {
             <span style={{
               fontFamily: 'Space Mono, monospace', fontSize: '9px',
               letterSpacing: '1.5px', textTransform: 'uppercase',
-              color: active ? BLUE : completed ? 'rgba(9,162,196,0.6)' : TEXT_MUTED,
+              color: active ? ACCENT : completed ? TEXT_SEC : TEXT_OFF,
               fontWeight: active ? 700 : 400,
               transition: 'color 150ms',
             }}>
@@ -83,33 +77,33 @@ function AttackCard({ attack, idx, onEdit, onRemove }) {
   return (
     <div style={{
       border: `1px solid ${BORDER}`, padding: '14px 16px',
-      background: PANEL, display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start',
+      background: SURFACE, display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start',
     }}>
       <div style={{ flex: 1 }}>
         <div style={{ display: 'flex', alignItems: 'baseline', gap: '8px', marginBottom: '4px' }}>
           <span style={{
             fontFamily: 'Space Mono, monospace', fontSize: '8px',
-            letterSpacing: '1.5px', color: TEXT_MUTED,
+            letterSpacing: '1.5px', color: TEXT_OFF,
           }}>
             #{idx + 1}
           </span>
           <span style={{
             fontFamily: 'Space Mono, monospace', fontSize: '12px',
-            fontWeight: 700, color: BLUE,
+            fontWeight: 700, color: ACCENT,
           }}>
             {w.name || 'Custom weapon'}
           </span>
         </div>
         <div style={{
           fontFamily: 'Space Mono, monospace', fontSize: '10px',
-          color: 'rgba(184,210,228,0.6)', letterSpacing: '0.5px',
+          color: TEXT_SEC, letterSpacing: '0.5px',
         }}>
           {attack.models}x &middot; A{w.attacks} &middot; BS{w.skill}+ &middot; S{w.strength} &middot; AP{w.ap} &middot; D{w.damage}
         </div>
         {kwList.length > 0 && (
           <div style={{
             fontFamily: 'Space Mono, monospace', fontSize: '8px',
-            color: TEXT_MUTED, marginTop: '4px', letterSpacing: '0.5px', textTransform: 'uppercase',
+            color: TEXT_WEAK, marginTop: '4px', letterSpacing: '0.5px', textTransform: 'uppercase',
           }}>
             {kwList.join(' \u00b7 ')}
           </div>
@@ -127,26 +121,26 @@ function AttackCard({ attack, idx, onEdit, onRemove }) {
         <button
           onClick={() => onEdit(idx)}
           style={{
-            background: 'none', border: `1px solid rgba(9,162,196,0.3)`,
-            color: BLUE, fontFamily: 'Space Mono, monospace', fontSize: '8px',
+            background: 'none', border: `1px solid ${BORDER}`,
+            color: ACCENT, fontFamily: 'Space Mono, monospace', fontSize: '8px',
             letterSpacing: '1px', textTransform: 'uppercase', padding: '4px 8px',
             cursor: 'pointer', transition: 'border-color 100ms',
           }}
-          onMouseEnter={(e) => { e.currentTarget.style.borderColor = BLUE }}
-          onMouseLeave={(e) => { e.currentTarget.style.borderColor = 'rgba(9,162,196,0.3)' }}
+          onMouseEnter={(e) => { e.currentTarget.style.borderColor = ACCENT }}
+          onMouseLeave={(e) => { e.currentTarget.style.borderColor = BORDER }}
         >
           Edit
         </button>
         <button
           onClick={() => onRemove(idx)}
           style={{
-            background: 'none', border: `1px solid rgba(224,92,92,0.3)`,
-            color: '#e05c5c', fontFamily: 'Space Mono, monospace', fontSize: '8px',
+            background: 'none', border: `1px solid rgba(255,92,122,0.3)`,
+            color: ERROR, fontFamily: 'Space Mono, monospace', fontSize: '8px',
             letterSpacing: '1px', textTransform: 'uppercase', padding: '4px 8px',
             cursor: 'pointer', transition: 'border-color 100ms',
           }}
-          onMouseEnter={(e) => { e.currentTarget.style.borderColor = '#e05c5c' }}
-          onMouseLeave={(e) => { e.currentTarget.style.borderColor = 'rgba(224,92,92,0.3)' }}
+          onMouseEnter={(e) => { e.currentTarget.style.borderColor = ERROR }}
+          onMouseLeave={(e) => { e.currentTarget.style.borderColor = 'rgba(255,92,122,0.3)' }}
         >
           ×
         </button>
@@ -168,7 +162,7 @@ function ReviewStep() {
     <div style={{ maxWidth: '640px', margin: '0 auto' }}>
       <div style={{
         fontFamily: 'Space Mono, monospace', fontSize: '8px',
-        letterSpacing: '2px', textTransform: 'uppercase', color: TEXT_MUTED,
+        letterSpacing: '2px', textTransform: 'uppercase', color: TEXT_WEAK,
         marginBottom: '16px',
       }}>
         Attacks configured ({attacks.length})
@@ -176,9 +170,9 @@ function ReviewStep() {
 
       {attacks.length === 0 && (
         <div style={{
-          padding: '32px', border: `1px dashed rgba(9,162,196,0.2)`,
+          padding: '32px', border: `1px dashed ${BORDER}`,
           textAlign: 'center', fontFamily: 'Space Mono, monospace',
-          fontSize: '10px', color: TEXT_MUTED,
+          fontSize: '10px', color: TEXT_WEAK,
         }}>
           No attacks yet. Add at least one attack to continue.
         </div>
@@ -195,12 +189,12 @@ function ReviewStep() {
           onClick={() => { resetAttacker(); setStep(1) }}
           style={{
             flex: 1, padding: '12px',
-            background: 'transparent', border: `1px solid rgba(9,162,196,0.3)`,
-            color: BLUE, fontFamily: 'Space Mono, monospace', fontSize: '9px',
+            background: 'transparent', border: `1px solid ${BORDER}`,
+            color: ACCENT, fontFamily: 'Space Mono, monospace', fontSize: '9px',
             letterSpacing: '1.5px', textTransform: 'uppercase', cursor: 'pointer',
             transition: 'background 100ms',
           }}
-          onMouseEnter={(e) => { e.currentTarget.style.background = 'rgba(9,162,196,0.06)' }}
+          onMouseEnter={(e) => { e.currentTarget.style.background = 'rgba(47,224,255,0.07)' }}
           onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent' }}
         >
           + Add another attack
@@ -210,15 +204,15 @@ function ReviewStep() {
             onClick={() => setStep(3)}
             style={{
               flex: 1, padding: '12px',
-              background: 'transparent', border: `1px solid ${BLUE}`,
-              color: TEXT_H, fontFamily: 'Space Mono, monospace', fontSize: '9px',
+              background: ACCENT, border: `1px solid ${ACCENT}`,
+              color: BG, fontFamily: 'Space Mono, monospace', fontSize: '9px',
               fontWeight: 700, letterSpacing: '1.5px', textTransform: 'uppercase',
-              cursor: 'pointer', transition: 'background 100ms, color 100ms',
+              cursor: 'pointer', transition: 'opacity 100ms',
             }}
-            onMouseEnter={(e) => { e.currentTarget.style.background = BLUE; e.currentTarget.style.color = BG }}
-            onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = TEXT_H }}
+            onMouseEnter={(e) => { e.currentTarget.style.opacity = '0.85' }}
+            onMouseLeave={(e) => { e.currentTarget.style.opacity = '1' }}
           >
-            Next: Choose Defender \u2192
+            Next: Choose Defender →
           </button>
         )}
       </div>
@@ -240,12 +234,12 @@ function DefenderStep() {
 
       {error && (
         <div style={{
-          marginTop: '16px', border: `1px solid rgba(224,92,92,0.5)`,
+          marginTop: '16px', border: `1px solid rgba(255,92,122,0.5)`,
           padding: '10px 14px', fontFamily: 'Space Mono, monospace',
           fontSize: '10px', letterSpacing: '1.5px', textTransform: 'uppercase',
-          color: '#e05c5c',
+          color: ERROR,
         }}>
-          ERROR \u2014 {error}
+          ERROR — {error}
         </div>
       )}
 
@@ -254,39 +248,34 @@ function DefenderStep() {
           onClick={() => setStep(2)}
           style={{
             padding: '12px 20px',
-            background: 'transparent', border: `1px solid rgba(9,162,196,0.3)`,
-            color: TEXT_MUTED, fontFamily: 'Space Mono, monospace', fontSize: '9px',
+            background: 'transparent', border: `1px solid ${BORDER}`,
+            color: TEXT_WEAK, fontFamily: 'Space Mono, monospace', fontSize: '9px',
             letterSpacing: '1.5px', textTransform: 'uppercase', cursor: 'pointer',
             transition: 'color 100ms',
           }}
-          onMouseEnter={(e) => { e.currentTarget.style.color = BLUE }}
-          onMouseLeave={(e) => { e.currentTarget.style.color = TEXT_MUTED }}
+          onMouseEnter={(e) => { e.currentTarget.style.color = ACCENT }}
+          onMouseLeave={(e) => { e.currentTarget.style.color = TEXT_WEAK }}
         >
-          \u2190 Back
+          ← Back
         </button>
         <button
           onClick={runSimulation}
           disabled={loading}
           style={{
             flex: 1, padding: '14px',
-            background: loading ? 'rgba(9,162,196,0.06)' : 'transparent',
-            border: `1px solid ${BLUE}`,
-            color: loading ? TEXT_MUTED : TEXT_H,
+            background: loading ? SURFACE : ACCENT,
+            border: `1px solid ${ACCENT}`,
+            color: loading ? TEXT_WEAK : BG,
             fontFamily: 'Space Mono, monospace', fontSize: '11px',
             fontWeight: 700, letterSpacing: '3px', textTransform: 'uppercase',
             cursor: loading ? 'default' : 'pointer',
             opacity: loading ? 0.5 : 1,
-            transition: 'background 120ms, color 120ms',
+            transition: 'opacity 120ms',
           }}
-          onMouseEnter={(e) => {
-            if (!loading) { e.currentTarget.style.background = BLUE; e.currentTarget.style.color = BG }
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.background = loading ? 'rgba(9,162,196,0.06)' : 'transparent'
-            e.currentTarget.style.color = loading ? TEXT_MUTED : TEXT_H
-          }}
+          onMouseEnter={(e) => { if (!loading) e.currentTarget.style.opacity = '0.85' }}
+          onMouseLeave={(e) => { e.currentTarget.style.opacity = loading ? '0.5' : '1' }}
         >
-          {loading ? 'Running\u2026' : 'Run Simulation \u2192'}
+          {loading ? 'Running…' : 'Run Simulation →'}
         </button>
       </div>
     </div>
@@ -302,12 +291,11 @@ function ResultsStep() {
 
   return (
     <div>
-      {/* Attack summary */}
       {attacks.length > 0 && (
         <div style={{ marginBottom: '28px' }}>
           <div style={{
             fontFamily: 'Space Mono, monospace', fontSize: '8px',
-            letterSpacing: '2px', textTransform: 'uppercase', color: TEXT_MUTED,
+            letterSpacing: '2px', textTransform: 'uppercase', color: TEXT_WEAK,
             marginBottom: '10px',
           }}>
             Attacks ({attacks.length})
@@ -316,7 +304,7 @@ function ResultsStep() {
             {attacks.map((atk, i) => (
               <div key={atk._id} style={{
                 padding: '6px 10px', border: `1px solid ${BORDER}`,
-                fontFamily: 'Space Mono, monospace', fontSize: '9px', color: 'rgba(184,210,228,0.6)',
+                fontFamily: 'Space Mono, monospace', fontSize: '9px', color: TEXT_SEC,
               }}>
                 {atk.models}x {atk.weapon.name || 'Custom'}
               </div>
@@ -332,29 +320,29 @@ function ResultsStep() {
           onClick={() => setStep(2)}
           style={{
             padding: '10px 18px',
-            background: 'transparent', border: `1px solid rgba(9,162,196,0.3)`,
-            color: TEXT_MUTED, fontFamily: 'Space Mono, monospace', fontSize: '9px',
+            background: 'transparent', border: `1px solid ${BORDER}`,
+            color: TEXT_WEAK, fontFamily: 'Space Mono, monospace', fontSize: '9px',
             letterSpacing: '1.5px', textTransform: 'uppercase', cursor: 'pointer',
             transition: 'color 100ms',
           }}
-          onMouseEnter={(e) => { e.currentTarget.style.color = BLUE }}
-          onMouseLeave={(e) => { e.currentTarget.style.color = TEXT_MUTED }}
+          onMouseEnter={(e) => { e.currentTarget.style.color = ACCENT }}
+          onMouseLeave={(e) => { e.currentTarget.style.color = TEXT_WEAK }}
         >
-          \u2190 Change attacks
+          ← Change attacks
         </button>
         <button
           onClick={() => setStep(3)}
           style={{
             padding: '10px 18px',
-            background: 'transparent', border: `1px solid rgba(9,162,196,0.3)`,
-            color: TEXT_MUTED, fontFamily: 'Space Mono, monospace', fontSize: '9px',
+            background: 'transparent', border: `1px solid ${BORDER}`,
+            color: TEXT_WEAK, fontFamily: 'Space Mono, monospace', fontSize: '9px',
             letterSpacing: '1.5px', textTransform: 'uppercase', cursor: 'pointer',
             transition: 'color 100ms',
           }}
-          onMouseEnter={(e) => { e.currentTarget.style.color = BLUE }}
-          onMouseLeave={(e) => { e.currentTarget.style.color = TEXT_MUTED }}
+          onMouseEnter={(e) => { e.currentTarget.style.color = ACCENT }}
+          onMouseLeave={(e) => { e.currentTarget.style.color = TEXT_WEAK }}
         >
-          \u2190 Change defender
+          ← Change defender
         </button>
       </div>
     </div>
@@ -367,10 +355,10 @@ function Separator() {
   return (
     <div style={{
       fontFamily: 'Space Mono, monospace', fontSize: '9px', letterSpacing: '3px',
-      color: BLUE, overflow: 'hidden', whiteSpace: 'nowrap', lineHeight: 1,
-      padding: '10px 0', userSelect: 'none', opacity: 0.6,
+      color: ACCENT, overflow: 'hidden', whiteSpace: 'nowrap', lineHeight: 1,
+      padding: '10px 0', userSelect: 'none', opacity: 0.4,
     }}>
-      {'\u2248 '.repeat(300)}
+      {'≈ '.repeat(300)}
     </div>
   )
 }
@@ -396,37 +384,32 @@ function AttackStep() {
           disabled={!hasWeapon}
           style={{
             flex: 1, padding: '14px',
-            background: 'transparent',
-            border: `1px solid ${hasWeapon ? BLUE : 'rgba(9,162,196,0.15)'}`,
-            color: hasWeapon ? TEXT_H : TEXT_MUTED,
+            background: hasWeapon ? ACCENT : 'transparent',
+            border: `1px solid ${hasWeapon ? ACCENT : BORDER}`,
+            color: hasWeapon ? BG : TEXT_OFF,
             fontFamily: 'Space Mono, monospace', fontSize: '10px',
             fontWeight: 700, letterSpacing: '2px', textTransform: 'uppercase',
             cursor: hasWeapon ? 'pointer' : 'default',
             opacity: hasWeapon ? 1 : 0.4,
-            transition: 'background 120ms, color 120ms',
+            transition: 'opacity 120ms',
           }}
-          onMouseEnter={(e) => {
-            if (hasWeapon) { e.currentTarget.style.background = BLUE; e.currentTarget.style.color = BG }
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.background = 'transparent'
-            e.currentTarget.style.color = hasWeapon ? TEXT_H : TEXT_MUTED
-          }}
+          onMouseEnter={(e) => { if (hasWeapon) e.currentTarget.style.opacity = '0.85' }}
+          onMouseLeave={(e) => { e.currentTarget.style.opacity = hasWeapon ? '1' : '0.4' }}
         >
-          {editingIdx !== null ? 'Save changes \u2192' : 'Confirm attack \u2192'}
+          {editingIdx !== null ? 'Save changes →' : 'Confirm attack →'}
         </button>
       </div>
 
       {attacks.length > 0 && (
         <div style={{
           marginTop: '16px', textAlign: 'center',
-          fontFamily: 'Space Mono, monospace', fontSize: '9px', color: TEXT_MUTED,
+          fontFamily: 'Space Mono, monospace', fontSize: '9px', color: TEXT_WEAK,
         }}>
-          {attacks.length} attack{attacks.length > 1 ? 's' : ''} already configured \u2014{' '}
+          {attacks.length} attack{attacks.length > 1 ? 's' : ''} already configured —{' '}
           <button
             onClick={() => setStep(2)}
             style={{
-              background: 'none', border: 'none', color: BLUE,
+              background: 'none', border: 'none', color: ACCENT,
               fontFamily: 'Space Mono, monospace', fontSize: '9px',
               cursor: 'pointer', textDecoration: 'underline', padding: 0,
             }}
@@ -451,9 +434,8 @@ export function SimulatorPage() {
   }, [step])
 
   return (
-    <div style={{ color: '#C8DCE8', minHeight: '100vh', paddingTop: '52px' }}>
+    <div style={{ color: TEXT_SEC, minHeight: '100vh', paddingTop: '52px' }}>
 
-      {/* ── Header ──────────────────────────────────────────────────────── */}
       <div style={{ padding: '0 48px' }}>
         <Separator />
         <div style={{ padding: '18px 0 14px' }}>
@@ -461,13 +443,13 @@ export function SimulatorPage() {
             <h1 style={{
               fontFamily: 'Space Mono, monospace', fontWeight: 700,
               fontSize: 'clamp(18px, 2vw, 26px)', letterSpacing: '0.05em',
-              textTransform: 'uppercase', lineHeight: 1, color: TEXT_H,
+              textTransform: 'uppercase', lineHeight: 1, color: TEXT,
             }}>
               Probability Simulator
             </h1>
             <span style={{
               fontFamily: 'Space Mono, monospace', fontSize: '10px',
-              letterSpacing: '2px', textTransform: 'uppercase', color: TEXT_MUTED,
+              letterSpacing: '2px', textTransform: 'uppercase', color: TEXT_WEAK,
             }}>
               Monte Carlo &middot; WH40K 10e
             </span>
@@ -476,10 +458,8 @@ export function SimulatorPage() {
         <Separator />
       </div>
 
-      {/* ── Step bar ────────────────────────────────────────────────────── */}
       <StepBar current={step} onStep={setStep} />
 
-      {/* ── Content ─────────────────────────────────────────────────────── */}
       <section ref={contentRef} style={{ padding: '36px 48px 80px', minHeight: 'calc(100vh - 200px)' }}>
         {step === 1 && <AttackStep />}
         {step === 2 && <ReviewStep />}
@@ -487,16 +467,15 @@ export function SimulatorPage() {
         {step === 4 && <ResultsStep />}
       </section>
 
-      {/* ── Footer ──────────────────────────────────────────────────────── */}
       <div style={{ padding: '0 48px 24px' }}>
         <Separator />
         <div style={{
           display: 'flex', justifyContent: 'space-between', paddingTop: '12px',
           fontFamily: 'Space Mono, monospace', fontSize: '9px',
-          letterSpacing: '2px', textTransform: 'uppercase', color: TEXT_MUTED,
+          letterSpacing: '2px', textTransform: 'uppercase', color: TEXT_OFF,
         }}>
-          <span>WH40K PROBABILITY ENGINE &mdash; V2</span>
-          <span>SIMULATION RUNS IN BROWSER &mdash; ZERO LATENCY</span>
+          <span>WH40K PROBABILITY ENGINE — V2</span>
+          <span>SIMULATION RUNS IN BROWSER — ZERO LATENCY</span>
         </div>
       </div>
     </div>

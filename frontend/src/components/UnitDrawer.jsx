@@ -1,14 +1,9 @@
 import { useState, useEffect, useRef } from 'react'
 import { useDataStore } from '../store/dataStore'
-
-const BLUE  = '#09A2C4'
-const BG    = '#041428'
-const DIM   = 'rgba(9,162,196,0.15)'
-const MUTED = 'rgba(9,162,196,0.45)'
+import { ACCENT, BG, SURFACE, SURFACE_E, BORDER, TEXT, TEXT_SEC, TEXT_WEAK, TEXT_OFF } from '../theme'
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
-/** "Aeldari - Craftworlds" → { group: "Aeldari", sub: "Craftworlds" } */
 function parseFaction(name) {
   const idx = name.indexOf(' - ')
   if (idx === -1) return { group: name, sub: null }
@@ -22,7 +17,7 @@ function groupFactions(factions) {
     if (!map[group]) map[group] = []
     map[group].push(f)
   }
-  return map   // { "Aeldari": ["Aeldari - Craftworlds", ...], ... }
+  return map
 }
 
 function fmtWeaponLine(w) {
@@ -36,7 +31,7 @@ function SectionLabel({ children }) {
     <div style={{
       fontFamily: 'Space Mono, monospace', fontSize: '8px',
       letterSpacing: '2.5px', textTransform: 'uppercase',
-      color: BLUE, opacity: 0.4, padding: '16px 20px 8px',
+      color: TEXT_WEAK, padding: '16px 20px 8px',
     }}>
       {children}
     </div>
@@ -52,22 +47,22 @@ function UnitRow({ unit, onClick }) {
       onMouseLeave={() => setHover(false)}
       style={{
         padding: '10px 20px',
-        borderBottom: `1px solid rgba(9,162,196,0.07)`,
+        borderBottom: `1px solid ${BORDER}`,
         cursor: 'pointer',
-        background: hover ? 'rgba(9,162,196,0.05)' : 'transparent',
+        background: hover ? SURFACE_E : 'transparent',
         transition: 'background 60ms',
       }}
     >
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
         <span style={{
           fontFamily: 'Space Mono, monospace', fontSize: '12px',
-          fontWeight: 700, color: BLUE,
+          fontWeight: 700, color: ACCENT,
         }}>
           {unit.name}
         </span>
         <span style={{
           fontFamily: 'Space Mono, monospace', fontSize: '9px',
-          opacity: 0.45, whiteSpace: 'nowrap', marginLeft: '12px',
+          color: TEXT_WEAK, whiteSpace: 'nowrap', marginLeft: '12px',
         }}>
           T{unit.T} · {unit.Sv}+ · W{unit.W}
           {unit.invuln ? ` · ${unit.invuln}++` : ''}
@@ -86,22 +81,22 @@ function WeaponRow({ weapon, onClick }) {
       onMouseLeave={() => setHover(false)}
       style={{
         padding: '11px 20px',
-        borderBottom: `1px solid rgba(9,162,196,0.07)`,
+        borderBottom: `1px solid ${BORDER}`,
         cursor: 'pointer',
-        background: hover ? 'rgba(9,162,196,0.05)' : 'transparent',
+        background: hover ? SURFACE_E : 'transparent',
         transition: 'background 60ms',
       }}
     >
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
         <span style={{
           fontFamily: 'Space Mono, monospace', fontSize: '12px',
-          fontWeight: 700, color: BLUE,
+          fontWeight: 700, color: ACCENT,
         }}>
           {weapon.name}
         </span>
         <span style={{
           fontFamily: 'Space Mono, monospace', fontSize: '9px',
-          opacity: 0.45, whiteSpace: 'nowrap', marginLeft: '12px',
+          color: TEXT_WEAK, whiteSpace: 'nowrap', marginLeft: '12px',
         }}>
           {fmtWeaponLine(weapon)}
         </span>
@@ -110,7 +105,7 @@ function WeaponRow({ weapon, onClick }) {
         <div style={{
           marginTop: '3px',
           fontFamily: 'Space Mono, monospace', fontSize: '8px',
-          letterSpacing: '1px', opacity: 0.35, textTransform: 'uppercase',
+          letterSpacing: '1px', color: TEXT_OFF, textTransform: 'uppercase',
         }}>
           {weapon.kw.slice(0, 4).join(' · ')}
         </div>
@@ -119,14 +114,14 @@ function WeaponRow({ weapon, onClick }) {
   )
 }
 
-// ── Browsing panel (factions + units) ────────────────────────────────────────
+// ── Browsing panel ──────────────────────────────────────────────────────────
 
 function BrowsePanel({ onSelectUnit }) {
   const factions      = useDataStore((s) => s.factions)
   const unitsByFaction = useDataStore((s) => s.unitsByFaction)
 
-  const [openGroup, setOpenGroup]     = useState(null)   // top-level group
-  const [openFaction, setOpenFaction] = useState(null)   // subfaction
+  const [openGroup, setOpenGroup]     = useState(null)
+  const [openFaction, setOpenFaction] = useState(null)
 
   const grouped = groupFactions(factions)
   const groups  = Object.keys(grouped).sort()
@@ -139,38 +134,34 @@ function BrowsePanel({ onSelectUnit }) {
 
         return (
           <div key={group}>
-            {/* Group header */}
             <div
               onClick={() => setOpenGroup(isGroupOpen ? null : group)}
               style={{
                 padding: '11px 20px',
-                borderBottom: `1px solid rgba(9,162,196,0.1)`,
+                borderBottom: `1px solid ${BORDER}`,
                 cursor: 'pointer',
                 display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-                background: isGroupOpen ? 'rgba(9,162,196,0.04)' : 'transparent',
+                background: isGroupOpen ? SURFACE : 'transparent',
               }}
             >
               <span style={{
                 fontFamily: 'Space Mono, monospace', fontSize: '11px',
-                fontWeight: 700, color: BLUE, letterSpacing: '1px',
+                fontWeight: 700, color: ACCENT, letterSpacing: '1px',
               }}>
                 {group}
               </span>
               <span style={{
                 fontFamily: 'Space Mono, monospace', fontSize: '9px',
-                opacity: 0.4, marginLeft: '8px',
+                color: TEXT_OFF, marginLeft: '8px',
               }}>
                 {isGroupOpen ? '▲' : '▼'}
               </span>
             </div>
 
-            {/* Subfactions */}
             {isGroupOpen && subfactions.map((faction) => {
               const { sub } = parseFaction(faction)
               const units   = unitsByFaction[faction] ?? []
               const isFactionOpen = openFaction === faction
-
-              // If no subfaction distinction, show units directly
               const label = sub ?? group
 
               return (
@@ -179,33 +170,32 @@ function BrowsePanel({ onSelectUnit }) {
                     onClick={() => setOpenFaction(isFactionOpen ? null : faction)}
                     style={{
                       padding: '9px 20px 9px 32px',
-                      borderBottom: `1px solid rgba(9,162,196,0.06)`,
+                      borderBottom: `1px solid ${BORDER}`,
                       cursor: 'pointer',
                       display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-                      background: isFactionOpen ? 'rgba(9,162,196,0.06)' : 'transparent',
+                      background: isFactionOpen ? SURFACE_E : 'transparent',
                     }}
                   >
                     <span style={{
                       fontFamily: 'Space Mono, monospace', fontSize: '10px',
-                      color: BLUE, opacity: isFactionOpen ? 1 : 0.7, letterSpacing: '0.5px',
+                      color: isFactionOpen ? ACCENT : TEXT_SEC, letterSpacing: '0.5px',
                     }}>
                       {label}
                     </span>
                     <span style={{
-                      fontFamily: 'Space Mono, monospace', fontSize: '8px', opacity: 0.35,
+                      fontFamily: 'Space Mono, monospace', fontSize: '8px', color: TEXT_OFF,
                     }}>
                       {isFactionOpen ? '▲' : `${units.length}`}
                     </span>
                   </div>
 
-                  {/* Units list */}
                   {isFactionOpen && (
-                    <div style={{ borderBottom: `1px solid rgba(9,162,196,0.1)` }}>
+                    <div style={{ borderBottom: `1px solid ${BORDER}` }}>
                       {units.length === 0 ? (
                         <div style={{
                           padding: '12px 20px 12px 40px',
                           fontFamily: 'Space Mono, monospace', fontSize: '9px',
-                          opacity: 0.35,
+                          color: TEXT_OFF,
                         }}>
                           No units
                         </div>
@@ -226,7 +216,7 @@ function BrowsePanel({ onSelectUnit }) {
   )
 }
 
-// ── Search results panel ──────────────────────────────────────────────────────
+// ── Search results ──────────────────────────────────────────────────────────
 
 function SearchResults({ results, onSelectUnit }) {
   if (results.length === 0) {
@@ -234,7 +224,7 @@ function SearchResults({ results, onSelectUnit }) {
       <div style={{
         padding: '32px 20px', textAlign: 'center',
         fontFamily: 'Space Mono, monospace', fontSize: '9px',
-        letterSpacing: '2px', opacity: 0.3, textTransform: 'uppercase',
+        letterSpacing: '2px', color: TEXT_OFF, textTransform: 'uppercase',
       }}>
         No results
       </div>
@@ -248,7 +238,7 @@ function SearchResults({ results, onSelectUnit }) {
   )
 }
 
-// ── Weapon selection panel (attacker only) ────────────────────────────────────
+// ── Weapon selection ────────────────────────────────────────────────────────
 
 function WeaponStep({ unit, onSelectWeapon, onBack }) {
   const getUnitWeapons = useDataStore((s) => s.getUnitWeapons)
@@ -256,21 +246,20 @@ function WeaponStep({ unit, onSelectWeapon, onBack }) {
 
   return (
     <div>
-      {/* Unit summary */}
       <div style={{
         padding: '16px 20px',
-        borderBottom: `1px solid rgba(9,162,196,0.15)`,
-        background: 'rgba(9,162,196,0.04)',
+        borderBottom: `1px solid ${BORDER}`,
+        background: SURFACE,
       }}>
         <div style={{
           fontFamily: 'Space Mono, monospace', fontSize: '13px',
-          fontWeight: 700, color: BLUE, marginBottom: '6px',
+          fontWeight: 700, color: ACCENT, marginBottom: '6px',
         }}>
           {unit.name}
         </div>
         <div style={{
           fontFamily: 'Space Mono, monospace', fontSize: '9px',
-          opacity: 0.5, letterSpacing: '1px',
+          color: TEXT_WEAK, letterSpacing: '1px',
         }}>
           T{unit.T} · SV{unit.Sv}+ · W{unit.W}
           {unit.invuln ? ` · ${unit.invuln}++` : ''}
@@ -283,7 +272,7 @@ function WeaponStep({ unit, onSelectWeapon, onBack }) {
         <div style={{
           padding: '24px 20px',
           fontFamily: 'Space Mono, monospace', fontSize: '9px',
-          opacity: 0.35, letterSpacing: '1px',
+          color: TEXT_OFF, letterSpacing: '1px',
         }}>
           No weapon data available. Configure manually.
         </div>
@@ -298,15 +287,6 @@ function WeaponStep({ unit, onSelectWeapon, onBack }) {
 
 // ── Main drawer ───────────────────────────────────────────────────────────────
 
-/**
- * Props:
- *   isOpen      boolean
- *   onClose     () => void
- *   role        'attacker' | 'defender'
- *   onSelect    (unit, weapon?) => void
- *                 – for defender: called with (unit)
- *                 – for attacker: called with (unit, weapon)
- */
 export function UnitDrawer({ isOpen, onClose, role, onSelect }) {
   const searchUnits   = useDataStore((s) => s.searchUnits)
   const load          = useDataStore((s) => s.load)
@@ -314,14 +294,13 @@ export function UnitDrawer({ isOpen, onClose, role, onSelect }) {
 
   const [query,          setQuery]         = useState('')
   const [searchResults,  setSearchResults] = useState([])
-  const [step,           setStep]          = useState('unit')   // 'unit' | 'weapon'
+  const [step,           setStep]          = useState('unit')
   const [pendingUnit,    setPendingUnit]    = useState(null)
 
   const inputRef = useRef(null)
 
   useEffect(() => { if (!loaded) load() }, [loaded, load])
 
-  // Reset state when opening
   useEffect(() => {
     if (isOpen) {
       setQuery(''); setSearchResults([]); setStep('unit'); setPendingUnit(null)
@@ -329,7 +308,6 @@ export function UnitDrawer({ isOpen, onClose, role, onSelect }) {
     }
   }, [isOpen])
 
-  // ESC to close / go back
   useEffect(() => {
     function handler(e) {
       if (!isOpen) return
@@ -353,7 +331,6 @@ export function UnitDrawer({ isOpen, onClose, role, onSelect }) {
       onSelect(unit)
       onClose()
     } else {
-      // Attacker: go to weapon step
       setPendingUnit(unit)
       setStep('weapon')
     }
@@ -375,35 +352,32 @@ export function UnitDrawer({ isOpen, onClose, role, onSelect }) {
 
   return (
     <>
-      {/* Backdrop */}
       <div
         onClick={onClose}
         style={{
           position: 'fixed', inset: 0, zIndex: 200,
-          background: 'rgba(4,20,40,0.7)',
+          background: 'rgba(10,22,33,0.7)',
           opacity: isOpen ? 1 : 0,
           pointerEvents: isOpen ? 'auto' : 'none',
           transition: 'opacity 180ms ease',
         }}
       />
 
-      {/* Drawer panel */}
       <div
         style={{
           position: 'fixed', top: 0, right: 0, bottom: 0,
           width: 'clamp(340px, 38vw, 520px)',
           background: BG,
-          borderLeft: `1px solid rgba(9,162,196,0.25)`,
+          borderLeft: `1px solid ${BORDER}`,
           zIndex: 201,
           display: 'flex', flexDirection: 'column',
           transform: isOpen ? 'translateX(0)' : 'translateX(100%)',
           transition: 'transform 200ms cubic-bezier(0.4,0,0.2,1)',
         }}
       >
-        {/* Header */}
         <div style={{
           padding: '0 20px',
-          borderBottom: `1px solid rgba(9,162,196,0.15)`,
+          borderBottom: `1px solid ${BORDER}`,
           flexShrink: 0,
         }}>
           <div style={{
@@ -415,7 +389,7 @@ export function UnitDrawer({ isOpen, onClose, role, onSelect }) {
                 <button
                   onClick={goBack}
                   style={{
-                    background: 'none', border: 'none', color: BLUE,
+                    background: 'none', border: 'none', color: ACCENT,
                     fontFamily: 'Space Mono, monospace', fontSize: '10px',
                     letterSpacing: '1px', cursor: 'pointer', padding: '0 8px 0 0',
                     opacity: 0.6,
@@ -429,7 +403,7 @@ export function UnitDrawer({ isOpen, onClose, role, onSelect }) {
               <span style={{
                 fontFamily: 'Space Mono, monospace', fontSize: '10px',
                 fontWeight: 700, letterSpacing: '3px', textTransform: 'uppercase',
-                color: BLUE,
+                color: ACCENT,
               }}>
                 {title}
               </span>
@@ -437,20 +411,19 @@ export function UnitDrawer({ isOpen, onClose, role, onSelect }) {
             <button
               onClick={onClose}
               style={{
-                background: 'none', border: 'none', color: BLUE,
+                background: 'none', border: 'none', color: ACCENT,
                 cursor: 'pointer', padding: '4px', opacity: 0.5, lineHeight: 1,
               }}
               onMouseEnter={(e) => { e.currentTarget.style.opacity = '1' }}
               onMouseLeave={(e) => { e.currentTarget.style.opacity = '0.5' }}
             >
               <svg width="14" height="14" viewBox="0 0 14 14">
-                <line x1="2" y1="2" x2="12" y2="12" stroke={BLUE} strokeWidth="1.5" />
-                <line x1="12" y1="2" x2="2" y2="12" stroke={BLUE} strokeWidth="1.5" />
+                <line x1="2" y1="2" x2="12" y2="12" stroke={ACCENT} strokeWidth="1.5" />
+                <line x1="12" y1="2" x2="2" y2="12" stroke={ACCENT} strokeWidth="1.5" />
               </svg>
             </button>
           </div>
 
-          {/* Search input — only in unit step */}
           {step === 'unit' && (
             <div style={{ position: 'relative', paddingBottom: '14px' }}>
               <input
@@ -461,9 +434,9 @@ export function UnitDrawer({ isOpen, onClose, role, onSelect }) {
                 placeholder="Search unit…"
                 style={{
                   width: '100%', boxSizing: 'border-box',
-                  background: 'transparent',
-                  border: `1px solid ${query.length >= 2 ? BLUE : 'rgba(9,162,196,0.3)'}`,
-                  borderRadius: 0, color: BLUE,
+                  background: SURFACE,
+                  border: `1px solid ${query.length >= 2 ? ACCENT : BORDER}`,
+                  borderRadius: 0, color: TEXT,
                   fontFamily: 'Space Mono, monospace', fontSize: '13px',
                   fontWeight: 700, padding: '9px 36px 9px 12px',
                   outline: 'none', transition: 'border-color 100ms',
@@ -475,12 +448,12 @@ export function UnitDrawer({ isOpen, onClose, role, onSelect }) {
                   style={{
                     position: 'absolute', right: '10px', top: '50%', transform: 'translateY(-50%)',
                     background: 'none', border: 'none', cursor: 'pointer', padding: 0,
-                    color: BLUE, opacity: 0.5, lineHeight: 1,
+                    color: ACCENT, opacity: 0.5, lineHeight: 1,
                   }}
                 >
                   <svg width="12" height="12" viewBox="0 0 12 12">
-                    <line x1="2" y1="2" x2="10" y2="10" stroke={BLUE} strokeWidth="1.5" />
-                    <line x1="10" y1="2" x2="2" y2="10" stroke={BLUE} strokeWidth="1.5" />
+                    <line x1="2" y1="2" x2="10" y2="10" stroke={ACCENT} strokeWidth="1.5" />
+                    <line x1="10" y1="2" x2="2" y2="10" stroke={ACCENT} strokeWidth="1.5" />
                   </svg>
                 </button>
               ) : (
@@ -491,22 +464,17 @@ export function UnitDrawer({ isOpen, onClose, role, onSelect }) {
                     opacity: 0.35, pointerEvents: 'none',
                   }}
                 >
-                  <circle cx="5.5" cy="5.5" r="4" stroke={BLUE} strokeWidth="1.2" />
-                  <line x1="8.5" y1="8.5" x2="12.5" y2="12.5" stroke={BLUE} strokeWidth="1.2" />
+                  <circle cx="5.5" cy="5.5" r="4" stroke={TEXT_WEAK} strokeWidth="1.2" />
+                  <line x1="8.5" y1="8.5" x2="12.5" y2="12.5" stroke={TEXT_WEAK} strokeWidth="1.2" />
                 </svg>
               )}
             </div>
           )}
         </div>
 
-        {/* Body — scrollable */}
         <div style={{ flex: 1, overflowY: 'auto' }}>
           {step === 'weapon' ? (
-            <WeaponStep
-              unit={pendingUnit}
-              onSelectWeapon={handleSelectWeapon}
-              onBack={goBack}
-            />
+            <WeaponStep unit={pendingUnit} onSelectWeapon={handleSelectWeapon} onBack={goBack} />
           ) : query.length >= 2 ? (
             <SearchResults results={searchResults} onSelectUnit={handleSelectUnit} />
           ) : (
@@ -514,13 +482,12 @@ export function UnitDrawer({ isOpen, onClose, role, onSelect }) {
           )}
         </div>
 
-        {/* Footer */}
         <div style={{
           padding: '12px 20px',
-          borderTop: `1px solid rgba(9,162,196,0.1)`,
+          borderTop: `1px solid ${BORDER}`,
           flexShrink: 0,
           fontFamily: 'Space Mono, monospace', fontSize: '8px',
-          letterSpacing: '2px', opacity: 0.3, textTransform: 'uppercase',
+          letterSpacing: '2px', color: TEXT_OFF, textTransform: 'uppercase',
         }}>
           {loaded ? `${useDataStore.getState().units.length} units · ${useDataStore.getState().factions.length} factions` : 'Loading…'}
         </div>

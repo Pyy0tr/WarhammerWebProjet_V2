@@ -1,13 +1,6 @@
 import { useState, useEffect, useCallback } from 'react'
 import { useAuthStore } from '../store/authStore'
-
-const BLUE   = '#09A2C4'
-const BG     = '#041428'
-const PANEL  = '#071e38'
-const BORDER = 'rgba(9,162,196,0.18)'
-const ERROR  = '#e05c5c'
-
-// ── Helpers ───────────────────────────────────────────────────────────────────
+import { ACCENT, BG, SURFACE, BORDER, TEXT, TEXT_SEC, TEXT_WEAK, TEXT_OFF, ERROR as ERR_COLOR, SUCCESS } from '../theme'
 
 function Input({ type = 'text', placeholder, value, onChange, disabled }) {
   const [focused, setFocused] = useState(false)
@@ -22,9 +15,9 @@ function Input({ type = 'text', placeholder, value, onChange, disabled }) {
       onBlur={() => setFocused(false)}
       style={{
         width: '100%',
-        background: 'rgba(9,162,196,0.05)',
-        border: `1px solid ${focused ? BLUE : BORDER}`,
-        color: '#c8d8e8',
+        background: SURFACE,
+        border: `1px solid ${focused ? ACCENT : BORDER}`,
+        color: TEXT,
         fontFamily: 'Space Mono, monospace',
         fontSize: '13px',
         padding: '13px 16px',
@@ -45,9 +38,9 @@ function PrimaryBtn({ children, onClick, disabled, loading }) {
       disabled={disabled || loading}
       style={{
         width: '100%',
-        background: disabled || loading ? 'rgba(9,162,196,0.25)' : BLUE,
+        background: disabled || loading ? SURFACE : ACCENT,
         border: 'none',
-        color: disabled || loading ? 'rgba(255,255,255,0.35)' : BG,
+        color: disabled || loading ? TEXT_OFF : BG,
         fontFamily: 'Space Mono, monospace',
         fontSize: '11px',
         letterSpacing: '2px',
@@ -63,8 +56,6 @@ function PrimaryBtn({ children, onClick, disabled, loading }) {
   )
 }
 
-// ── Password strength ─────────────────────────────────────────────────────────
-
 function strengthScore(pw) {
   let s = 0
   if (pw.length >= 8)          s++
@@ -78,22 +69,22 @@ function strengthScore(pw) {
 function StrengthBar({ password }) {
   if (!password) return null
   const score  = strengthScore(password)
-  const colors = ['#e05c5c', '#e07c3c', '#e0b03c', '#7cc47c', '#09A2C4']
+  const colors = [ERR_COLOR, '#FFB547', '#FFB547', SUCCESS, ACCENT]
   const labels = ['Very weak', 'Weak', 'Fair', 'Strong', 'Excellent']
   return (
     <div style={{ marginTop: '-4px', display: 'flex', flexDirection: 'column', gap: '4px' }}>
-      <div style={{ height: '3px', background: 'rgba(9,162,196,0.1)', borderRadius: '2px' }}>
+      <div style={{ height: '3px', background: BORDER, borderRadius: '2px' }}>
         <div style={{
           height: '100%',
           width: `${(score / 5) * 100}%`,
-          background: colors[score - 1] ?? '#e05c5c',
+          background: colors[score - 1] ?? ERR_COLOR,
           transition: 'width 200ms, background 200ms',
           borderRadius: '2px',
         }} />
       </div>
       <span style={{
         fontSize: '10px',
-        color: colors[score - 1] ?? '#e05c5c',
+        color: colors[score - 1] ?? ERR_COLOR,
         fontFamily: 'Space Mono, monospace',
         letterSpacing: '1px',
       }}>
@@ -102,8 +93,6 @@ function StrengthBar({ password }) {
     </div>
   )
 }
-
-// ── Modal ─────────────────────────────────────────────────────────────────────
 
 export function AuthModal({ isOpen, onClose, initialTab = 'login' }) {
   const [tab, setTab]           = useState(initialTab)
@@ -134,7 +123,7 @@ export function AuthModal({ isOpen, onClose, initialTab = 'login' }) {
       await login(email.trim(), password)
       onClose()
     } catch (e) {
-      setError(e.message ?? 'Erreur de connexion')
+      setError(e.message ?? 'Login error')
     } finally {
       setBusy(false)
     }
@@ -169,7 +158,7 @@ export function AuthModal({ isOpen, onClose, initialTab = 'login' }) {
       onClick={onClose}
       style={{
         position: 'fixed', inset: 0, zIndex: 200,
-        background: 'rgba(4,20,40,0.8)',
+        background: 'rgba(10,22,33,0.8)',
         backdropFilter: 'blur(8px)',
         display: 'flex', alignItems: 'center', justifyContent: 'center',
         padding: '20px',
@@ -179,35 +168,32 @@ export function AuthModal({ isOpen, onClose, initialTab = 'login' }) {
         onClick={(e) => e.stopPropagation()}
         style={{
           width: '100%', maxWidth: '460px',
-          background: PANEL,
+          background: SURFACE,
           border: `1px solid ${BORDER}`,
           padding: '40px 36px 36px',
           position: 'relative',
           display: 'flex', flexDirection: 'column', gap: '24px',
         }}
       >
-        {/* Close */}
         <button
           onClick={onClose}
           style={{
             position: 'absolute', top: '16px', right: '20px',
             background: 'none', border: 'none',
-            color: 'rgba(200,216,232,0.35)', fontSize: '20px',
+            color: TEXT_OFF, fontSize: '20px',
             cursor: 'pointer', lineHeight: 1,
           }}
         >
           ×
         </button>
 
-        {/* Logo */}
         <div style={{
           fontFamily: 'Space Mono, monospace', fontSize: '15px',
-          fontWeight: 700, letterSpacing: '3px', color: BLUE,
+          fontWeight: 700, letterSpacing: '3px', color: ACCENT,
         }}>
           PROB<span style={{ opacity: 0.4 }}>'</span>HAMMER
         </div>
 
-        {/* Tabs */}
         <div style={{ display: 'flex', borderBottom: `1px solid ${BORDER}` }}>
           {[['login', 'Sign in'], ['register', 'Create account']].map(([id, label]) => (
             <button
@@ -217,8 +203,8 @@ export function AuthModal({ isOpen, onClose, initialTab = 'login' }) {
                 flex: 1,
                 padding: '10px 0',
                 background: 'none', border: 'none',
-                borderBottom: tab === id ? `2px solid ${BLUE}` : '2px solid transparent',
-                color: tab === id ? BLUE : 'rgba(200,216,232,0.4)',
+                borderBottom: tab === id ? `2px solid ${ACCENT}` : '2px solid transparent',
+                color: tab === id ? ACCENT : TEXT_OFF,
                 fontFamily: 'Space Mono, monospace',
                 fontSize: '10px',
                 letterSpacing: '2px',
@@ -233,33 +219,16 @@ export function AuthModal({ isOpen, onClose, initialTab = 'login' }) {
           ))}
         </div>
 
-        {/* Fields */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }} onKeyDown={handleKey}>
-
-          <Input
-            placeholder="Email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            disabled={busy}
-          />
-
-          <Input
-            type="password"
-            placeholder="Password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            disabled={busy}
-          />
+          <Input placeholder="Email" value={email}
+            onChange={(e) => setEmail(e.target.value)} disabled={busy} />
+          <Input type="password" placeholder="Password" value={password}
+            onChange={(e) => setPassword(e.target.value)} disabled={busy} />
 
           {tab === 'register' && (<>
             <StrengthBar password={password} />
-            <Input
-              type="password"
-              placeholder="Confirm password"
-              value={confirm}
-              onChange={(e) => setConfirm(e.target.value)}
-              disabled={busy}
-            />
+            <Input type="password" placeholder="Confirm password" value={confirm}
+              onChange={(e) => setConfirm(e.target.value)} disabled={busy} />
           </>)}
 
           <PrimaryBtn
@@ -270,15 +239,14 @@ export function AuthModal({ isOpen, onClose, initialTab = 'login' }) {
             {tab === 'login' ? 'Sign in' : 'Create account'}
           </PrimaryBtn>
 
-          {/* Switch tab link */}
           <p style={{
             fontFamily: 'Space Mono, monospace', fontSize: '10px',
-            color: 'rgba(200,216,232,0.4)', margin: 0, textAlign: 'center',
+            color: TEXT_OFF, margin: 0, textAlign: 'center',
           }}>
             {tab === 'login' ? 'No account yet? ' : 'Already have an account? '}
             <span
               onClick={() => setTab(tab === 'login' ? 'register' : 'login')}
-              style={{ color: BLUE, cursor: 'pointer', textDecoration: 'underline' }}
+              style={{ color: ACCENT, cursor: 'pointer', textDecoration: 'underline' }}
             >
               {tab === 'login' ? 'Create account' : 'Sign in'}
             </span>
@@ -287,7 +255,7 @@ export function AuthModal({ isOpen, onClose, initialTab = 'login' }) {
           {error && (
             <p style={{
               fontFamily: 'Space Mono, monospace', fontSize: '10px',
-              color: ERROR, margin: 0, lineHeight: 1.5,
+              color: ERR_COLOR, margin: 0, lineHeight: 1.5,
             }}>
               {error}
             </p>
@@ -295,8 +263,8 @@ export function AuthModal({ isOpen, onClose, initialTab = 'login' }) {
           {info && (
             <p style={{
               fontFamily: 'Space Mono, monospace', fontSize: '10px',
-              color: BLUE, margin: 0, lineHeight: 1.6,
-              background: 'rgba(9,162,196,0.07)',
+              color: ACCENT, margin: 0, lineHeight: 1.6,
+              background: 'rgba(47,224,255,0.05)',
               border: `1px solid ${BORDER}`,
               padding: '12px 14px',
             }}>

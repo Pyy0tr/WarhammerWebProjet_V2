@@ -2,12 +2,7 @@ import { useState, useMemo } from 'react'
 import { useDataStore }  from '../store/dataStore'
 import { useArmyStore }  from '../store/armyStore'
 import { useAuthStore }  from '../store/authStore'
-
-const BLUE       = '#09A2C4'
-const BG         = '#041428'
-const TEXT_H     = '#FFFFFF'
-const TEXT_BODY  = '#C8DCE8'
-const TEXT_MUTED = 'rgba(184,210,228,0.5)'
+import { ACCENT, BG, SURFACE, BORDER, TEXT, TEXT_SEC, TEXT_WEAK } from '../theme'
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
@@ -66,9 +61,9 @@ function SearchBar({ value, onChange, placeholder }) {
         onBlur={() => setFocused(false)}
         style={{
           width: '100%', boxSizing: 'border-box',
-          background: 'rgba(9,162,196,0.04)',
-          border: `1px solid ${focused || value ? BLUE : 'rgba(9,162,196,0.3)'}`,
-          borderRadius: 0, color: TEXT_H,
+          background: 'rgba(47,224,255,0.04)',
+          border: `1px solid ${focused || value ? ACCENT : BORDER}`,
+          borderRadius: 0, color: TEXT,
           fontFamily: 'Space Mono, monospace', fontSize: '13px',
           padding: '11px 36px 11px 14px',
           outline: 'none', transition: 'border-color 100ms',
@@ -77,18 +72,18 @@ function SearchBar({ value, onChange, placeholder }) {
       {value ? (
         <button onClick={() => onChange('')} style={{
           position: 'absolute', right: '10px', top: '50%', transform: 'translateY(-50%)',
-          background: 'none', border: 'none', cursor: 'pointer', color: TEXT_MUTED,
+          background: 'none', border: 'none', cursor: 'pointer', color: TEXT_WEAK,
         }}>
           <svg width="12" height="12" viewBox="0 0 12 12">
-            <line x1="2" y1="2" x2="10" y2="10" stroke={TEXT_MUTED} strokeWidth="1.5"/>
-            <line x1="10" y1="2" x2="2" y2="10" stroke={TEXT_MUTED} strokeWidth="1.5"/>
+            <line x1="2" y1="2" x2="10" y2="10" stroke={TEXT_WEAK} strokeWidth="1.5"/>
+            <line x1="10" y1="2" x2="2" y2="10" stroke={TEXT_WEAK} strokeWidth="1.5"/>
           </svg>
         </button>
       ) : (
         <svg width="14" height="14" viewBox="0 0 14 14" fill="none"
           style={{ position: 'absolute', right: '10px', top: '50%', transform: 'translateY(-50%)', opacity: 0.4, pointerEvents: 'none' }}>
-          <circle cx="5.5" cy="5.5" r="4" stroke={BLUE} strokeWidth="1.2"/>
-          <line x1="8.5" y1="8.5" x2="12.5" y2="12.5" stroke={BLUE} strokeWidth="1.2"/>
+          <circle cx="5.5" cy="5.5" r="4" stroke={ACCENT} strokeWidth="1.2"/>
+          <line x1="8.5" y1="8.5" x2="12.5" y2="12.5" stroke={ACCENT} strokeWidth="1.2"/>
         </svg>
       )}
     </div>
@@ -100,7 +95,7 @@ function BackButton({ onClick, label }) {
     <button
       onClick={onClick}
       style={{
-        background: 'none', border: 'none', color: BLUE, cursor: 'pointer', padding: 0,
+        background: 'none', border: 'none', color: ACCENT, cursor: 'pointer', padding: 0,
         fontFamily: 'Space Mono, monospace', fontSize: '10px',
         letterSpacing: '2px', textTransform: 'uppercase',
         display: 'flex', alignItems: 'center', gap: '6px',
@@ -118,11 +113,11 @@ function Chip({ children, dim }) {
   return (
     <span style={{
       display: 'inline-block',
-      border: `1px solid rgba(9,162,196,${dim ? '0.25' : '0.4'})`,
+      border: `1px solid ${BORDER}`,
       padding: '3px 9px',
       fontFamily: 'Space Mono, monospace', fontSize: '9px',
       letterSpacing: '1px', textTransform: 'uppercase',
-      color: dim ? TEXT_MUTED : TEXT_BODY,
+      color: dim ? TEXT_WEAK : TEXT_SEC,
     }}>
       {children}
     </span>
@@ -154,14 +149,14 @@ function FactionsView({ onSelectFaction }) {
         <div style={{
           fontFamily: 'Space Mono, monospace', fontSize: '10px',
           letterSpacing: '3px', textTransform: 'uppercase',
-          color: TEXT_MUTED, marginBottom: '14px',
+          color: TEXT_WEAK, marginBottom: '14px',
         }}>
           Warhammer 40,000 — 10th Edition
         </div>
         <h1 style={{
           fontFamily: 'Space Mono, monospace', fontSize: 'clamp(22px, 2.5vw, 34px)',
           fontWeight: 700, letterSpacing: '0.05em', textTransform: 'uppercase',
-          lineHeight: 1, color: TEXT_H, marginBottom: '28px',
+          lineHeight: 1, color: TEXT, marginBottom: '28px',
         }}>
           Factions
         </h1>
@@ -173,9 +168,9 @@ function FactionsView({ onSelectFaction }) {
           <div style={{
             fontFamily: 'Space Mono, monospace', fontSize: '10px',
             letterSpacing: '2px', textTransform: 'uppercase',
-            color: TEXT_MUTED, marginBottom: '20px',
+            color: TEXT_WEAK, marginBottom: '20px',
           }}>
-            {searchResults.length} résultats
+            {searchResults.length} results
           </div>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(240px, 1fr))', gap: '12px' }}>
             {searchResults.map((u) => (
@@ -203,11 +198,11 @@ function FactionGroup({ group, subfactions, onSelect }) {
       <div style={{
         fontFamily: 'Space Mono, monospace', fontSize: '10px',
         fontWeight: 700, letterSpacing: '3px', textTransform: 'uppercase',
-        color: TEXT_MUTED, marginBottom: '16px',
+        color: TEXT_WEAK, marginBottom: '16px',
         display: 'flex', alignItems: 'center', gap: '16px',
       }}>
         {group}
-        <div style={{ flex: 1, height: '1px', background: 'rgba(9,162,196,0.15)' }} />
+        <div style={{ flex: 1, height: '1px', background: BORDER }} />
       </div>
       <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px' }}>
         {subfactions.map(({ name, count }) => (
@@ -229,8 +224,8 @@ function FactionChip({ name, count, onClick }) {
       onMouseEnter={() => setHover(true)}
       onMouseLeave={() => setHover(false)}
       style={{
-        background: hover ? 'rgba(9,162,196,0.1)' : 'rgba(9,162,196,0.04)',
-        border: `1px solid ${hover ? BLUE : 'rgba(9,162,196,0.3)'}`,
+        background: hover ? 'rgba(47,224,255,0.08)' : 'rgba(47,224,255,0.03)',
+        border: `1px solid ${hover ? ACCENT : BORDER}`,
         cursor: 'pointer', borderRadius: 0,
         padding: '11px 20px', textAlign: 'left',
         transition: 'border-color 100ms, background 100ms',
@@ -239,14 +234,14 @@ function FactionChip({ name, count, onClick }) {
       <div style={{
         fontFamily: 'Space Mono, monospace', fontSize: '12px',
         fontWeight: 700, letterSpacing: '1px', textTransform: 'uppercase',
-        color: hover ? TEXT_H : TEXT_BODY, marginBottom: '4px',
+        color: hover ? TEXT : TEXT_SEC, marginBottom: '4px',
         transition: 'color 100ms',
       }}>
         {label}
       </div>
       <div style={{
         fontFamily: 'Space Mono, monospace', fontSize: '9px',
-        letterSpacing: '1.5px', color: TEXT_MUTED,
+        letterSpacing: '1.5px', color: TEXT_WEAK,
       }}>
         {count} units
       </div>
@@ -263,7 +258,7 @@ function LibrarySection({ groups, grouped, onSelect }) {
         style={{
           background: 'none', border: 'none', cursor: 'pointer', padding: 0,
           fontFamily: 'Space Mono, monospace', fontSize: '10px',
-          letterSpacing: '2px', textTransform: 'uppercase', color: TEXT_MUTED,
+          letterSpacing: '2px', textTransform: 'uppercase', color: TEXT_WEAK,
           display: 'flex', alignItems: 'center', gap: '8px',
         }}
       >
@@ -318,28 +313,28 @@ function UnitsView({ faction, initialUnit, onSelectUnit, onBack }) {
             fontFamily: 'Space Mono, monospace',
             fontSize: 'clamp(18px, 2vw, 28px)',
             fontWeight: 700, letterSpacing: '0.04em', textTransform: 'uppercase',
-            lineHeight: 1, color: TEXT_H,
+            lineHeight: 1, color: TEXT,
           }}>
             {sub ?? faction}
           </h2>
           <span style={{
             fontFamily: 'Space Mono, monospace', fontSize: '10px',
-            letterSpacing: '2px', color: TEXT_MUTED, textTransform: 'uppercase',
+            letterSpacing: '2px', color: TEXT_WEAK, textTransform: 'uppercase',
           }}>
             {filtered.length} / {allUnits.length} units
           </span>
         </div>
 
         <div style={{ display: 'flex', gap: '16px', alignItems: 'center', flexWrap: 'wrap' }}>
-          <SearchBar value={search} onChange={setSearch} placeholder="Filtrer…" />
+          <SearchBar value={search} onChange={setSearch} placeholder="Filter…" />
 
           <select
             value={sort}
             onChange={(e) => setSort(e.target.value)}
             style={{
-              background: 'rgba(9,162,196,0.04)',
-              border: `1px solid rgba(9,162,196,0.3)`,
-              color: TEXT_BODY, borderRadius: 0,
+              background: 'rgba(47,224,255,0.04)',
+              border: `1px solid ${BORDER}`,
+              color: TEXT_SEC, borderRadius: 0,
               fontFamily: 'Space Mono, monospace', fontSize: '10px',
               letterSpacing: '1px', textTransform: 'uppercase',
               padding: '11px 12px', cursor: 'pointer', outline: 'none',
@@ -353,12 +348,12 @@ function UnitsView({ faction, initialUnit, onSelectUnit, onBack }) {
             <label style={{
               display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer',
               fontFamily: 'Space Mono, monospace', fontSize: '10px',
-              letterSpacing: '1.5px', textTransform: 'uppercase', color: TEXT_MUTED,
+              letterSpacing: '1.5px', textTransform: 'uppercase', color: TEXT_WEAK,
             }}>
               <input
                 type="checkbox" checked={showLegends}
                 onChange={(e) => setShowLegends(e.target.checked)}
-                style={{ accentColor: BLUE, cursor: 'pointer' }}
+                style={{ accentColor: ACCENT, cursor: 'pointer' }}
               />
               Show Legends ({legendsCount})
             </label>
@@ -374,7 +369,7 @@ function UnitsView({ faction, initialUnit, onSelectUnit, onBack }) {
           <div style={{
             gridColumn: '1 / -1', padding: '40px 0',
             fontFamily: 'Space Mono, monospace', fontSize: '10px',
-            letterSpacing: '2px', color: TEXT_MUTED, textTransform: 'uppercase',
+            letterSpacing: '2px', color: TEXT_WEAK, textTransform: 'uppercase',
           }}>
             No units match
           </div>
@@ -393,7 +388,7 @@ function UnitCard({ unit, onClick }) {
       onMouseEnter={() => setHover(true)}
       onMouseLeave={() => setHover(false)}
       style={{
-        border: `1px solid ${hover ? BLUE : 'rgba(9,162,196,0.2)'}`,
+        border: `1px solid ${hover ? ACCENT : BORDER}`,
         cursor: 'pointer',
         transition: 'border-color 150ms, transform 150ms',
         transform: hover ? 'translateY(-2px)' : 'none',
@@ -401,7 +396,7 @@ function UnitCard({ unit, onClick }) {
     >
       <div style={{
         padding: '14px 16px',
-        background: hover ? 'rgba(9,162,196,0.05)' : 'transparent',
+        background: hover ? 'rgba(47,224,255,0.04)' : 'transparent',
         transition: 'background 100ms',
       }}>
         {unit.is_legends && (
@@ -409,7 +404,7 @@ function UnitCard({ unit, onClick }) {
             display: 'inline-block', marginBottom: '6px',
             fontFamily: 'Space Mono, monospace', fontSize: '8px',
             letterSpacing: '1px', textTransform: 'uppercase',
-            color: TEXT_MUTED, border: '1px solid rgba(9,162,196,0.35)',
+            color: TEXT_WEAK, border: `1px solid ${BORDER}`,
             padding: '2px 6px',
           }}>
             Legends
@@ -419,14 +414,14 @@ function UnitCard({ unit, onClick }) {
         <div style={{
           fontFamily: 'Space Mono, monospace', fontSize: '13px',
           fontWeight: 700, letterSpacing: '0.5px', marginBottom: '7px',
-          color: TEXT_H,
+          color: TEXT,
         }}>
           {unit.name}
         </div>
 
         <div style={{
           fontFamily: 'Space Mono, monospace', fontSize: '9px',
-          letterSpacing: '1px', color: TEXT_MUTED, marginBottom: '9px',
+          letterSpacing: '1px', color: TEXT_WEAK, marginBottom: '9px',
         }}>
           T{unit.T} · SV{unit.Sv}+ · W{unit.W}
           {unit.invuln ? ` · ${unit.invuln}++` : ''}
@@ -440,7 +435,7 @@ function UnitCard({ unit, onClick }) {
           {unit.pts != null && (
             <span style={{
               fontFamily: 'Space Mono, monospace', fontSize: '11px',
-              fontWeight: 700, color: TEXT_BODY, whiteSpace: 'nowrap', marginLeft: '8px',
+              fontWeight: 700, color: TEXT_SEC, whiteSpace: 'nowrap', marginLeft: '8px',
             }}>
               {unit.pts} pts
             </span>
@@ -460,7 +455,7 @@ function WeaponsTable({ weapons }) {
   const melee  = full.filter((w) => w.type !== 'Ranged')
 
   if (full.length === 0) {
-    return <div style={{ fontFamily: 'Space Mono, monospace', fontSize: '10px', color: TEXT_MUTED }}>No weapon data</div>
+    return <div style={{ fontFamily: 'Space Mono, monospace', fontSize: '10px', color: TEXT_WEAK }}>No weapon data</div>
   }
 
   function Table({ title, rows }) {
@@ -470,7 +465,7 @@ function WeaponsTable({ weapons }) {
         <div style={{
           fontFamily: 'Space Mono, monospace', fontSize: '10px',
           letterSpacing: '2px', textTransform: 'uppercase',
-          color: TEXT_MUTED, marginBottom: '12px',
+          color: TEXT_WEAK, marginBottom: '12px',
         }}>
           {title}
         </div>
@@ -482,9 +477,9 @@ function WeaponsTable({ weapons }) {
                   <th key={h} style={{
                     fontFamily: 'Space Mono, monospace', fontSize: '9px',
                     letterSpacing: '1.5px', textTransform: 'uppercase',
-                    color: TEXT_MUTED, padding: '6px 12px 6px 0',
+                    color: TEXT_WEAK, padding: '6px 12px 6px 0',
                     textAlign: 'left', fontWeight: 400,
-                    borderBottom: '1px solid rgba(9,162,196,0.18)',
+                    borderBottom: `1px solid ${BORDER}`,
                     whiteSpace: 'nowrap',
                   }}>
                     {h}
@@ -494,15 +489,15 @@ function WeaponsTable({ weapons }) {
             </thead>
             <tbody>
               {rows.map((w) => (
-                <tr key={w.id} style={{ borderBottom: '1px solid rgba(9,162,196,0.07)' }}>
-                  <td style={{ fontFamily: 'Space Mono, monospace', fontSize: '12px', fontWeight: 700, color: TEXT_H, padding: '10px 12px 10px 0', whiteSpace: 'nowrap' }}>{w.name}</td>
+                <tr key={w.id} style={{ borderBottom: `1px solid rgba(30,58,76,0.5)` }}>
+                  <td style={{ fontFamily: 'Space Mono, monospace', fontSize: '12px', fontWeight: 700, color: TEXT, padding: '10px 12px 10px 0', whiteSpace: 'nowrap' }}>{w.name}</td>
                   <td style={tdStyle}>{w.type === 'Melee' ? '—' : (w.range ?? '—')}</td>
                   <td style={tdStyle}>{w.A}</td>
                   <td style={tdStyle}>{w.BS}+</td>
                   <td style={tdStyle}>{w.S}</td>
                   <td style={tdStyle}>{w.AP}</td>
                   <td style={tdStyle}>{w.D}</td>
-                  <td style={{ ...tdStyle, color: TEXT_MUTED, fontSize: '9px' }}>
+                  <td style={{ ...tdStyle, color: TEXT_WEAK, fontSize: '9px' }}>
                     {(w.kw || []).filter((k) => k !== '-').join(', ') || '—'}
                   </td>
                 </tr>
@@ -523,7 +518,7 @@ function WeaponsTable({ weapons }) {
 }
 
 const tdStyle = {
-  fontFamily: 'Space Mono, monospace', fontSize: '11px', color: TEXT_BODY,
+  fontFamily: 'Space Mono, monospace', fontSize: '11px', color: TEXT_SEC,
   padding: '10px 12px 10px 0', whiteSpace: 'nowrap',
 }
 
@@ -539,7 +534,6 @@ function UnitDetailView({ unit, onBack, factionLabel }) {
 
   async function handleAddToArmy() {
     if (!targetArmyId) return
-    // Temporarily switch active army if needed
     const store = useArmyStore.getState()
     const prevActive = store.activeId
     if (prevActive !== targetArmyId) store.setActive(targetArmyId)
@@ -571,15 +565,15 @@ function UnitDetailView({ unit, onBack, factionLabel }) {
       </div>
 
       {/* Title + pts */}
-      <div style={{ borderBottom: '1px solid rgba(9,162,196,0.15)', paddingBottom: '24px', marginBottom: '32px' }}>
+      <div style={{ borderBottom: `1px solid ${BORDER}`, paddingBottom: '24px', marginBottom: '32px' }}>
         <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: '16px', flexWrap: 'wrap' }}>
           <div>
             {unit.is_legends && (
               <div style={{
                 fontFamily: 'Space Mono, monospace', fontSize: '9px',
                 letterSpacing: '2px', textTransform: 'uppercase',
-                color: TEXT_MUTED, marginBottom: '10px',
-                border: '1px solid rgba(9,162,196,0.3)', display: 'inline-block', padding: '3px 8px',
+                color: TEXT_WEAK, marginBottom: '10px',
+                border: `1px solid ${BORDER}`, display: 'inline-block', padding: '3px 8px',
               }}>
                 Legends
               </div>
@@ -587,21 +581,21 @@ function UnitDetailView({ unit, onBack, factionLabel }) {
             <h2 style={{
               fontFamily: 'Space Mono, monospace', fontSize: 'clamp(20px, 2.5vw, 32px)',
               fontWeight: 700, letterSpacing: '0.04em', textTransform: 'uppercase',
-              lineHeight: 1.1, color: TEXT_H,
+              lineHeight: 1.1, color: TEXT,
             }}>
               {unit.name}
             </h2>
           </div>
           {pts != null && (
             <div style={{ textAlign: 'right' }}>
-              <div style={{ fontFamily: 'Space Mono, monospace', fontSize: '28px', fontWeight: 700, lineHeight: 1, color: TEXT_H }}>
+              <div style={{ fontFamily: 'Space Mono, monospace', fontSize: '28px', fontWeight: 700, lineHeight: 1, color: TEXT }}>
                 {pts}
               </div>
-              <div style={{ fontFamily: 'Space Mono, monospace', fontSize: '9px', letterSpacing: '2px', textTransform: 'uppercase', color: TEXT_MUTED, marginTop: '4px' }}>
+              <div style={{ fontFamily: 'Space Mono, monospace', fontSize: '9px', letterSpacing: '2px', textTransform: 'uppercase', color: TEXT_WEAK, marginTop: '4px' }}>
                 points
               </div>
               {(minM != null || maxM != null) && (
-                <div style={{ fontFamily: 'Space Mono, monospace', fontSize: '9px', color: TEXT_MUTED, marginTop: '4px' }}>
+                <div style={{ fontFamily: 'Space Mono, monospace', fontSize: '9px', color: TEXT_WEAK, marginTop: '4px' }}>
                   {minM != null && maxM != null ? `${minM}–${maxM} models` : maxM != null ? `max ${maxM} models` : `min ${minM} models`}
                 </div>
               )}
@@ -612,8 +606,8 @@ function UnitDetailView({ unit, onBack, factionLabel }) {
 
       {/* Stats block */}
       <div style={{ marginBottom: '32px' }}>
-        <div style={{ fontFamily: 'Space Mono, monospace', fontSize: '10px', letterSpacing: '2px', textTransform: 'uppercase', color: TEXT_MUTED, marginBottom: '14px' }}>
-          Profil
+        <div style={{ fontFamily: 'Space Mono, monospace', fontSize: '10px', letterSpacing: '2px', textTransform: 'uppercase', color: TEXT_WEAK, marginBottom: '14px' }}>
+          Profile
         </div>
         <div style={{ display: 'flex', gap: '0', flexWrap: 'wrap' }}>
           {[
@@ -622,13 +616,13 @@ function UnitDetailView({ unit, onBack, factionLabel }) {
             ...(unit.invuln ? [['INV', `${unit.invuln}++`]] : []),
           ].map(([label, val]) => (
             <div key={label} style={{
-              border: '1px solid rgba(9,162,196,0.2)', padding: '14px 22px',
+              border: `1px solid ${BORDER}`, padding: '14px 22px',
               marginRight: '-1px', marginBottom: '-1px', textAlign: 'center', minWidth: '64px',
             }}>
-              <div style={{ fontFamily: 'Space Mono, monospace', fontSize: '8px', letterSpacing: '1.5px', textTransform: 'uppercase', color: TEXT_MUTED, marginBottom: '8px' }}>
+              <div style={{ fontFamily: 'Space Mono, monospace', fontSize: '8px', letterSpacing: '1.5px', textTransform: 'uppercase', color: TEXT_WEAK, marginBottom: '8px' }}>
                 {label}
               </div>
-              <div style={{ fontFamily: 'Space Mono, monospace', fontSize: '18px', fontWeight: 700, color: TEXT_H }}>
+              <div style={{ fontFamily: 'Space Mono, monospace', fontSize: '18px', fontWeight: 700, color: TEXT }}>
                 {val}
               </div>
             </div>
@@ -639,7 +633,7 @@ function UnitDetailView({ unit, onBack, factionLabel }) {
       {/* Keywords */}
       {unit.kw?.length > 0 && (
         <div style={{ marginBottom: '32px' }}>
-          <div style={{ fontFamily: 'Space Mono, monospace', fontSize: '10px', letterSpacing: '2px', textTransform: 'uppercase', color: TEXT_MUTED, marginBottom: '12px' }}>
+          <div style={{ fontFamily: 'Space Mono, monospace', fontSize: '10px', letterSpacing: '2px', textTransform: 'uppercase', color: TEXT_WEAK, marginBottom: '12px' }}>
             Keywords
           </div>
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
@@ -651,8 +645,8 @@ function UnitDetailView({ unit, onBack, factionLabel }) {
       {/* Weapons */}
       {unit.weapons?.length > 0 && (
         <div style={{ marginBottom: '32px' }}>
-          <div style={{ fontFamily: 'Space Mono, monospace', fontSize: '10px', letterSpacing: '2px', textTransform: 'uppercase', color: TEXT_MUTED, marginBottom: '16px' }}>
-            Armement — {unit.weapons.length} armes
+          <div style={{ fontFamily: 'Space Mono, monospace', fontSize: '10px', letterSpacing: '2px', textTransform: 'uppercase', color: TEXT_WEAK, marginBottom: '16px' }}>
+            Weapons — {unit.weapons.length} weapon{unit.weapons.length !== 1 ? 's' : ''}
           </div>
           <WeaponsTable weapons={unit.weapons} />
         </div>
@@ -667,7 +661,7 @@ function UnitDetailView({ unit, onBack, factionLabel }) {
               background: 'none', border: 'none', cursor: 'pointer', padding: 0,
               fontFamily: 'Space Mono, monospace', fontSize: '10px',
               letterSpacing: '2px', textTransform: 'uppercase',
-              color: BLUE, display: 'flex', alignItems: 'center', gap: '8px',
+              color: ACCENT, display: 'flex', alignItems: 'center', gap: '8px',
               marginBottom: expandAbilities ? '18px' : '0',
               transition: 'opacity 100ms', opacity: 0.75,
             }}
@@ -680,16 +674,16 @@ function UnitDetailView({ unit, onBack, factionLabel }) {
           {expandAbilities && (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '18px' }}>
               {unit.abilities.map((ab, i) => (
-                <div key={i} style={{ borderLeft: '2px solid rgba(9,162,196,0.3)', paddingLeft: '16px' }}>
+                <div key={i} style={{ borderLeft: `2px solid ${BORDER}`, paddingLeft: '16px' }}>
                   <div style={{
                     fontFamily: 'Space Mono, monospace', fontSize: '11px',
                     fontWeight: 700, letterSpacing: '1px', textTransform: 'uppercase',
-                    color: TEXT_H, marginBottom: '7px',
+                    color: TEXT, marginBottom: '7px',
                   }}>
                     {ab.name}
                   </div>
                   {ab.desc && (
-                    <p style={{ fontFamily: 'Georgia, serif', fontSize: '14px', lineHeight: 1.7, color: TEXT_BODY, margin: 0 }}>
+                    <p style={{ fontFamily: 'Georgia, serif', fontSize: '14px', lineHeight: 1.7, color: TEXT_SEC, margin: 0 }}>
                       {ab.desc}{ab.desc.length >= 400 ? '…' : ''}
                     </p>
                   )}
@@ -701,11 +695,11 @@ function UnitDetailView({ unit, onBack, factionLabel }) {
       )}
 
       {/* Actions */}
-      <div style={{ paddingTop: '24px', borderTop: '1px solid rgba(9,162,196,0.12)' }}>
+      <div style={{ paddingTop: '24px', borderTop: `1px solid ${BORDER}` }}>
         {armies.length === 0 ? (
-          <div style={{ fontFamily: 'Space Mono, monospace', fontSize: '10px', color: TEXT_MUTED, lineHeight: 1.7 }}>
+          <div style={{ fontFamily: 'Space Mono, monospace', fontSize: '10px', color: TEXT_WEAK, lineHeight: 1.7 }}>
             No armies yet.{' '}
-            <a href="/armies" style={{ color: BLUE, textDecoration: 'none' }}>Create one →</a>
+            <a href="/armies" style={{ color: ACCENT, textDecoration: 'none' }}>Create one →</a>
           </div>
         ) : (
           <div style={{ display: 'flex', gap: '10px', alignItems: 'center', flexWrap: 'wrap' }}>
@@ -714,8 +708,8 @@ function UnitDetailView({ unit, onBack, factionLabel }) {
                 value={targetArmyId}
                 onChange={(e) => setTargetArmyId(e.target.value)}
                 style={{
-                  background: '#071e38', border: '1px solid rgba(9,162,196,0.3)',
-                  color: TEXT_H, fontFamily: 'Space Mono, monospace', fontSize: '10px',
+                  background: SURFACE, border: `1px solid ${BORDER}`,
+                  color: TEXT, fontFamily: 'Space Mono, monospace', fontSize: '10px',
                   padding: '10px 12px', outline: 'none', cursor: 'pointer',
                 }}
               >
@@ -728,9 +722,9 @@ function UnitDetailView({ unit, onBack, factionLabel }) {
               onClick={handleAddToArmy}
               disabled={added}
               style={{
-                background: added ? 'rgba(9,162,196,0.15)' : BLUE,
-                border: `1px solid ${BLUE}`,
-                color: added ? BLUE : BG,
+                background: added ? 'rgba(47,224,255,0.12)' : ACCENT,
+                border: `1px solid ${ACCENT}`,
+                color: added ? ACCENT : BG,
                 fontFamily: 'Space Mono, monospace', fontSize: '10px',
                 fontWeight: 700, letterSpacing: '2px', textTransform: 'uppercase',
                 padding: '12px 24px', cursor: added ? 'default' : 'pointer',
@@ -775,7 +769,7 @@ export function FactionsPage() {
         display: 'flex', alignItems: 'center', justifyContent: 'center',
         height: 'calc(100vh - 52px)',
         fontFamily: 'Space Mono, monospace', fontSize: '10px',
-        letterSpacing: '3px', textTransform: 'uppercase', color: TEXT_MUTED,
+        letterSpacing: '3px', textTransform: 'uppercase', color: TEXT_WEAK,
       }}>
         Loading…
       </div>
@@ -783,7 +777,7 @@ export function FactionsPage() {
   }
 
   return (
-    <div style={{ color: TEXT_BODY, minHeight: '100vh', paddingTop: '52px' }}>
+    <div style={{ color: TEXT_SEC, minHeight: '100vh', paddingTop: '52px' }}>
       <div style={{ padding: '40px 56px 80px', maxWidth: '1400px', margin: '0 auto' }}>
         {view === 'factions' ? (
           <FactionsView onSelectFaction={handleSelectFaction} />

@@ -2,11 +2,7 @@ import { useState } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import { useAuthStore } from '../store/authStore'
 import { AuthModal } from './AuthModal'
-
-const BLUE       = '#09A2C4'
-const BG         = '#041428'
-const TEXT_H     = '#FFFFFF'
-const TEXT_MUTED = 'rgba(184,210,228,0.55)'
+import { ACCENT, ACCENT_H, BG, BORDER, TEXT, TEXT_SEC, TEXT_WEAK } from '../theme'
 
 function NavLink({ to, children, active }) {
   return (
@@ -18,13 +14,13 @@ function NavLink({ to, children, active }) {
         fontSize: '10px',
         letterSpacing: '2px',
         textTransform: 'uppercase',
-        color: active ? BLUE : TEXT_MUTED,
+        color: active ? ACCENT : TEXT_WEAK,
         transition: 'color 100ms',
         paddingBottom: '2px',
-        borderBottom: active ? `1px solid ${BLUE}` : '1px solid transparent',
+        borderBottom: active ? `1px solid ${ACCENT}` : '1px solid transparent',
       }}
-      onMouseEnter={(e) => { e.currentTarget.style.color = active ? BLUE : TEXT_H }}
-      onMouseLeave={(e) => { e.currentTarget.style.color = active ? BLUE : TEXT_MUTED }}
+      onMouseEnter={(e) => { e.currentTarget.style.color = active ? ACCENT : TEXT }}
+      onMouseLeave={(e) => { e.currentTarget.style.color = active ? ACCENT : TEXT_WEAK }}
     >
       {children}
     </Link>
@@ -34,8 +30,8 @@ function NavLink({ to, children, active }) {
 function GhostButton({ children, onClick, href }) {
   const style = {
     background: 'transparent',
-    border: `1px solid rgba(9,162,196,0.3)`,
-    color: BLUE,
+    border: `1px solid ${BORDER}`,
+    color: ACCENT,
     fontFamily: 'Space Mono, monospace',
     fontSize: '8.5px',
     letterSpacing: '2px',
@@ -51,11 +47,11 @@ function GhostButton({ children, onClick, href }) {
 
   const handlers = {
     onMouseEnter: (e) => {
-      e.currentTarget.style.borderColor = BLUE
-      e.currentTarget.style.background = 'rgba(9,162,196,0.07)'
+      e.currentTarget.style.borderColor = ACCENT
+      e.currentTarget.style.background = 'rgba(47,224,255,0.07)'
     },
     onMouseLeave: (e) => {
-      e.currentTarget.style.borderColor = 'rgba(9,162,196,0.3)'
+      e.currentTarget.style.borderColor = BORDER
       e.currentTarget.style.background = 'transparent'
     },
   }
@@ -69,8 +65,8 @@ function SolidButton({ children, onClick }) {
     <button
       onClick={onClick}
       style={{
-        background: BLUE,
-        border: `1px solid ${BLUE}`,
+        background: ACCENT,
+        border: `1px solid ${ACCENT}`,
         color: BG,
         fontFamily: 'Space Mono, monospace',
         fontSize: '8.5px',
@@ -97,7 +93,7 @@ function UserChip({ user, onLogout }) {
     <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
       <span style={{
         fontFamily: 'Space Mono, monospace', fontSize: '9px',
-        letterSpacing: '1px', color: 'rgba(200,216,232,0.55)',
+        letterSpacing: '1px', color: TEXT_SEC,
       }}>
         {label}
       </span>
@@ -107,8 +103,8 @@ function UserChip({ user, onLogout }) {
         onMouseLeave={() => setHov(false)}
         style={{
           background: 'transparent',
-          border: `1px solid ${hov ? BLUE : 'rgba(9,162,196,0.3)'}`,
-          color: BLUE,
+          border: `1px solid ${hov ? ACCENT : BORDER}`,
+          color: ACCENT,
           fontFamily: 'Space Mono, monospace',
           fontSize: '8px',
           letterSpacing: '1.5px',
@@ -127,24 +123,23 @@ function UserChip({ user, onLogout }) {
 export function Navbar() {
   const { pathname } = useLocation()
   const { user, logout } = useAuthStore()
-  const [modal, setModal] = useState(null)   // null | 'login' | 'register'
+  const [modal, setModal] = useState(null)
 
   return (
     <>
       <nav style={{
         position: 'fixed', top: 0, left: 0, right: 0,
         height: '52px',
-        background: 'rgba(4,20,40,0.92)',
+        background: 'rgba(10,22,33,0.92)',
         backdropFilter: 'blur(14px)',
         WebkitBackdropFilter: 'blur(14px)',
-        borderBottom: '1px solid rgba(9,162,196,0.12)',
+        borderBottom: `1px solid ${BORDER}`,
         zIndex: 100,
         display: 'flex', alignItems: 'center',
         padding: '0 40px',
         gap: '0',
       }}>
 
-        {/* ── Left: logo + nav ──────────────────────────────────── */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '28px' }}>
           <Link
             to="/"
@@ -155,7 +150,7 @@ export function Navbar() {
               fontWeight: 700,
               letterSpacing: '3px',
               textTransform: 'uppercase',
-              color: BLUE,
+              color: ACCENT,
             }}
           >
             PROB<span style={{ opacity: 0.45 }}>'</span>HAMMER
@@ -163,7 +158,7 @@ export function Navbar() {
 
           <div style={{
             width: '1px', height: '16px',
-            background: 'rgba(9,162,196,0.2)',
+            background: BORDER,
           }} />
 
           <NavLink to="/factions" active={pathname === '/factions'}>
@@ -179,7 +174,6 @@ export function Navbar() {
           </NavLink>
         </div>
 
-        {/* ── Right: auth state ─────────────────────────────────── */}
         <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: '10px' }}>
           <GhostButton href="https://github.com">
             Feedback ↗
