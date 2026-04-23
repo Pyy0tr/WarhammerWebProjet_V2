@@ -14,6 +14,86 @@ function parseFaction(name) {
 
 const ALLIANCE_ORDER = ['Imperium', 'Chaos', 'Xenos']
 
+const ALLIANCE_META = {
+  Imperium: { color: '#C9A227' },
+  Chaos:    { color: '#CC3344' },
+  Xenos:    { color: '#2FE0FF' },
+}
+
+// ── Alliance SVG icons ────────────────────────────────────────────────────────
+
+function ImperiumIcon({ color, size = 28 }) {
+  const c = size / 2
+  const cw = size * 0.08   // half-width at center
+  const tw = size * 0.135  // half-width at tip (flared)
+  const ext = size * 0.41  // arm length from center
+  const arms = [
+    `M${c - cw},${c} L${c - tw},${c - ext} L${c + tw},${c - ext} L${c + cw},${c} Z`,
+    `M${c - cw},${c} L${c - tw},${c + ext} L${c + tw},${c + ext} L${c + cw},${c} Z`,
+    `M${c},${c - cw} L${c - ext},${c - tw} L${c - ext},${c + tw} L${c},${c + cw} Z`,
+    `M${c},${c - cw} L${c + ext},${c - tw} L${c + ext},${c + tw} L${c},${c + cw} Z`,
+  ]
+  return (
+    <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} fill="none">
+      {arms.map((d, i) => <path key={i} d={d} fill={color} opacity="0.75" />)}
+      <circle cx={c} cy={c} r={size * 0.09} fill={color} opacity="0.9"/>
+    </svg>
+  )
+}
+
+function ChaosIcon({ color, size = 28 }) {
+  const c = size / 2
+  const r = size * 0.4
+  const ar = size * 0.13
+  const arA = 22 * Math.PI / 180
+  const lines = Array.from({ length: 8 }, (_, i) => {
+    const a = (i * 45 - 90) * Math.PI / 180
+    const x2 = c + r * Math.cos(a), y2 = c + r * Math.sin(a)
+    return {
+      x2, y2,
+      ax1: x2 + ar * Math.cos(a + Math.PI + arA),
+      ay1: y2 + ar * Math.sin(a + Math.PI + arA),
+      ax2: x2 + ar * Math.cos(a + Math.PI - arA),
+      ay2: y2 + ar * Math.sin(a + Math.PI - arA),
+    }
+  })
+  return (
+    <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} fill="none">
+      {lines.map(({ x2, y2, ax1, ay1, ax2, ay2 }, i) => (
+        <g key={i}>
+          <line x1={c} y1={c} x2={x2} y2={y2} stroke={color} strokeWidth="1.3"/>
+          <polyline points={`${ax1},${ay1} ${x2},${y2} ${ax2},${ay2}`}
+            stroke={color} strokeWidth="1.3" fill="none" strokeLinecap="round"/>
+        </g>
+      ))}
+      <circle cx={c} cy={c} r="2" fill={color}/>
+    </svg>
+  )
+}
+
+function XenosIcon({ color, size = 28 }) {
+  const c = size / 2
+  const r = size * 0.41
+  const hexPts = Array.from({ length: 6 }, (_, i) => {
+    const a = (i * 60 - 90) * Math.PI / 180
+    return `${c + r * Math.cos(a)},${c + r * Math.sin(a)}`
+  }).join(' ')
+  return (
+    <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} fill="none">
+      <polygon points={hexPts} stroke={color} strokeWidth="1.2" fill="none" opacity="0.55"/>
+      <ellipse cx={c} cy={c} rx={size * 0.1} ry={size * 0.2}
+        stroke={color} strokeWidth="1.2" fill="none" opacity="0.85"/>
+      <circle cx={c} cy={c} r="2.2" fill={color} opacity="0.9"/>
+    </svg>
+  )
+}
+
+function AllianceIcon({ alliance, color, size }) {
+  if (alliance === 'Imperium') return <ImperiumIcon color={color} size={size}/>
+  if (alliance === 'Chaos')    return <ChaosIcon color={color} size={size}/>
+  return <XenosIcon color={color} size={size}/>
+}
+
 function isLibraryFaction(name) {
   return name.includes('Library') || name.includes('Legends')
 }
@@ -220,16 +300,34 @@ function FactionsView({ onSelectFaction }) {
   )
 }
 
-function AllianceHeader({ children }) {
+function AllianceHeader({ alliance, count }) {
+  const { color } = ALLIANCE_META[alliance]
   return (
-    <div style={{
-      fontFamily: 'Space Mono, monospace', fontSize: '10px',
-      fontWeight: 700, letterSpacing: '3px', textTransform: 'uppercase',
-      color: TEXT_WEAK, marginBottom: '20px',
-      display: 'flex', alignItems: 'center', gap: '16px',
-    }}>
-      {children}
-      <div style={{ flex: 1, height: '1px', background: BORDER }} />
+    <div style={{ marginBottom: '28px' }}>
+      <div style={{
+        display: 'flex', alignItems: 'center', gap: '14px', marginBottom: '12px',
+      }}>
+        <AllianceIcon alliance={alliance} color={color} size={26}/>
+        <span style={{
+          fontFamily: 'Space Mono, monospace',
+          fontSize: 'clamp(15px, 1.6vw, 21px)',
+          fontWeight: 700, letterSpacing: '5px', textTransform: 'uppercase',
+          color, lineHeight: 1,
+        }}>
+          {alliance}
+        </span>
+        <span style={{
+          fontFamily: 'Space Mono, monospace', fontSize: '9px',
+          letterSpacing: '2px', textTransform: 'uppercase', color: TEXT_WEAK,
+          marginLeft: 'auto',
+        }}>
+          {count} faction{count !== 1 ? 's' : ''}
+        </span>
+      </div>
+      <div style={{
+        height: '1px',
+        background: `linear-gradient(to right, ${color}55, ${BORDER} 55%)`,
+      }}/>
     </div>
   )
 }
@@ -238,10 +336,12 @@ function SubGroupLabel({ children }) {
   return (
     <div style={{
       fontFamily: 'Space Mono, monospace', fontSize: '9px',
-      fontWeight: 700, letterSpacing: '2.5px', textTransform: 'uppercase',
-      color: TEXT_WEAK, marginBottom: '10px', opacity: 0.7,
+      fontWeight: 700, letterSpacing: '3px', textTransform: 'uppercase',
+      color: TEXT_WEAK, marginBottom: '12px',
+      display: 'flex', alignItems: 'center', gap: '10px',
     }}>
       {children}
+      <div style={{ width: '20px', height: '1px', background: BORDER }}/>
     </div>
   )
 }
@@ -264,16 +364,16 @@ function FactionChip({ name, count, label, onClick }) {
       <div style={{
         fontFamily: 'Space Mono, monospace', fontSize: '12px',
         fontWeight: 700, letterSpacing: '1px', textTransform: 'uppercase',
-        color: hover ? TEXT : TEXT_SEC, marginBottom: '4px',
+        color: hover ? TEXT : TEXT_SEC, marginBottom: '5px',
         transition: 'color 100ms',
       }}>
         {label}
       </div>
       <div style={{
         fontFamily: 'Space Mono, monospace', fontSize: '9px',
-        letterSpacing: '1.5px', color: TEXT_WEAK,
+        letterSpacing: '1px', color: TEXT_WEAK,
       }}>
-        {count} units
+        {`${count} unit${count !== 1 ? 's' : ''}`}
       </div>
     </button>
   )
@@ -291,7 +391,7 @@ function AllianceSection({ alliance, groups, onSelect }) {
     const chips = [...groups[alliance]].sort((a, b) => a.label.localeCompare(b.label))
     return (
       <div>
-        <AllianceHeader>{alliance}</AllianceHeader>
+        <AllianceHeader alliance={alliance} count={chips.length}/>
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px' }}>
           {chips.map((sf) => (
             <FactionChip key={sf.name} {...sf} onClick={() => onSelect(sf.name)} />
@@ -311,10 +411,12 @@ function AllianceSection({ alliance, groups, onSelect }) {
     .map((subs) => subs[0])
     .sort((a, b) => a.label.localeCompare(b.label))
 
+  const totalCount = subGroups.reduce((s, [, subs]) => s + subs.length, 0) + standalone.length
+
   return (
     <div>
-      <AllianceHeader>{alliance}</AllianceHeader>
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+      <AllianceHeader alliance={alliance} count={totalCount}/>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
         {subGroups.map(([group, subs]) => (
           <div key={group}>
             <SubGroupLabel>{group}</SubGroupLabel>
