@@ -288,14 +288,12 @@ function WeaponStep({ unit, onSelectWeapon, onBack }) {
 // ── Main drawer ───────────────────────────────────────────────────────────────
 
 export function UnitDrawer({ isOpen, onClose, role, onSelect }) {
-  const searchUnits   = useDataStore((s) => s.searchUnits)
-  const load          = useDataStore((s) => s.load)
-  const loaded        = useDataStore((s) => s.loaded)
+  const searchUnits = useDataStore((s) => s.searchUnits)
+  const load        = useDataStore((s) => s.load)
+  const loaded      = useDataStore((s) => s.loaded)
 
-  const [query,          setQuery]         = useState('')
-  const [searchResults,  setSearchResults] = useState([])
-  const [step,           setStep]          = useState('unit')
-  const [pendingUnit,    setPendingUnit]    = useState(null)
+  const [query,         setQuery]        = useState('')
+  const [searchResults, setSearchResults] = useState([])
 
   const inputRef = useRef(null)
 
@@ -303,22 +301,16 @@ export function UnitDrawer({ isOpen, onClose, role, onSelect }) {
 
   useEffect(() => {
     if (isOpen) {
-      setQuery(''); setSearchResults([]); setStep('unit'); setPendingUnit(null)
+      setQuery(''); setSearchResults([])
       setTimeout(() => inputRef.current?.focus(), 120)
     }
   }, [isOpen])
 
   useEffect(() => {
-    function handler(e) {
-      if (!isOpen) return
-      if (e.key === 'Escape') {
-        if (step === 'weapon') { setStep('unit'); setPendingUnit(null) }
-        else onClose()
-      }
-    }
+    function handler(e) { if (isOpen && e.key === 'Escape') onClose() }
     window.addEventListener('keydown', handler)
     return () => window.removeEventListener('keydown', handler)
-  }, [isOpen, step, onClose])
+  }, [isOpen, onClose])
 
   function handleSearch(e) {
     const q = e.target.value
@@ -327,28 +319,11 @@ export function UnitDrawer({ isOpen, onClose, role, onSelect }) {
   }
 
   function handleSelectUnit(unit) {
-    if (role === 'defender') {
-      onSelect(unit)
-      onClose()
-    } else {
-      setPendingUnit(unit)
-      setStep('weapon')
-    }
-  }
-
-  function handleSelectWeapon(weapon) {
-    onSelect(pendingUnit, weapon)
+    onSelect(unit)
     onClose()
   }
 
-  function goBack() {
-    setStep('unit')
-    setPendingUnit(null)
-  }
-
-  const title = step === 'weapon'
-    ? 'Select weapon'
-    : role === 'attacker' ? 'Select attacker' : 'Select defender'
+  const title = role === 'attacker' ? 'Select attacker' : 'Select defender'
 
   return (
     <>
@@ -384,30 +359,13 @@ export function UnitDrawer({ isOpen, onClose, role, onSelect }) {
             display: 'flex', justifyContent: 'space-between', alignItems: 'center',
             padding: '16px 0 12px',
           }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-              {step === 'weapon' && (
-                <button
-                  onClick={goBack}
-                  style={{
-                    background: 'none', border: 'none', color: ACCENT,
-                    fontFamily: 'Space Mono, monospace', fontSize: '10px',
-                    letterSpacing: '1px', cursor: 'pointer', padding: '0 8px 0 0',
-                    opacity: 0.6,
-                  }}
-                  onMouseEnter={(e) => { e.currentTarget.style.opacity = '1' }}
-                  onMouseLeave={(e) => { e.currentTarget.style.opacity = '0.6' }}
-                >
-                  ← Back
-                </button>
-              )}
-              <span style={{
-                fontFamily: 'Space Mono, monospace', fontSize: '10px',
-                fontWeight: 700, letterSpacing: '3px', textTransform: 'uppercase',
-                color: ACCENT,
-              }}>
-                {title}
-              </span>
-            </div>
+            <span style={{
+              fontFamily: 'Space Mono, monospace', fontSize: '10px',
+              fontWeight: 700, letterSpacing: '3px', textTransform: 'uppercase',
+              color: ACCENT,
+            }}>
+              {title}
+            </span>
             <button
               onClick={onClose}
               style={{
@@ -424,58 +382,54 @@ export function UnitDrawer({ isOpen, onClose, role, onSelect }) {
             </button>
           </div>
 
-          {step === 'unit' && (
-            <div style={{ position: 'relative', paddingBottom: '14px' }}>
-              <input
-                ref={inputRef}
-                type="text"
-                value={query}
-                onChange={handleSearch}
-                placeholder="Search unit…"
+          <div style={{ position: 'relative', paddingBottom: '14px' }}>
+            <input
+              ref={inputRef}
+              type="text"
+              value={query}
+              onChange={handleSearch}
+              placeholder="Search unit…"
+              style={{
+                width: '100%', boxSizing: 'border-box',
+                background: SURFACE,
+                border: `1px solid ${query.length >= 2 ? ACCENT : BORDER}`,
+                borderRadius: 0, color: TEXT,
+                fontFamily: 'Space Mono, monospace', fontSize: '13px',
+                fontWeight: 700, padding: '9px 36px 9px 12px',
+                outline: 'none', transition: 'border-color 100ms',
+              }}
+            />
+            {query ? (
+              <button
+                onClick={() => { setQuery(''); setSearchResults([]) }}
                 style={{
-                  width: '100%', boxSizing: 'border-box',
-                  background: SURFACE,
-                  border: `1px solid ${query.length >= 2 ? ACCENT : BORDER}`,
-                  borderRadius: 0, color: TEXT,
-                  fontFamily: 'Space Mono, monospace', fontSize: '13px',
-                  fontWeight: 700, padding: '9px 36px 9px 12px',
-                  outline: 'none', transition: 'border-color 100ms',
+                  position: 'absolute', right: '10px', top: '50%', transform: 'translateY(-50%)',
+                  background: 'none', border: 'none', cursor: 'pointer', padding: 0,
+                  color: ACCENT, opacity: 0.5, lineHeight: 1,
                 }}
-              />
-              {query ? (
-                <button
-                  onClick={() => { setQuery(''); setSearchResults([]) }}
-                  style={{
-                    position: 'absolute', right: '10px', top: '50%', transform: 'translateY(-50%)',
-                    background: 'none', border: 'none', cursor: 'pointer', padding: 0,
-                    color: ACCENT, opacity: 0.5, lineHeight: 1,
-                  }}
-                >
-                  <svg width="12" height="12" viewBox="0 0 12 12">
-                    <line x1="2" y1="2" x2="10" y2="10" stroke={ACCENT} strokeWidth="1.5" />
-                    <line x1="10" y1="2" x2="2" y2="10" stroke={ACCENT} strokeWidth="1.5" />
-                  </svg>
-                </button>
-              ) : (
-                <svg
-                  width="14" height="14" viewBox="0 0 14 14" fill="none"
-                  style={{
-                    position: 'absolute', right: '10px', top: '50%', transform: 'translateY(-50%)',
-                    opacity: 0.35, pointerEvents: 'none',
-                  }}
-                >
-                  <circle cx="5.5" cy="5.5" r="4" stroke={TEXT_WEAK} strokeWidth="1.2" />
-                  <line x1="8.5" y1="8.5" x2="12.5" y2="12.5" stroke={TEXT_WEAK} strokeWidth="1.2" />
+              >
+                <svg width="12" height="12" viewBox="0 0 12 12">
+                  <line x1="2" y1="2" x2="10" y2="10" stroke={ACCENT} strokeWidth="1.5" />
+                  <line x1="10" y1="2" x2="2" y2="10" stroke={ACCENT} strokeWidth="1.5" />
                 </svg>
-              )}
-            </div>
-          )}
+              </button>
+            ) : (
+              <svg
+                width="14" height="14" viewBox="0 0 14 14" fill="none"
+                style={{
+                  position: 'absolute', right: '10px', top: '50%', transform: 'translateY(-50%)',
+                  opacity: 0.35, pointerEvents: 'none',
+                }}
+              >
+                <circle cx="5.5" cy="5.5" r="4" stroke={TEXT_WEAK} strokeWidth="1.2" />
+                <line x1="8.5" y1="8.5" x2="12.5" y2="12.5" stroke={TEXT_WEAK} strokeWidth="1.2" />
+              </svg>
+            )}
+          </div>
         </div>
 
         <div style={{ flex: 1, overflowY: 'auto' }}>
-          {step === 'weapon' ? (
-            <WeaponStep unit={pendingUnit} onSelectWeapon={handleSelectWeapon} onBack={goBack} />
-          ) : query.length >= 2 ? (
+          {query.length >= 2 ? (
             <SearchResults results={searchResults} onSelectUnit={handleSelectUnit} />
           ) : (
             <BrowsePanel onSelectUnit={handleSelectUnit} />

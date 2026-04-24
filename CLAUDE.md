@@ -76,7 +76,7 @@ position: 'fixed', top: '50%', transform: 'translateY(-50%)'
 ```
 Symétrie gauche/droite autour du centre (560px) :
 - Droite (UnitAbilitiesPanel) : `left: 'calc(50% + 280px + 24px)', right: '48px'`
-- Gauche (ProgressTracker)    : `left: '48px', right: 'calc(50% + 280px + 24px)'`
+- Gauche (ProgressTracker)    : `left: '32px', right: 'calc(50% + 280px + 24px)'`, `padding: '4px 8px 4px 20px'`
 - z-index: ProgressTracker=5, KeywordDefinitionPanel=10 (keyword panel passe devant)
 
 ### ProgressTracker
@@ -85,6 +85,14 @@ Colonne gauche fixe, style git-log, 6 nœuds : Attacker Unit → Weapon → Abil
 - `hoveredKeyword !== null` → `opacity: 0.12` (keyword panel passe devant)
 - Navigation rétroactive : clic nœud complété → `setStep(nav)`
 - Auto-scroll du nœud actif via `ref.scrollIntoView`
+- Animations : `trackerPulse` (double ripple), `trackerCompleteIn` (scale bounce), `trackerLabelScan`, `trackerNodeIn`
+- `circleKeys` ref : détecte les transitions de statut pendant le render pour changer la `key` du cercle → remontage → replay animation. **Doit être calculé APRÈS `getStatus` (et ses dépendances `hasUnit`, `hasWeapon`, etc.) pour éviter TDZ ReferenceError.**
+- Padding `18px` sur le container scrollable pour que les box-shadows du ripple restent dans le padding box et ne soient pas clippés par `overflow-y: auto`.
+
+### UnitDrawer — mode Browse (attacker)
+Le drawer ne fait plus la sélection d'arme. Il ferme dès la sélection d'unité (`onSelect(unit)` sans weapon).
+La sélection d'arme se fait ensuite dans `AttackerPanel` via un picker inline (`getUnitWeapons(selectedUnit)` depuis dataStore).
+3 états Browse : no unit → placeholder | unit sans arme → weapon picker inline | arme sélectionnée → config complète.
 
 ### Markup BSData dans les abilities
 Format dans les JSON : `**^^Keyword^^**` (nested). Toujours utiliser `<AbilityText text={ab.desc} />` pour le rendu.

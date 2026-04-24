@@ -286,9 +286,10 @@ function DefenderStep() {
 // ── Step 4: Results wrapper ──────────────────────────────────────────────────
 
 function ResultsStep() {
-  const result  = useSimulatorStore((s) => s.result)
-  const setStep = useSimulatorStore((s) => s.setStep)
-  const attacks = useSimulatorStore((s) => s.attacks)
+  const result   = useSimulatorStore((s) => s.result)
+  const setStep  = useSimulatorStore((s) => s.setStep)
+  const attacks  = useSimulatorStore((s) => s.attacks)
+  const resetAll = useSimulatorStore((s) => s.resetAll)
 
   return (
     <div>
@@ -344,6 +345,20 @@ function ResultsStep() {
           onMouseLeave={(e) => { e.currentTarget.style.color = TEXT_WEAK }}
         >
           ← Change defender
+        </button>
+        <button
+          onClick={resetAll}
+          style={{
+            padding: '10px 18px',
+            background: 'transparent', border: `1px solid ${ERROR}44`,
+            color: ERROR, fontFamily: 'Space Mono, monospace', fontSize: '9px',
+            letterSpacing: '1.5px', textTransform: 'uppercase', cursor: 'pointer',
+            transition: 'background 100ms, border-color 100ms',
+          }}
+          onMouseEnter={(e) => { e.currentTarget.style.background = `${ERROR}18`; e.currentTarget.style.borderColor = ERROR }}
+          onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.borderColor = `${ERROR}44` }}
+        >
+          ↺ New simulation
         </button>
       </div>
     </div>
@@ -597,13 +612,28 @@ function injectTrackerStyles() {
   style.id = TRACKER_STYLE_ID
   style.textContent = `
     @keyframes trackerPulse {
-      0%   { box-shadow: 0 0 0 0 ${ACCENT}55; }
-      70%  { box-shadow: 0 0 0 5px ${ACCENT}00; }
-      100% { box-shadow: 0 0 0 0 ${ACCENT}00; }
+      0%   { box-shadow: 0 0 0 0 ${ACCENT}70, 0 0 0 0 ${ACCENT}30; }
+      50%  { box-shadow: 0 0 0 7px ${ACCENT}00, 0 0 0 14px ${ACCENT}00; }
+      100% { box-shadow: 0 0 0 0 ${ACCENT}00, 0 0 0 0  ${ACCENT}00; }
+    }
+    @keyframes trackerCompleteIn {
+      0%   { transform: scale(0.4); opacity: 0.2; }
+      60%  { transform: scale(1.2); opacity: 1; }
+      80%  { transform: scale(0.92); }
+      100% { transform: scale(1); opacity: 1; }
     }
     @keyframes trackerNodeIn {
-      from { opacity: 0; transform: translateY(8px); }
+      from { opacity: 0; transform: translateY(12px); }
       to   { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes trackerLabelScan {
+      0%   { letter-spacing: 3px; opacity: 0.3; }
+      60%  { letter-spacing: 1.5px; opacity: 1; }
+      100% { letter-spacing: 1.5px; opacity: 1; }
+    }
+    @keyframes trackerLineGrow {
+      from { transform: scaleY(0); transform-origin: top; }
+      to   { transform: scaleY(1); transform-origin: top; }
     }
     .tracker-scrollbar::-webkit-scrollbar { width: 3px; }
     .tracker-scrollbar::-webkit-scrollbar-track { background: transparent; }
@@ -634,21 +664,23 @@ function ProgressTracker() {
   const result         = useSimulatorStore((s) => s.result)
   const hoveredKeyword = useSimulatorStore((s) => s.hoveredKeyword)
 
-  const nodeRefs = useRef({})
+  const nodeRefs   = useRef({})
+  const circleKeys = useRef({})
 
   useEffect(() => { injectTrackerStyles() }, [])
 
-  const hasUnit   = attackerUnit !== null || weapon.name !== ''
-  const hasWeapon = weapon.name !== ''
+  const hasUnit            = attackerUnit !== null || weapon.name !== ''
+  const hasWeapon          = weapon.name !== ''
+  const hasConfirmedAttack = attacks.length > 0
 
   function getStatus(id) {
     switch (id) {
       case 1: return hasUnit   ? 'completed' : 'active'
       case 2:
-        if (!hasUnit)   return 'future'
-        return hasWeapon ? 'completed' : 'active'
+        if (!hasUnit) return 'future'
+        return (hasWeapon || hasConfirmedAttack) ? 'completed' : 'active'
       case 3:
-        if (!hasWeapon) return 'future'
+        if (!hasWeapon && !hasConfirmedAttack) return 'future'
         return step >= 2 ? 'completed' : 'active'
       case 4:
         if (step < 2)   return 'future'
@@ -658,7 +690,7 @@ function ProgressTracker() {
         return step >= 4 ? 'completed' : 'active'
       case 6:
         if (step < 3 || attacks.length === 0) return 'future'
-        return result !== null ? 'completed' : 'active'
+        return step === 4 ? 'completed' : 'active'
       default: return 'future'
     }
   }
@@ -670,16 +702,22 @@ function ProgressTracker() {
         return weapon.name || '—'
       }
       case 2: {
-        const kwCount = weapon.keywords.length
-        return `${weapon.name}${kwCount > 0 ? ` · ${kwCount} kw` : ''}`
+        // weapon resets after addAttack() — fall back to last confirmed attack
+        const src = weapon.name ? weapon : attacks[attacks.length - 1]?.weapon
+        if (!src) return '—'
+        const kwCount = src.keywords?.length ?? 0
+        return `${src.name}${kwCount > 0 ? ` · ${kwCount} kw` : ''}`
       }
       case 3: {
+        // same: read from last attack when current attacker was reset
+        const srcBuffs  = buffs.length > 0 ? buffs  : (attacks[attacks.length - 1]?.buffs ?? [])
+        const srcKws    = weapon.keywords.length > 0 ? weapon.keywords : (attacks[attacks.length - 1]?.weapon.keywords ?? [])
         const parts = []
-        buffs.forEach((b) => {
+        srcBuffs.forEach((b) => {
           if (b.type === 'REROLL_HITS')   parts.push(b.value === 'all' ? 'RR hits' : 'RR hit 1s')
           if (b.type === 'REROLL_WOUNDS') parts.push(b.value === 'all' ? 'RR wounds' : 'RR wound 1s')
         })
-        const critKw = weapon.keywords.find((k) => k.type === 'CRITICAL_HIT_ON')
+        const critKw = srcKws.find((k) => k.type === 'CRITICAL_HIT_ON')
         if (critKw) parts.push(`Crit ${critKw.value}+`)
         return parts.length > 0 ? parts.join(' · ') : 'No extra abilities'
       }
@@ -695,6 +733,18 @@ function ProgressTracker() {
     }
   }
 
+  // Update circleKeys — detect status transitions to re-mount circles for animations
+  // (placed after getStatus so all deps are in scope)
+  TRACKER_NODES.forEach((node) => {
+    const status = getStatus(node.id)
+    const prev   = circleKeys.current[node.id]
+    if (!prev) {
+      circleKeys.current[node.id] = { status, v: 0 }
+    } else if (prev.status !== status) {
+      circleKeys.current[node.id] = { status, v: prev.v + 1 }
+    }
+  })
+
   // Auto-scroll active node into view
   useEffect(() => {
     const activeId = TRACKER_NODES.find((n) => getStatus(n.id) === 'active')?.id
@@ -706,7 +756,7 @@ function ProgressTracker() {
   return (
     <div style={{
       position: 'fixed',
-      left: '48px',
+      left: '32px',
       right: 'calc(50% + 280px + 24px)',
       top: '50%',
       transform: 'translateY(-50%)',
@@ -714,61 +764,77 @@ function ProgressTracker() {
       opacity: hoveredKeyword ? 0.12 : 1,
       transition: 'opacity 150ms ease',
       pointerEvents: hoveredKeyword ? 'none' : 'auto',
+      padding: '4px 8px 4px 20px',
     }}>
       {/* Header */}
       <div style={{
-        fontFamily: 'Space Mono, monospace', fontSize: '7px',
-        letterSpacing: '2.5px', textTransform: 'uppercase',
-        color: TEXT_OFF, marginBottom: '18px',
+        fontFamily: 'Space Mono, monospace', fontSize: '8px',
+        letterSpacing: '3px', textTransform: 'uppercase',
+        color: TEXT_OFF, marginBottom: '24px',
       }}>
         Progress
       </div>
 
       <div
         className="tracker-scrollbar"
-        style={{ overflowY: 'auto', maxHeight: 'calc(100vh - 200px)' }}
+        style={{ overflowY: 'auto', maxHeight: 'calc(100vh - 200px)', padding: '18px 4px 18px 18px' }}
       >
         {TRACKER_NODES.map((node, i) => {
           const status      = getStatus(node.id)
           const isCompleted = status === 'completed'
           const isActive    = status === 'active'
           const isLast      = i === TRACKER_NODES.length - 1
+          const circleKey   = `${node.id}-${circleKeys.current[node.id]?.v ?? 0}`
 
           return (
             <div
               key={node.id}
               ref={(el) => { nodeRefs.current[node.id] = el }}
               className={isCompleted ? 'tracker-node-completed' : ''}
-              style={{ display: 'flex', alignItems: 'stretch', gap: '12px' }}
+              style={{ display: 'flex', alignItems: 'stretch', gap: '16px' }}
             >
               {/* Left column: circle + connecting line */}
               <div style={{
                 display: 'flex', flexDirection: 'column',
-                alignItems: 'center', width: '12px', flexShrink: 0, paddingTop: '1px',
+                alignItems: 'center', width: '18px', flexShrink: 0, paddingTop: '1px',
               }}>
-                <div style={{
-                  width: '11px', height: '11px', borderRadius: '50%',
-                  border: `1.5px solid ${isActive || isCompleted ? ACCENT : BORDER}`,
-                  background: isCompleted ? ACCENT : 'transparent',
-                  display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  flexShrink: 0,
-                  animation: isActive ? 'trackerPulse 2s ease-in-out infinite' : 'none',
-                  transition: 'background 300ms, border-color 300ms',
-                }}>
+                {/* Circle — keyed to re-mount on status transition */}
+                <div
+                  key={circleKey}
+                  style={{
+                    width: '18px', height: '18px', borderRadius: '50%',
+                    border: `2px solid ${isActive || isCompleted ? ACCENT : BORDER}`,
+                    background: isCompleted ? ACCENT : isActive ? `${ACCENT}18` : 'transparent',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    flexShrink: 0,
+                    animation: isCompleted
+                      ? 'trackerCompleteIn 420ms cubic-bezier(0.34,1.56,0.64,1) forwards'
+                      : isActive
+                        ? 'trackerPulse 2s ease-out infinite'
+                        : 'none',
+                    transition: 'border-color 300ms',
+                  }}
+                >
                   {isCompleted && (
-                    <span style={{ fontSize: '6px', color: BG, fontWeight: 700, lineHeight: 1 }}>✓</span>
+                    <span style={{ fontSize: '9px', color: BG, fontWeight: 900, lineHeight: 1 }}>✓</span>
                   )}
                   {isActive && (
-                    <div style={{ width: '3px', height: '3px', borderRadius: '50%', background: ACCENT }} />
+                    <div style={{
+                      width: '7px', height: '7px', borderRadius: '50%',
+                      background: ACCENT,
+                      boxShadow: `0 0 6px ${ACCENT}88`,
+                    }} />
                   )}
                 </div>
 
                 {!isLast && (
                   <div style={{
-                    width: '2px', flex: 1, minHeight: '14px',
-                    background: isCompleted ? `${ACCENT}44` : `${BORDER}88`,
-                    marginTop: '3px',
-                    transition: 'background 400ms',
+                    width: '2px', flex: 1, minHeight: '18px',
+                    background: isCompleted
+                      ? `linear-gradient(to bottom, ${ACCENT}66, ${ACCENT}33)`
+                      : `${BORDER}`,
+                    marginTop: '4px',
+                    transition: 'background 500ms ease',
                   }} />
                 )}
               </div>
@@ -778,32 +844,40 @@ function ProgressTracker() {
                 onClick={() => isCompleted && setStep(node.nav)}
                 style={{
                   flex: 1,
-                  paddingBottom: isLast ? '4px' : '20px',
+                  paddingBottom: isLast ? '4px' : '28px',
                   cursor: isCompleted ? 'pointer' : 'default',
                 }}
               >
-                <div style={{
-                  fontFamily: 'Space Mono, monospace',
-                  fontSize: '8px',
-                  letterSpacing: '1.5px',
-                  textTransform: 'uppercase',
-                  color: isActive ? ACCENT : isCompleted ? TEXT_SEC : TEXT_OFF,
-                  fontWeight: isActive ? 700 : 400,
-                  lineHeight: 1,
-                  marginBottom: (isActive || isCompleted) ? '6px' : 0,
-                  transition: 'color 300ms',
-                }}>
+                {/* Label */}
+                <div
+                  key={isActive ? `label-active-${node.id}` : `label-${node.id}`}
+                  style={{
+                    fontFamily: 'Space Mono, monospace',
+                    fontSize: '10px',
+                    letterSpacing: '1.5px',
+                    textTransform: 'uppercase',
+                    color: isActive ? ACCENT : isCompleted ? TEXT_SEC : TEXT_OFF,
+                    fontWeight: isActive ? 700 : 400,
+                    lineHeight: 1,
+                    marginBottom: (isActive || isCompleted) ? '8px' : 0,
+                    transition: 'color 300ms',
+                    animation: isActive ? 'trackerLabelScan 400ms ease forwards' : 'none',
+                  }}
+                >
                   {node.label}
                 </div>
 
                 {isActive && (
-                  <div style={{
-                    fontFamily: 'Georgia, serif',
-                    fontSize: '11px',
-                    color: TEXT_WEAK,
-                    lineHeight: 1.6,
-                    animation: 'trackerNodeIn 280ms ease forwards',
-                  }}>
+                  <div
+                    key={`hint-${node.id}-${circleKey}`}
+                    style={{
+                      fontFamily: 'Georgia, serif',
+                      fontSize: '12px',
+                      color: TEXT_WEAK,
+                      lineHeight: 1.65,
+                      animation: 'trackerNodeIn 320ms ease forwards',
+                    }}
+                  >
                     {node.hint}
                   </div>
                 )}
@@ -813,10 +887,10 @@ function ProgressTracker() {
                     className="tracker-summary"
                     style={{
                       fontFamily: 'Space Mono, monospace',
-                      fontSize: '9px',
+                      fontSize: '10px',
                       color: TEXT_WEAK,
                       letterSpacing: '0.3px',
-                      lineHeight: 1.5,
+                      lineHeight: 1.55,
                       transition: 'color 150ms',
                     }}
                   >

@@ -584,6 +584,7 @@ export function AttackerPanel() {
 
   const selectedUnit    = useSimulatorStore((s) => s.attackerUnit)
   const setSelectedUnit = useSimulatorStore((s) => s.setAttackerUnit)
+  const getUnitWeapons  = useDataStore((s) => s.getUnitWeapons)
   const [drawerOpen, setDrawerOpen] = useState(false)
   const [mode, setMode]             = useState('browse')
 
@@ -599,9 +600,8 @@ export function AttackerPanel() {
     })
   }
 
-  function handleDrawerSelect(unit, weapon) {
+  function handleDrawerSelect(unit) {
     setSelectedUnit(unit)
-    if (weapon) applyWeapon(weapon)
     const m = unit.min_models ?? unit.max_models ?? 1
     setAttacker({ models: m })
   }
@@ -647,8 +647,11 @@ export function AttackerPanel() {
         <ArmyPicker />
       ) : (<>
 
-      {/* Browse Units mode */}
-      {!hasWeapon ? (
+      {/* Browse Units mode — 3 states:
+          1. no unit, no weapon  → placeholder + Browse button
+          2. unit selected, no weapon → unit card + inline weapon picker
+          3. weapon selected → full weapon config (existing UI)        */}
+      {!hasWeapon && !selectedUnit ? (
         <div style={{
           padding: '32px', border: `1px dashed ${BORDER}`,
           textAlign: 'center',
@@ -659,7 +662,7 @@ export function AttackerPanel() {
             letterSpacing: '1.5px', textTransform: 'uppercase',
             color: TEXT_WEAK, lineHeight: 1.7,
           }}>
-            Select a unit and weapon to configure your attack
+            Select a unit to configure your attack
           </div>
           <button
             onClick={() => setDrawerOpen(true)}
@@ -676,7 +679,82 @@ export function AttackerPanel() {
             Browse units →
           </button>
         </div>
-      ) : (
+
+      ) : !hasWeapon && selectedUnit ? (() => {
+        const unitWeapons = getUnitWeapons(selectedUnit)
+        return (
+          <div>
+            {/* Unit card */}
+            <div style={{
+              marginBottom: '20px', padding: '10px 14px',
+              border: `1px solid ${BORDER}`, background: SURFACE,
+              display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+            }}>
+              <div>
+                <div style={{ fontFamily: 'Space Mono, monospace', fontSize: '12px', fontWeight: 700, color: ACCENT }}>
+                  {selectedUnit.name}
+                </div>
+                <div style={{ fontFamily: 'Space Mono, monospace', fontSize: '8.5px', color: TEXT_WEAK, marginTop: '3px', letterSpacing: '1px' }}>
+                  T{selectedUnit.T} · SV{selectedUnit.Sv}+ · W{selectedUnit.W}
+                  {selectedUnit.invuln ? ` · ${selectedUnit.invuln}++` : ''}
+                </div>
+              </div>
+              <button
+                onClick={() => { setSelectedUnit(null) }}
+                style={{
+                  background: 'none', border: 'none', color: ACCENT,
+                  fontFamily: 'Space Mono, monospace', fontSize: '8px',
+                  letterSpacing: '1.5px', textTransform: 'uppercase',
+                  cursor: 'pointer', opacity: 0.6, padding: 0,
+                }}
+                onMouseEnter={(e) => { e.currentTarget.style.opacity = '1' }}
+                onMouseLeave={(e) => { e.currentTarget.style.opacity = '0.6' }}
+              >
+                Change
+              </button>
+            </div>
+
+            {/* Inline weapon picker */}
+            <div style={{ fontFamily: 'Space Mono, monospace', fontSize: '8px', letterSpacing: '2px', textTransform: 'uppercase', color: TEXT_WEAK, marginBottom: '10px' }}>
+              Choose a weapon
+            </div>
+            {unitWeapons.length === 0 ? (
+              <div style={{ padding: '16px', border: `1px dashed ${BORDER}`, fontFamily: 'Space Mono, monospace', fontSize: '9px', color: TEXT_OFF, textAlign: 'center' }}>
+                No weapon data — configure manually below
+              </div>
+            ) : (
+              <div style={{ border: `1px solid ${BORDER}` }}>
+                {unitWeapons.map((w) => (
+                  <div
+                    key={w.id}
+                    onClick={() => { applyWeapon(w) }}
+                    style={{
+                      padding: '10px 14px', borderBottom: `1px solid ${BORDER}`,
+                      cursor: 'pointer', transition: 'background 60ms',
+                    }}
+                    onMouseEnter={(e) => { e.currentTarget.style.background = SURFACE_E }}
+                    onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent' }}
+                  >
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
+                      <span style={{ fontFamily: 'Space Mono, monospace', fontSize: '11px', fontWeight: 700, color: ACCENT }}>
+                        {w.name}
+                      </span>
+                      <span style={{ fontFamily: 'Space Mono, monospace', fontSize: '9px', color: TEXT_WEAK, whiteSpace: 'nowrap', marginLeft: '12px' }}>
+                        A{w.A} · BS{w.BS}+ · S{w.S} AP{w.AP} D{w.D}
+                      </span>
+                    </div>
+                    {(w.kw ?? []).filter((k) => k !== '-').length > 0 && (
+                      <div style={{ fontFamily: 'Space Mono, monospace', fontSize: '8px', color: TEXT_OFF, marginTop: '3px', letterSpacing: '0.5px', textTransform: 'uppercase' }}>
+                        {(w.kw ?? []).filter((k) => k !== '-').join(' · ')}
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        )
+      })() : (
         <>
         {selectedUnit && (
           <div style={{
