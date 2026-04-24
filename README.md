@@ -38,6 +38,7 @@ Pas de backend serveur — tout tourne dans le navigateur.
 - [x] **1487 unités · 5372 armes · 46 factions · 33 règles universelles**
 - [x] Pts scalables (squad size), multi-profils stats, invuln save, constraints min/max models
 - [x] GitHub Actions cron (sync BSData automatique toutes les 12h)
+- [x] Abilities complètes non tronquées (markup BSData `^^kw^^` conservé pour rendu frontend)
 
 ### Phase 3 — Moteur simulation ✅
 - [x] Port Python → JS : `engine/dice.js` + `engine/simulation.js`
@@ -53,14 +54,17 @@ Pas de backend serveur — tout tourne dans le navigateur.
 - [x] Auth Supabase (email/password) + modal AuthModal
 - [x] Gestion armées : création, renommage, suppression, ajout/suppression d'unités
 - [x] Persistance : localStorage (anonyme) → Supabase PostgreSQL (connecté), migration automatique
-- [x] Simulateur : mode Manuel + mode From Army (sélection armée → escouade → arme → firing models)
-- [x] AttackerPanel : chip picker keywords par phase (Hit/Wound/Other), abilities reroll
-- [x] DefenderPanel : toughness, save, invuln, FNP, wounds, models, keywords défenseur
-- [x] ResultsPanel : mean/median/std, histogramme dégâts, kill probabilities, graphiques Recharts
-- [x] Navigateur factions/unités (FactionsPage) : searchUnits, unit detail drawer, "Add to Army"
-- [x] UnitDrawer global : recherche d'unités + armes pour charger dans le simulateur
-- [x] Images factions depuis Cloudflare R2
-- [x] Dark theme — palette bleu #09A2C4 sur fond #041428
+- [x] Simulateur wizard 4 steps : Attack → Review → Defender → Results
+- [x] AttackerPanel : Browse Units / From Army, keyword chip picker (Hit/Wound/Other), firing models, attacker abilities reroll
+- [x] DefenderPanel : Browse Units / From Army, T/Sv/invuln/FNP/W/models/keywords
+- [x] ResultsPanel : mean/median/std, histogramme dégâts, kill probabilities
+- [x] FactionsPage : grille CSS uniforme par alliance, filtre All/Imperium/Chaos/Xenos, toggle dense/full, header "X factions · Y units", Library & Legends
+- [x] UnitDetailView : stats, armes, abilities (markup BSData rendu en ACCENT+bold), Add to Army
+- [x] UnitDrawer global : recherche unités + armes pour charger dans le simulateur
+- [x] KeywordDefinitionPanel (fixed left) : définition WH40K au hover des keyword chips
+- [x] UnitAbilitiesPanel (fixed right) : abilities de l'unité sélectionnée avec animations (stagger, scan, hover glow)
+- [x] AbilityText.jsx : rendu markup BSData `^^kw^^` / `**kw**` / `**^^kw^^**` → ACCENT + bold
+- [x] Dark theme — palette `#2FE0FF` sur fond `#0A1621`
 
 ### Phase 5 — Finitions
 - [ ] Domaine custom
@@ -96,7 +100,7 @@ Le moteur implémente les règles WH40K 10e en JavaScript :
 
 ```
 Attaques (models × A ± modificateurs)
-  → Hit rolls (BS, TORRENT, HEAVY, rerolls, crits)
+  → Hit rolls (BS, TORRENT, HEAVY, rerolls, crits, CRITICAL_HIT_ON)
       → Sustained Hits (vrais lancers supplémentaires, depth=1, pas de cascade)
       → Lethal Hits (crit → auto-wound)
   → Wound rolls (S vs T, TWIN_LINKED, LANCE, ANTI, Dev. Wounds → mortelles)
@@ -111,8 +115,8 @@ Attaques (models × A ± modificateurs)
 
 | Fichier | Contenu |
 |---|---|
-| `data/cache_stable/units.json` | 1487 unités (stats, armes, abilities, pts, keywords) |
-| `data/cache_stable/weapons.json` | 5372 armes dédupliquées |
+| `data/cache_stable/units.json` | 1487 unités complètes (abilities non tronquées) |
+| `data/cache_stable/weapons.json` | 5372 armes |
 | `data/cache_stable/factions.json` | 46 factions |
 | `data/cache_stable/faction_units.json` | 42 factions jouables → unit_ids |
 | `frontend/public/data/` | Slim format généré par build_frontend_data.py |
