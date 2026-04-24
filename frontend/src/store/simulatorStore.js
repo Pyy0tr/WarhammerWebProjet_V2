@@ -150,4 +150,20 @@ export const useSimulatorStore = create((set) => ({
   setResult: (result) => set({ result, loading: false, error: null }),
   setLoading: (loading) => set({ loading }),
   setError: (error) => set({ error, loading: false }),
+
+  // ── Full reset ────────────────────────────────────────────────────────
+  resetAll: () => set({
+    step: 1,
+    attacker: { ...defaultAttacker },
+    attacks: [],
+    editingIdx: null,
+    defender: { ...defaultDefender },
+    context: { ...defaultContext },
+    attackerUnit: null,
+    defenderUnit: null,
+    hoveredKeyword: null,
+    result: null,
+    loading: false,
+    error: null,
+  }),
 }))

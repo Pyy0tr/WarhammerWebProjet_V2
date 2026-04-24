@@ -817,8 +817,11 @@ function AttackStep() {
 // ── Main page ────────────────────────────────────────────────────────────────
 
 export function SimulatorPage() {
-  const step    = useSimulatorStore((s) => s.step)
-  const setStep = useSimulatorStore((s) => s.setStep)
+  const step     = useSimulatorStore((s) => s.step)
+  const setStep  = useSimulatorStore((s) => s.setStep)
+  const resetAll = useSimulatorStore((s) => s.resetAll)
+
+  const [resetHover, setResetHover] = useState(false)
 
   const contentRef = useRef(null)
   useEffect(() => {
@@ -831,20 +834,44 @@ export function SimulatorPage() {
       <div style={{ padding: '0 48px' }}>
         <Separator />
         <div style={{ padding: '18px 0 14px' }}>
-          <div style={{ display: 'flex', alignItems: 'baseline', gap: '16px' }}>
-            <h1 style={{
-              fontFamily: 'Space Mono, monospace', fontWeight: 700,
-              fontSize: 'clamp(18px, 2vw, 26px)', letterSpacing: '0.05em',
-              textTransform: 'uppercase', lineHeight: 1, color: TEXT,
-            }}>
-              Probability Simulator
-            </h1>
-            <span style={{
-              fontFamily: 'Space Mono, monospace', fontSize: '10px',
-              letterSpacing: '2px', textTransform: 'uppercase', color: TEXT_WEAK,
-            }}>
-              Monte Carlo &middot; WH40K 10e
-            </span>
+          <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', gap: '16px' }}>
+            <div style={{ display: 'flex', alignItems: 'baseline', gap: '16px' }}>
+              <h1 style={{
+                fontFamily: 'Space Mono, monospace', fontWeight: 700,
+                fontSize: 'clamp(18px, 2vw, 26px)', letterSpacing: '0.05em',
+                textTransform: 'uppercase', lineHeight: 1, color: TEXT,
+              }}>
+                Probability Simulator
+              </h1>
+              <span style={{
+                fontFamily: 'Space Mono, monospace', fontSize: '10px',
+                letterSpacing: '2px', textTransform: 'uppercase', color: TEXT_WEAK,
+              }}>
+                Monte Carlo &middot; WH40K 10e
+              </span>
+            </div>
+            <button
+              onClick={resetAll}
+              onMouseEnter={() => setResetHover(true)}
+              onMouseLeave={() => setResetHover(false)}
+              title="Reset all — start a new simulation from scratch"
+              style={{
+                background: resetHover ? 'rgba(255,92,122,0.1)' : 'transparent',
+                border: `1px solid ${resetHover ? ERROR : BORDER}`,
+                color: resetHover ? ERROR : TEXT_OFF,
+                fontFamily: 'Space Mono, monospace', fontSize: '8.5px',
+                letterSpacing: '2px', textTransform: 'uppercase',
+                padding: '6px 14px', cursor: 'pointer',
+                display: 'flex', alignItems: 'center', gap: '7px',
+                transition: 'border-color 120ms, color 120ms, background 120ms',
+              }}
+            >
+              <svg width="11" height="11" viewBox="0 0 11 11" fill="none" style={{ flexShrink: 0 }}>
+                <path d="M9.5 2A5 5 0 1 0 10 5.5" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round"/>
+                <polyline points="7.5,0.5 9.5,2 8,3.8" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+              Reset
+            </button>
           </div>
         </div>
         <Separator />
