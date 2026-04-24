@@ -3,6 +3,7 @@ import { useDataStore }  from '../store/dataStore'
 import { useArmyStore }  from '../store/armyStore'
 import { useAuthStore }  from '../store/authStore'
 import { ACCENT, BG, SURFACE, BORDER, TEXT, TEXT_SEC, TEXT_WEAK } from '../theme'
+import { AbilityText } from '../components/AbilityText'
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
@@ -20,79 +21,6 @@ const ALLIANCE_META = {
   Xenos:    { color: '#2FE0FF' },
 }
 
-// ── Alliance SVG icons ────────────────────────────────────────────────────────
-
-function ImperiumIcon({ color, size = 28 }) {
-  const c = size / 2
-  const cw = size * 0.08   // half-width at center
-  const tw = size * 0.135  // half-width at tip (flared)
-  const ext = size * 0.41  // arm length from center
-  const arms = [
-    `M${c - cw},${c} L${c - tw},${c - ext} L${c + tw},${c - ext} L${c + cw},${c} Z`,
-    `M${c - cw},${c} L${c - tw},${c + ext} L${c + tw},${c + ext} L${c + cw},${c} Z`,
-    `M${c},${c - cw} L${c - ext},${c - tw} L${c - ext},${c + tw} L${c},${c + cw} Z`,
-    `M${c},${c - cw} L${c + ext},${c - tw} L${c + ext},${c + tw} L${c},${c + cw} Z`,
-  ]
-  return (
-    <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} fill="none">
-      {arms.map((d, i) => <path key={i} d={d} fill={color} opacity="0.75" />)}
-      <circle cx={c} cy={c} r={size * 0.09} fill={color} opacity="0.9"/>
-    </svg>
-  )
-}
-
-function ChaosIcon({ color, size = 28 }) {
-  const c = size / 2
-  const r = size * 0.4
-  const ar = size * 0.13
-  const arA = 22 * Math.PI / 180
-  const lines = Array.from({ length: 8 }, (_, i) => {
-    const a = (i * 45 - 90) * Math.PI / 180
-    const x2 = c + r * Math.cos(a), y2 = c + r * Math.sin(a)
-    return {
-      x2, y2,
-      ax1: x2 + ar * Math.cos(a + Math.PI + arA),
-      ay1: y2 + ar * Math.sin(a + Math.PI + arA),
-      ax2: x2 + ar * Math.cos(a + Math.PI - arA),
-      ay2: y2 + ar * Math.sin(a + Math.PI - arA),
-    }
-  })
-  return (
-    <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} fill="none">
-      {lines.map(({ x2, y2, ax1, ay1, ax2, ay2 }, i) => (
-        <g key={i}>
-          <line x1={c} y1={c} x2={x2} y2={y2} stroke={color} strokeWidth="1.3"/>
-          <polyline points={`${ax1},${ay1} ${x2},${y2} ${ax2},${ay2}`}
-            stroke={color} strokeWidth="1.3" fill="none" strokeLinecap="round"/>
-        </g>
-      ))}
-      <circle cx={c} cy={c} r="2" fill={color}/>
-    </svg>
-  )
-}
-
-function XenosIcon({ color, size = 28 }) {
-  const c = size / 2
-  const r = size * 0.41
-  const hexPts = Array.from({ length: 6 }, (_, i) => {
-    const a = (i * 60 - 90) * Math.PI / 180
-    return `${c + r * Math.cos(a)},${c + r * Math.sin(a)}`
-  }).join(' ')
-  return (
-    <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} fill="none">
-      <polygon points={hexPts} stroke={color} strokeWidth="1.2" fill="none" opacity="0.55"/>
-      <ellipse cx={c} cy={c} rx={size * 0.1} ry={size * 0.2}
-        stroke={color} strokeWidth="1.2" fill="none" opacity="0.85"/>
-      <circle cx={c} cy={c} r="2.2" fill={color} opacity="0.9"/>
-    </svg>
-  )
-}
-
-function AllianceIcon({ alliance, color, size }) {
-  if (alliance === 'Imperium') return <ImperiumIcon color={color} size={size}/>
-  if (alliance === 'Chaos')    return <ChaosIcon color={color} size={size}/>
-  return <XenosIcon color={color} size={size}/>
-}
 
 function isLibraryFaction(name) {
   return name.includes('Library') || name.includes('Legends')
@@ -250,12 +178,10 @@ function AlliancePills({ active, onChange }) {
               letterSpacing: '2px', textTransform: 'uppercase',
               padding: '6px 14px', cursor: 'pointer', borderRadius: 0,
               transition: 'all 100ms',
-              display: 'flex', alignItems: 'center', gap: '7px',
             }}
             onMouseEnter={(e) => { if (!isActive) { e.currentTarget.style.borderColor = color; e.currentTarget.style.color = color } }}
             onMouseLeave={(e) => { if (!isActive) { e.currentTarget.style.borderColor = BORDER; e.currentTarget.style.color = TEXT_WEAK } }}
           >
-            {key && <AllianceIcon alliance={key} color={isActive ? BG : color} size={11}/>}
             {label}
           </button>
         )
@@ -409,21 +335,14 @@ function FactionsView({ onSelectFaction }) {
   )
 }
 
-function AllianceHeader({ alliance, count, collapsed, onToggle }) {
+function AllianceHeader({ alliance, factionCount, unitCount, collapsed, onToggle }) {
   const { color } = ALLIANCE_META[alliance]
   return (
     <div
       onClick={onToggle}
-      style={{
-        marginBottom: collapsed ? '0' : '28px',
-        cursor: 'pointer',
-        userSelect: 'none',
-      }}
+      style={{ marginBottom: collapsed ? '0' : '28px', cursor: 'pointer', userSelect: 'none' }}
     >
-      <div style={{
-        display: 'flex', alignItems: 'center', gap: '14px', marginBottom: '12px',
-      }}>
-        <AllianceIcon alliance={alliance} color={color} size={26}/>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '14px', marginBottom: '12px' }}>
         <span style={{
           fontFamily: 'Space Mono, monospace',
           fontSize: 'clamp(15px, 1.6vw, 21px)',
@@ -432,27 +351,37 @@ function AllianceHeader({ alliance, count, collapsed, onToggle }) {
         }}>
           {alliance}
         </span>
-        <span style={{
-          fontFamily: 'Space Mono, monospace', fontSize: '9px',
-          letterSpacing: '2px', textTransform: 'uppercase', color: TEXT_WEAK,
-          marginLeft: 'auto',
-        }}>
-          {count} faction{count !== 1 ? 's' : ''}
-        </span>
+        <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: '16px' }}>
+          <span style={{
+            fontFamily: 'Space Mono, monospace', fontSize: '9px',
+            letterSpacing: '2px', textTransform: 'uppercase', color: TEXT_WEAK,
+          }}>
+            {factionCount} faction{factionCount !== 1 ? 's' : ''}
+          </span>
+          <span style={{
+            fontFamily: 'Space Mono, monospace', fontSize: '9px',
+            letterSpacing: '2px', textTransform: 'uppercase', color: TEXT_WEAK,
+            opacity: 0.6,
+          }}>
+            ·
+          </span>
+          <span style={{
+            fontFamily: 'Space Mono, monospace', fontSize: '9px',
+            letterSpacing: '2px', textTransform: 'uppercase', color: TEXT_WEAK,
+          }}>
+            {unitCount} unit{unitCount !== 1 ? 's' : ''}
+          </span>
+        </div>
         <span style={{
           fontFamily: 'Space Mono, monospace', fontSize: '10px',
-          color: TEXT_WEAK, opacity: 0.5, marginLeft: '4px',
-          transition: 'transform 150ms',
-          display: 'inline-block',
+          color: TEXT_WEAK, opacity: 0.5,
+          transition: 'transform 150ms', display: 'inline-block',
           transform: collapsed ? 'rotate(-90deg)' : 'none',
         }}>
           ▾
         </span>
       </div>
-      <div style={{
-        height: '1px',
-        background: `linear-gradient(to right, ${color}55, ${BORDER} 55%)`,
-      }}/>
+      <div style={{ height: '1px', background: `linear-gradient(to right, ${color}55, ${BORDER} 55%)` }}/>
     </div>
   )
 }
@@ -521,6 +450,9 @@ function FactionChip({ name, count, label, onClick, allianceColor, dense }) {
   )
 }
 
+const CHIP_GRID = 'repeat(auto-fill, minmax(200px, 1fr))'
+const CHIP_GRID_DENSE = 'repeat(auto-fill, minmax(160px, 1fr))'
+
 // Flat alliance (Imperium / Chaos): one group key = all factions as chips
 // Xenos: mix of sub-groups (Aeldari) + standalone factions
 function AllianceSection({ alliance, groups, onSelect, dense }) {
@@ -530,18 +462,24 @@ function AllianceSection({ alliance, groups, onSelect, dense }) {
   const groupKeys = Object.keys(groups)
   if (groupKeys.length === 0) return null
 
+  // Compute total unit count across all factions in this alliance
+  const allFactions = Object.values(groups).flat()
+  const totalUnits = allFactions.reduce((sum, sf) => sum + sf.count, 0)
+
   const isFlat = groupKeys.length === 1 && groupKeys[0] === alliance
+
+  const grid = dense ? CHIP_GRID_DENSE : CHIP_GRID
 
   if (isFlat) {
     const chips = [...groups[alliance]].sort((a, b) => a.label.localeCompare(b.label))
     return (
       <div>
         <AllianceHeader
-          alliance={alliance} count={chips.length}
+          alliance={alliance} factionCount={chips.length} unitCount={totalUnits}
           collapsed={collapsed} onToggle={() => setCollapsed((v) => !v)}
         />
         {!collapsed && (
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: dense ? '6px' : '10px' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: grid, gap: dense ? '6px' : '10px' }}>
             {chips.map((sf) => (
               <FactionChip key={sf.name} {...sf} allianceColor={allianceColor} dense={dense}
                 onClick={() => onSelect(sf.name)} />
@@ -567,7 +505,7 @@ function AllianceSection({ alliance, groups, onSelect, dense }) {
   return (
     <div>
       <AllianceHeader
-        alliance={alliance} count={totalCount}
+        alliance={alliance} factionCount={totalCount} unitCount={totalUnits}
         collapsed={collapsed} onToggle={() => setCollapsed((v) => !v)}
       />
       {!collapsed && (
@@ -575,7 +513,7 @@ function AllianceSection({ alliance, groups, onSelect, dense }) {
           {subGroups.map(([group, subs]) => (
             <div key={group}>
               <SubGroupLabel>{group}</SubGroupLabel>
-              <div style={{ display: 'flex', flexWrap: 'wrap', gap: dense ? '6px' : '10px' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: grid, gap: dense ? '6px' : '10px' }}>
                 {subs.map((sf) => (
                   <FactionChip key={sf.name} {...sf} allianceColor={allianceColor} dense={dense}
                     onClick={() => onSelect(sf.name)} />
@@ -583,12 +521,14 @@ function AllianceSection({ alliance, groups, onSelect, dense }) {
               </div>
             </div>
           ))}
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: dense ? '6px' : '10px' }}>
-            {standalone.map((sf) => (
-              <FactionChip key={sf.name} {...sf} allianceColor={allianceColor} dense={dense}
-                onClick={() => onSelect(sf.name)} />
-            ))}
-          </div>
+          {standalone.length > 0 && (
+            <div style={{ display: 'grid', gridTemplateColumns: grid, gap: dense ? '6px' : '10px' }}>
+              {standalone.map((sf) => (
+                <FactionChip key={sf.name} {...sf} allianceColor={allianceColor} dense={dense}
+                  onClick={() => onSelect(sf.name)} />
+              ))}
+            </div>
+          )}
         </div>
       )}
     </div>
@@ -1087,7 +1027,7 @@ function UnitDetailView({ unit, onBack, factionLabel }) {
                   </div>
                   {ab.desc && (
                     <p style={{ fontFamily: 'Georgia, serif', fontSize: '14px', lineHeight: 1.7, color: TEXT_SEC, margin: 0 }}>
-                      {ab.desc}
+                      <AbilityText text={ab.desc} />
                     </p>
                   )}
                 </div>

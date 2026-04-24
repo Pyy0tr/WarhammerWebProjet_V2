@@ -187,18 +187,25 @@ function KeywordPicker() {
 function ArmyPicker() {
   const armies      = useArmyStore((s) => s.armies)
   const weaponsById = useDataStore((s) => s.weaponsById)
+  const getUnitById = useDataStore((s) => s.getUnitById)
   const user        = useAuthStore((s) => s.user)
   const init        = useArmyStore((s) => s.init)
   const setWeapon   = useSimulatorStore((s) => s.setWeapon)
   const setAttacker = useSimulatorStore((s) => s.setAttacker)
+  const setAttackerUnit = useSimulatorStore((s) => s.setAttackerUnit)
   const weapon      = useSimulatorStore((s) => s.attacker.weapon)
 
-  useState(() => { init(user) })
+  useEffect(() => { init(user) }, [])  // eslint-disable-line
 
-  const [armyId,   setArmyId]   = useState(armies[0]?.id ?? '')
+  const [armyId,   setArmyId]   = useState('')
   const [unitUid,  setUnitUid]  = useState('')
   const [weaponId, setWeaponId] = useState('')
   const [firing,   setFiring]   = useState(1)
+
+  // Once armies load, auto-select the first one if nothing is selected yet
+  useEffect(() => {
+    if (!armyId && armies.length > 0) setArmyId(armies[0].id)
+  }, [armies])  // eslint-disable-line
 
   const army    = armies.find((a) => a.id === armyId) ?? null
   const unit    = army?.units.find((u) => u.uid === unitUid) ?? null
@@ -229,6 +236,10 @@ function ArmyPicker() {
     setWeaponId('')
     const u = army?.units.find((x) => x.uid === uid)
     setFiring(u?.models ?? 1)
+    if (u) {
+      const fullUnit = getUnitById(u.unit_id)
+      setAttackerUnit(fullUnit || u)
+    }
   }
   const handleWeaponChange = (id) => setWeaponId(id)
 
@@ -435,9 +446,10 @@ export function AttackerPanel() {
     }
   }
 
-  const [drawerOpen, setDrawerOpen]       = useState(false)
-  const [selectedUnit, setSelectedUnit]   = useState(null)
-  const [mode, setMode]                   = useState('browse')
+  const selectedUnit    = useSimulatorStore((s) => s.attackerUnit)
+  const setSelectedUnit = useSimulatorStore((s) => s.setAttackerUnit)
+  const [drawerOpen, setDrawerOpen] = useState(false)
+  const [mode, setMode]             = useState('browse')
 
   function applyWeapon(w) {
     setWeapon({
@@ -671,7 +683,7 @@ export function AttackerPanel() {
       )}
       </>)}
 
-      <div style={{ marginTop: '24px', paddingTop: '20px', borderTop: `1px solid ${BORDER}` }}>
+      {hasWeapon && <div style={{ marginTop: '24px', paddingTop: '20px', borderTop: `1px solid ${BORDER}` }}>
         <div style={{
           fontFamily: 'Space Mono, monospace', fontSize: '8px',
           letterSpacing: '2px', textTransform: 'uppercase', color: TEXT_WEAK,
@@ -708,7 +720,7 @@ export function AttackerPanel() {
             )
           })}
         </div>
-      </div>
+      </div>}
     </section>
 
     <UnitDrawer

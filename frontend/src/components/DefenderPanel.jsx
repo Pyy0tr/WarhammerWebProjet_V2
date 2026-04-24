@@ -15,12 +15,19 @@ function DefenderArmyPicker() {
   const user        = useAuthStore((s) => s.user)
   const init        = useArmyStore((s) => s.init)
   const setDefender = useSimulatorStore((s) => s.setDefender)
+  const setDefenderUnit = useSimulatorStore((s) => s.setDefenderUnit)
   const defender    = useSimulatorStore((s) => s.defender)
+  const getUnitById = useDataStore((s) => s.getUnitById)
 
-  useState(() => { init(user) })
+  useEffect(() => { init(user) }, [])  // eslint-disable-line
 
-  const [armyId, setArmyId]   = useState(armies[0]?.id ?? '')
+  const [armyId, setArmyId]   = useState('')
   const [unitUid, setUnitUid] = useState('')
+
+  // Once armies load, auto-select the first one if nothing is selected yet
+  useEffect(() => {
+    if (!armyId && armies.length > 0) setArmyId(armies[0].id)
+  }, [armies])  // eslint-disable-line
 
   const army = armies.find((a) => a.id === armyId) ?? null
   const unit = army?.units.find((u) => u.uid === unitUid) ?? null
@@ -36,8 +43,10 @@ function DefenderArmyPicker() {
         fnp:       null,
         keywords:  unit.kw ?? [],
       })
+      const fullUnit = getUnitById(unit.unit_id)
+      setDefenderUnit(fullUnit || unit)
     }
-  }, [unit, setDefender]) // eslint-disable-line
+  }, [unit, setDefender, setDefenderUnit, getUnitById]) // eslint-disable-line
 
   const handleArmyChange = (id) => { setArmyId(id); setUnitUid('') }
   const handleUnitChange = (uid) => setUnitUid(uid)
@@ -156,9 +165,10 @@ export function DefenderPanel() {
   const setDefender = useSimulatorStore((s) => s.setDefender)
   const setContext  = useSimulatorStore((s) => s.setContext)
 
-  const [drawerOpen, setDrawerOpen]     = useState(false)
-  const [selectedUnit, setSelectedUnit] = useState(null)
-  const [mode, setMode]                 = useState('browse')
+  const selectedUnit    = useSimulatorStore((s) => s.defenderUnit)
+  const setSelectedUnit = useSimulatorStore((s) => s.setDefenderUnit)
+  const [drawerOpen, setDrawerOpen] = useState(false)
+  const [mode, setMode]             = useState('browse')
 
   function applyUnit(u) {
     setSelectedUnit(u)

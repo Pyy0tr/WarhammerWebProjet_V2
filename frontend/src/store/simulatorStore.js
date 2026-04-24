@@ -56,6 +56,12 @@ export const useSimulatorStore = create((set) => ({
   context: { ...defaultContext },
   n_trials: 1000,
 
+  // Selected units (for ability panels)
+  attackerUnit: null,
+  defenderUnit: null,
+  setAttackerUnit: (unit) => set({ attackerUnit: unit }),
+  setDefenderUnit: (unit) => set({ defenderUnit: unit }),
+
   // Hovered keyword (for definition panel)
   hoveredKeyword: null,
   setHoveredKeyword: (kw) => set({ hoveredKeyword: kw }),

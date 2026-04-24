@@ -91,7 +91,7 @@ def slim_unit(u: dict, id_aliases: dict[str, str]) -> dict:
     # Keywords — strip BSData internal "Faction:" prefixes for the UI
     useful_kw = [k for k in u.get("keywords", []) if not k.startswith("Faction:")]
 
-    # Abilities — name + truncated description (enough to understand the rule)
+    # Abilities — name + description, markup preserved for frontend highlighting
     abilities = []
     for ab in (u.get("abilities", []) or [])[:10]:
         name = ab.get("name", "").strip()

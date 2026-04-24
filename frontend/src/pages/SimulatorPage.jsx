@@ -3,6 +3,7 @@ import { useSimulatorStore } from '../store/simulatorStore'
 import { AttackerPanel } from '../components/AttackerPanel'
 import { DefenderPanel } from '../components/DefenderPanel'
 import { ResultsPanel } from '../components/ResultsPanel'
+import { AbilityText } from '../components/AbilityText'
 import { ACCENT, ACCENT_H, BG, SURFACE, SURFACE_E, BORDER, TEXT, TEXT_SEC, TEXT_WEAK, TEXT_OFF, ERROR } from '../theme'
 
 // ── Step indicator ───────────────────────────────────────────────────────────
@@ -586,6 +587,174 @@ function KeywordDefinitionPanel() {
   )
 }
 
+// ── Unit abilities panel (right side) ────────────────────────────────────────
+
+const ABILITIES_PANEL_STYLE_ID = 'abilities-panel-keyframes'
+
+function injectAbilitiesStyles() {
+  if (document.getElementById(ABILITIES_PANEL_STYLE_ID)) return
+  const style = document.createElement('style')
+  style.id = ABILITIES_PANEL_STYLE_ID
+  style.textContent = `
+    @keyframes abilityCardIn {
+      from { opacity: 0; transform: translateX(10px); }
+      to   { opacity: 1; transform: translateX(0); }
+    }
+    @keyframes headerScan {
+      0%   { letter-spacing: 4px; opacity: 0; }
+      60%  { letter-spacing: 1px; opacity: 1; }
+      100% { letter-spacing: 1px; opacity: 1; }
+    }
+    @keyframes dividerGrow {
+      from { transform: scaleX(0); transform-origin: left; }
+      to   { transform: scaleX(1); transform-origin: left; }
+    }
+    .abilities-scrollbar::-webkit-scrollbar { width: 4px; }
+    .abilities-scrollbar::-webkit-scrollbar-track { background: transparent; }
+    .abilities-scrollbar::-webkit-scrollbar-thumb { background: ${ACCENT}33; border-radius: 2px; }
+    .abilities-scrollbar::-webkit-scrollbar-thumb:hover { background: ${ACCENT}66; }
+    .ability-card {
+      padding: 10px 12px;
+      background: rgba(47,224,255,0.03);
+      border-left: 2px solid ${ACCENT}44;
+      transition: background 150ms ease, border-left-color 150ms ease, border-left-width 150ms ease;
+      cursor: default;
+    }
+    .ability-card:hover {
+      background: rgba(47,224,255,0.07);
+      border-left-color: ${ACCENT}99;
+      border-left-width: 3px;
+    }
+  `
+  document.head.appendChild(style)
+}
+
+function UnitAbilitiesPanel({ role }) {
+  const unit = useSimulatorStore((s) =>
+    role === 'attacker' ? s.attackerUnit : s.defenderUnit
+  )
+
+  const abilities = unit?.abilities ?? []
+  const hasAbilities = abilities.length > 0
+
+  // Track unit identity to re-trigger card animations on unit change
+  const [animKey, setAnimKey] = useState(0)
+  const prevUnitId = useRef(null)
+
+  useEffect(() => {
+    injectAbilitiesStyles()
+  }, [])
+
+  useEffect(() => {
+    const newId = unit?.id ?? null
+    if (newId !== prevUnitId.current) {
+      prevUnitId.current = newId
+      if (newId) setAnimKey(k => k + 1)
+    }
+  }, [unit?.id])
+
+  return (
+    <div style={{
+      position: 'fixed',
+      left: 'calc(50% + 280px + 24px)',
+      right: '48px',
+      top: '50%',
+      transform: 'translateY(-50%)',
+      pointerEvents: hasAbilities ? 'auto' : 'none',
+      zIndex: 10,
+    }}>
+      <div style={{
+        width: '100%',
+        opacity: hasAbilities ? 1 : 0,
+        transform: hasAbilities ? 'translateX(0)' : 'translateX(16px)',
+        transition: 'opacity 300ms ease, transform 300ms ease',
+      }}>
+        {hasAbilities && (
+          <div
+            className="abilities-scrollbar"
+            style={{
+              border: `1px solid ${BORDER}`,
+              background: SURFACE,
+              padding: '18px',
+              maxHeight: 'calc(100vh - 160px)',
+              overflowY: 'auto',
+            }}
+          >
+            {/* Header */}
+            <div style={{
+              fontFamily: 'Space Mono, monospace', fontSize: '7px',
+              letterSpacing: '2.5px', textTransform: 'uppercase',
+              color: TEXT_OFF, marginBottom: '6px',
+            }}>
+              {role === 'attacker' ? 'Attacker' : 'Defender'} unit
+            </div>
+            <div
+              key={`name-${animKey}`}
+              style={{
+                fontFamily: 'Space Mono, monospace', fontSize: '13px',
+                fontWeight: 700, textTransform: 'uppercase',
+                color: ACCENT, marginBottom: '14px', lineHeight: 1.2,
+                animation: 'headerScan 400ms ease forwards',
+              }}
+            >
+              {unit.name}
+            </div>
+            <div
+              key={`divider-${animKey}`}
+              style={{
+                height: '1px',
+                background: `linear-gradient(to right, ${ACCENT}44, ${BORDER})`,
+                marginBottom: '14px',
+                animation: 'dividerGrow 350ms ease forwards',
+              }}
+            />
+
+            {/* Abilities count */}
+            <div style={{
+              fontFamily: 'Space Mono, monospace', fontSize: '7px',
+              letterSpacing: '2px', textTransform: 'uppercase',
+              color: TEXT_WEAK, marginBottom: '12px',
+            }}>
+              {abilities.length} abilit{abilities.length !== 1 ? 'ies' : 'y'}
+            </div>
+
+            {/* Ability cards */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+              {abilities.map((ab, i) => (
+                <div
+                  key={`${animKey}-${i}`}
+                  className="ability-card"
+                  style={{
+                    animation: `abilityCardIn 280ms ease forwards`,
+                    animationDelay: `${i * 40}ms`,
+                    opacity: 0,
+                  }}
+                >
+                  <div style={{
+                    fontFamily: 'Space Mono, monospace', fontSize: '10px',
+                    fontWeight: 700, letterSpacing: '0.5px', textTransform: 'uppercase',
+                    color: TEXT, marginBottom: '6px',
+                  }}>
+                    {ab.name}
+                  </div>
+                  {ab.desc && (
+                    <p style={{
+                      fontFamily: 'Georgia, serif', fontSize: '11px',
+                      lineHeight: 1.65, color: TEXT_SEC, margin: 0,
+                    }}>
+                      <AbilityText text={ab.desc} />
+                    </p>
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  )
+}
+
 // ── Step 1: Attack wrapper ───────────────────────────────────────────────────
 
 function AttackStep() {
@@ -685,8 +854,10 @@ export function SimulatorPage() {
 
       <section ref={contentRef} style={{ padding: '36px 48px 80px', minHeight: 'calc(100vh - 200px)', position: 'relative' }}>
         {step === 1 && <KeywordDefinitionPanel />}
+        {step === 1 && <UnitAbilitiesPanel role="attacker" />}
         {step === 1 && <AttackStep />}
         {step === 2 && <ReviewStep />}
+        {step === 3 && <UnitAbilitiesPanel role="defender" />}
         {step === 3 && <DefenderStep />}
         {step === 4 && <ResultsStep />}
       </section>
