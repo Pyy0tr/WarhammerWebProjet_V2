@@ -13,17 +13,15 @@ const KW_GROUPS = [
   {
     label: 'Hit phase',
     keys: [
-      { type: 'TORRENT',          label: 'Torrent',         tip: 'Auto-hit, no roll needed' },
-      { type: 'CRITICAL_HIT_ON', label: 'Crit Hit On X+', tip: 'Critical hits trigger on X+ instead of 6+', valued: true, default: '5' },
-      { type: 'LETHAL_HITS',    label: 'Lethal Hits',     tip: 'Critical hit → auto-wound' },
-      { type: 'SUSTAINED_HITS', label: 'Sustained Hits',  tip: 'Crit → X extra hit rolls', valued: true, default: '1' },
-      { type: 'TWIN_LINKED',    label: 'Twin-linked',     tip: 'Re-roll all wound rolls' },
-      { type: 'HEAVY',          label: 'Heavy',           tip: '+1 to hit if attacker didn\'t move' },
-      { type: 'ASSAULT',        label: 'Assault',         tip: 'No penalty for advancing' },
-      { type: 'RAPID_FIRE',     label: 'Rapid Fire',      tip: '+X attacks at half range', valued: true, default: '1' },
-      { type: 'EXTRA_ATTACKS',  label: 'Extra Attacks',   tip: '+X attacks per model', valued: true, default: '1' },
-      { type: 'INDIRECT_FIRE',  label: 'Indirect Fire',   tip: '-1 to hit if target not visible' },
-      { type: 'PISTOL',         label: 'Pistol',          tip: 'Can shoot in engagement range' },
+      { type: 'TORRENT',        label: 'Torrent',        tip: 'Auto-hit, no roll needed' },
+      { type: 'LETHAL_HITS',    label: 'Lethal Hits',    tip: 'Critical hit → auto-wound' },
+      { type: 'SUSTAINED_HITS', label: 'Sustained Hits', tip: 'Crit → X extra hit rolls', valued: true, default: '1' },
+      { type: 'TWIN_LINKED',    label: 'Twin-linked',    tip: 'Re-roll all wound rolls' },
+      { type: 'HEAVY',          label: 'Heavy',          tip: '+1 to hit if attacker didn\'t move' },
+      { type: 'ASSAULT',        label: 'Assault',        tip: 'No penalty for advancing' },
+      { type: 'RAPID_FIRE',     label: 'Rapid Fire',     tip: '+X attacks at half range', valued: true, default: '1' },
+      { type: 'INDIRECT_FIRE',  label: 'Indirect Fire',  tip: '-1 to hit if target not visible' },
+      { type: 'PISTOL',         label: 'Pistol',         tip: 'Can shoot in engagement range' },
     ],
   },
   {
@@ -38,11 +36,10 @@ const KW_GROUPS = [
   {
     label: 'Other',
     keys: [
-      { type: 'BLAST',         label: 'Blast',          tip: '+1 attack per 5 defender models' },
-      { type: 'IGNORES_COVER', label: 'Ignores Cover',  tip: 'Cover bonus negated' },
-      { type: 'PRECISION',     label: 'Precision',      tip: 'Can allocate to character' },
-      { type: 'HAZARDOUS',     label: 'Hazardous',      tip: 'Risk to own models' },
-      { type: 'PSYCHIC',       label: 'Psychic',        tip: 'Psychic weapon' },
+      { type: 'BLAST',     label: 'Blast',     tip: '+1 attack per 5 defender models' },
+      { type: 'PRECISION', label: 'Precision', tip: 'Can allocate to character' },
+      { type: 'HAZARDOUS', label: 'Hazardous', tip: 'Risk to own models' },
+      { type: 'PSYCHIC',   label: 'Psychic',   tip: 'Psychic weapon' },
     ],
   },
 ]
@@ -425,6 +422,145 @@ function ArmyPicker() {
   )
 }
 
+// ── Attacker abilities (4 phases) ────────────────────────────────────────────
+
+const PHASE_LABEL = {
+  fontFamily: 'Space Mono, monospace', fontSize: '7.5px',
+  letterSpacing: '2px', textTransform: 'uppercase',
+  color: TEXT_OFF, marginBottom: '8px',
+}
+
+function AbilityBtn({ active, onClick, children }) {
+  return (
+    <button
+      onClick={onClick}
+      style={{
+        background: active ? 'rgba(47,224,255,0.15)' : SURFACE,
+        border: `1px solid ${active ? ACCENT : BORDER}`,
+        color: active ? TEXT : TEXT_SEC,
+        fontFamily: 'Space Mono, monospace', fontSize: '8.5px',
+        letterSpacing: '1px', textTransform: 'uppercase',
+        padding: '5px 10px', cursor: 'pointer',
+        transition: 'border-color 80ms, color 80ms, background 80ms',
+      }}
+      onMouseEnter={(e) => { if (!active) { e.currentTarget.style.borderColor = ACCENT; e.currentTarget.style.color = TEXT } }}
+      onMouseLeave={(e) => { if (!active) { e.currentTarget.style.borderColor = BORDER; e.currentTarget.style.color = TEXT_SEC } }}
+    >
+      {active ? `✓ ${children}` : children}
+    </button>
+  )
+}
+
+function AbilitiesSection({ buffs, toggleBuff, hasBuff, keywords, setWeapon }) {
+  const [critDraft,  setCritDraft]  = useState('5')
+  const [extraDraft, setExtraDraft] = useState('1')
+
+  const getKw = (type) => keywords.find((k) => k.type === type) ?? null
+
+  function toggleKw(type, valued, draft) {
+    const active = getKw(type)
+    if (active) {
+      setWeapon({ keywords: keywords.filter((k) => k.type !== type) })
+    } else {
+      setWeapon({ keywords: [...keywords, valued ? { type, value: draft } : { type }] })
+    }
+  }
+
+  function updateKwValue(type, val) {
+    setWeapon({ keywords: keywords.map((k) => k.type === type ? { ...k, value: val } : k) })
+  }
+
+  const activeCrit  = getKw('CRITICAL_HIT_ON')
+  const activeExtra = getKw('EXTRA_ATTACKS')
+  const activeCover = getKw('IGNORES_COVER')
+
+  const phases = [
+    {
+      label: 'Attacks',
+      content: (
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', alignItems: 'center' }}>
+          <AbilityBtn active={!!activeExtra} onClick={() => toggleKw('EXTRA_ATTACKS', true, extraDraft)}>
+            Extra Attacks{activeExtra ? ` +${activeExtra.value}` : ''}
+          </AbilityBtn>
+          {activeExtra && (
+            <input type="text" value={activeExtra.value}
+              onChange={(e) => { setExtraDraft(e.target.value); updateKwValue('EXTRA_ATTACKS', e.target.value) }}
+              onClick={(e) => e.stopPropagation()}
+              style={{ width: '36px', background: SURFACE, border: `1px solid ${ACCENT}`, color: TEXT, fontFamily: 'Space Mono, monospace', fontSize: '10px', padding: '4px 6px', outline: 'none', textAlign: 'center' }}
+            />
+          )}
+        </div>
+      ),
+    },
+    {
+      label: 'Hit',
+      content: (
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', alignItems: 'center' }}>
+          <AbilityBtn active={hasBuff('REROLL_HITS', 'ones')} onClick={() => toggleBuff('REROLL_HITS', 'ones')}>
+            Reroll hit 1s
+          </AbilityBtn>
+          <AbilityBtn active={hasBuff('REROLL_HITS', 'all')} onClick={() => toggleBuff('REROLL_HITS', 'all')}>
+            Reroll failed hits
+          </AbilityBtn>
+          <AbilityBtn active={!!activeCrit} onClick={() => toggleKw('CRITICAL_HIT_ON', true, critDraft)}>
+            Crit Hit On{activeCrit ? ` ${activeCrit.value}+` : ' X+'}
+          </AbilityBtn>
+          {activeCrit && (
+            <input type="text" value={activeCrit.value}
+              onChange={(e) => { setCritDraft(e.target.value); updateKwValue('CRITICAL_HIT_ON', e.target.value) }}
+              onClick={(e) => e.stopPropagation()}
+              style={{ width: '36px', background: SURFACE, border: `1px solid ${ACCENT}`, color: TEXT, fontFamily: 'Space Mono, monospace', fontSize: '10px', padding: '4px 6px', outline: 'none', textAlign: 'center' }}
+            />
+          )}
+        </div>
+      ),
+    },
+    {
+      label: 'Wound',
+      content: (
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
+          <AbilityBtn active={hasBuff('REROLL_WOUNDS', 'ones')} onClick={() => toggleBuff('REROLL_WOUNDS', 'ones')}>
+            Reroll wound 1s
+          </AbilityBtn>
+          <AbilityBtn active={hasBuff('REROLL_WOUNDS', 'all')} onClick={() => toggleBuff('REROLL_WOUNDS', 'all')}>
+            Reroll failed wounds
+          </AbilityBtn>
+        </div>
+      ),
+    },
+    {
+      label: 'Save',
+      content: (
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
+          <AbilityBtn active={!!activeCover} onClick={() => toggleKw('IGNORES_COVER', false, null)}>
+            Ignores Cover
+          </AbilityBtn>
+        </div>
+      ),
+    },
+  ]
+
+  return (
+    <div style={{ marginTop: '24px', paddingTop: '20px', borderTop: `1px solid ${BORDER}` }}>
+      <div style={{
+        fontFamily: 'Space Mono, monospace', fontSize: '8px',
+        letterSpacing: '2px', textTransform: 'uppercase', color: TEXT_WEAK,
+        marginBottom: '16px',
+      }}>
+        Attacker abilities
+      </div>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+        {phases.map(({ label, content }) => (
+          <div key={label}>
+            <div style={PHASE_LABEL}>{label}</div>
+            {content}
+          </div>
+        ))}
+      </div>
+    </div>
+  )
+}
+
 // ─────────────────────────────────────────────────────────────────────────────
 
 export function AttackerPanel() {
@@ -683,44 +819,10 @@ export function AttackerPanel() {
       )}
       </>)}
 
-      {hasWeapon && <div style={{ marginTop: '24px', paddingTop: '20px', borderTop: `1px solid ${BORDER}` }}>
-        <div style={{
-          fontFamily: 'Space Mono, monospace', fontSize: '8px',
-          letterSpacing: '2px', textTransform: 'uppercase', color: TEXT_WEAK,
-          marginBottom: '12px',
-        }}>
-          Attacker abilities
-        </div>
-        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
-          {[
-            ['REROLL_HITS',   'ones', 'Reroll hit 1s'],
-            ['REROLL_HITS',   'all',  'Reroll failed hits'],
-            ['REROLL_WOUNDS', 'ones', 'Reroll wound 1s'],
-            ['REROLL_WOUNDS', 'all',  'Reroll failed wounds'],
-          ].map(([type, value, label]) => {
-            const active = hasBuff(type, value)
-            return (
-              <button
-                key={`${type}:${value}`}
-                onClick={() => toggleBuff(type, value)}
-                style={{
-                  background: active ? 'rgba(47,224,255,0.15)' : SURFACE,
-                  border: `1px solid ${active ? ACCENT : BORDER}`,
-                  color: active ? TEXT : TEXT_SEC,
-                  fontFamily: 'Space Mono, monospace', fontSize: '8.5px',
-                  letterSpacing: '1px', textTransform: 'uppercase',
-                  padding: '5px 10px', cursor: 'pointer',
-                  transition: 'all 100ms',
-                }}
-                onMouseEnter={(e) => { if (!active) { e.currentTarget.style.borderColor = ACCENT; e.currentTarget.style.color = TEXT } }}
-                onMouseLeave={(e) => { if (!active) { e.currentTarget.style.borderColor = BORDER; e.currentTarget.style.color = TEXT_SEC } }}
-              >
-                {active ? `✓ ${label}` : label}
-              </button>
-            )
-          })}
-        </div>
-      </div>}
+      {hasWeapon && <AbilitiesSection
+        buffs={buffs} toggleBuff={toggleBuff} hasBuff={hasBuff}
+        keywords={weapon.keywords} setWeapon={setWeapon}
+      />}
     </section>
 
     <UnitDrawer

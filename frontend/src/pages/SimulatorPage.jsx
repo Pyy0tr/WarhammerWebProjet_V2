@@ -587,6 +587,251 @@ function KeywordDefinitionPanel() {
   )
 }
 
+// ── Progress tracker (left side) ─────────────────────────────────────────────
+
+const TRACKER_STYLE_ID = 'progress-tracker-keyframes'
+
+function injectTrackerStyles() {
+  if (document.getElementById(TRACKER_STYLE_ID)) return
+  const style = document.createElement('style')
+  style.id = TRACKER_STYLE_ID
+  style.textContent = `
+    @keyframes trackerPulse {
+      0%   { box-shadow: 0 0 0 0 ${ACCENT}55; }
+      70%  { box-shadow: 0 0 0 5px ${ACCENT}00; }
+      100% { box-shadow: 0 0 0 0 ${ACCENT}00; }
+    }
+    @keyframes trackerNodeIn {
+      from { opacity: 0; transform: translateY(8px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .tracker-scrollbar::-webkit-scrollbar { width: 3px; }
+    .tracker-scrollbar::-webkit-scrollbar-track { background: transparent; }
+    .tracker-scrollbar::-webkit-scrollbar-thumb { background: ${ACCENT}22; border-radius: 2px; }
+    .tracker-scrollbar::-webkit-scrollbar-thumb:hover { background: ${ACCENT}44; }
+    .tracker-node-completed:hover .tracker-summary { color: ${ACCENT} !important; }
+  `
+  document.head.appendChild(style)
+}
+
+const TRACKER_NODES = [
+  { id: 1, label: 'Attacker Unit',             hint: 'Browse units or pick from an army',               nav: 1 },
+  { id: 2, label: 'Weapon',                    hint: 'Select your weapon — check the ability panel →',  nav: 1 },
+  { id: 3, label: 'Abilities & Keywords',      hint: 'Review abilities — any rerolls or crit thresholds?', nav: 1 },
+  { id: 4, label: 'Attack Roster',             hint: 'Will you fire more weapons at the same target?',  nav: 2 },
+  { id: 5, label: 'Target',                    hint: 'Choose your defender — review their abilities',   nav: 3 },
+  { id: 6, label: 'Simulate',                  hint: 'Run simulation →',                               nav: 4 },
+]
+
+function ProgressTracker() {
+  const step           = useSimulatorStore((s) => s.step)
+  const setStep        = useSimulatorStore((s) => s.setStep)
+  const attackerUnit   = useSimulatorStore((s) => s.attackerUnit)
+  const weapon         = useSimulatorStore((s) => s.attacker.weapon)
+  const attacks        = useSimulatorStore((s) => s.attacks)
+  const buffs          = useSimulatorStore((s) => s.attacker.buffs)
+  const defender       = useSimulatorStore((s) => s.defender)
+  const result         = useSimulatorStore((s) => s.result)
+  const hoveredKeyword = useSimulatorStore((s) => s.hoveredKeyword)
+
+  const nodeRefs = useRef({})
+
+  useEffect(() => { injectTrackerStyles() }, [])
+
+  const hasUnit   = attackerUnit !== null || weapon.name !== ''
+  const hasWeapon = weapon.name !== ''
+
+  function getStatus(id) {
+    switch (id) {
+      case 1: return hasUnit   ? 'completed' : 'active'
+      case 2:
+        if (!hasUnit)   return 'future'
+        return hasWeapon ? 'completed' : 'active'
+      case 3:
+        if (!hasWeapon) return 'future'
+        return step >= 2 ? 'completed' : 'active'
+      case 4:
+        if (step < 2)   return 'future'
+        return step > 2 ? 'completed' : 'active'
+      case 5:
+        if (step < 3)   return 'future'
+        return step >= 4 ? 'completed' : 'active'
+      case 6:
+        if (step < 3 || attacks.length === 0) return 'future'
+        return result !== null ? 'completed' : 'active'
+      default: return 'future'
+    }
+  }
+
+  function getSummary(id) {
+    switch (id) {
+      case 1: {
+        if (attackerUnit) return `${attackerUnit.name} · T${attackerUnit.T} · Sv${attackerUnit.Sv}+ · W${attackerUnit.W}`
+        return weapon.name || '—'
+      }
+      case 2: {
+        const kwCount = weapon.keywords.length
+        return `${weapon.name}${kwCount > 0 ? ` · ${kwCount} kw` : ''}`
+      }
+      case 3: {
+        const parts = []
+        buffs.forEach((b) => {
+          if (b.type === 'REROLL_HITS')   parts.push(b.value === 'all' ? 'RR hits' : 'RR hit 1s')
+          if (b.type === 'REROLL_WOUNDS') parts.push(b.value === 'all' ? 'RR wounds' : 'RR wound 1s')
+        })
+        const critKw = weapon.keywords.find((k) => k.type === 'CRITICAL_HIT_ON')
+        if (critKw) parts.push(`Crit ${critKw.value}+`)
+        return parts.length > 0 ? parts.join(' · ') : 'No extra abilities'
+      }
+      case 4:
+        return `${attacks.length} attack${attacks.length !== 1 ? 's' : ''} configured`
+      case 5: {
+        const d = defender
+        return `T${d.toughness} · Sv${d.save}+${d.invuln ? ` · ${d.invuln}++` : ''} · W${d.wounds}`
+      }
+      case 6:
+        return 'Done — results below'
+      default: return ''
+    }
+  }
+
+  // Auto-scroll active node into view
+  useEffect(() => {
+    const activeId = TRACKER_NODES.find((n) => getStatus(n.id) === 'active')?.id
+    if (activeId && nodeRefs.current[activeId]) {
+      nodeRefs.current[activeId].scrollIntoView({ behavior: 'smooth', block: 'nearest' })
+    }
+  }, [step, hasUnit, hasWeapon, attacks.length, result]) // eslint-disable-line
+
+  return (
+    <div style={{
+      position: 'fixed',
+      left: '48px',
+      right: 'calc(50% + 280px + 24px)',
+      top: '50%',
+      transform: 'translateY(-50%)',
+      zIndex: 5,
+      opacity: hoveredKeyword ? 0.12 : 1,
+      transition: 'opacity 150ms ease',
+      pointerEvents: hoveredKeyword ? 'none' : 'auto',
+    }}>
+      {/* Header */}
+      <div style={{
+        fontFamily: 'Space Mono, monospace', fontSize: '7px',
+        letterSpacing: '2.5px', textTransform: 'uppercase',
+        color: TEXT_OFF, marginBottom: '18px',
+      }}>
+        Progress
+      </div>
+
+      <div
+        className="tracker-scrollbar"
+        style={{ overflowY: 'auto', maxHeight: 'calc(100vh - 200px)' }}
+      >
+        {TRACKER_NODES.map((node, i) => {
+          const status      = getStatus(node.id)
+          const isCompleted = status === 'completed'
+          const isActive    = status === 'active'
+          const isLast      = i === TRACKER_NODES.length - 1
+
+          return (
+            <div
+              key={node.id}
+              ref={(el) => { nodeRefs.current[node.id] = el }}
+              className={isCompleted ? 'tracker-node-completed' : ''}
+              style={{ display: 'flex', alignItems: 'stretch', gap: '12px' }}
+            >
+              {/* Left column: circle + connecting line */}
+              <div style={{
+                display: 'flex', flexDirection: 'column',
+                alignItems: 'center', width: '12px', flexShrink: 0, paddingTop: '1px',
+              }}>
+                <div style={{
+                  width: '11px', height: '11px', borderRadius: '50%',
+                  border: `1.5px solid ${isActive || isCompleted ? ACCENT : BORDER}`,
+                  background: isCompleted ? ACCENT : 'transparent',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  flexShrink: 0,
+                  animation: isActive ? 'trackerPulse 2s ease-in-out infinite' : 'none',
+                  transition: 'background 300ms, border-color 300ms',
+                }}>
+                  {isCompleted && (
+                    <span style={{ fontSize: '6px', color: BG, fontWeight: 700, lineHeight: 1 }}>✓</span>
+                  )}
+                  {isActive && (
+                    <div style={{ width: '3px', height: '3px', borderRadius: '50%', background: ACCENT }} />
+                  )}
+                </div>
+
+                {!isLast && (
+                  <div style={{
+                    width: '2px', flex: 1, minHeight: '14px',
+                    background: isCompleted ? `${ACCENT}44` : `${BORDER}88`,
+                    marginTop: '3px',
+                    transition: 'background 400ms',
+                  }} />
+                )}
+              </div>
+
+              {/* Right column: label + content */}
+              <div
+                onClick={() => isCompleted && setStep(node.nav)}
+                style={{
+                  flex: 1,
+                  paddingBottom: isLast ? '4px' : '20px',
+                  cursor: isCompleted ? 'pointer' : 'default',
+                }}
+              >
+                <div style={{
+                  fontFamily: 'Space Mono, monospace',
+                  fontSize: '8px',
+                  letterSpacing: '1.5px',
+                  textTransform: 'uppercase',
+                  color: isActive ? ACCENT : isCompleted ? TEXT_SEC : TEXT_OFF,
+                  fontWeight: isActive ? 700 : 400,
+                  lineHeight: 1,
+                  marginBottom: (isActive || isCompleted) ? '6px' : 0,
+                  transition: 'color 300ms',
+                }}>
+                  {node.label}
+                </div>
+
+                {isActive && (
+                  <div style={{
+                    fontFamily: 'Georgia, serif',
+                    fontSize: '11px',
+                    color: TEXT_WEAK,
+                    lineHeight: 1.6,
+                    animation: 'trackerNodeIn 280ms ease forwards',
+                  }}>
+                    {node.hint}
+                  </div>
+                )}
+
+                {isCompleted && (
+                  <div
+                    className="tracker-summary"
+                    style={{
+                      fontFamily: 'Space Mono, monospace',
+                      fontSize: '9px',
+                      color: TEXT_WEAK,
+                      letterSpacing: '0.3px',
+                      lineHeight: 1.5,
+                      transition: 'color 150ms',
+                    }}
+                  >
+                    {getSummary(node.id)}
+                  </div>
+                )}
+              </div>
+            </div>
+          )
+        })}
+      </div>
+    </div>
+  )
+}
+
 // ── Unit abilities panel (right side) ────────────────────────────────────────
 
 const ABILITIES_PANEL_STYLE_ID = 'abilities-panel-keyframes'
@@ -880,6 +1125,7 @@ export function SimulatorPage() {
       <StepBar current={step} onStep={setStep} />
 
       <section ref={contentRef} style={{ padding: '36px 48px 80px', minHeight: 'calc(100vh - 200px)', position: 'relative' }}>
+        {step !== 4 && <ProgressTracker />}
         {step === 1 && <KeywordDefinitionPanel />}
         {step === 1 && <UnitAbilitiesPanel role="attacker" />}
         {step === 1 && <AttackStep />}

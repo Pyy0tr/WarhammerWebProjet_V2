@@ -49,7 +49,7 @@ Alliances : Imperium `#C9A227` · Chaos `#CC3344` · Xenos `#2FE0FF`
 | `src/store/dataStore.js` | Données BSData (units, weapons, factions) + `getUnitById()` |
 | `src/store/armyStore.js` | Armées (localStorage ↔ Supabase) |
 | `src/components/AbilityText.jsx` | Rendu markup BSData (`^^kw^^`, `**kw**`) → ACCENT + bold |
-| `src/pages/SimulatorPage.jsx` | Wizard 4 étapes + KeywordDefinitionPanel + UnitAbilitiesPanel |
+| `src/pages/SimulatorPage.jsx` | Wizard 4 étapes + KeywordDefinitionPanel + UnitAbilitiesPanel + ProgressTracker |
 | `src/pages/FactionsPage.jsx` | Grille factions → unités → détail |
 | `pipeline/build_frontend_data.py` | Génère les JSON slim (abilities non tronquées) |
 
@@ -69,12 +69,22 @@ useEffect(() => {
 }, [])
 ```
 
-### Panels fixes (KeywordDefinitionPanel / UnitAbilitiesPanel)
+### Panels fixes (KeywordDefinitionPanel / UnitAbilitiesPanel / ProgressTracker)
 Positionnement viewport-centré indépendant du scroll :
 ```js
 position: 'fixed', top: '50%', transform: 'translateY(-50%)'
 ```
-Pour remplir l'espace à droite du centre : `left: 'calc(50% + 280px + 24px)', right: '48px'`
+Symétrie gauche/droite autour du centre (560px) :
+- Droite (UnitAbilitiesPanel) : `left: 'calc(50% + 280px + 24px)', right: '48px'`
+- Gauche (ProgressTracker)    : `left: '48px', right: 'calc(50% + 280px + 24px)'`
+- z-index: ProgressTracker=5, KeywordDefinitionPanel=10 (keyword panel passe devant)
+
+### ProgressTracker
+Colonne gauche fixe, style git-log, 6 nœuds : Attacker Unit → Weapon → Abilities & Keywords → Attack Roster → Target → Simulate.
+- Caché au step 4 (Results) pour ne pas superposer les graphes
+- `hoveredKeyword !== null` → `opacity: 0.12` (keyword panel passe devant)
+- Navigation rétroactive : clic nœud complété → `setStep(nav)`
+- Auto-scroll du nœud actif via `ref.scrollIntoView`
 
 ### Markup BSData dans les abilities
 Format dans les JSON : `**^^Keyword^^**` (nested). Toujours utiliser `<AbilityText text={ab.desc} />` pour le rendu.
@@ -90,6 +100,9 @@ useEffect(() => {
 
 ### Données unité complète depuis une armée
 `armyStore` ne stocke qu'un sous-ensemble. Pour les abilities : `dataStore.getUnitById(unit.unit_id)`.
+
+### Nombre de modèles par défaut à l'ajout d'une unité (armyStore.addUnit)
+`min_models ?? 1` — les escouades ont toujours `min_models` renseigné dans les JSON ; les personnages/unités solo ont `min_models: null` et tombent sur le fallback 1.
 
 ---
 
