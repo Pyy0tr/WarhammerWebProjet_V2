@@ -856,19 +856,19 @@ export function SimulatorPage() {
               onMouseLeave={() => setResetHover(false)}
               title="Reset all — start a new simulation from scratch"
               style={{
-                background: resetHover ? 'rgba(255,92,122,0.1)' : 'transparent',
-                border: `1px solid ${resetHover ? ERROR : BORDER}`,
-                color: resetHover ? ERROR : TEXT_OFF,
-                fontFamily: 'Space Mono, monospace', fontSize: '8.5px',
-                letterSpacing: '2px', textTransform: 'uppercase',
-                padding: '6px 14px', cursor: 'pointer',
-                display: 'flex', alignItems: 'center', gap: '7px',
-                transition: 'border-color 120ms, color 120ms, background 120ms',
+                background: resetHover ? ERROR : `${ERROR}22`,
+                border: `1px solid ${ERROR}`,
+                color: resetHover ? BG : ERROR,
+                fontFamily: 'Space Mono, monospace', fontSize: '10px',
+                fontWeight: 700, letterSpacing: '2px', textTransform: 'uppercase',
+                padding: '9px 20px', cursor: 'pointer',
+                display: 'flex', alignItems: 'center', gap: '8px',
+                transition: 'background 120ms, color 120ms',
               }}
             >
-              <svg width="11" height="11" viewBox="0 0 11 11" fill="none" style={{ flexShrink: 0 }}>
-                <path d="M9.5 2A5 5 0 1 0 10 5.5" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round"/>
-                <polyline points="7.5,0.5 9.5,2 8,3.8" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round"/>
+              <svg width="13" height="13" viewBox="0 0 13 13" fill="none" style={{ flexShrink: 0 }}>
+                <path d="M11 2.5A5.5 5.5 0 1 0 11.5 6.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+                <polyline points="9,0.5 11,2.5 9,4.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
               </svg>
               Reset
             </button>
