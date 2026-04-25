@@ -42,3 +42,10 @@ logs/
 
 # Backup files
 *.backup.json
+
+# Fichiers internes — restent en local uniquement
+devops/
+.project-memory/
+CLAUDE.md
+STRUCTURE.md
+frontend/README.md
