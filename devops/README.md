@@ -23,7 +23,7 @@ Objectif : apprendre et appliquer les pratiques DevOps industrielles sur un proj
 | Phase | Sujet | Statut |
 |---|---|---|
 | 0 | Setup local (Node 22, Python, SSH, Git) | ✅ Fait |
-| 1 | Linux, Bash, Git branching | 🔄 En cours |
+| 1 | Linux, Bash, Git branching | ✅ Fait |
 | 2 | AWS Compute & Storage | ❌ À faire |
 | 3 | Terraform IaC | ❌ À faire |
 | 4 | Docker + Kubernetes | ❌ À faire |

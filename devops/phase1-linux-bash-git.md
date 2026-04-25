@@ -12,9 +12,9 @@
 | Node.js 22 LTS via nvm | ✅ | v22.22.2, npm v10.9.7 |
 | App frontend opérationnelle | ✅ | npm install + npm run dev OK |
 | Auth Supabase + reset password | ✅ | Forgot password flow implémenté |
-| Scripts Bash dédiés | ❌ | Seulement des scripts Python, pas de Bash |
-| Branching strategy | ❌ | Tout sur `main`, pas de branches feature/develop |
-| .nvmrc (version Node fixée) | ❌ | Pas de version Node lockée dans le repo |
+| Scripts Bash dédiés | ✅ | scripts/setup.sh + scripts/data-refresh.sh |
+| Branching strategy | ✅ | main protégé, branche develop créée |
+| .nvmrc (version Node fixée) | ✅ | frontend/.nvmrc → Node 22 |
 
 ---
 
