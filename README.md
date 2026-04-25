@@ -35,15 +35,15 @@ Pick a unit, configure the attack, and get the full damage distribution in under
 git clone git@github.com:Pyy0tr/WarhammerWebProjet_V2.git
 cd WarhammerWebProjet_V2
 
-# Install dependencies
-cd frontend && npm install
+# Install all dependencies (frontend + pipeline)
+bash scripts/setup.sh
 
 # Configure Supabase (optional — auth disabled without it)
-cp .env.example .env
+cp frontend/.env.example frontend/.env
 # Fill VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY
 
 # Start dev server
-npm run dev
+cd frontend && npm run dev
 # → http://localhost:5173
 ```
 
