@@ -1,10 +1,11 @@
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import { HomePage } from './pages/HomePage'
 import { SimulatorPage } from './pages/SimulatorPage'
 import { FactionsPage } from './pages/FactionsPage'
 import { ArmiesPage } from './pages/ArmiesPage'
 import { Navbar } from './components/Navbar'
+import { AuthModal } from './components/AuthModal'
 import { useDataStore } from './store/dataStore'
 import { useAuthStore } from './store/authStore'
 
@@ -60,15 +61,28 @@ function HalftoneOverlay() {
 }
 
 export default function App() {
-  const load     = useDataStore((s) => s.load)
-  const authInit = useAuthStore((s) => s.init)
+  const load               = useDataStore((s) => s.load)
+  const authInit           = useAuthStore((s) => s.init)
+  const isPasswordRecovery = useAuthStore((s) => s.isPasswordRecovery)
+  const [resetModalOpen, setResetModalOpen] = useState(false)
+
   useEffect(() => { load() }, [load])
   useEffect(() => authInit(), [authInit])
+
+  // Ouvre automatiquement le modal reset quand Supabase détecte le token de récupération
+  useEffect(() => {
+    if (isPasswordRecovery) setResetModalOpen(true)
+  }, [isPasswordRecovery])
 
   return (
     <BrowserRouter>
       <HalftoneOverlay />
       <Navbar />
+      <AuthModal
+        isOpen={resetModalOpen}
+        onClose={() => setResetModalOpen(false)}
+        initialTab="reset"
+      />
 
       <Routes>
         <Route path="/"          element={<HomePage />} />

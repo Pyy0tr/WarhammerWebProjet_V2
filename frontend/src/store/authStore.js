@@ -1,48 +1,67 @@
 import { create } from 'zustand'
-import { supabase } from '../lib/supabase'
+import { supabase, SUPABASE_ENABLED } from '../lib/supabase'
 
 export const useAuthStore = create((set, get) => ({
-  user:    null,   // Supabase User object | null
-  loading: true,   // true while the initial session check is in flight
+  user:    null,
+  loading: false,
 
-  // ── Bootstrap ──────────────────────────────────────────────────────────────
-  // Call once at app mount. Loads the persisted session and subscribes to
-  // future auth state changes (token refresh, sign-out from another tab, etc.)
   init: () => {
+    if (!SUPABASE_ENABLED) {
+      set({ loading: false })
+      return () => {}
+    }
+
     supabase.auth.getSession().then(({ data: { session } }) => {
       set({ user: session?.user ?? null, loading: false })
     })
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (_event, session) => {
-        set({ user: session?.user ?? null, loading: false })
+      (event, session) => {
+        if (event === 'PASSWORD_RECOVERY') {
+          set({ isPasswordRecovery: true, loading: false })
+        } else {
+          set({ user: session?.user ?? null, loading: false, isPasswordRecovery: false })
+        }
       }
     )
 
-    // Return unsubscribe so callers can clean up (useEffect return)
     return () => subscription.unsubscribe()
   },
 
-  // ── Register ───────────────────────────────────────────────────────────────
   register: async (email, password) => {
+    if (!SUPABASE_ENABLED) throw new Error('Auth not configured')
     const { data, error } = await supabase.auth.signUp({ email, password })
     if (error) throw error
-    // User object is set via onAuthStateChange — no manual set() needed
     return data
   },
 
-  // ── Login ──────────────────────────────────────────────────────────────────
   login: async (email, password) => {
+    if (!SUPABASE_ENABLED) throw new Error('Auth not configured')
     const { data, error } = await supabase.auth.signInWithPassword({ email, password })
     if (error) throw error
     return data
   },
 
-  // ── Logout ─────────────────────────────────────────────────────────────────
   logout: async () => {
+    if (!SUPABASE_ENABLED) return
     await supabase.auth.signOut()
-    // onAuthStateChange fires → sets user: null automatically
   },
+
+  sendPasswordReset: async (email) => {
+    if (!SUPABASE_ENABLED) throw new Error('Auth not configured')
+    const redirectTo = `${window.location.origin}/?reset=1`
+    const { error } = await supabase.auth.resetPasswordForEmail(email, { redirectTo })
+    if (error) throw error
+  },
+
+  updatePassword: async (newPassword) => {
+    if (!SUPABASE_ENABLED) throw new Error('Auth not configured')
+    const { error } = await supabase.auth.updateUser({ password: newPassword })
+    if (error) throw error
+  },
+
+  isPasswordRecovery: false,
+  setPasswordRecovery: (val) => set({ isPasswordRecovery: val }),
 
   // ── Helpers ────────────────────────────────────────────────────────────────
   isLoggedIn: () => get().user !== null,
