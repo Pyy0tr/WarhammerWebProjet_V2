@@ -7,12 +7,12 @@ venv/
 *.egg-info/
 *.egg
 
-# Data — fichiers générés, jamais versionnés
+# Data — generated files
 data/raw/
 data/cache/
 data/users.db
 
-# Environnement
+# Environment
 .env
 .env.local
 
@@ -23,29 +23,9 @@ dist/
 .nuxt/
 build/
 
-# IDE
-.vscode/
-.idea/
-*.swp
-*.swo
-
-# OS
-.DS_Store
-Thumbs.db
-
 # Logs
 *.log
 logs/
 
-# Claude Code local memory
-.claude/
-
 # Backup files
 *.backup.json
-
-# Fichiers internes — restent en local uniquement
-devops/
-.project-memory/
-CLAUDE.md
-STRUCTURE.md
-frontend/README.md
