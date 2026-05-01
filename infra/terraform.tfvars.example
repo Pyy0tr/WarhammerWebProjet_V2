@@ -1,0 +1,11 @@
+# Copier ce fichier en terraform.tfvars et remplir les valeurs
+# cp terraform.tfvars.example terraform.tfvars
+
+my_ip      = "1.2.3.4/32"   # ta vraie IP publique : curl https://checkip.amazonaws.com
+db_password = "ChangeMe!"   # mot de passe fort — jamais commité
+
+# Optionnel — valeurs par défaut suffisantes pour l'apprentissage
+# aws_region        = "eu-west-3"
+# project           = "probhammer"
+# ec2_instance_type = "t3.micro"
+# db_instance_class = "db.t3.micro"

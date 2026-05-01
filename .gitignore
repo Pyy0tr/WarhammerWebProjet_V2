@@ -29,3 +29,21 @@ logs/
 
 # Backup files
 *.backup.json
+# Terraform
+infra/.terraform/
+infra/terraform.tfstate
+infra/terraform.tfstate.backup
+infra/terraform.tfvars
+infra/.terraform.lock.hcl
+
+# AWS CLI installer (artefacts d'installation, pas du code)
+aws/
+awscliv2.zip
+
+# Fichiers créés accidentellement
+apt
+sudo
+update
+
+# Vite env production — contient les clés Supabase, injectées par CI/CD en Phase 5
+frontend/.env.production

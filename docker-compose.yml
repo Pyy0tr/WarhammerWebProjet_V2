@@ -1,0 +1,23 @@
+services:
+
+  pipeline:
+    build:
+      context: .
+      dockerfile: pipeline/Dockerfile
+    volumes:
+      - ./data:/app/data
+      - ./frontend/public/data:/app/frontend/public/data
+    environment:
+      - GITHUB_TOKEN=${GITHUB_TOKEN:-}
+    # Service one-shot : tourne une fois et s'arrête
+    # Lancement : docker compose run --rm pipeline
+    # Ou un script spécifique : docker compose run --rm pipeline python pipeline/parse_bsdata.py
+
+  frontend:
+    build:
+      context: frontend
+      dockerfile: Dockerfile
+    ports:
+      - "8080:80"
+    # Le frontend lit les données depuis frontend/public/data/ au BUILD
+    # Pour voir les données fraîches du pipeline : rebuild avec docker compose up --build frontend
