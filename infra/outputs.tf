@@ -1,6 +1,16 @@
 output "ec2_public_ip" {
-  description = "IP publique de l'instance EC2"
+  description = "IP publique de l'instance EC2 (dynamique — préférer l'EIP)"
   value       = aws_instance.backend.public_ip
+}
+
+output "ec2_eip" {
+  description = "IP statique du backend EC2 (Elastic IP — ne change jamais)"
+  value       = aws_eip.backend.public_ip
+}
+
+output "ec2_instance_id" {
+  description = "ID de l'instance EC2 (pour SSM deploy)"
+  value       = aws_instance.backend.id
 }
 
 output "rds_endpoint" {

@@ -34,6 +34,8 @@ jobs:
 
       - name: Build
         working-directory: frontend
+        env:
+          VITE_API_URL: ${{ secrets.VITE_API_URL }}
         run: npm run build
 
       - name: Upload dist artifact
@@ -110,3 +112,40 @@ jobs:
           docker build -t 712532371701.dkr.ecr.eu-west-3.amazonaws.com/probhammer-pipeline:latest -t 712532371701.dkr.ecr.eu-west-3.amazonaws.com/probhammer-pipeline:${{ github.sha }} -f pipeline/Dockerfile .
           docker push 712532371701.dkr.ecr.eu-west-3.amazonaws.com/probhammer-pipeline:latest
           docker push 712532371701.dkr.ecr.eu-west-3.amazonaws.com/probhammer-pipeline:${{ github.sha }}
+
+  # ─────────────────────────────────────────────
+  # Job 4 — CD Backend : ECR + déploiement EC2
+  # Seulement sur push main (pas sur PR)
+  # ─────────────────────────────────────────────
+  cd-backend:
+    name: CD — Backend (ECR + EC2 via SSM)
+    needs: ci
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: eu-west-3
+
+      - name: Login ECR
+        run: aws ecr get-login-password --region eu-west-3 | docker login --username AWS --password-stdin 712532371701.dkr.ecr.eu-west-3.amazonaws.com
+
+      - name: Build + push image backend vers ECR
+        run: |
+          docker build -t 712532371701.dkr.ecr.eu-west-3.amazonaws.com/probhammer-backend:latest -t 712532371701.dkr.ecr.eu-west-3.amazonaws.com/probhammer-backend:${{ github.sha }} backend/
+          docker push 712532371701.dkr.ecr.eu-west-3.amazonaws.com/probhammer-backend:latest
+          docker push 712532371701.dkr.ecr.eu-west-3.amazonaws.com/probhammer-backend:${{ github.sha }}
+
+      - name: Déployer sur EC2 via SSM
+        run: |
+          aws ssm send-command \
+            --region eu-west-3 \
+            --instance-ids ${{ secrets.EC2_INSTANCE_ID }} \
+            --document-name "AWS-RunShellScript" \
+            --parameters "commands=[\"aws ecr get-login-password --region eu-west-3 | docker login --username AWS --password-stdin 712532371701.dkr.ecr.eu-west-3.amazonaws.com && docker pull 712532371701.dkr.ecr.eu-west-3.amazonaws.com/probhammer-backend:latest && docker stop probhammer-backend 2>/dev/null || true && docker rm probhammer-backend 2>/dev/null || true && docker run -d --name probhammer-backend --env-file /home/ubuntu/backend.env -p 8000:8000 --restart unless-stopped 712532371701.dkr.ecr.eu-west-3.amazonaws.com/probhammer-backend:latest\"]" \
+            --output text
