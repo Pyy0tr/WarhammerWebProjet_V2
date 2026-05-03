@@ -147,5 +147,5 @@ jobs:
             --region eu-west-3 \
             --instance-ids ${{ secrets.EC2_INSTANCE_ID }} \
             --document-name "AWS-RunShellScript" \
-            --parameters "commands=[\"aws ecr get-login-password --region eu-west-3 | docker login --username AWS --password-stdin 712532371701.dkr.ecr.eu-west-3.amazonaws.com && docker pull 712532371701.dkr.ecr.eu-west-3.amazonaws.com/probhammer-backend:latest && docker stop probhammer-backend 2>/dev/null || true && docker rm probhammer-backend 2>/dev/null || true && docker run -d --name probhammer-backend --env-file /home/ubuntu/backend.env -p 8000:8000 --restart unless-stopped 712532371701.dkr.ecr.eu-west-3.amazonaws.com/probhammer-backend:latest\"]" \
+            --parameters "commands=[\"/usr/local/bin/aws ecr get-login-password --region eu-west-3 | docker login --username AWS --password-stdin 712532371701.dkr.ecr.eu-west-3.amazonaws.com && docker pull 712532371701.dkr.ecr.eu-west-3.amazonaws.com/probhammer-backend:latest && docker stop probhammer-backend 2>/dev/null || true && docker rm probhammer-backend 2>/dev/null || true && docker run -d --name probhammer-backend --env-file /home/ubuntu/backend.env -p 8000:8000 --restart unless-stopped 712532371701.dkr.ecr.eu-west-3.amazonaws.com/probhammer-backend:latest\"]" \
             --output text
