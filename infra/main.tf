@@ -159,6 +159,11 @@ resource "aws_iam_role_policy_attachment" "ec2_ecr" {
   policy_arn = "arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryReadOnly"
 }
 
+resource "aws_iam_role_policy_attachment" "ec2_cloudwatch" {
+  role       = aws_iam_role.ec2.name
+  policy_arn = "arn:aws:iam::aws:policy/CloudWatchAgentServerPolicy"
+}
+
 resource "aws_iam_instance_profile" "ec2" {
   name = "${var.project}-ec2-profile"
   role = aws_iam_role.ec2.name
@@ -201,6 +206,14 @@ resource "aws_security_group" "ec2" {
     cidr_blocks = ["0.0.0.0/0"]
   }
 
+  ingress {
+    description = "Grafana"
+    from_port   = 3000
+    to_port     = 3000
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
   egress {
     from_port   = 0
     to_port     = 0
@@ -238,10 +251,20 @@ resource "aws_instance" "backend" {
     systemctl enable docker
     systemctl start docker
     usermod -aG docker ubuntu
+
+    # AWS CLI v2
     curl -fsSL https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip -o /tmp/awscliv2.zip
     unzip -q /tmp/awscliv2.zip -d /tmp/
     /tmp/aws/install
     rm -rf /tmp/awscliv2.zip /tmp/aws
+
+    # CloudWatch Agent
+    wget -q https://s3.amazonaws.com/amazoncloudwatch-agent/ubuntu/amd64/latest/amazon-cloudwatch-agent.deb -O /tmp/cw-agent.deb
+    dpkg -i /tmp/cw-agent.deb
+    cat > /opt/aws/amazon-cloudwatch-agent/etc/amazon-cloudwatch-agent.json <<'CWEOF'
+    {"agent":{"metrics_collection_interval":60},"metrics":{"namespace":"ProbHammer/EC2","metrics_collected":{"cpu":{"measurement":["cpu_usage_idle","cpu_usage_user","cpu_usage_system"],"totalcpu":true},"mem":{"measurement":["mem_used_percent","mem_available"]},"disk":{"measurement":["used_percent"],"resources":["/"]}}},"logs":{"logs_collected":{"files":{"collect_list":[{"file_path":"/var/log/amazon-cloudwatch-agent.log","log_group_name":"/probhammer/cloudwatch-agent","log_stream_name":"{instance_id}"}]}}}}
+    CWEOF
+    /opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent-ctl -a fetch-config -m ec2 -s -c file:/opt/aws/amazon-cloudwatch-agent/etc/amazon-cloudwatch-agent.json
   EOF
 
   tags = {
