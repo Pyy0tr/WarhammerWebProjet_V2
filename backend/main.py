@@ -1,4 +1,7 @@
 import os
+import time
+import logging
+from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from dotenv import load_dotenv
@@ -7,9 +10,26 @@ from routes import auth, armies
 
 load_dotenv()
 
-Base.metadata.create_all(bind=engine)
+logger = logging.getLogger("uvicorn.error")
 
-app = FastAPI(title="ProbHammer API", version="1.0.0")
+
+@asynccontextmanager
+async def lifespan(_app: FastAPI):
+    # Retry create_all jusqu'à 5 fois — RDS peut mettre quelques secondes à accepter des connexions
+    for attempt in range(1, 6):
+        try:
+            Base.metadata.create_all(bind=engine)
+            logger.info("Database tables ready")
+            break
+        except Exception as exc:
+            if attempt == 5:
+                raise RuntimeError(f"Cannot reach database after 5 attempts: {exc}") from exc
+            logger.warning("DB not ready (attempt %d/5), retrying in 5s…", attempt)
+            time.sleep(5)
+    yield
+
+
+app = FastAPI(title="ProbHammer API", version="1.0.0", lifespan=lifespan)
 
 ALLOWED_ORIGINS = os.getenv("ALLOWED_ORIGINS", "http://localhost:5173").split(",")
 
