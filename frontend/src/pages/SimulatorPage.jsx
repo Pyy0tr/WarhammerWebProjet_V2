@@ -303,7 +303,7 @@ function ResultsStep() {
             Attacks ({attacks.length})
           </div>
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
-            {attacks.map((atk, i) => (
+            {attacks.map((atk) => (
               <div key={atk._id} style={{
                 padding: '6px 10px', border: `1px solid ${BORDER}`,
                 fontFamily: 'Space Mono, monospace', fontSize: '9px', color: TEXT_SEC,

@@ -9,7 +9,7 @@ function decodeUser(token) {
     if (payload.exp * 1000 > Date.now()) {
       return { id: payload.sub, email: payload.email }
     }
-  } catch {}
+  } catch (_) {}
   return null
 }
 
