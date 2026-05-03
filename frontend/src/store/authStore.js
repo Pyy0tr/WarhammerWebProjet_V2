@@ -1,68 +1,50 @@
 import { create } from 'zustand'
-import { supabase, SUPABASE_ENABLED } from '../lib/supabase'
+import { api } from '../lib/api'
+
+const TOKEN_KEY = 'ph_token'
+
+function decodeUser(token) {
+  try {
+    const payload = JSON.parse(atob(token.split('.')[1]))
+    if (payload.exp * 1000 > Date.now()) {
+      return { id: payload.sub, email: payload.email }
+    }
+  } catch {}
+  return null
+}
 
 export const useAuthStore = create((set, get) => ({
   user:    null,
-  loading: false,
+  loading: true,
 
   init: () => {
-    if (!SUPABASE_ENABLED) {
-      set({ loading: false })
-      return () => {}
+    const token = localStorage.getItem(TOKEN_KEY)
+    if (token) {
+      const user = decodeUser(token)
+      if (user) { set({ user, loading: false }); return () => {} }
     }
-
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      set({ user: session?.user ?? null, loading: false })
-    })
-
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (event, session) => {
-        if (event === 'PASSWORD_RECOVERY') {
-          set({ isPasswordRecovery: true, loading: false })
-        } else {
-          set({ user: session?.user ?? null, loading: false, isPasswordRecovery: false })
-        }
-      }
-    )
-
-    return () => subscription.unsubscribe()
+    localStorage.removeItem(TOKEN_KEY)
+    set({ loading: false })
+    return () => {}
   },
 
   register: async (email, password) => {
-    if (!SUPABASE_ENABLED) throw new Error('Auth not configured')
-    const { data, error } = await supabase.auth.signUp({ email, password })
-    if (error) throw error
-    return data
+    const data = await api.post('/auth/register', { email, password })
+    localStorage.setItem(TOKEN_KEY, data.access_token)
+    set({ user: { id: data.user_id, email: data.email } })
   },
 
   login: async (email, password) => {
-    if (!SUPABASE_ENABLED) throw new Error('Auth not configured')
-    const { data, error } = await supabase.auth.signInWithPassword({ email, password })
-    if (error) throw error
-    return data
+    // /auth/login uses OAuth2PasswordRequestForm → form-urlencoded, champ "username"
+    const data = await api.postForm('/auth/login', { username: email, password })
+    localStorage.setItem(TOKEN_KEY, data.access_token)
+    set({ user: { id: data.user_id, email: data.email } })
   },
 
-  logout: async () => {
-    if (!SUPABASE_ENABLED) return
-    await supabase.auth.signOut()
+  logout: () => {
+    localStorage.removeItem(TOKEN_KEY)
+    set({ user: null })
   },
 
-  sendPasswordReset: async (email) => {
-    if (!SUPABASE_ENABLED) throw new Error('Auth not configured')
-    const redirectTo = `${window.location.origin}/?reset=1`
-    const { error } = await supabase.auth.resetPasswordForEmail(email, { redirectTo })
-    if (error) throw error
-  },
-
-  updatePassword: async (newPassword) => {
-    if (!SUPABASE_ENABLED) throw new Error('Auth not configured')
-    const { error } = await supabase.auth.updateUser({ password: newPassword })
-    if (error) throw error
-  },
-
-  isPasswordRecovery: false,
-  setPasswordRecovery: (val) => set({ isPasswordRecovery: val }),
-
-  // ── Helpers ────────────────────────────────────────────────────────────────
   isLoggedIn: () => get().user !== null,
 }))

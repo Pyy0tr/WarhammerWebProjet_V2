@@ -23,6 +23,11 @@ output "cloudfront_url" {
   value       = "https://${aws_cloudfront_distribution.frontend.domain_name}"
 }
 
+output "cloudfront_distribution_id" {
+  description = "ID de la distribution CloudFront (pour l'invalidation de cache en CI/CD)"
+  value       = aws_cloudfront_distribution.frontend.id
+}
+
 output "eks_cluster_name" {
   description = "Nom du cluster EKS"
   value       = aws_eks_cluster.main.name

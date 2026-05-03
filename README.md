@@ -21,11 +21,13 @@ Pick a unit, configure the attack, and get the full damage distribution in under
 | Layer | Technology |
 |---|---|
 | Frontend | React 19 + Vite + Zustand + Recharts |
+| Backend | FastAPI (Python 3.12) — auth JWT + armies CRUD |
 | Simulation | Monte Carlo engine in the browser (zero backend) |
-| Auth & saves | Supabase (email/password, localStorage fallback) |
+| Auth & saves | JWT (FastAPI) — email/password, localStorage fallback |
+| Database | PostgreSQL 17 (RDS on AWS, local Docker for dev) |
 | Data | Static JSON served as assets |
 | Data pipeline | Python + GitHub Actions (cron every 12h) |
-| Hosting | Cloudflare Pages |
+| Hosting | AWS S3 + CloudFront (frontend) · EC2 (backend) |
 
 ---
 
@@ -38,11 +40,11 @@ cd WarhammerWebProjet_V2
 # Install all dependencies (frontend + pipeline)
 bash scripts/setup.sh
 
-# Configure Supabase (optional — auth disabled without it)
-cp frontend/.env.example frontend/.env
-# Fill VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY
+# Start backend + local DB (Docker required)
+docker compose up db backend --build
+# → API on http://localhost:8000  |  Swagger: http://localhost:8000/docs
 
-# Start dev server
+# Start frontend dev server
 cd frontend && npm run dev
 # → http://localhost:5173
 ```

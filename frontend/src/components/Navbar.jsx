@@ -88,7 +88,7 @@ function SolidButton({ children, onClick }) {
 
 function UserChip({ user, onLogout }) {
   const [hov, setHov] = useState(false)
-  const label = user.user_metadata?.full_name || user.email?.split('@')[0] || 'User'
+  const label = user.email?.split('@')[0] || 'User'
   return (
     <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
       <span style={{

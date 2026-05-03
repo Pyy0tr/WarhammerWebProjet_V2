@@ -1,0 +1,112 @@
+name: CI/CD ProbHammer
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+
+  # ─────────────────────────────────────────────
+  # Job 1 — CI : lint + build (tous les pushs)
+  # ─────────────────────────────────────────────
+  ci:
+    name: CI — Lint + Build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Install dependencies
+        working-directory: frontend
+        run: npm ci
+
+      - name: Lint
+        working-directory: frontend
+        run: npm run lint
+
+      - name: Build
+        working-directory: frontend
+        run: npm run build
+
+      - name: Upload dist artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: frontend-dist
+          path: frontend/dist/
+          retention-days: 1
+
+  # ─────────────────────────────────────────────
+  # Job 2 — CD Frontend : S3 + CloudFront + ECR
+  # Seulement sur push main (pas sur PR)
+  # ─────────────────────────────────────────────
+  cd-frontend:
+    name: CD — Frontend (S3 + CloudFront + ECR)
+    needs: ci
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: eu-west-3
+
+      - name: Download dist artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: frontend-dist
+          path: frontend/dist/
+
+      - name: Sync vers S3
+        run: aws s3 sync frontend/dist/ s3://probhammer-frontend-prod --delete
+
+      - name: Invalider le cache CloudFront
+        run: aws cloudfront create-invalidation --distribution-id ${{ secrets.CLOUDFRONT_DISTRIBUTION_ID }} --paths "/*"
+
+      - name: Login ECR
+        run: aws ecr get-login-password --region eu-west-3 | docker login --username AWS --password-stdin 712532371701.dkr.ecr.eu-west-3.amazonaws.com
+
+      - name: Build + push image frontend vers ECR
+        run: |
+          docker build -t 712532371701.dkr.ecr.eu-west-3.amazonaws.com/probhammer-frontend:latest -t 712532371701.dkr.ecr.eu-west-3.amazonaws.com/probhammer-frontend:${{ github.sha }} frontend/
+          docker push 712532371701.dkr.ecr.eu-west-3.amazonaws.com/probhammer-frontend:latest
+          docker push 712532371701.dkr.ecr.eu-west-3.amazonaws.com/probhammer-frontend:${{ github.sha }}
+
+  # ─────────────────────────────────────────────
+  # Job 3 — CD Pipeline BSData : ECR
+  # Seulement sur push main (pas sur PR)
+  # ─────────────────────────────────────────────
+  cd-pipeline:
+    name: CD — Pipeline BSData (ECR)
+    needs: ci
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: eu-west-3
+
+      - name: Login ECR
+        run: aws ecr get-login-password --region eu-west-3 | docker login --username AWS --password-stdin 712532371701.dkr.ecr.eu-west-3.amazonaws.com
+
+      - name: Build + push image pipeline vers ECR
+        run: |
+          docker build -t 712532371701.dkr.ecr.eu-west-3.amazonaws.com/probhammer-pipeline:latest -t 712532371701.dkr.ecr.eu-west-3.amazonaws.com/probhammer-pipeline:${{ github.sha }} -f pipeline/Dockerfile .
+          docker push 712532371701.dkr.ecr.eu-west-3.amazonaws.com/probhammer-pipeline:latest
+          docker push 712532371701.dkr.ecr.eu-west-3.amazonaws.com/probhammer-pipeline:${{ github.sha }}

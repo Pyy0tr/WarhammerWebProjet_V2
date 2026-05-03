@@ -1,5 +1,5 @@
 import { create } from 'zustand'
-import { supabase } from '../lib/supabase'
+import { api } from '../lib/api'
 
 const LS_KEY = 'probhammer_armies'
 
@@ -14,7 +14,6 @@ function lsSave(armies) {
   localStorage.setItem(LS_KEY, JSON.stringify(armies))
 }
 
-// Mutate armies immutably, optionally persist
 function withArmy(armies, id, fn) {
   return armies.map((a) => a.id === id ? fn(a) : a)
 }
@@ -23,40 +22,33 @@ export const useArmyStore = create((set, get) => ({
   armies:     [],
   activeId:   null,
   loaded:     false,
-  _loadedFor: undefined,   // uid | null — tracks which user context was loaded
+  _loadedFor: undefined,
 
   // ── Init ──────────────────────────────────────────────────────────────────
   init: async (user) => {
     const currentUid = user?.id ?? null
-    // Skip if already loaded for the same user context
     if (get().loaded && get()._loadedFor === currentUid) return
 
     let armies = []
 
     if (user) {
-      // Migrate any anonymous localStorage armies to Supabase first
+      // Migrer les armées localStorage vers l'API si l'utilisateur vient de se connecter
       const local = lsLoad()
       if (local.length > 0) {
-        const inserts = await Promise.all(
-          local.map((a) =>
-            supabase
-              .from('armies')
-              .insert({ name: a.name, units: a.units ?? [], user_id: user.id })
-              .select('id, name, units, created_at, updated_at')
-              .single()
+        const created = await Promise.all(
+          local.map((a) => api.post('/armies', { name: a.name }).catch(() => null))
+        )
+        // Pour chaque armée créée, mettre à jour les units si besoin
+        await Promise.all(
+          created.filter(Boolean).map((a, i) =>
+            local[i].units?.length > 0
+              ? api.put(`/armies/${a.id}`, { units: local[i].units }).catch(() => null)
+              : null
           )
         )
-        lsSave([])   // clear local storage after migration
-        const migrated = inserts.map((r) => r.data).filter(Boolean)
-        armies = migrated
+        lsSave([])
       }
-
-      // Load all armies from Supabase (includes just-migrated ones)
-      const { data } = await supabase
-        .from('armies')
-        .select('id, name, units, created_at, updated_at')
-        .order('created_at', { ascending: false })
-      armies = data ?? []
+      armies = await api.get('/armies')
     } else {
       armies = lsLoad()
     }
@@ -68,33 +60,30 @@ export const useArmyStore = create((set, get) => ({
 
   // ── Create ────────────────────────────────────────────────────────────────
   create: async (user, name = 'New Army') => {
-    const draft = { id: uid(), name, units: [], created_at: now(), updated_at: now() }
     if (user) {
-      const { data, error } = await supabase
-        .from('armies').insert({ name: draft.name, units: [], user_id: user.id }).select().single()
-      if (error) throw error
-      draft.id = data.id
-      draft.created_at = data.created_at
-      draft.updated_at = data.updated_at
+      const army = await api.post('/armies', { name })
+      set((s) => ({ armies: [army, ...s.armies], activeId: army.id }))
+    } else {
+      const draft = { id: uid(), name, units: [], created_at: now(), updated_at: now() }
+      set((s) => {
+        const armies = [draft, ...s.armies]
+        lsSave(armies)
+        return { armies, activeId: draft.id }
+      })
     }
-    set((s) => {
-      const armies = [draft, ...s.armies]
-      if (!user) lsSave(armies)
-      return { armies, activeId: draft.id }
-    })
   },
 
   // ── Rename ────────────────────────────────────────────────────────────────
   rename: async (id, name, user) => {
     const ts = now()
     set((s) => ({ armies: withArmy(s.armies, id, (a) => ({ ...a, name, updated_at: ts })) }))
-    if (user) await supabase.from('armies').update({ name, updated_at: ts }).eq('id', id)
+    if (user) await api.put(`/armies/${id}`, { name })
     else lsSave(get().armies)
   },
 
   // ── Delete ────────────────────────────────────────────────────────────────
   deleteArmy: async (id, user) => {
-    if (user) await supabase.from('armies').delete().eq('id', id)
+    if (user) await api.delete(`/armies/${id}`)
     set((s) => {
       const armies = s.armies.filter((a) => a.id !== id)
       if (!user) lsSave(armies)
@@ -127,7 +116,7 @@ export const useArmyStore = create((set, get) => ({
     await get()._persist(get().activeId, user)
   },
 
-  // ── Update unit (models count, etc.) ─────────────────────────────────────
+  // ── Update unit ───────────────────────────────────────────────────────────
   updateUnit: async (entryUid, patch, user) => {
     const ts = now()
     set((s) => ({
@@ -144,10 +133,7 @@ export const useArmyStore = create((set, get) => ({
   _persist: async (id, user) => {
     const army = get().armies.find((a) => a.id === id)
     if (!army) return
-    if (user) {
-      await supabase.from('armies').update({ units: army.units, updated_at: army.updated_at }).eq('id', id)
-    } else {
-      lsSave(get().armies)
-    }
+    if (user) await api.put(`/armies/${id}`, { units: army.units })
+    else lsSave(get().armies)
   },
 }))

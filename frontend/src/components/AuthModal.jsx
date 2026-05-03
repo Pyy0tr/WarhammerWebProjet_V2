@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react'
 import { useAuthStore } from '../store/authStore'
-import { ACCENT, BG, SURFACE, BORDER, TEXT, TEXT_SEC, TEXT_WEAK, TEXT_OFF, ERROR as ERR_COLOR, SUCCESS } from '../theme'
+import { ACCENT, BG, SURFACE, BORDER, TEXT, TEXT_SEC, TEXT_OFF, ERROR as ERR_COLOR, SUCCESS } from '../theme'
 
 function Input({ type = 'text', placeholder, value, onChange, disabled }) {
   const [focused, setFocused] = useState(false)
@@ -100,19 +100,17 @@ export function AuthModal({ isOpen, onClose, initialTab = 'login' }) {
   const [password, setPassword] = useState('')
   const [confirm, setConfirm]   = useState('')
   const [error, setError]       = useState('')
-  const [info, setInfo]         = useState('')
   const [busy, setBusy]         = useState(false)
 
-  const { login, register, sendPasswordReset, updatePassword, isPasswordRecovery, setPasswordRecovery } = useAuthStore()
+  const { login, register } = useAuthStore()
 
-  // Si Supabase détecte un token de récupération dans l'URL → ouvrir le formulaire reset
   useEffect(() => {
-    if (isPasswordRecovery && isOpen) setTab('reset')
-  }, [isPasswordRecovery, isOpen])
+    setTab(initialTab)
+  }, [initialTab])
 
   useEffect(() => {
     setEmail(''); setPassword(''); setConfirm('')
-    setError(''); setInfo(''); setBusy(false)
+    setError(''); setBusy(false)
   }, [isOpen, tab])
 
   useEffect(() => {
@@ -128,7 +126,7 @@ export function AuthModal({ isOpen, onClose, initialTab = 'login' }) {
       await login(email.trim(), password)
       onClose()
     } catch (e) {
-      setError(e.message?.toLowerCase().includes('invalid') ? 'Incorrect email or password' : (e.message ?? 'Login error'))
+      setError(e.message?.toLowerCase().includes('incorrect') ? 'Incorrect email or password' : (e.message ?? 'Login error'))
     } finally {
       setBusy(false)
     }
@@ -141,51 +139,18 @@ export function AuthModal({ isOpen, onClose, initialTab = 'login' }) {
     setBusy(true)
     try {
       await register(email.trim(), password)
-      setInfo('A confirmation email has been sent. Check your inbox.')
-      setPassword(''); setConfirm('')
+      onClose()
     } catch (e) {
       setError(e.message ?? 'Error creating account')
     } finally {
       setBusy(false)
     }
-  }, [email, password, confirm, register])
-
-  const handleForgot = useCallback(async () => {
-    setError(''); setBusy(true)
-    try {
-      await sendPasswordReset(email.trim())
-      setInfo('Reset link sent — check your inbox.')
-    } catch (e) {
-      setError(e.message ?? 'Error sending reset email')
-    } finally {
-      setBusy(false)
-    }
-  }, [email, sendPasswordReset])
-
-  const handleUpdatePassword = useCallback(async () => {
-    setError('')
-    if (password !== confirm) { setError('Passwords do not match'); return }
-    if (strengthScore(password) < 2) { setError('Password too weak'); return }
-    setBusy(true)
-    try {
-      await updatePassword(password)
-      setPasswordRecovery(false)
-      setInfo('Password updated successfully.')
-      setPassword(''); setConfirm('')
-      setTimeout(onClose, 1500)
-    } catch (e) {
-      setError(e.message ?? 'Error updating password')
-    } finally {
-      setBusy(false)
-    }
-  }, [password, confirm, updatePassword, setPasswordRecovery, onClose])
+  }, [email, password, confirm, register, onClose])
 
   const handleKey = (e) => {
     if (e.key !== 'Enter' || busy) return
     if (tab === 'login') handleLogin()
     else if (tab === 'register') handleRegister()
-    else if (tab === 'forgot') handleForgot()
-    else if (tab === 'reset') handleUpdatePassword()
   }
 
   if (!isOpen) return null
@@ -231,112 +196,56 @@ export function AuthModal({ isOpen, onClose, initialTab = 'login' }) {
           PROB<span style={{ opacity: 0.4 }}>'</span>HAMMER
         </div>
 
-        {tab !== 'forgot' && tab !== 'reset' && (
-          <div style={{ display: 'flex', borderBottom: `1px solid ${BORDER}` }}>
-            {[['login', 'Sign in'], ['register', 'Create account']].map(([id, label]) => (
-              <button
-                key={id}
-                onClick={() => setTab(id)}
-                style={{
-                  flex: 1, padding: '10px 0',
-                  background: 'none', border: 'none',
-                  borderBottom: tab === id ? `2px solid ${ACCENT}` : '2px solid transparent',
-                  color: tab === id ? ACCENT : TEXT_OFF,
-                  fontFamily: 'Space Mono, monospace', fontSize: '10px',
-                  letterSpacing: '2px', textTransform: 'uppercase',
-                  cursor: 'pointer', marginBottom: '-1px', transition: 'color 120ms',
-                }}
-              >
-                {label}
-              </button>
-            ))}
-          </div>
-        )}
-
-        {tab === 'forgot' && (
-          <div style={{ fontFamily: 'Space Mono, monospace', fontSize: '11px', letterSpacing: '1px', color: TEXT_SEC }}>
-            Enter your email — we'll send you a reset link.
-          </div>
-        )}
-
-        {tab === 'reset' && (
-          <div style={{ fontFamily: 'Space Mono, monospace', fontSize: '11px', letterSpacing: '1px', color: TEXT_SEC }}>
-            Choose your new password.
-          </div>
-        )}
+        <div style={{ display: 'flex', borderBottom: `1px solid ${BORDER}` }}>
+          {[['login', 'Sign in'], ['register', 'Create account']].map(([id, label]) => (
+            <button
+              key={id}
+              onClick={() => setTab(id)}
+              style={{
+                flex: 1, padding: '10px 0',
+                background: 'none', border: 'none',
+                borderBottom: tab === id ? `2px solid ${ACCENT}` : '2px solid transparent',
+                color: tab === id ? ACCENT : TEXT_OFF,
+                fontFamily: 'Space Mono, monospace', fontSize: '10px',
+                letterSpacing: '2px', textTransform: 'uppercase',
+                cursor: 'pointer', marginBottom: '-1px', transition: 'color 120ms',
+              }}
+            >
+              {label}
+            </button>
+          ))}
+        </div>
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }} onKeyDown={handleKey}>
+          <Input placeholder="Email" value={email}
+            onChange={(e) => setEmail(e.target.value)} disabled={busy} />
 
-          {/* Email — affiché sauf sur reset */}
-          {tab !== 'reset' && (
-            <Input placeholder="Email" value={email}
-              onChange={(e) => setEmail(e.target.value)} disabled={busy} />
-          )}
+          <Input type="password" placeholder="Password" value={password}
+            onChange={(e) => setPassword(e.target.value)} disabled={busy} />
 
-          {/* Password — affiché sur login, register, reset */}
-          {(tab === 'login' || tab === 'register' || tab === 'reset') && (
-            <Input type="password"
-              placeholder={tab === 'reset' ? 'New password' : 'Password'}
-              value={password}
-              onChange={(e) => setPassword(e.target.value)} disabled={busy} />
-          )}
-
-          {(tab === 'register' || tab === 'reset') && (<>
+          {tab === 'register' && (<>
             <StrengthBar password={password} />
             <Input type="password" placeholder="Confirm password" value={confirm}
               onChange={(e) => setConfirm(e.target.value)} disabled={busy} />
           </>)}
 
           <PrimaryBtn
-            onClick={
-              tab === 'login'    ? handleLogin :
-              tab === 'register' ? handleRegister :
-              tab === 'forgot'   ? handleForgot :
-                                   handleUpdatePassword
-            }
-            disabled={
-              tab === 'login'    ? (!email || !password) :
-              tab === 'register' ? (!email || !password || !confirm) :
-              tab === 'forgot'   ? !email :
-                                   (!password || !confirm)
-            }
+            onClick={tab === 'login' ? handleLogin : handleRegister}
+            disabled={tab === 'login' ? (!email || !password) : (!email || !password || !confirm)}
             loading={busy}
           >
-            {tab === 'login'    ? 'Sign in' :
-             tab === 'register' ? 'Create account' :
-             tab === 'forgot'   ? 'Send reset link' :
-                                  'Update password'}
+            {tab === 'login' ? 'Sign in' : 'Create account'}
           </PrimaryBtn>
 
-          {tab === 'login' && (
-            <p style={{ fontFamily: 'Space Mono, monospace', fontSize: '10px', color: TEXT_OFF, margin: 0, textAlign: 'center' }}>
-              <span onClick={() => setTab('forgot')}
-                style={{ color: ACCENT, cursor: 'pointer', textDecoration: 'underline' }}>
-                Forgot password?
-              </span>
-            </p>
-          )}
-
-          {(tab === 'login' || tab === 'register') && (
-            <p style={{ fontFamily: 'Space Mono, monospace', fontSize: '10px', color: TEXT_OFF, margin: 0, textAlign: 'center' }}>
-              {tab === 'login' ? 'No account yet? ' : 'Already have an account? '}
-              <span
-                onClick={() => setTab(tab === 'login' ? 'register' : 'login')}
-                style={{ color: ACCENT, cursor: 'pointer', textDecoration: 'underline' }}
-              >
-                {tab === 'login' ? 'Create account' : 'Sign in'}
-              </span>
-            </p>
-          )}
-
-          {(tab === 'forgot' || tab === 'reset') && (
-            <p style={{ fontFamily: 'Space Mono, monospace', fontSize: '10px', color: TEXT_OFF, margin: 0, textAlign: 'center' }}>
-              <span onClick={() => setTab('login')}
-                style={{ color: ACCENT, cursor: 'pointer', textDecoration: 'underline' }}>
-                ← Back to sign in
-              </span>
-            </p>
-          )}
+          <p style={{ fontFamily: 'Space Mono, monospace', fontSize: '10px', color: TEXT_OFF, margin: 0, textAlign: 'center' }}>
+            {tab === 'login' ? 'No account yet? ' : 'Already have an account? '}
+            <span
+              onClick={() => setTab(tab === 'login' ? 'register' : 'login')}
+              style={{ color: ACCENT, cursor: 'pointer', textDecoration: 'underline' }}
+            >
+              {tab === 'login' ? 'Create account' : 'Sign in'}
+            </span>
+          </p>
 
           {error && (
             <p style={{
@@ -344,17 +253,6 @@ export function AuthModal({ isOpen, onClose, initialTab = 'login' }) {
               color: ERR_COLOR, margin: 0, lineHeight: 1.5,
             }}>
               {error}
-            </p>
-          )}
-          {info && (
-            <p style={{
-              fontFamily: 'Space Mono, monospace', fontSize: '10px',
-              color: ACCENT, margin: 0, lineHeight: 1.6,
-              background: 'rgba(47,224,255,0.05)',
-              border: `1px solid ${BORDER}`,
-              padding: '12px 14px',
-            }}>
-              {info}
             </p>
           )}
         </div>

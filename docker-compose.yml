@@ -1,5 +1,30 @@
 services:
 
+  db:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_DB: probhammer
+      POSTGRES_USER: probhammer
+      POSTGRES_PASSWORD: probhammer
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  backend:
+    build:
+      context: backend
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
+    env_file:
+      - backend/.env
+    depends_on:
+      - db
+    # Lancement : docker compose up backend
+    # API disponible sur http://localhost:8000
+    # Docs interactives : http://localhost:8000/docs
+
   pipeline:
     build:
       context: .
@@ -21,3 +46,6 @@ services:
       - "8080:80"
     # Le frontend lit les données depuis frontend/public/data/ au BUILD
     # Pour voir les données fraîches du pipeline : rebuild avec docker compose up --build frontend
+
+volumes:
+  postgres_data:
