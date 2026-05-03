@@ -46,5 +46,20 @@ apt
 sudo
 update
 
-# Vite env production — contient les clés Supabase, injectées par CI/CD en Phase 5
+# Vite env — contenu injecté par CI/CD via secrets GitHub Actions
 frontend/.env.production
+frontend/.env.local
+
+# Archives et binaires d'installation
+*.zip
+*.tar.gz
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE — préférences personnelles, pas du code
+.vscode/
+.idea/
+*.swp
+*.swo
