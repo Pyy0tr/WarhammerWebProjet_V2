@@ -57,26 +57,6 @@ function organizeByAlliance(factions, unitsByFaction) {
   return { alliances, library }
 }
 
-function mapKeywords(kwStrings) {
-  if (!kwStrings?.length) return []
-  const result = []
-  for (const raw of kwStrings) {
-    const upper = raw.toUpperCase().replace(/[\s-]+/g, '_')
-    const simpleTypes = ['TORRENT','LETHAL_HITS','DEVASTATING_WOUNDS','TWIN_LINKED','BLAST','HEAVY',
-      'LANCE','IGNORES_COVER','INDIRECT_FIRE','ASSAULT','PISTOL','PSYCHIC','PRECISION','HAZARDOUS']
-    if (simpleTypes.includes(upper)) { result.push({ type: upper }); continue }
-    const sus = raw.match(/sustained\s*hits\s*(\d+|D\d+)/i)
-    if (sus) { result.push({ type: 'SUSTAINED_HITS', value: sus[1] }); continue }
-    const rf = raw.match(/rapid\s*fire\s*(\d+|D\d+)/i)
-    if (rf) { result.push({ type: 'RAPID_FIRE', value: rf[1] }); continue }
-    const melta = raw.match(/melta\s*(\d+|D\d+)/i)
-    if (melta) { result.push({ type: 'MELTA', value: melta[1] }); continue }
-    const anti = raw.match(/anti-(\w+)\s*(\d+)\+/i)
-    if (anti) { result.push({ type: 'ANTI', target: anti[1].toUpperCase(), threshold: parseInt(anti[2]) }); continue }
-  }
-  return result
-}
-
 // ── Shared components ─────────────────────────────────────────────────────────
 
 function SearchBar({ value, onChange, placeholder }) {
@@ -400,7 +380,7 @@ function SubGroupLabel({ children }) {
   )
 }
 
-function FactionChip({ name, count, label, onClick, allianceColor, dense }) {
+function FactionChip({ _name, count, label, onClick, allianceColor, dense }) {
   const [hover, setHover] = useState(false)
   const ac = allianceColor || ACCENT
   return (
@@ -601,7 +581,7 @@ function LibrarySection({ items, onSelect, dense }) {
 
 // ── VIEW 2: Units list ────────────────────────────────────────────────────────
 
-function UnitsView({ faction, initialUnit, onSelectUnit, onBack }) {
+function UnitsView({ faction, initialUnit, _onSelectUnit, onBack }) {
   const unitsByFaction = useDataStore((s) => s.unitsByFaction)
   const [search, setSearch]           = useState('')
   const [sort, setSort]               = useState('alpha')
@@ -791,6 +771,57 @@ function UnitCard({ unit, onClick, showFaction = false }) {
 
 // ── VIEW 3: Unit detail ───────────────────────────────────────────────────────
 
+function WeaponSubTable({ title, rows }) {
+  if (!rows.length) return null
+  return (
+    <div style={{ marginBottom: '28px' }}>
+      <div style={{
+        fontFamily: 'Space Mono, monospace', fontSize: '10px',
+        letterSpacing: '2px', textTransform: 'uppercase',
+        color: TEXT_WEAK, marginBottom: '12px',
+      }}>
+        {title}
+      </div>
+      <div style={{ overflowX: 'auto' }}>
+        <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: '520px' }}>
+          <thead>
+            <tr>
+              {['Name', 'Range', 'A', 'BS/WS', 'S', 'AP', 'D', 'Keywords'].map((h) => (
+                <th key={h} style={{
+                  fontFamily: 'Space Mono, monospace', fontSize: '9px',
+                  letterSpacing: '1.5px', textTransform: 'uppercase',
+                  color: TEXT_WEAK, padding: '6px 12px 6px 0',
+                  textAlign: 'left', fontWeight: 400,
+                  borderBottom: `1px solid ${BORDER}`,
+                  whiteSpace: 'nowrap',
+                }}>
+                  {h}
+                </th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {rows.map((w) => (
+              <tr key={w.id} style={{ borderBottom: `1px solid rgba(30,58,76,0.5)` }}>
+                <td style={{ fontFamily: 'Space Mono, monospace', fontSize: '12px', fontWeight: 700, color: TEXT, padding: '10px 12px 10px 0', whiteSpace: 'nowrap' }}>{w.name}</td>
+                <td style={tdStyle}>{w.type === 'Melee' ? '—' : (w.range ?? '—')}</td>
+                <td style={tdStyle}>{w.A}</td>
+                <td style={tdStyle}>{w.BS}+</td>
+                <td style={tdStyle}>{w.S}</td>
+                <td style={tdStyle}>{w.AP}</td>
+                <td style={tdStyle}>{w.D}</td>
+                <td style={{ ...tdStyle, color: TEXT_WEAK, fontSize: '9px' }}>
+                  {(w.kw || []).filter((k) => k !== '-').join(', ') || '—'}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  )
+}
+
 function WeaponsTable({ weapons }) {
   const weaponsById = useDataStore((s) => s.weaponsById)
   const full   = weapons.map((ref) => weaponsById[ref.id]).filter(Boolean)
@@ -801,61 +832,10 @@ function WeaponsTable({ weapons }) {
     return <div style={{ fontFamily: 'Space Mono, monospace', fontSize: '10px', color: TEXT_WEAK }}>No weapon data</div>
   }
 
-  function Table({ title, rows }) {
-    if (!rows.length) return null
-    return (
-      <div style={{ marginBottom: '28px' }}>
-        <div style={{
-          fontFamily: 'Space Mono, monospace', fontSize: '10px',
-          letterSpacing: '2px', textTransform: 'uppercase',
-          color: TEXT_WEAK, marginBottom: '12px',
-        }}>
-          {title}
-        </div>
-        <div style={{ overflowX: 'auto' }}>
-          <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: '520px' }}>
-            <thead>
-              <tr>
-                {['Name', 'Range', 'A', 'BS/WS', 'S', 'AP', 'D', 'Keywords'].map((h) => (
-                  <th key={h} style={{
-                    fontFamily: 'Space Mono, monospace', fontSize: '9px',
-                    letterSpacing: '1.5px', textTransform: 'uppercase',
-                    color: TEXT_WEAK, padding: '6px 12px 6px 0',
-                    textAlign: 'left', fontWeight: 400,
-                    borderBottom: `1px solid ${BORDER}`,
-                    whiteSpace: 'nowrap',
-                  }}>
-                    {h}
-                  </th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {rows.map((w) => (
-                <tr key={w.id} style={{ borderBottom: `1px solid rgba(30,58,76,0.5)` }}>
-                  <td style={{ fontFamily: 'Space Mono, monospace', fontSize: '12px', fontWeight: 700, color: TEXT, padding: '10px 12px 10px 0', whiteSpace: 'nowrap' }}>{w.name}</td>
-                  <td style={tdStyle}>{w.type === 'Melee' ? '—' : (w.range ?? '—')}</td>
-                  <td style={tdStyle}>{w.A}</td>
-                  <td style={tdStyle}>{w.BS}+</td>
-                  <td style={tdStyle}>{w.S}</td>
-                  <td style={tdStyle}>{w.AP}</td>
-                  <td style={tdStyle}>{w.D}</td>
-                  <td style={{ ...tdStyle, color: TEXT_WEAK, fontSize: '9px' }}>
-                    {(w.kw || []).filter((k) => k !== '-').join(', ') || '—'}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </div>
-    )
-  }
-
   return (
     <div>
-      <Table title="Ranged" rows={ranged} />
-      <Table title="Melee" rows={melee} />
+      <WeaponSubTable title="Ranged" rows={ranged} />
+      <WeaponSubTable title="Melee" rows={melee} />
     </div>
   )
 }

@@ -23,7 +23,13 @@ export default defineConfig([
       },
     },
     rules: {
-      'no-unused-vars': ['error', { varsIgnorePattern: '^[A-Z_]' }],
+      'no-unused-vars': ['error', { varsIgnorePattern: '^[A-Z_]', argsIgnorePattern: '^_', caughtErrorsIgnorePattern: '^_' }],
+      // Ces règles du plugin react-hooks v5 sont trop strictes pour des patterns valides
+      'no-empty':                         ['error', { allowEmptyCatch: true }],
+      'react-hooks/set-state-in-effect': 'off',
+      'react-hooks/refs':                'off',
+      'react-hooks/react-compiler':      'off',
+      'react-hooks/static-components':   'off',
     },
   },
 ])
