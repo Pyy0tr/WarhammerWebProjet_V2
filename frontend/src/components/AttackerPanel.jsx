@@ -451,7 +451,7 @@ function AbilityBtn({ active, onClick, children }) {
   )
 }
 
-function AbilitiesSection({ buffs, toggleBuff, hasBuff, keywords, setWeapon }) {
+function AbilitiesSection({ _buffs, toggleBuff, hasBuff, keywords, setWeapon }) {
   const [critDraft,  setCritDraft]  = useState('5')
   const [extraDraft, setExtraDraft] = useState('1')
 

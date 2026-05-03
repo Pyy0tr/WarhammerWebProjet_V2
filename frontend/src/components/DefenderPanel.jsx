@@ -16,7 +16,6 @@ function DefenderArmyPicker() {
   const init        = useArmyStore((s) => s.init)
   const setDefender = useSimulatorStore((s) => s.setDefender)
   const setDefenderUnit = useSimulatorStore((s) => s.setDefenderUnit)
-  const defender    = useSimulatorStore((s) => s.defender)
   const getUnitById = useDataStore((s) => s.getUnitById)
 
   useEffect(() => { init(user) }, [])  // eslint-disable-line

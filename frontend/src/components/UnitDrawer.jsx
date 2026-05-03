@@ -240,7 +240,7 @@ function SearchResults({ results, onSelectUnit }) {
 
 // ── Weapon selection ────────────────────────────────────────────────────────
 
-function WeaponStep({ unit, onSelectWeapon, onBack }) {
+function WeaponStep({ unit, onSelectWeapon, _onBack }) {
   const getUnitWeapons = useDataStore((s) => s.getUnitWeapons)
   const weapons = getUnitWeapons(unit)
 

@@ -21,7 +21,7 @@ function StepBar({ current, onStep }) {
       display: 'flex', alignItems: 'center', gap: '0',
       padding: '0 48px', borderBottom: `1px solid ${BORDER}`,
     }}>
-      {STEPS.map((s, i) => {
+      {STEPS.map((s) => {
         const active    = s.n === current
         const completed = s.n < current
         const clickable = s.n < current || (s.n === 2 && current === 1)
