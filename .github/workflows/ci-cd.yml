@@ -77,13 +77,13 @@ jobs:
         run: aws cloudfront create-invalidation --distribution-id ${{ secrets.CLOUDFRONT_DISTRIBUTION_ID }} --paths "/*"
 
       - name: Login ECR
-        run: aws ecr get-login-password --region eu-west-3 | docker login --username AWS --password-stdin 712532371701.dkr.ecr.eu-west-3.amazonaws.com
+        run: aws ecr get-login-password --region eu-west-3 | docker login --username AWS --password-stdin ${{ secrets.ECR_REGISTRY }}
 
       - name: Build + push image frontend vers ECR
         run: |
-          docker build -t 712532371701.dkr.ecr.eu-west-3.amazonaws.com/probhammer-frontend:latest -t 712532371701.dkr.ecr.eu-west-3.amazonaws.com/probhammer-frontend:${{ github.sha }} frontend/
-          docker push 712532371701.dkr.ecr.eu-west-3.amazonaws.com/probhammer-frontend:latest
-          docker push 712532371701.dkr.ecr.eu-west-3.amazonaws.com/probhammer-frontend:${{ github.sha }}
+          docker build -t ${{ secrets.ECR_REGISTRY }}/probhammer-frontend:latest -t ${{ secrets.ECR_REGISTRY }}/probhammer-frontend:${{ github.sha }} frontend/
+          docker push ${{ secrets.ECR_REGISTRY }}/probhammer-frontend:latest
+          docker push ${{ secrets.ECR_REGISTRY }}/probhammer-frontend:${{ github.sha }}
 
   # ─────────────────────────────────────────────
   # Job 3 — CD Pipeline BSData : ECR
@@ -105,13 +105,13 @@ jobs:
           aws-region: eu-west-3
 
       - name: Login ECR
-        run: aws ecr get-login-password --region eu-west-3 | docker login --username AWS --password-stdin 712532371701.dkr.ecr.eu-west-3.amazonaws.com
+        run: aws ecr get-login-password --region eu-west-3 | docker login --username AWS --password-stdin ${{ secrets.ECR_REGISTRY }}
 
       - name: Build + push image pipeline vers ECR
         run: |
-          docker build -t 712532371701.dkr.ecr.eu-west-3.amazonaws.com/probhammer-pipeline:latest -t 712532371701.dkr.ecr.eu-west-3.amazonaws.com/probhammer-pipeline:${{ github.sha }} -f pipeline/Dockerfile .
-          docker push 712532371701.dkr.ecr.eu-west-3.amazonaws.com/probhammer-pipeline:latest
-          docker push 712532371701.dkr.ecr.eu-west-3.amazonaws.com/probhammer-pipeline:${{ github.sha }}
+          docker build -t ${{ secrets.ECR_REGISTRY }}/probhammer-pipeline:latest -t ${{ secrets.ECR_REGISTRY }}/probhammer-pipeline:${{ github.sha }} -f pipeline/Dockerfile .
+          docker push ${{ secrets.ECR_REGISTRY }}/probhammer-pipeline:latest
+          docker push ${{ secrets.ECR_REGISTRY }}/probhammer-pipeline:${{ github.sha }}
 
   # ─────────────────────────────────────────────
   # Job 4 — CD Backend : ECR + déploiement EC2
@@ -133,13 +133,13 @@ jobs:
           aws-region: eu-west-3
 
       - name: Login ECR
-        run: aws ecr get-login-password --region eu-west-3 | docker login --username AWS --password-stdin 712532371701.dkr.ecr.eu-west-3.amazonaws.com
+        run: aws ecr get-login-password --region eu-west-3 | docker login --username AWS --password-stdin ${{ secrets.ECR_REGISTRY }}
 
       - name: Build + push image backend vers ECR
         run: |
-          docker build -t 712532371701.dkr.ecr.eu-west-3.amazonaws.com/probhammer-backend:latest -t 712532371701.dkr.ecr.eu-west-3.amazonaws.com/probhammer-backend:${{ github.sha }} backend/
-          docker push 712532371701.dkr.ecr.eu-west-3.amazonaws.com/probhammer-backend:latest
-          docker push 712532371701.dkr.ecr.eu-west-3.amazonaws.com/probhammer-backend:${{ github.sha }}
+          docker build -t ${{ secrets.ECR_REGISTRY }}/probhammer-backend:latest -t ${{ secrets.ECR_REGISTRY }}/probhammer-backend:${{ github.sha }} backend/
+          docker push ${{ secrets.ECR_REGISTRY }}/probhammer-backend:latest
+          docker push ${{ secrets.ECR_REGISTRY }}/probhammer-backend:${{ github.sha }}
 
       - name: Déployer sur EC2 via SSM
         run: |
@@ -147,5 +147,5 @@ jobs:
             --region eu-west-3 \
             --instance-ids ${{ secrets.EC2_INSTANCE_ID }} \
             --document-name "AWS-RunShellScript" \
-            --parameters "commands=[\"/usr/local/bin/aws ecr get-login-password --region eu-west-3 | docker login --username AWS --password-stdin 712532371701.dkr.ecr.eu-west-3.amazonaws.com && docker pull 712532371701.dkr.ecr.eu-west-3.amazonaws.com/probhammer-backend:latest && docker stop probhammer-backend 2>/dev/null || true && docker rm probhammer-backend 2>/dev/null || true && docker run -d --name probhammer-backend --env-file /home/ubuntu/backend.env -p 8000:8000 --restart unless-stopped 712532371701.dkr.ecr.eu-west-3.amazonaws.com/probhammer-backend:latest\"]" \
+            --parameters "commands=[\"/usr/local/bin/aws ecr get-login-password --region eu-west-3 | docker login --username AWS --password-stdin ${{ secrets.ECR_REGISTRY }} && docker pull ${{ secrets.ECR_REGISTRY }}/probhammer-backend:latest && docker stop probhammer-backend 2>/dev/null || true && docker rm probhammer-backend 2>/dev/null || true && docker run -d --name probhammer-backend --env-file /home/ubuntu/backend.env -p 8000:8000 --restart unless-stopped ${{ secrets.ECR_REGISTRY }}/probhammer-backend:latest\"]" \
             --output text
