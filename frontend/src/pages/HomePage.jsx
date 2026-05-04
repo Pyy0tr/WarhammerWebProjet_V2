@@ -1,3 +1,4 @@
+import { useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { ACCENT, BG, BORDER, TEXT, TEXT_SEC, TEXT_WEAK } from '../theme'
 
@@ -131,6 +132,10 @@ function StepCard({ num, title, desc }) {
 
 export function HomePage() {
   const navigate = useNavigate()
+
+  useEffect(() => {
+    document.title = "Prob'Hammer — Warhammer 40K Probability & Dice Calculator"
+  }, [])
 
   return (
     <div style={{ color: TEXT_SEC, paddingTop: '52px' }}>

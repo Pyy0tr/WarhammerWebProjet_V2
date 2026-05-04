@@ -1140,6 +1140,10 @@ export function SimulatorPage() {
   const setStep  = useSimulatorStore((s) => s.setStep)
   const resetAll = useSimulatorStore((s) => s.resetAll)
 
+  useEffect(() => {
+    document.title = "Combat Simulator — Warhammer 40K Probability | Prob'Hammer"
+  }, [])
+
   const [resetHover, setResetHover] = useState(false)
 
   const contentRef = useRef(null)

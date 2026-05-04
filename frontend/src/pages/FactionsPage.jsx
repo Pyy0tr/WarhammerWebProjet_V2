@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useEffect } from 'react'
 import { useDataStore }  from '../store/dataStore'
 import { useArmyStore }  from '../store/armyStore'
 import { useAuthStore }  from '../store/authStore'
@@ -1070,6 +1070,11 @@ function UnitDetailView({ unit, onBack, factionLabel }) {
 
 export function FactionsPage() {
   const loaded = useDataStore((s) => s.loaded)
+
+  useEffect(() => {
+    document.title = "Factions & Units — 46 Factions, 1487 Units | Prob'Hammer WH40K"
+  }, [])
+
   const [view, setView]                   = useState('factions')
   const [activeFaction, setActiveFaction] = useState(null)
   const [jumpToUnit, setJumpToUnit]       = useState(null)

@@ -684,6 +684,10 @@ export function ArmiesPage() {
   const init   = useArmyStore((s) => s.init)
   const create = useArmyStore((s) => s.create)
 
+  useEffect(() => {
+    document.title = "Army Builder — Save & Compare Lists | Prob'Hammer WH40K"
+  }, [])
+
   const [showModal, setShowModal] = useState(false)
 
   useEffect(() => { init(user) }, [user, init])
