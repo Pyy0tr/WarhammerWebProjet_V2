@@ -47,4 +47,20 @@ export const useAuthStore = create((set, get) => ({
   },
 
   isLoggedIn: () => get().user !== null,
+
+  verifyEmail: async (token) => {
+    await api.get(`/auth/verify-email?token=${token}`)
+  },
+
+  resendVerification: async (email) => {
+    await api.post('/auth/resend-verification', { email })
+  },
+
+  forgotPassword: async (email) => {
+    await api.post('/auth/forgot-password', { email })
+  },
+
+  resetPassword: async (token, password) => {
+    await api.post('/auth/reset-password', { token, password })
+  },
 }))

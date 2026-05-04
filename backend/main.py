@@ -4,6 +4,7 @@ import logging
 from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from sqlalchemy import text
 from dotenv import load_dotenv
 from database import Base, engine
 from routes import auth, armies
@@ -19,6 +20,15 @@ async def lifespan(_app: FastAPI):
     for attempt in range(1, 6):
         try:
             Base.metadata.create_all(bind=engine)
+            with engine.connect() as conn:
+                conn.execute(text("""
+                    ALTER TABLE users
+                    ADD COLUMN IF NOT EXISTS email_verified      BOOLEAN DEFAULT FALSE NOT NULL,
+                    ADD COLUMN IF NOT EXISTS verification_token  VARCHAR,
+                    ADD COLUMN IF NOT EXISTS reset_token         VARCHAR,
+                    ADD COLUMN IF NOT EXISTS reset_token_expires TIMESTAMPTZ
+                """))
+                conn.commit()
             logger.info("Database tables ready")
             break
         except Exception as exc:

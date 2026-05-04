@@ -4,6 +4,8 @@ import { HomePage } from './pages/HomePage'
 import { SimulatorPage } from './pages/SimulatorPage'
 import { FactionsPage } from './pages/FactionsPage'
 import { ArmiesPage } from './pages/ArmiesPage'
+import { VerifyEmailPage } from './pages/VerifyEmailPage'
+import { ResetPasswordPage } from './pages/ResetPasswordPage'
 import { Navbar } from './components/Navbar'
 import { useDataStore } from './store/dataStore'
 import { useAuthStore } from './store/authStore'
@@ -75,8 +77,10 @@ export default function App() {
         <Route path="/"          element={<HomePage />} />
         <Route path="/simulator" element={<SimulatorPage />} />
         <Route path="/factions"  element={<FactionsPage />} />
-        <Route path="/armies"    element={<ArmiesPage />} />
-        <Route path="*"          element={<Navigate to="/" replace />} />
+        <Route path="/armies"         element={<ArmiesPage />} />
+        <Route path="/verify-email"   element={<VerifyEmailPage />} />
+        <Route path="/reset-password" element={<ResetPasswordPage />} />
+        <Route path="*"               element={<Navigate to="/" replace />} />
       </Routes>
     </BrowserRouter>
   )
