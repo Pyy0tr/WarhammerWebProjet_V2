@@ -1,0 +1,48 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: bsdata-pipeline
+  namespace: probhammer
+spec:
+  schedule: "0 */12 * * *"        # toutes les 12h
+  concurrencyPolicy: Forbid        # pas de runs en parallèle
+  successfulJobsHistoryLimit: 3
+  failedJobsHistoryLimit: 3
+  jobTemplate:
+    spec:
+      backoffLimit: 2              # 2 retry si le job échoue
+      template:
+        spec:
+          serviceAccountName: pipeline-sa   # IRSA — credentials AWS via rôle IAM
+          restartPolicy: OnFailure
+
+          containers:
+            - name: pipeline
+              image: 712532371701.dkr.ecr.eu-west-3.amazonaws.com/probhammer-pipeline:latest
+              imagePullPolicy: Always
+              command:
+                - sh
+                - -c
+                - |
+                  set -e
+                  echo "=== Fetch BSData ==="
+                  python pipeline/fetch_bsdata.py
+                  echo "=== Parse BSData ==="
+                  python pipeline/parse_bsdata.py
+                  echo "=== Promote cache ==="
+                  mkdir -p /app/data/cache_stable && cp /app/data/cache/*.json /app/data/cache_stable/
+                  echo "=== Build frontend data ==="
+                  python pipeline/build_frontend_data.py
+                  echo "=== Upload vers S3 ==="
+                  aws s3 sync /app/data/cache_stable/ s3://probhammer-data-pipeline/cache_stable/ --region eu-west-3
+                  echo "=== Pipeline terminé ==="
+              env:
+                - name: AWS_DEFAULT_REGION
+                  value: eu-west-3
+              resources:
+                requests:
+                  memory: "256Mi"
+                  cpu: "250m"
+                limits:
+                  memory: "512Mi"
+                  cpu: "500m"
