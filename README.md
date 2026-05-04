@@ -1,33 +1,66 @@
 # Prob'Hammer
 
-Warhammer 40,000 10th Edition combat probability simulator.
+**Warhammer 40,000 10th Edition combat probability simulator.**
 
 Pick a unit, configure the attack, and get the full damage distribution in under a second — no account required.
+
+**[→ Open the simulator](https://40k.probhammer.com)**
+
+---
+
+## What it does
+
+In Warhammer 40,000, every attack rolls through four sequential phases — Hit, Wound, Save, and Feel No Pain. Each phase introduces randomness, making it hard to know before you play whether your unit will wipe a squad or barely scratch it.
+
+Prob'Hammer runs 1,000 Monte Carlo iterations through every phase and gives you the full probability distribution of the outcome: not just an average, but the realistic spread of what you can expect your attacks to actually do.
 
 ---
 
 ## Features
 
-- **Monte Carlo simulation** — 1,000 iterations, all phases (Hit → Wound → Save → FNP)
-- **1,487 units · 5,372 weapons · 46 factions** — data synced from [BSData/wh40k-10e](https://github.com/BSData/wh40k-10e) every 12h
-- **Full keyword support** — Lethal Hits, Devastating Wounds, Sustained Hits, ANTI, Melta, Twin-Linked, Torrent, Blast, Rapid Fire, Lance, Heavy, Ignores Cover, Indirect Fire
-- **Army builder** — create and save army lists, simulate from your roster
-- **Results** — damage histogram, mean, median, P10–P90 percentiles, kill probabilities
+### Simulator
+- Select any attacker unit and weapon from the full 10th Edition roster
+- Configure the defender: Toughness, Save, Invulnerable Save, Feel No Pain, Wounds
+- Set modifiers: number of attacking models, number of targets, keywords in effect
+- Get instant results: damage histogram, mean, median, P10–P90 percentile band, kill probability
+
+### Keyword support
+All official 10th Edition weapon special rules are implemented:
+
+| Keyword | Effect |
+|---|---|
+| **Torrent** | Bypasses Hit rolls — always hits |
+| **Lethal Hits** | Critical hits auto-wound, skipping Wound roll |
+| **Devastating Wounds** | Critical wounds bypass Armour Save |
+| **Sustained Hits X** | Critical hits generate X additional hits |
+| **Twin-Linked** | Re-roll all Wound rolls |
+| **ANTI [keyword] X+** | Wound roll of X+ is always a Critical Wound vs matching targets |
+| **Melta X** | Add X to Damage when targeting units within half range |
+| **Blast** | Minimum 3 attacks vs units of 6+ models |
+| **Rapid Fire X** | Add X × number of models to attacks at half range |
+| **Lance** | +1 to Wound rolls on the turn the unit charged |
+| **Heavy** | +1 to Hit rolls if unit Remained Stationary |
+| **Assault** | No penalty to Hit rolls after Advancing |
+| **Indirect Fire** | -1 to Hit rolls when firing indirectly |
+| **Ignores Cover** | Target's Cover bonus is ignored |
+
+### Unit browser
+- Browse all 46 factions and their full rosters
+- View unit datasheets: stats, weapons, abilities, points cost
+- Search across 1,495 units and 5,406 weapons
+
+### Army builder *(account required)*
+- Create and save named army lists
+- Add units directly from the browser or simulator
+- Simulate straight from your saved roster
 
 ---
 
-## Stack
+## Data
 
-| Layer | Technology |
-|---|---|
-| Frontend | React 19 + Vite + Zustand + Recharts |
-| Backend | FastAPI (Python 3.12) — auth JWT + armies CRUD |
-| Simulation | Monte Carlo engine in the browser (zero backend) |
-| Auth & saves | JWT (FastAPI) — email/password, localStorage fallback |
-| Database | PostgreSQL 17 (RDS on AWS, local Docker for dev) |
-| Data | Static JSON served as assets |
-| Data pipeline | Python + GitHub Actions (cron every 12h) |
-| Hosting | AWS S3 + CloudFront (frontend) · EC2 (backend) |
+Unit data is parsed from [BSData/wh40k-10e](https://github.com/BSData/wh40k-10e), an open-source community-maintained dataset that mirrors official Games Workshop rules.
+
+Current dataset: **1,495 units · 5,406 weapons · 46 factions**
 
 ---
 
@@ -37,48 +70,33 @@ Pick a unit, configure the attack, and get the full damage distribution in under
 git clone git@github.com:Pyy0tr/WarhammerWebProjet_V2.git
 cd WarhammerWebProjet_V2
 
-# Install all dependencies (frontend + pipeline)
+# Install dependencies
 bash scripts/setup.sh
 
-# Start backend + local DB (Docker required)
+# Start backend + database
 docker compose up db backend --build
-# → API on http://localhost:8000  |  Swagger: http://localhost:8000/docs
+# API: http://localhost:8000  |  Docs: http://localhost:8000/docs
 
-# Start frontend dev server
+# Start frontend
 cd frontend && npm run dev
-# → http://localhost:5173
+# http://localhost:5173
 ```
 
-Data files are already included (`frontend/public/data/`). No need to run the pipeline for local development.
+Data files are bundled in `frontend/public/data/` — no pipeline run needed for local development.
 
 ---
 
-## Data pipeline (optional)
+## Stack
 
-Regenerates game data from BSData source:
-
-```bash
-cd pipeline
-python3 -m venv .venv && source .venv/bin/activate
-pip install -r requirements.txt
-python fetch_bsdata.py
-python parse_bsdata.py
-python build_frontend_data.py
-python audit.py
-```
-
-Or use the helper script:
-```bash
-bash scripts/data-refresh.sh
-```
+| Layer | Technology |
+|---|---|
+| Frontend | React 19 + Vite + Zustand + Recharts |
+| Simulation engine | Monte Carlo, runs entirely in the browser |
+| Backend | FastAPI (Python 3.12) — JWT auth + army lists CRUD |
+| Database | PostgreSQL 17 |
+| Data pipeline | Python — fetches, parses and builds JSON from BSData |
+| Hosting | AWS CloudFront + S3 (frontend) · EC2 (backend) |
 
 ---
 
-## Data source
-
-Game data is parsed from [BSData/wh40k-10e](https://github.com/BSData/wh40k-10e), an open-source community-maintained dataset.
-Synced automatically via GitHub Actions every 12 hours.
-
----
-
-*Warhammer 40,000 © Games Workshop. This project is unofficial and not affiliated with Games Workshop.*
+*Unofficial. Not affiliated with Games Workshop. Warhammer 40,000 © Games Workshop Ltd.*
