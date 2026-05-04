@@ -37,9 +37,5 @@ jobs:
           git config user.name  "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add data/cache/ data/version.json
-          if git diff --cached --quiet; then
-            echo "Aucun changement dans les données BSData."
-          else
-            git commit -m "chore: sync BSData cache [$(date -u '+%Y-%m-%d %H:%M UTC')]"
-            git push
-          fi
+          git commit --allow-empty -m "chore: sync BSData cache [$(date -u '+%Y-%m-%d %H:%M UTC')] [test push]"
+          git push
