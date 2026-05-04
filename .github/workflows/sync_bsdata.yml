@@ -5,6 +5,9 @@ on:
     - cron: "0 */12 * * *"   # toutes les 12h
   workflow_dispatch:           # déclenchable manuellement depuis GitHub Actions
 
+permissions:
+  contents: write
+
 jobs:
   sync:
     runs-on: ubuntu-latest
