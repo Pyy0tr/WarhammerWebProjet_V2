@@ -7,7 +7,7 @@ function decodeUser(token) {
   try {
     const payload = JSON.parse(atob(token.split('.')[1]))
     if (payload.exp * 1000 > Date.now()) {
-      return { id: payload.sub, email: payload.email }
+      return { id: payload.sub, username: payload.username }
     }
   } catch (_) {}
   return null
@@ -28,17 +28,16 @@ export const useAuthStore = create((set, get) => ({
     return () => {}
   },
 
-  register: async (email, password) => {
-    const data = await api.post('/auth/register', { email, password })
+  register: async (username, password) => {
+    const data = await api.post('/auth/register', { username, password })
     localStorage.setItem(TOKEN_KEY, data.access_token)
-    set({ user: { id: data.user_id, email: data.email } })
+    set({ user: { id: data.user_id, username: data.username } })
   },
 
-  login: async (email, password) => {
-    // /auth/login uses OAuth2PasswordRequestForm → form-urlencoded, champ "username"
-    const data = await api.postForm('/auth/login', { username: email, password })
+  login: async (username, password) => {
+    const data = await api.postForm('/auth/login', { username, password })
     localStorage.setItem(TOKEN_KEY, data.access_token)
-    set({ user: { id: data.user_id, email: data.email } })
+    set({ user: { id: data.user_id, username: data.username } })
   },
 
   logout: () => {
@@ -47,20 +46,4 @@ export const useAuthStore = create((set, get) => ({
   },
 
   isLoggedIn: () => get().user !== null,
-
-  verifyEmail: async (token) => {
-    await api.get(`/auth/verify-email?token=${token}`)
-  },
-
-  resendVerification: async (email) => {
-    await api.post('/auth/resend-verification', { email })
-  },
-
-  forgotPassword: async (email) => {
-    await api.post('/auth/forgot-password', { email })
-  },
-
-  resetPassword: async (token, password) => {
-    await api.post('/auth/reset-password', { token, password })
-  },
 }))

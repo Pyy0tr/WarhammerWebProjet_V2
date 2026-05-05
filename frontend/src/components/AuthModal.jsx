@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react'
 import { useAuthStore } from '../store/authStore'
-import { ACCENT, BG, SURFACE, BORDER, TEXT, TEXT_SEC, TEXT_OFF, ERROR as ERR_COLOR, SUCCESS } from '../theme'
+import { ACCENT, BG, SURFACE, BORDER, TEXT, TEXT_SEC, TEXT_OFF, ERROR as ERR_COLOR } from '../theme'
 
 function Input({ type = 'text', placeholder, value, onChange, disabled }) {
   const [focused, setFocused] = useState(false)
@@ -56,63 +56,21 @@ function PrimaryBtn({ children, onClick, disabled, loading }) {
   )
 }
 
-function strengthScore(pw) {
-  let s = 0
-  if (pw.length >= 8)          s++
-  if (pw.length >= 12)         s++
-  if (/[A-Z]/.test(pw))        s++
-  if (/[0-9]/.test(pw))        s++
-  if (/[^A-Za-z0-9]/.test(pw)) s++
-  return s
-}
-
-function StrengthBar({ password }) {
-  if (!password) return null
-  const score  = strengthScore(password)
-  const colors = [ERR_COLOR, '#FFB547', '#FFB547', SUCCESS, ACCENT]
-  const labels = ['Very weak', 'Weak', 'Fair', 'Strong', 'Excellent']
-  return (
-    <div style={{ marginTop: '-4px', display: 'flex', flexDirection: 'column', gap: '4px' }}>
-      <div style={{ height: '3px', background: BORDER, borderRadius: '2px' }}>
-        <div style={{
-          height: '100%',
-          width: `${(score / 5) * 100}%`,
-          background: colors[score - 1] ?? ERR_COLOR,
-          transition: 'width 200ms, background 200ms',
-          borderRadius: '2px',
-        }} />
-      </div>
-      <span style={{
-        fontSize: '10px',
-        color: colors[score - 1] ?? ERR_COLOR,
-        fontFamily: 'Space Mono, monospace',
-        letterSpacing: '1px',
-      }}>
-        {labels[score - 1] ?? 'Too short'}
-      </span>
-    </div>
-  )
-}
-
-// ── Views ─────────────────────────────────────────────────────────────────────
-// tab: 'login' | 'register' | 'check-email' | 'forgot' | 'forgot-sent'
-
 export function AuthModal({ isOpen, onClose, initialTab = 'login' }) {
   const [tab, setTab]           = useState(initialTab)
-  const [email, setEmail]       = useState('')
+  const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
   const [confirm, setConfirm]   = useState('')
   const [error, setError]       = useState('')
   const [busy, setBusy]         = useState(false)
-  const [resent, setResent]     = useState(false)
 
-  const { login, register, forgotPassword, resendVerification } = useAuthStore()
+  const { login, register } = useAuthStore()
 
   useEffect(() => { setTab(initialTab) }, [initialTab])
 
   useEffect(() => {
-    setEmail(''); setPassword(''); setConfirm('')
-    setError(''); setBusy(false); setResent(false)
+    setUsername(''); setPassword(''); setConfirm('')
+    setError(''); setBusy(false)
   }, [isOpen, tab])
 
   useEffect(() => {
@@ -125,182 +83,36 @@ export function AuthModal({ isOpen, onClose, initialTab = 'login' }) {
   const handleLogin = useCallback(async () => {
     setError(''); setBusy(true)
     try {
-      await login(email.trim(), password)
+      await login(username.trim(), password)
       onClose()
     } catch (e) {
-      if (e.message?.includes('verify')) {
-        setError('Please verify your email first.')
-      } else {
-        setError(e.message?.toLowerCase().includes('incorrect') ? 'Incorrect email or password' : (e.message ?? 'Login error'))
-      }
+      setError(e.message ?? 'Login error')
     } finally {
       setBusy(false)
     }
-  }, [email, password, login, onClose])
+  }, [username, password, login, onClose])
 
   const handleRegister = useCallback(async () => {
     setError('')
     if (password !== confirm) { setError('Passwords do not match'); return }
-    if (strengthScore(password) < 2) { setError('Password too weak'); return }
     setBusy(true)
     try {
-      await register(email.trim(), password)
-      setTab('check-email')
+      await register(username.trim(), password)
+      onClose()
     } catch (e) {
       setError(e.message ?? 'Error creating account')
     } finally {
       setBusy(false)
     }
-  }, [email, password, confirm, register])
-
-  const handleForgot = useCallback(async () => {
-    setError(''); setBusy(true)
-    try {
-      await forgotPassword(email.trim())
-      setTab('forgot-sent')
-    } catch (e) {
-      setError(e.message ?? 'Error')
-    } finally {
-      setBusy(false)
-    }
-  }, [email, forgotPassword])
-
-  const handleResend = useCallback(async () => {
-    setBusy(true)
-    try {
-      await resendVerification(email.trim())
-      setResent(true)
-    } catch (_) {}
-    finally { setBusy(false) }
-  }, [email, resendVerification])
+  }, [username, password, confirm, register, onClose])
 
   const handleKey = (e) => {
     if (e.key !== 'Enter' || busy) return
     if (tab === 'login')    handleLogin()
     if (tab === 'register') handleRegister()
-    if (tab === 'forgot')   handleForgot()
   }
 
   if (!isOpen) return null
-
-  const renderContent = () => {
-    // ── Check email after register ──────────────────────────────────────────
-    if (tab === 'check-email') return (
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', textAlign: 'center' }}>
-        <div style={{ fontSize: '28px' }}>✉</div>
-        <p style={{ fontFamily: 'Space Mono, monospace', fontSize: '12px', color: TEXT, letterSpacing: '1px', margin: 0 }}>
-          Check your inbox
-        </p>
-        <p style={{ fontFamily: 'Georgia, serif', fontSize: '14px', color: TEXT_SEC, margin: 0, lineHeight: 1.6 }}>
-          We sent a verification link to <strong style={{ color: TEXT }}>{email}</strong>.
-          Click it to activate your account.
-        </p>
-        <p style={{ fontFamily: 'Space Mono, monospace', fontSize: '10px', color: TEXT_OFF, margin: 0 }}>
-          No email?{' '}
-          {resent
-            ? <span style={{ color: SUCCESS }}>Email sent!</span>
-            : <span onClick={handleResend} style={{ color: ACCENT, cursor: busy ? 'wait' : 'pointer', textDecoration: 'underline' }}>Resend</span>
-          }
-        </p>
-        <span onClick={() => setTab('login')} style={{ fontFamily: 'Space Mono, monospace', fontSize: '10px', color: TEXT_OFF, cursor: 'pointer', textDecoration: 'underline' }}>
-          Back to sign in
-        </span>
-      </div>
-    )
-
-    // ── Forgot password sent ────────────────────────────────────────────────
-    if (tab === 'forgot-sent') return (
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', textAlign: 'center' }}>
-        <div style={{ fontSize: '28px' }}>✉</div>
-        <p style={{ fontFamily: 'Space Mono, monospace', fontSize: '12px', color: TEXT, letterSpacing: '1px', margin: 0 }}>
-          Check your inbox
-        </p>
-        <p style={{ fontFamily: 'Georgia, serif', fontSize: '14px', color: TEXT_SEC, margin: 0, lineHeight: 1.6 }}>
-          If an account exists for <strong style={{ color: TEXT }}>{email}</strong>, a reset link has been sent. Valid for 1 hour.
-        </p>
-        <span onClick={() => setTab('login')} style={{ fontFamily: 'Space Mono, monospace', fontSize: '10px', color: TEXT_OFF, cursor: 'pointer', textDecoration: 'underline' }}>
-          Back to sign in
-        </span>
-      </div>
-    )
-
-    // ── Forgot password form ────────────────────────────────────────────────
-    if (tab === 'forgot') return (
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }} onKeyDown={handleKey}>
-        <p style={{ fontFamily: 'Georgia, serif', fontSize: '14px', color: TEXT_SEC, margin: 0, lineHeight: 1.6 }}>
-          Enter your email and we'll send you a reset link.
-        </p>
-        <Input placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} disabled={busy} />
-        <PrimaryBtn onClick={handleForgot} disabled={!email} loading={busy}>Send reset link</PrimaryBtn>
-        {error && <p style={{ fontFamily: 'Space Mono, monospace', fontSize: '10px', color: ERR_COLOR, margin: 0 }}>{error}</p>}
-        <span onClick={() => setTab('login')} style={{ fontFamily: 'Space Mono, monospace', fontSize: '10px', color: TEXT_OFF, cursor: 'pointer', textDecoration: 'underline', textAlign: 'center' }}>
-          Back to sign in
-        </span>
-      </div>
-    )
-
-    // ── Login / Register ────────────────────────────────────────────────────
-    return (
-      <>
-        <div style={{ display: 'flex', borderBottom: `1px solid ${BORDER}` }}>
-          {[['login', 'Sign in'], ['register', 'Create account']].map(([id, label]) => (
-            <button key={id} onClick={() => setTab(id)} style={{
-              flex: 1, padding: '10px 0',
-              background: 'none', border: 'none',
-              borderBottom: tab === id ? `2px solid ${ACCENT}` : '2px solid transparent',
-              color: tab === id ? ACCENT : TEXT_OFF,
-              fontFamily: 'Space Mono, monospace', fontSize: '10px',
-              letterSpacing: '2px', textTransform: 'uppercase',
-              cursor: 'pointer', marginBottom: '-1px', transition: 'color 120ms',
-            }}>
-              {label}
-            </button>
-          ))}
-        </div>
-
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }} onKeyDown={handleKey}>
-          <Input placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} disabled={busy} />
-          <Input type="password" placeholder="Password" value={password} onChange={(e) => setPassword(e.target.value)} disabled={busy} />
-
-          {tab === 'register' && (<>
-            <StrengthBar password={password} />
-            <Input type="password" placeholder="Confirm password" value={confirm} onChange={(e) => setConfirm(e.target.value)} disabled={busy} />
-          </>)}
-
-          <PrimaryBtn
-            onClick={tab === 'login' ? handleLogin : handleRegister}
-            disabled={tab === 'login' ? (!email || !password) : (!email || !password || !confirm)}
-            loading={busy}
-          >
-            {tab === 'login' ? 'Sign in' : 'Create account'}
-          </PrimaryBtn>
-
-          {tab === 'login' && (
-            <span onClick={() => setTab('forgot')} style={{
-              fontFamily: 'Space Mono, monospace', fontSize: '10px',
-              color: TEXT_OFF, cursor: 'pointer', textAlign: 'center', textDecoration: 'underline',
-            }}>
-              Forgot password?
-            </span>
-          )}
-
-          <p style={{ fontFamily: 'Space Mono, monospace', fontSize: '10px', color: TEXT_OFF, margin: 0, textAlign: 'center' }}>
-            {tab === 'login' ? 'No account yet? ' : 'Already have an account? '}
-            <span onClick={() => setTab(tab === 'login' ? 'register' : 'login')}
-              style={{ color: ACCENT, cursor: 'pointer', textDecoration: 'underline' }}>
-              {tab === 'login' ? 'Create account' : 'Sign in'}
-            </span>
-          </p>
-
-          {error && (
-            <p style={{ fontFamily: 'Space Mono, monospace', fontSize: '10px', color: ERR_COLOR, margin: 0, lineHeight: 1.5 }}>
-              {error}
-            </p>
-          )}
-        </div>
-      </>
-    )
-  }
 
   return (
     <div onClick={onClose} style={{
@@ -332,7 +144,52 @@ export function AuthModal({ isOpen, onClose, initialTab = 'login' }) {
           PROB<span style={{ opacity: 0.4 }}>'</span>HAMMER
         </div>
 
-        {renderContent()}
+        <div style={{ display: 'flex', borderBottom: `1px solid ${BORDER}` }}>
+          {[['login', 'Sign in'], ['register', 'Create account']].map(([id, label]) => (
+            <button key={id} onClick={() => setTab(id)} style={{
+              flex: 1, padding: '10px 0',
+              background: 'none', border: 'none',
+              borderBottom: tab === id ? `2px solid ${ACCENT}` : '2px solid transparent',
+              color: tab === id ? ACCENT : TEXT_OFF,
+              fontFamily: 'Space Mono, monospace', fontSize: '10px',
+              letterSpacing: '2px', textTransform: 'uppercase',
+              cursor: 'pointer', marginBottom: '-1px', transition: 'color 120ms',
+            }}>
+              {label}
+            </button>
+          ))}
+        </div>
+
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }} onKeyDown={handleKey}>
+          <Input placeholder="Username" value={username} onChange={(e) => setUsername(e.target.value)} disabled={busy} />
+          <Input type="password" placeholder="Password" value={password} onChange={(e) => setPassword(e.target.value)} disabled={busy} />
+
+          {tab === 'register' && (
+            <Input type="password" placeholder="Confirm password" value={confirm} onChange={(e) => setConfirm(e.target.value)} disabled={busy} />
+          )}
+
+          <PrimaryBtn
+            onClick={tab === 'login' ? handleLogin : handleRegister}
+            disabled={tab === 'login' ? (!username || !password) : (!username || !password || !confirm)}
+            loading={busy}
+          >
+            {tab === 'login' ? 'Sign in' : 'Create account'}
+          </PrimaryBtn>
+
+          <p style={{ fontFamily: 'Space Mono, monospace', fontSize: '10px', color: TEXT_OFF, margin: 0, textAlign: 'center' }}>
+            {tab === 'login' ? 'No account yet? ' : 'Already have an account? '}
+            <span onClick={() => setTab(tab === 'login' ? 'register' : 'login')}
+              style={{ color: ACCENT, cursor: 'pointer', textDecoration: 'underline' }}>
+              {tab === 'login' ? 'Create account' : 'Sign in'}
+            </span>
+          </p>
+
+          {error && (
+            <p style={{ fontFamily: 'Space Mono, monospace', fontSize: '10px', color: ERR_COLOR, margin: 0, lineHeight: 1.5 }}>
+              {error}
+            </p>
+          )}
+        </div>
       </div>
     </div>
   )

@@ -16,17 +16,19 @@ logger = logging.getLogger("uvicorn.error")
 
 @asynccontextmanager
 async def lifespan(_app: FastAPI):
-    # Retry create_all jusqu'à 5 fois — RDS peut mettre quelques secondes à accepter des connexions
     for attempt in range(1, 6):
         try:
             Base.metadata.create_all(bind=engine)
             with engine.connect() as conn:
+                # Migrate to username-based auth
                 conn.execute(text("""
-                    ALTER TABLE users
-                    ADD COLUMN IF NOT EXISTS email_verified      BOOLEAN DEFAULT FALSE NOT NULL,
-                    ADD COLUMN IF NOT EXISTS verification_token  VARCHAR,
-                    ADD COLUMN IF NOT EXISTS reset_token         VARCHAR,
-                    ADD COLUMN IF NOT EXISTS reset_token_expires TIMESTAMPTZ
+                    ALTER TABLE users ADD COLUMN IF NOT EXISTS username VARCHAR;
+                    UPDATE users SET username = 'user_' || substr(id::text, 1, 8) WHERE username IS NULL;
+                    ALTER TABLE users DROP COLUMN IF EXISTS email;
+                    ALTER TABLE users DROP COLUMN IF EXISTS email_verified;
+                    ALTER TABLE users DROP COLUMN IF EXISTS verification_token;
+                    ALTER TABLE users DROP COLUMN IF EXISTS reset_token;
+                    ALTER TABLE users DROP COLUMN IF EXISTS reset_token_expires;
                 """))
                 conn.commit()
             logger.info("Database tables ready")
