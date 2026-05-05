@@ -28,8 +28,8 @@ export const useAuthStore = create((set, get) => ({
     return () => {}
   },
 
-  register: async (username, password) => {
-    const data = await api.post('/auth/register', { username, password })
+  register: async (username, password, email) => {
+    const data = await api.post('/auth/register', { username, password, email: email || undefined })
     localStorage.setItem(TOKEN_KEY, data.access_token)
     set({ user: { id: data.user_id, username: data.username } })
   },
@@ -43,6 +43,14 @@ export const useAuthStore = create((set, get) => ({
   logout: () => {
     localStorage.removeItem(TOKEN_KEY)
     set({ user: null })
+  },
+
+  forgotPassword: async (email) => {
+    await api.post('/auth/forgot-password', { email })
+  },
+
+  resetPassword: async (token, newPassword) => {
+    await api.post('/auth/reset-password', { token, new_password: newPassword })
   },
 
   isLoggedIn: () => get().user !== null,

@@ -59,18 +59,20 @@ function PrimaryBtn({ children, onClick, disabled, loading }) {
 export function AuthModal({ isOpen, onClose, initialTab = 'login' }) {
   const [tab, setTab]           = useState(initialTab)
   const [username, setUsername] = useState('')
+  const [email, setEmail]       = useState('')
   const [password, setPassword] = useState('')
   const [confirm, setConfirm]   = useState('')
   const [error, setError]       = useState('')
+  const [info, setInfo]         = useState('')
   const [busy, setBusy]         = useState(false)
 
-  const { login, register } = useAuthStore()
+  const { login, register, forgotPassword } = useAuthStore()
 
   useEffect(() => { setTab(initialTab) }, [initialTab])
 
   useEffect(() => {
-    setUsername(''); setPassword(''); setConfirm('')
-    setError(''); setBusy(false)
+    setUsername(''); setEmail(''); setPassword(''); setConfirm('')
+    setError(''); setInfo(''); setBusy(false)
   }, [isOpen, tab])
 
   useEffect(() => {
@@ -97,19 +99,33 @@ export function AuthModal({ isOpen, onClose, initialTab = 'login' }) {
     if (password !== confirm) { setError('Passwords do not match'); return }
     setBusy(true)
     try {
-      await register(username.trim(), password)
+      await register(username.trim(), password, email.trim() || undefined)
       onClose()
     } catch (e) {
       setError(e.message ?? 'Error creating account')
     } finally {
       setBusy(false)
     }
-  }, [username, password, confirm, register, onClose])
+  }, [username, email, password, confirm, register, onClose])
+
+  const handleForgot = useCallback(async () => {
+    if (!email.trim()) { setError('Entre ton adresse email'); return }
+    setError(''); setBusy(true)
+    try {
+      await forgotPassword(email.trim())
+      setInfo('Si cet email est associé à un compte, un lien de reset a été envoyé.')
+    } catch (e) {
+      setError(e.message ?? 'Erreur')
+    } finally {
+      setBusy(false)
+    }
+  }, [email, forgotPassword])
 
   const handleKey = (e) => {
     if (e.key !== 'Enter' || busy) return
     if (tab === 'login')    handleLogin()
     if (tab === 'register') handleRegister()
+    if (tab === 'forgot')   handleForgot()
   }
 
   if (!isOpen) return null
@@ -144,45 +160,67 @@ export function AuthModal({ isOpen, onClose, initialTab = 'login' }) {
           PROB<span style={{ opacity: 0.4 }}>'</span>HAMMER
         </div>
 
-        <div style={{ display: 'flex', borderBottom: `1px solid ${BORDER}` }}>
-          {[['login', 'Sign in'], ['register', 'Create account']].map(([id, label]) => (
-            <button key={id} onClick={() => setTab(id)} style={{
-              flex: 1, padding: '10px 0',
-              background: 'none', border: 'none',
-              borderBottom: tab === id ? `2px solid ${ACCENT}` : '2px solid transparent',
-              color: tab === id ? ACCENT : TEXT_OFF,
-              fontFamily: 'Space Mono, monospace', fontSize: '10px',
-              letterSpacing: '2px', textTransform: 'uppercase',
-              cursor: 'pointer', marginBottom: '-1px', transition: 'color 120ms',
-            }}>
-              {label}
-            </button>
-          ))}
-        </div>
+        {tab !== 'forgot' && (
+          <div style={{ display: 'flex', borderBottom: `1px solid ${BORDER}` }}>
+            {[['login', 'Sign in'], ['register', 'Create account']].map(([id, label]) => (
+              <button key={id} onClick={() => setTab(id)} style={{
+                flex: 1, padding: '10px 0',
+                background: 'none', border: 'none',
+                borderBottom: tab === id ? `2px solid ${ACCENT}` : '2px solid transparent',
+                color: tab === id ? ACCENT : TEXT_OFF,
+                fontFamily: 'Space Mono, monospace', fontSize: '10px',
+                letterSpacing: '2px', textTransform: 'uppercase',
+                cursor: 'pointer', marginBottom: '-1px', transition: 'color 120ms',
+              }}>
+                {label}
+              </button>
+            ))}
+          </div>
+        )}
+
+        {tab === 'forgot' && (
+          <div style={{ fontFamily: 'Space Mono, monospace', fontSize: '11px', letterSpacing: '2px', color: TEXT_OFF, textTransform: 'uppercase' }}>
+            Mot de passe oublié
+          </div>
+        )}
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }} onKeyDown={handleKey}>
-          <Input placeholder="Username" value={username} onChange={(e) => setUsername(e.target.value)} disabled={busy} />
-          <Input type="password" placeholder="Password" value={password} onChange={(e) => setPassword(e.target.value)} disabled={busy} />
 
-          {tab === 'register' && (
+          {tab === 'login' && <>
+            <Input placeholder="Username" value={username} onChange={(e) => setUsername(e.target.value)} disabled={busy} />
+            <Input type="password" placeholder="Password" value={password} onChange={(e) => setPassword(e.target.value)} disabled={busy} />
+            <PrimaryBtn onClick={handleLogin} disabled={!username || !password} loading={busy}>Sign in</PrimaryBtn>
+            <p style={{ fontFamily: 'Space Mono, monospace', fontSize: '10px', color: TEXT_OFF, margin: 0, textAlign: 'center' }}>
+              No account yet?{' '}
+              <span onClick={() => setTab('register')} style={{ color: ACCENT, cursor: 'pointer', textDecoration: 'underline' }}>Create account</span>
+              {' · '}
+              <span onClick={() => setTab('forgot')} style={{ color: TEXT_OFF, cursor: 'pointer', textDecoration: 'underline' }}>Forgot password?</span>
+            </p>
+          </>}
+
+          {tab === 'register' && <>
+            <Input placeholder="Username" value={username} onChange={(e) => setUsername(e.target.value)} disabled={busy} />
+            <Input type="email" placeholder="Email (facultatif — pour reset mot de passe)" value={email} onChange={(e) => setEmail(e.target.value)} disabled={busy} />
+            <Input type="password" placeholder="Password" value={password} onChange={(e) => setPassword(e.target.value)} disabled={busy} />
             <Input type="password" placeholder="Confirm password" value={confirm} onChange={(e) => setConfirm(e.target.value)} disabled={busy} />
-          )}
+            <PrimaryBtn onClick={handleRegister} disabled={!username || !password || !confirm} loading={busy}>Create account</PrimaryBtn>
+            <p style={{ fontFamily: 'Space Mono, monospace', fontSize: '10px', color: TEXT_OFF, margin: 0, textAlign: 'center' }}>
+              Already have an account?{' '}
+              <span onClick={() => setTab('login')} style={{ color: ACCENT, cursor: 'pointer', textDecoration: 'underline' }}>Sign in</span>
+            </p>
+          </>}
 
-          <PrimaryBtn
-            onClick={tab === 'login' ? handleLogin : handleRegister}
-            disabled={tab === 'login' ? (!username || !password) : (!username || !password || !confirm)}
-            loading={busy}
-          >
-            {tab === 'login' ? 'Sign in' : 'Create account'}
-          </PrimaryBtn>
-
-          <p style={{ fontFamily: 'Space Mono, monospace', fontSize: '10px', color: TEXT_OFF, margin: 0, textAlign: 'center' }}>
-            {tab === 'login' ? 'No account yet? ' : 'Already have an account? '}
-            <span onClick={() => setTab(tab === 'login' ? 'register' : 'login')}
-              style={{ color: ACCENT, cursor: 'pointer', textDecoration: 'underline' }}>
-              {tab === 'login' ? 'Create account' : 'Sign in'}
-            </span>
-          </p>
+          {tab === 'forgot' && <>
+            {!info ? <>
+              <Input type="email" placeholder="Ton adresse email" value={email} onChange={(e) => setEmail(e.target.value)} disabled={busy} />
+              <PrimaryBtn onClick={handleForgot} disabled={!email} loading={busy}>Envoyer le lien</PrimaryBtn>
+            </> : (
+              <p style={{ fontFamily: 'Space Mono, monospace', fontSize: '11px', color: ACCENT, margin: 0, lineHeight: 1.6 }}>{info}</p>
+            )}
+            <p style={{ fontFamily: 'Space Mono, monospace', fontSize: '10px', color: TEXT_OFF, margin: 0, textAlign: 'center' }}>
+              <span onClick={() => setTab('login')} style={{ color: TEXT_OFF, cursor: 'pointer', textDecoration: 'underline' }}>Retour</span>
+            </p>
+          </>}
 
           {error && (
             <p style={{ fontFamily: 'Space Mono, monospace', fontSize: '10px', color: ERR_COLOR, margin: 0, lineHeight: 1.5 }}>

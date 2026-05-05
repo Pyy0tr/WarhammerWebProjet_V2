@@ -24,11 +24,11 @@ async def lifespan(_app: FastAPI):
                 conn.execute(text("""
                     ALTER TABLE users ADD COLUMN IF NOT EXISTS username VARCHAR;
                     UPDATE users SET username = 'user_' || substr(id::text, 1, 8) WHERE username IS NULL;
-                    ALTER TABLE users DROP COLUMN IF EXISTS email;
+                    ALTER TABLE users ADD COLUMN IF NOT EXISTS email VARCHAR UNIQUE;
+                    ALTER TABLE users ADD COLUMN IF NOT EXISTS reset_token VARCHAR;
+                    ALTER TABLE users ADD COLUMN IF NOT EXISTS reset_token_expires TIMESTAMPTZ;
                     ALTER TABLE users DROP COLUMN IF EXISTS email_verified;
                     ALTER TABLE users DROP COLUMN IF EXISTS verification_token;
-                    ALTER TABLE users DROP COLUMN IF EXISTS reset_token;
-                    ALTER TABLE users DROP COLUMN IF EXISTS reset_token_expires;
                 """))
                 conn.commit()
             logger.info("Database tables ready")
