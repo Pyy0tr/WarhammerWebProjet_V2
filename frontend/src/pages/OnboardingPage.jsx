@@ -120,7 +120,7 @@ function WeaponCard() {
 
 // ── Section content per step ──────────────────────────────────────────────────
 
-function StepContent({ stepKey, onNext, isLast, results }) {
+function StepContent({ stepKey, onNext, results }) {
   const content = {
     'beginner-0': (
       <>
