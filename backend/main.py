@@ -2,8 +2,12 @@ import os
 import time
 import logging
 from contextlib import asynccontextmanager
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
+from slowapi import _rate_limit_exceeded_handler
+from slowapi.errors import RateLimitExceeded
+from rate_limiter import limiter
 from sqlalchemy import text
 from dotenv import load_dotenv
 from database import Base, engine
@@ -12,6 +16,7 @@ from routes import auth, armies
 load_dotenv()
 
 logger = logging.getLogger("uvicorn.error")
+
 
 
 @asynccontextmanager
@@ -42,6 +47,8 @@ async def lifespan(_app: FastAPI):
 
 
 app = FastAPI(title="ProbHammer API", version="1.0.0", lifespan=lifespan)
+app.state.limiter = limiter
+app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 
 ALLOWED_ORIGINS = os.getenv("ALLOWED_ORIGINS", "http://localhost:5173").split(",")
 

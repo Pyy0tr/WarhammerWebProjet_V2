@@ -5,6 +5,7 @@ from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
 from pydantic import BaseModel
 from database import get_db
+from rate_limiter import limiter
 import models
 import auth as auth_utils
 from email_utils import send_reset_email
@@ -35,7 +36,8 @@ class AuthResponse(BaseModel):
 
 
 @router.post("/register", response_model=AuthResponse, status_code=status.HTTP_201_CREATED)
-def register(body: RegisterRequest, db: Session = Depends(get_db)):
+@limiter.limit("5/day")
+def register(request: Request, body: RegisterRequest, db: Session = Depends(get_db)):
     if len(body.username) < 3:
         raise HTTPException(status_code=400, detail="Username must be at least 3 characters")
     if db.query(models.User).filter(models.User.username == body.username).first():
