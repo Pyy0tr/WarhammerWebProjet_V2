@@ -25,23 +25,29 @@ jobs:
         run: pip install requests
 
       - name: Fetch BSData
+        id: fetch
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: python pipeline/fetch_bsdata.py
 
       - name: Parse BSData
+        if: steps.fetch.outputs.updated == 'true'
         run: python pipeline/parse_bsdata.py
 
       - name: Promote cache
+        if: steps.fetch.outputs.updated == 'true'
         run: mkdir -p data/cache_stable && cp data/cache/*.json data/cache_stable/
 
       - name: Build frontend data
+        if: steps.fetch.outputs.updated == 'true'
         run: python pipeline/build_frontend_data.py
 
       - name: Audit data quality
+        if: steps.fetch.outputs.updated == 'true'
         run: python pipeline/audit.py
 
       - name: Commit frontend data (si changements)
+        if: steps.fetch.outputs.updated == 'true'
         run: |
           git config user.name  "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"

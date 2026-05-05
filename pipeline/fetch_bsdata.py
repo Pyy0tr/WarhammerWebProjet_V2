@@ -102,6 +102,14 @@ def download_and_extract():
     return count
 
 
+def set_gha_output(key: str, value: str):
+    """Écrit un output GitHub Actions si on est dans ce contexte."""
+    gha_output = os.getenv("GITHUB_OUTPUT")
+    if gha_output:
+        with open(gha_output, "a") as f:
+            f.write(f"{key}={value}\n")
+
+
 def main():
     print("=== BSData Fetch (branche main) ===")
     print(f"Repo        : {BSDATA_REPO}")
@@ -115,6 +123,7 @@ def main():
     current_sha = get_current_sha()
     if current_sha == commit["sha"]:
         print(f"\nDéjà à jour ({commit['sha_short']}). Rien à faire.")
+        set_gha_output("updated", "false")
         return
 
     if current_sha:
@@ -124,6 +133,7 @@ def main():
 
     count = download_and_extract()
     save_version(commit)
+    set_gha_output("updated", "true")
 
     print(f"\nTerminé. {count} fichiers extraits dans data/raw/")
     print(f"SHA enregistré : {commit['sha_short']}")
