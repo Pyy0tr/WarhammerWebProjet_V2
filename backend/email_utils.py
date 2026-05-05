@@ -1,11 +1,11 @@
 import os
-import boto3
+import requests
 
-SES_FROM = os.environ.get("SES_FROM_EMAIL", "noreply@probhammer.com")
-REGION   = os.environ.get("AWS_REGION", "eu-west-3")
-FRONTEND = os.environ.get("FRONTEND_URL", "https://40k.probhammer.com")
+BREVO_API_KEY = os.environ.get("BREVO_API_KEY", "")
+SES_FROM      = os.environ.get("SES_FROM_EMAIL", "noreply@probhammer.com")
+FRONTEND      = os.environ.get("FRONTEND_URL", "https://40k.probhammer.com")
 
-ses = boto3.client("ses", region_name=REGION)
+_BREVO_URL = "https://api.brevo.com/v3/smtp/email"
 
 _BASE = """
 <div style="background:#0A1621;padding:40px;font-family:monospace;color:#9DB7C6;
@@ -24,14 +24,18 @@ _BTN = '<a href="{href}" style="display:inline-block;background:#2FE0FF;color:#0
 
 def _send(to: str, subject: str, body: str, footer: str):
     html = _BASE.format(body=body, footer=footer)
-    ses.send_email(
-        Source=SES_FROM,
-        Destination={"ToAddresses": [to]},
-        Message={
-            "Subject": {"Data": subject, "Charset": "UTF-8"},
-            "Body":    {"Html": {"Data": html, "Charset": "UTF-8"}},
+    response = requests.post(
+        _BREVO_URL,
+        headers={"api-key": BREVO_API_KEY, "Content-Type": "application/json"},
+        json={
+            "sender":      {"name": "Prob'Hammer", "email": SES_FROM},
+            "to":          [{"email": to}],
+            "subject":     subject,
+            "htmlContent": html,
         },
+        timeout=10,
     )
+    response.raise_for_status()
 
 
 def send_verification_email(to: str, token: str):
