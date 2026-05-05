@@ -4,7 +4,6 @@ from fastapi import APIRouter, Depends, HTTPException, status, Request
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
 from pydantic import BaseModel
-from typing import Optional
 from database import get_db
 import models
 import auth as auth_utils
@@ -16,7 +15,7 @@ router = APIRouter(prefix="/auth", tags=["auth"])
 class RegisterRequest(BaseModel):
     username: str
     password: str
-    email: Optional[str] = None
+    email: str
 
 
 class ForgotPasswordRequest(BaseModel):
@@ -43,14 +42,13 @@ def register(body: RegisterRequest, db: Session = Depends(get_db)):
         raise HTTPException(status_code=400, detail="Username already taken")
     if len(body.password) < 8:
         raise HTTPException(status_code=400, detail="Password too short (8 characters min)")
-    if body.email:
-        if db.query(models.User).filter(models.User.email == body.email).first():
-            raise HTTPException(status_code=400, detail="Email already used")
+    if db.query(models.User).filter(models.User.email == body.email).first():
+        raise HTTPException(status_code=400, detail="Email already used")
 
     user = models.User(
         username  = body.username,
         hashed_pw = auth_utils.hash_password(body.password),
-        email     = body.email or None,
+        email     = body.email,
     )
     db.add(user)
     db.commit()

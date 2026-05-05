@@ -200,10 +200,10 @@ export function AuthModal({ isOpen, onClose, initialTab = 'login' }) {
 
           {tab === 'register' && <>
             <Input placeholder="Username" value={username} onChange={(e) => setUsername(e.target.value)} disabled={busy} />
-            <Input type="email" placeholder="Email (facultatif — pour reset mot de passe)" value={email} onChange={(e) => setEmail(e.target.value)} disabled={busy} />
+            <Input type="email" placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} disabled={busy} />
             <Input type="password" placeholder="Password" value={password} onChange={(e) => setPassword(e.target.value)} disabled={busy} />
             <Input type="password" placeholder="Confirm password" value={confirm} onChange={(e) => setConfirm(e.target.value)} disabled={busy} />
-            <PrimaryBtn onClick={handleRegister} disabled={!username || !password || !confirm} loading={busy}>Create account</PrimaryBtn>
+            <PrimaryBtn onClick={handleRegister} disabled={!username || !email || !password || !confirm} loading={busy}>Create account</PrimaryBtn>
             <p style={{ fontFamily: 'Space Mono, monospace', fontSize: '10px', color: TEXT_OFF, margin: 0, textAlign: 'center' }}>
               Already have an account?{' '}
               <span onClick={() => setTab('login')} style={{ color: ACCENT, cursor: 'pointer', textDecoration: 'underline' }}>Sign in</span>
