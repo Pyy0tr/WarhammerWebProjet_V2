@@ -1,13 +1,29 @@
 import { useEffect } from 'react'
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
+import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom'
 import { HomePage } from './pages/HomePage'
 import { SimulatorPage } from './pages/SimulatorPage'
 import { FactionsPage } from './pages/FactionsPage'
 import { ArmiesPage } from './pages/ArmiesPage'
 import { ResetPasswordPage } from './pages/ResetPasswordPage'
+import { WelcomePage } from './pages/WelcomePage'
+import { OnboardingPage } from './pages/OnboardingPage'
 import { Navbar } from './components/Navbar'
 import { useDataStore } from './store/dataStore'
 import { useAuthStore } from './store/authStore'
+
+const NO_NAVBAR = ['/welcome', '/onboarding', '/reset-password']
+
+function NavbarConditional() {
+  const { pathname } = useLocation()
+  if (NO_NAVBAR.some(p => pathname.startsWith(p))) return null
+  return <Navbar />
+}
+
+function OnboardingGuard({ children }) {
+  const done = localStorage.getItem('ph_onboarding_done')
+  if (!done) return <Navigate to="/welcome" replace />
+  return children
+}
 
 function HalftoneOverlay() {
   return (
@@ -70,15 +86,17 @@ export default function App() {
   return (
     <BrowserRouter>
       <HalftoneOverlay />
-      <Navbar />
+      <NavbarConditional />
 
       <Routes>
-        <Route path="/"          element={<HomePage />} />
-        <Route path="/simulator" element={<SimulatorPage />} />
-        <Route path="/factions"  element={<FactionsPage />} />
-        <Route path="/armies"         element={<ArmiesPage />} />
+        <Route path="/welcome"        element={<WelcomePage />} />
+        <Route path="/onboarding"     element={<OnboardingPage />} />
         <Route path="/reset-password" element={<ResetPasswordPage />} />
-        <Route path="*"               element={<Navigate to="/" replace />} />
+        <Route path="/"          element={<OnboardingGuard><HomePage /></OnboardingGuard>} />
+        <Route path="/simulator" element={<OnboardingGuard><SimulatorPage /></OnboardingGuard>} />
+        <Route path="/factions"  element={<OnboardingGuard><FactionsPage /></OnboardingGuard>} />
+        <Route path="/armies"    element={<OnboardingGuard><ArmiesPage /></OnboardingGuard>} />
+        <Route path="*"          element={<Navigate to="/" replace />} />
       </Routes>
     </BrowserRouter>
   )
