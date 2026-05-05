@@ -53,6 +53,7 @@ All official 10th Edition weapon special rules are implemented:
 - Create and save named army lists
 - Add units directly from the browser or simulator
 - Simulate straight from your saved roster
+- Account creation requires username + email + password — email used only for password reset
 
 ---
 
