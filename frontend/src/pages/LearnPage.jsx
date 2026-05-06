@@ -154,7 +154,7 @@ function DefenderStatCard({ highlight = [], dim = [] }) {
 
 // ── Step content ──────────────────────────────────────────────────────────────
 
-function StepContent({ step, onNext, onSynergies, result }) {
+function StepContent({ step, onNext, onSynergies }) {
   const contents = [
 
     // Step 0 — The Setup
@@ -539,7 +539,7 @@ export function LearnPage() {
               ref={(el) => { sectionRefs.current[i] = el }}
               style={{ minHeight: 'calc(100vh - 55px)', padding: '56px 48px', display: 'flex', flexDirection: 'column', gap: '20px', justifyContent: 'center', borderBottom: i < STEPS.length - 1 ? `1px solid ${BORDER}` : 'none' }}
             >
-              <StepContent step={i} onNext={() => handleNext(i)} onSynergies={handleSynergies} result={result} />
+              <StepContent step={i} onNext={() => handleNext(i)} onSynergies={handleSynergies} />
             </section>
           ))}
         </div>
