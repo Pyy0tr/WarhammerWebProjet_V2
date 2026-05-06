@@ -125,7 +125,7 @@ export function Navbar() {
   const navigate = useNavigate()
   const { user, logout } = useAuthStore()
   const [modal, setModal] = useState(null)
-  const isAdmin = user?.username === 'Pyy0tr'
+  const isAdmin = user?.username === 'admin'
 
   return (
     <>

@@ -7,7 +7,7 @@ from rate_limiter import limiter
 from auth import get_current_user
 import models
 
-ADMIN_USERNAME = "Pyy0tr"
+ADMIN_USERNAME = "admin"
 
 router = APIRouter(prefix="/feedback", tags=["feedback"])
 

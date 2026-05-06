@@ -7,7 +7,7 @@ import {
   TEXT, TEXT_SEC, TEXT_WEAK, TEXT_OFF,
 } from '../theme'
 
-const ADMIN_USERNAME = 'Pyy0tr'
+const ADMIN_USERNAME = 'admin'
 
 const TYPE_COLOR = {
   bug:        HIGHLIGHT,
