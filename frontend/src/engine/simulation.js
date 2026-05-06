@@ -153,7 +153,7 @@ function simulateOnce(req) {
       if (rerollHits) {
         const eligible =
           (rerollHits.value === 'ones' && die === 1) ||
-          (rerollHits.value === 'all'  && clamp(die + hitMod, 1, 6) < skill && die < critHitThr)
+          (rerollHits.value === 'all'  && (die === 1 || clamp(die + hitMod, 1, 6) < skill) && die < critHitThr)
         if (eligible) die = d6()
       }
 
