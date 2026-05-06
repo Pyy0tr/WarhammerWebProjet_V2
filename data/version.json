@@ -1,6 +1,6 @@
 {
-  "sha": "1bf4f1ca6d17f6177c85612643a03dd4f4416a04",
-  "sha_short": "1bf4f1ca",
-  "committed_at": "2026-05-04T11:18:11Z",
-  "message": "headhunter fixes"
+  "sha": "73cb50821d37dadd67f4e5f8f42499d415f4db92",
+  "sha_short": "73cb5082",
+  "committed_at": "2026-05-05T14:11:16Z",
+  "message": "Fixes #7165"
 }
