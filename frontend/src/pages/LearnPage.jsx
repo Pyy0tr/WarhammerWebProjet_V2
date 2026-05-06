@@ -498,7 +498,7 @@ export function LearnPage() {
 
   function handleSynergies() {
     localStorage.setItem('ph_onboarding_done', 'true')
-    localStorage.setItem('ph_level', 'intermediate')
+    localStorage.setItem('ph_level', 'beginner')
     window.scrollTo(0, 0)
     navigate('/onboarding')
   }
