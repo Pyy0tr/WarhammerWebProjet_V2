@@ -587,7 +587,7 @@ function UnitsView({ faction, initialUnit, _onSelectUnit, onBack }) {
   const [sort, setSort]               = useState('alpha')
   const [showLegends, setShowLegends] = useState(false)
 
-  const allUnits = unitsByFaction[faction] || []
+  const allUnits = useMemo(() => unitsByFaction[faction] || [], [unitsByFaction, faction])
 
   const filtered = useMemo(() => {
     let list = showLegends ? allUnits : allUnits.filter((u) => !u.is_legends)

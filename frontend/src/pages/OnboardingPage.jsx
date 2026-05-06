@@ -194,7 +194,7 @@ function DefenderCard({ showInvuln = true }) {
 
 // ── Left panel content per step ───────────────────────────────────────────────
 
-function StepContent({ stepKey, onNext, isLast, results }) {
+function StepContent({ stepKey, onNext, results }) {
   const content = {
 
     'beginner-0': (<>
@@ -704,7 +704,6 @@ export function OnboardingPage() {
               <StepContent
                 stepKey={`${prefix}-${i}`}
                 onNext={() => handleNext(i)}
-                isLast={i === steps.length - 1}
                 results={results}
               />
             </section>

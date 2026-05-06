@@ -221,11 +221,11 @@ function ArmyPicker() {
         keywords: mapKeywords(selectedWeapon.kw ?? []),
       })
     }
-  }, [selectedWeapon, setWeapon])   // eslint-disable-line
+  }, [selectedWeapon, setWeapon])
 
   useEffect(() => {
     setAttacker({ models: firing })
-  }, [firing, setAttacker])         // eslint-disable-line
+  }, [firing, setAttacker])
 
   const handleArmyChange = (id) => { setArmyId(id); setUnitUid(''); setWeaponId(''); setFiring(1) }
   const handleUnitChange = (uid) => {

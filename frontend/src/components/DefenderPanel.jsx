@@ -45,7 +45,7 @@ function DefenderArmyPicker() {
       const fullUnit = getUnitById(unit.unit_id)
       setDefenderUnit(fullUnit || unit)
     }
-  }, [unit, setDefender, setDefenderUnit, getUnitById]) // eslint-disable-line
+  }, [unit, setDefender, setDefenderUnit, getUnitById])
 
   const handleArmyChange = (id) => { setArmyId(id); setUnitUid('') }
   const handleUnitChange = (uid) => setUnitUid(uid)
