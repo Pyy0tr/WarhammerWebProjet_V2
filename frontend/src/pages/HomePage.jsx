@@ -133,23 +133,23 @@ function StepCard({ num, title, desc }) {
 const GUIDES = [
   {
     num: '01',
-    title: 'Bases de combat',
-    desc: 'Comprendre les 5 phases d\'une attaque : Attacks → Hit → Wound → Save → Damage. Avec un exemple concret pas à pas.',
+    title: 'Combat Basics',
+    desc: 'Walk through the 5 attack phases — Attacks, Hit, Wound, Save, Damage — with a concrete step-by-step example.',
     duration: '~5 min',
     route: '/learn',
   },
   {
     num: '02',
-    title: 'Importance des synergies',
-    desc: 'Voir comment les mots-clés se combinent pour démultiplier les dégâts. Exemple live avec les Sword Brethren et le Maleceptor.',
+    title: 'Power of Synergies',
+    desc: 'See how keywords stack to multiply damage output. Live example with Sword Brethren and the Maleceptor.',
     duration: '~2 min',
     route: '/onboarding',
   },
   {
     num: '03',
-    title: 'Explorer les mots-clés',
-    desc: 'Lethal Hits, Devastating Wounds, ANTI, Sustained Hits… Un guide interactif pour chaque mot-clé disponible dans le simulateur.',
-    duration: 'Bientôt',
+    title: 'Explore Keywords',
+    desc: 'Lethal Hits, Devastating Wounds, ANTI, Sustained Hits… An interactive guide for every keyword in the simulator.',
+    duration: 'Coming soon',
     route: null,
   },
 ]
