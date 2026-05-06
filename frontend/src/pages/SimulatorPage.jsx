@@ -5,6 +5,7 @@ import { DefenderPanel } from '../components/DefenderPanel'
 import { ResultsPanel } from '../components/ResultsPanel'
 import { AbilityText } from '../components/AbilityText'
 import { ACCENT, ACCENT_H, BG, SURFACE, SURFACE_E, BORDER, TEXT, TEXT_SEC, TEXT_WEAK, TEXT_OFF, ERROR } from '../theme'
+import { KEYWORD_BY_TYPE } from '../engine/keywords.js'
 
 // ── Step indicator ───────────────────────────────────────────────────────────
 
@@ -379,137 +380,12 @@ function Separator() {
   )
 }
 
-// ── Keyword definitions (WH40K 10th Edition core rules) ─────────────────────
-
-const KEYWORD_DEFS = {
-  TORRENT: {
-    name: 'Torrent',
-    phase: 'Hit Roll',
-    rule: 'Each time an attack is made with this weapon, that attack automatically hits the target. No Hit roll is made.',
-    note: 'Torrent weapons bypass Ballistic Skill entirely — they always hit regardless of modifiers, cover, or penalties.',
-  },
-  CRITICAL_HIT_ON: {
-    name: 'Critical Hit On X+',
-    phase: 'Hit Roll',
-    rule: 'Each time an attack is made with this weapon, a Critical Hit is scored on an unmodified Hit roll of X+ instead of only on a 6.',
-    note: 'Interacts with Sustained Hits and Lethal Hits — lowering the critical threshold makes those abilities trigger more often.',
-  },
-  LETHAL_HITS: {
-    name: 'Lethal Hits',
-    phase: 'Hit Roll → Wound Roll',
-    rule: 'Each time an attack is made with this weapon, if a Critical Hit is scored, that attack automatically wounds the target.',
-    note: 'The wound is resolved at full AP and Damage. Pairs powerfully with Critical Hit On X+ to generate more auto-wounds.',
-  },
-  SUSTAINED_HITS: {
-    name: 'Sustained Hits X',
-    phase: 'Hit Roll',
-    rule: 'Each time an attack is made with this weapon, if a Critical Hit is scored, that hit scores X additional hits on the target. The additional hits are not Critical Hits and cannot themselves generate Sustained Hits.',
-    note: 'The extra hits roll to wound normally. They benefit from Lethal Hits on the original crit but do not trigger further Sustained Hits.',
-  },
-  TWIN_LINKED: {
-    name: 'Twin-linked',
-    phase: 'Wound Roll',
-    rule: 'Each time an attack is made with this weapon, you can re-roll the Wound roll.',
-    note: 'Applies to every wound roll, not just failures. This is a full re-roll, not limited to results of 1.',
-  },
-  HEAVY: {
-    name: 'Heavy',
-    phase: 'Hit Roll',
-    rule: 'Each time an attack is made with this weapon, if the attacking model\'s unit Remained Stationary this turn, add 1 to that attack\'s Hit roll.',
-    note: 'The +1 is applied after the roll, so it does not affect whether a roll is a Critical Hit (which is always based on the unmodified roll).',
-  },
-  ASSAULT: {
-    name: 'Assault',
-    phase: 'Shooting Phase',
-    rule: 'This weapon can be fired even if the bearer\'s unit Advanced this turn. If it did, subtract 1 from the Hit roll unless the weapon also has the Torrent ability.',
-    note: 'Allows shooting after Advancing. Without Assault, a unit that Advanced cannot fire ranged weapons.',
-  },
-  RAPID_FIRE: {
-    name: 'Rapid Fire X',
-    phase: 'Shooting Phase',
-    rule: 'Each time the bearer\'s unit is selected to shoot, if the target of this weapon is within half the weapon\'s range, the Attacks characteristic of this weapon is increased by X for that attack.',
-    note: 'Stacks with other attack modifiers like Blast. Check range to the closest model in the target unit.',
-  },
-  EXTRA_ATTACKS: {
-    name: 'Extra Attacks X',
-    phase: 'Shooting / Fight Phase',
-    rule: 'The bearer can make X additional attacks with this weapon on top of any other weapons it can use. These extra attacks are made in addition to the weapon\'s normal attacks.',
-    note: 'Unlike other weapons, Extra Attacks weapons do not replace the model\'s other attacks — they are bonus attacks.',
-  },
-  INDIRECT_FIRE: {
-    name: 'Indirect Fire',
-    phase: 'Hit Roll',
-    rule: 'This weapon can target and make attacks against units that are not visible to the attacking model. If the target is not visible, subtract 1 from the Hit roll and the target is treated as having the Benefit of Cover.',
-    note: 'Even if the target is in the open, it gains cover when hit indirectly. Combined with -1 to hit, Indirect Fire is less accurate but bypasses line of sight.',
-  },
-  PISTOL: {
-    name: 'Pistol',
-    phase: 'Shooting Phase',
-    rule: 'This weapon can be selected to shoot with even if the bearer\'s unit is within Engagement Range of one or more enemy units. In that case, it can only target an enemy unit that is within Engagement Range.',
-    note: 'Pistols cannot be used alongside non-Pistol ranged weapons in the same phase if the unit is in Engagement Range.',
-  },
-  DEVASTATING_WOUNDS: {
-    name: 'Devastating Wounds',
-    phase: 'Wound Roll',
-    rule: 'Each time an attack is made with this weapon, if a Critical Wound is scored, the target suffers Mortal Wounds equal to the Damage characteristic of this weapon. The attack sequence then ends — no saving throw is made.',
-    note: 'Mortal wounds bypass armour and invulnerable saves entirely. Critical Wounds are scored on unmodified Wound rolls of 6.',
-  },
-  LANCE: {
-    name: 'Lance',
-    phase: 'Wound Roll',
-    rule: 'Each time an attack is made with this weapon, if the bearer\'s unit made a Charge move this turn, add 1 to that attack\'s Wound roll.',
-    note: 'Like Heavy, the +1 is applied after the roll and does not affect whether a wound is Critical (unmodified 6 only).',
-  },
-  MELTA: {
-    name: 'Melta X',
-    phase: 'Damage',
-    rule: 'Each time an attack is made with this weapon, if the target is within half this weapon\'s range, increase the Damage characteristic of that attack by X.',
-    note: 'Devastating at close range. A Melta 2 weapon with D6 damage becomes D6+2 at half range.',
-  },
-  ANTI: {
-    name: 'Anti-[KEYWORD] X+',
-    phase: 'Wound Roll',
-    rule: 'Each time an attack is made with this weapon against a target that has the specified keyword, an unmodified Wound roll of X+ scores a Critical Wound.',
-    note: 'This lowers the Critical Wound threshold against specific targets. Pairs with Devastating Wounds to inflict mortal wounds more reliably.',
-  },
-  BLAST: {
-    name: 'Blast',
-    phase: 'Number of Attacks',
-    rule: 'Add 1 to the Attacks characteristic of this weapon for every 5 models in the target unit (rounding down). This weapon can never be used to target a unit that is within Engagement Range of the attacking model\'s unit.',
-    note: 'A unit of 11 models adds +2 attacks. Cannot be used in melee. Applied before rolling random attacks (e.g. D6+2 becomes D6+4 vs 11 models).',
-  },
-  IGNORES_COVER: {
-    name: 'Ignores Cover',
-    phase: 'Saving Throw',
-    rule: 'Each time an attack is made with this weapon, the target cannot claim the Benefit of Cover against that attack.',
-    note: 'Cover normally adds +1 to the saving throw. This ability negates that bonus entirely.',
-  },
-  PRECISION: {
-    name: 'Precision',
-    phase: 'Wound Allocation',
-    rule: 'Each time an attack made with this weapon successfully wounds an Attached unit, if a Critical Hit was scored for that attack, the attacking player can choose to have the attack allocated to a Character model in that unit.',
-    note: 'Normally, wounds must be allocated to Bodyguard models first. Precision bypasses this protection on critical hits.',
-  },
-  HAZARDOUS: {
-    name: 'Hazardous',
-    phase: 'After Shooting / Fighting',
-    rule: 'After a unit shoots or fights, for each Hazardous weapon used by a model in that unit, roll one D6. On a 1, that model suffers 3 mortal wounds (or is destroyed if it is not a Character, Monster, or Vehicle).',
-    note: 'The risk applies to your own models. Using multiple Hazardous weapons increases the number of D6 rolls.',
-  },
-  PSYCHIC: {
-    name: 'Psychic',
-    phase: 'Shooting Phase',
-    rule: 'This is a Psychic weapon. All normal rules for ranged weapons apply.',
-    note: 'In 10th Edition, Psychic weapons function like normal weapons. Some abilities specifically interact with or ignore Psychic attacks.',
-  },
-}
-
 function KeywordDefinitionPanel() {
   const hoveredKeyword = useSimulatorStore((s) => s.hoveredKeyword)
   const lastDefRef = useRef(null)
   const [visible, setVisible] = useState(false)
 
-  const def = hoveredKeyword ? KEYWORD_DEFS[hoveredKeyword] : null
+  const def = hoveredKeyword ? KEYWORD_BY_TYPE[hoveredKeyword] : null
   if (def) lastDefRef.current = def
 
   const display = def || lastDefRef.current
@@ -559,7 +435,7 @@ function KeywordDefinitionPanel() {
               fontWeight: 700, letterSpacing: '1px', textTransform: 'uppercase',
               color: ACCENT, marginBottom: '16px', lineHeight: 1.2,
             }}>
-              {display.name}
+              {display.label}
             </div>
 
             <div style={{

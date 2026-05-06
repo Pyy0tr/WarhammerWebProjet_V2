@@ -6,43 +6,7 @@ import { useAuthStore }      from '../store/authStore'
 import { StatInput }  from './StatInput'
 import { UnitDrawer } from './UnitDrawer'
 import { ACCENT, ACCENT_H, BG, SURFACE, SURFACE_E, BORDER, TEXT, TEXT_SEC, TEXT_WEAK, TEXT_OFF } from '../theme'
-
-// ── Keyword definitions ───────────────────────────────────────────────────────
-
-const KW_GROUPS = [
-  {
-    label: 'Hit phase',
-    keys: [
-      { type: 'TORRENT',        label: 'Torrent',        tip: 'Auto-hit, no roll needed' },
-      { type: 'LETHAL_HITS',    label: 'Lethal Hits',    tip: 'Critical hit → auto-wound' },
-      { type: 'SUSTAINED_HITS', label: 'Sustained Hits', tip: 'Crit → X extra hit rolls', valued: true, default: '1' },
-      { type: 'TWIN_LINKED',    label: 'Twin-linked',    tip: 'Re-roll all wound rolls' },
-      { type: 'HEAVY',          label: 'Heavy',          tip: '+1 to hit if attacker didn\'t move' },
-      { type: 'ASSAULT',        label: 'Assault',        tip: 'No penalty for advancing' },
-      { type: 'RAPID_FIRE',     label: 'Rapid Fire',     tip: '+X attacks at half range', valued: true, default: '1' },
-      { type: 'INDIRECT_FIRE',  label: 'Indirect Fire',  tip: '-1 to hit if target not visible' },
-      { type: 'PISTOL',         label: 'Pistol',         tip: 'Can shoot in engagement range' },
-    ],
-  },
-  {
-    label: 'Wound phase',
-    keys: [
-      { type: 'DEVASTATING_WOUNDS', label: 'Dev. Wounds', tip: 'Critical wound → mortal wounds = damage' },
-      { type: 'LANCE',              label: 'Lance',        tip: '+1 to wound if attacker charged' },
-      { type: 'MELTA',              label: 'Melta',        tip: '+X damage at half range', valued: true, default: '2' },
-      { type: 'ANTI',               label: 'Anti',         tip: 'Crits against specific keyword on Y+', special: 'anti' },
-    ],
-  },
-  {
-    label: 'Other',
-    keys: [
-      { type: 'BLAST',     label: 'Blast',     tip: '+1 attack per 5 defender models' },
-      { type: 'PRECISION', label: 'Precision', tip: 'Can allocate to character' },
-      { type: 'HAZARDOUS', label: 'Hazardous', tip: 'Risk to own models' },
-      { type: 'PSYCHIC',   label: 'Psychic',   tip: 'Psychic weapon' },
-    ],
-  },
-]
+import { KW_GROUPS, SIMPLE_KW_TYPES } from '../engine/keywords.js'
 
 // ── KeywordPicker ─────────────────────────────────────────────────────────────
 
@@ -920,15 +884,10 @@ function mapKeywords(kwStrings) {
   for (const raw of kwStrings) {
     const upper = raw.toUpperCase().replace(/\s+/g, '_')
 
-    const simpleTypes = [
-      'TORRENT', 'LETHAL_HITS', 'DEVASTATING_WOUNDS', 'TWIN-LINKED',
-      'BLAST', 'HEAVY', 'LANCE', 'IGNORES_COVER', 'INDIRECT_FIRE',
-      'ASSAULT', 'PISTOL', 'PSYCHIC', 'PRECISION', 'HAZARDOUS',
-    ]
     const mapped = upper.replace(/-/g, '_').replace(/\s/g, '_')
 
-    if (simpleTypes.includes(mapped)) {
-      result.push({ type: mapped.replace('TWIN_LINKED', 'TWIN_LINKED') })
+    if (SIMPLE_KW_TYPES.includes(mapped)) {
+      result.push({ type: mapped })
       continue
     }
 
