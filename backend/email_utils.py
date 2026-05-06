@@ -21,8 +21,11 @@ def send_reset_email(to_email: str, reset_token: str):
     html_body = f"""
     <html><body>
       <p>Tu as demandé à réinitialiser ton mot de passe sur <strong>ProbHammer</strong>.</p>
-      <p><a href="{reset_link}" style="background:#e63946;color:white;padding:10px 20px;border-radius:5px;text-decoration:none;display:inline-block;">Réinitialiser mon mot de passe</a></p>
-      <p style="color:#888;font-size:12px;">Ce lien expire dans 1h. Si tu n'as pas fait cette demande, ignore cet email.</p>
+      <p><a href="{reset_link}"
+        style="background:#e63946;color:white;padding:10px 20px;border-radius:5px;
+               text-decoration:none;display:inline-block;">Réinitialiser mon mot de passe</a></p>
+      <p style="color:#888;font-size:12px;">
+        Ce lien expire dans 1h. Si tu n'as pas fait cette demande, ignore cet email.</p>
     </body></html>
     """
 

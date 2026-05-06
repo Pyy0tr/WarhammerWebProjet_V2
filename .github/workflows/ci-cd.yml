@@ -17,6 +17,18 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      # ── Python lint ──────────────────────────
+      - name: Setup Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Lint Python (flake8)
+        run: |
+          pip install flake8 --quiet
+          flake8 backend/ --max-line-length=120 --exclude=__pycache__
+
+      # ── Frontend lint + build ────────────────
       - name: Setup Node.js 22
         uses: actions/setup-node@v4
         with:
@@ -46,17 +58,15 @@ jobs:
           retention-days: 1
 
   # ─────────────────────────────────────────────
-  # Job 2 — CD Frontend : S3 + CloudFront + ECR
+  # Job 2 — CD Frontend : S3 + CloudFront
   # Seulement sur push main (pas sur PR)
   # ─────────────────────────────────────────────
   cd-frontend:
-    name: CD — Frontend (S3 + CloudFront + ECR)
+    name: CD — Frontend (S3 + CloudFront)
     needs: ci
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/main' && github.event_name == 'push'
     steps:
-      - uses: actions/checkout@v4
-
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
@@ -75,15 +85,6 @@ jobs:
 
       - name: Invalider le cache CloudFront
         run: aws cloudfront create-invalidation --distribution-id ${{ secrets.CLOUDFRONT_DISTRIBUTION_ID }} --paths "/*"
-
-      - name: Login ECR
-        run: aws ecr get-login-password --region eu-west-3 | docker login --username AWS --password-stdin ${{ secrets.ECR_REGISTRY }}
-
-      - name: Build + push image frontend vers ECR
-        run: |
-          docker build -t ${{ secrets.ECR_REGISTRY }}/probhammer-frontend:latest -t ${{ secrets.ECR_REGISTRY }}/probhammer-frontend:${{ github.sha }} frontend/
-          docker push ${{ secrets.ECR_REGISTRY }}/probhammer-frontend:latest
-          docker push ${{ secrets.ECR_REGISTRY }}/probhammer-frontend:${{ github.sha }}
 
   # ─────────────────────────────────────────────
   # Job 3 — CD Pipeline BSData : ECR

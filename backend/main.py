@@ -2,9 +2,8 @@ import os
 import time
 import logging
 from contextlib import asynccontextmanager
-from fastapi import FastAPI, Request
+from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import JSONResponse
 from slowapi import _rate_limit_exceeded_handler
 from slowapi.errors import RateLimitExceeded
 from rate_limiter import limiter
@@ -16,7 +15,6 @@ from routes import auth, armies, feedback
 load_dotenv()
 
 logger = logging.getLogger("uvicorn.error")
-
 
 
 @asynccontextmanager

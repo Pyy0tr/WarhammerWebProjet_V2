@@ -1,0 +1,6 @@
+[flake8]
+max-line-length = 120
+# E221/E251 : espaces d'alignement en colonnes — style du projet
+# W503 : saut de ligne avant opérateur binaire — faux positif courant
+ignore = E221, E241, E251, W503
+exclude = __pycache__, .git
