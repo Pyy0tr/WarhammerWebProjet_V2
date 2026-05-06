@@ -63,3 +63,7 @@ Thumbs.db
 .idea/
 *.swp
 *.swo
+
+# Interne — ne pas exposer publiquement
+bugsRequest/
+CLAUDE.md
