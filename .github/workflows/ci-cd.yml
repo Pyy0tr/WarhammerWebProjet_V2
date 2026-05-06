@@ -143,9 +143,21 @@ jobs:
 
       - name: Déployer sur EC2 via SSM
         run: |
-          aws ssm send-command \
+          COMMAND_ID=$(aws ssm send-command \
             --region eu-west-3 \
             --instance-ids ${{ secrets.EC2_INSTANCE_ID }} \
             --document-name "AWS-RunShellScript" \
             --parameters "commands=[\"/usr/local/bin/aws ecr get-login-password --region eu-west-3 | docker login --username AWS --password-stdin ${{ secrets.ECR_REGISTRY }} && docker pull ${{ secrets.ECR_REGISTRY }}/probhammer-backend:latest && docker stop probhammer-backend 2>/dev/null || true && docker rm probhammer-backend 2>/dev/null || true && docker run -d --name probhammer-backend --env-file /home/ubuntu/backend.env -p 8000:8000 --restart unless-stopped ${{ secrets.ECR_REGISTRY }}/probhammer-backend:latest\"]" \
-            --output text
+            --query "Command.CommandId" \
+            --output text)
+          echo "SSM Command ID: $COMMAND_ID"
+          aws ssm wait command-executed \
+            --command-id "$COMMAND_ID" \
+            --instance-id ${{ secrets.EC2_INSTANCE_ID }} \
+            --region eu-west-3
+
+      - name: Vérifier que le backend répond
+        run: |
+          sleep 10
+          curl --fail --silent --max-time 10 ${{ secrets.VITE_API_URL }}/health || \
+            (echo "Backend health check failed" && exit 1)
