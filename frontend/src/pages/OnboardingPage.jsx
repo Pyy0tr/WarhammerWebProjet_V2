@@ -7,44 +7,86 @@ import {
   TEXT, TEXT_SEC, TEXT_WEAK, TEXT_OFF,
 } from '../theme'
 
-// ── Simulation setup ──────────────────────────────────────────────────────────
+// ── Simulation configs ────────────────────────────────────────────────────────
 
-const DEFENDER = { toughness: 5, save: 2, invuln: 4, wounds: 22, models: 1, fnp: null }
-const CONTEXT  = { cover: false, half_range: false, attacker_moved: false, attacker_charged: false, target_visible: true }
-const LETHAL   = [{ type: 'LETHAL_HITS' }]
+const DEFENDER        = { toughness: 11, save: 3, invuln: 4,    wounds: 14, models: 1, fnp: null }
+const DEFENDER_NO_INV = { toughness: 11, save: 3, invuln: null, wounds: 14, models: 1, fnp: null }
+const CONTEXT   = { cover: false, half_range: false, attacker_moved: false, attacker_charged: false, target_visible: true }
+const NO_KW     = []
+const LETHAL    = [{ type: 'LETHAL_HITS' }]
 
-function buildAttacks(simIdx) {
-  const buffs = []
-  if (simIdx >= 1) buffs.push({ type: 'WOUND_MODIFIER', value: 1 })
-  if (simIdx >= 3) buffs.push({ type: 'REROLL_HITS' })
+// 1× Marshal, Master-crafted Power Weapon, no keywords
+const SIM_BASE_1SB = {
+  attacks: [{ models: 1, weapon: { attacks: '3', skill: 2, strength: 5, ap: -2, damage: '2', keywords: NO_KW }, buffs: [] }],
+  defender: DEFENDER, context: CONTEXT, n_trials: 2000,
+}
+
+// Same, Maleceptor without invuln save — page 1
+const SIM_BASE_NO_INV = {
+  attacks: [{ models: 1, weapon: { attacks: '3', skill: 2, strength: 5, ap: -2, damage: '2', keywords: NO_KW }, buffs: [] }],
+  defender: DEFENDER_NO_INV, context: CONTEXT, n_trials: 2000,
+}
+
+// Same weapon, -1 to hit from Encephalic Diffusion aura — page 3
+const SIM_AURA = {
+  attacks: [{ models: 1, weapon: { attacks: '3', skill: 2, strength: 5, ap: -2, damage: '2', keywords: NO_KW }, buffs: [{ type: 'HIT_MODIFIER', value: -1 }] }],
+  defender: DEFENDER, context: CONTEXT, n_trials: 2000,
+}
+
+// 1× Marshal, Lethal Hits + aura −1 hit — page 4
+const SIM_LETHAL_AURA = {
+  attacks: [{ models: 1, weapon: { attacks: '3', skill: 2, strength: 5, ap: -2, damage: '2', keywords: LETHAL }, buffs: [{ type: 'HIT_MODIFIER', value: -1 }] }],
+  defender: DEFENDER, context: CONTEXT, n_trials: 2000,
+}
+
+// Legacy key kept for intermediate mode
+const SIM_LETHAL_1SB = {
+  attacks: [{ models: 1, weapon: { attacks: '3', skill: 2, strength: 5, ap: -2, damage: '2', keywords: LETHAL }, buffs: [] }],
+  defender: DEFENDER, context: CONTEXT, n_trials: 2000,
+}
+
+// Full squad (4 SB + Castellan A6 + Marshal A7), cumulative buffs — pages 5+
+// aura −1 hit always active; WOUND_MODIFIER omitted: Accept Any Challenge +1 wound is
+// cancelled by Encephalic Diffusion −1 wound (below half-strength) → net 6+ wound throughout
+// simIdx 0 = squad base, 1 = (wound stays 6+), 2 = +1A marshal, 3 = reroll, 4 = crit5
+function buildFullAttacks(simIdx) {
+  const buffs = [{ type: 'HIT_MODIFIER', value: -1 }]
+  if (simIdx >= 3) buffs.push({ type: 'REROLL_HITS', value: 'all' })
   if (simIdx >= 4) buffs.push({ type: 'CRITICAL_HIT_ON', value: 5 })
   return [
-    { models: 4, weapon: { attacks: '2', skill: 3, strength: 5, ap: -3, damage: '1', keywords: LETHAL }, buffs: [...buffs] },
-    { models: 1, weapon: { attacks: '4', skill: 2, strength: 5, ap: -3, damage: '1', keywords: LETHAL }, buffs: [...buffs] },
-    { models: 1, weapon: { attacks: simIdx >= 2 ? '6' : '5', skill: 2, strength: 5, ap: -3, damage: '2', keywords: LETHAL }, buffs: [...buffs] },
+    { models: 4, weapon: { attacks: '3', skill: 2, strength: 5, ap: -2, damage: '2', keywords: LETHAL }, buffs: [...buffs] },
+    { models: 1, weapon: { attacks: '6', skill: 2, strength: 5, ap: -2, damage: '2', keywords: LETHAL }, buffs: [...buffs] },
+    { models: 1, weapon: { attacks: simIdx >= 2 ? '8' : '7', skill: 2, strength: 5, ap: -2, damage: '2', keywords: LETHAL }, buffs: [...buffs] },
   ]
 }
 
-// ── Step content definitions ──────────────────────────────────────────────────
+// ── Step definitions ──────────────────────────────────────────────────────────
 
+// panelType: 'simple' = mean damage only | 'full' = histogram + stats
+// resultKey: key into the precomputed results map
 const BEGINNER_STEPS = [
-  { simIdx: 0, label: 'Weapon Stats' },
-  { simIdx: 0, label: 'Base Attacks' },
-  { simIdx: 1, label: 'Wound +1' },
-  { simIdx: 2, label: 'Marshal +1A' },
-  { simIdx: 3, label: 'Re-roll Hits' },
-  { simIdx: 4, label: 'Critical Hit 5+' },
+  { label: 'Weapon Stats',    panelType: 'simple', resultKey: 'base_no_inv' },
+  { label: 'Defender Stats',  panelType: 'simple', resultKey: 'base_no_inv' },
+  { label: 'Invuln. Save',         panelType: 'simple', resultKey: 'base' },
+  { label: 'Encephalic Diffusion', panelType: 'simple', resultKey: 'base_aura' },
+  { label: 'Lethal Hits',          panelType: 'full',   resultKey: 'lethal_aura' },
+  { label: 'The Squad',            panelType: 'full',   resultKey: 'squad_base' },
+  { label: 'Accept Any Challenge',  panelType: 'full',   resultKey: 'full0' },
+  { label: 'Marshal +1A',          panelType: 'full',   resultKey: 'full1' },
+  { label: 'Re-roll Hits',         panelType: 'full',   resultKey: 'full2' },
+  { label: 'Critical Hit 5+',      panelType: 'full',   resultKey: 'full3' },
 ]
 
 const INTERMEDIATE_STEPS = [
-  { simIdx: 0, label: 'Setup' },
-  { simIdx: 1, label: 'Wound +1' },
-  { simIdx: 2, label: 'Marshal +1A' },
-  { simIdx: 3, label: 'Re-roll Hits' },
-  { simIdx: 4, label: 'Critical Hit 5+' },
+  { label: 'Setup',           panelType: 'simple', resultKey: 'base' },
+  { label: 'Lethal Hits',     panelType: 'full',   resultKey: 'lethal' },
+  { label: 'Wound +1',        panelType: 'full',   resultKey: 'full0' },
+  { label: 'Marshal +1A',     panelType: 'full',   resultKey: 'full1' },
+  { label: 'Re-roll Hits',    panelType: 'full',   resultKey: 'full2' },
+  { label: 'Critical Hit 5+', panelType: 'full',   resultKey: 'full3' },
 ]
 
-// ── Shared components ─────────────────────────────────────────────────────────
+// ── Shared UI ─────────────────────────────────────────────────────────────────
 
 function Tag({ children, color = ACCENT }) {
   return (
@@ -55,18 +97,12 @@ function Tag({ children, color = ACCENT }) {
 }
 
 function Body({ children }) {
-  return (
-    <p style={{ fontFamily: 'Georgia, serif', fontSize: '16px', lineHeight: 1.8, color: TEXT_SEC, margin: 0 }}>
-      {children}
-    </p>
-  )
+  return <p style={{ fontFamily: 'Georgia, serif', fontSize: '16px', lineHeight: 1.8, color: TEXT_SEC, margin: 0 }}>{children}</p>
 }
 
-function ScrollBtn({ onClick, label = 'Continue ↓', primary = false }) {
+function ContinueBtn({ onClick, label = 'Continue ↓', primary = false }) {
   return (
-    <button
-      onClick={onClick}
-      style={{ border: primary ? 'none' : `1px solid ${BORDER}`, background: primary ? ACCENT : 'transparent', color: primary ? BG : TEXT_OFF, fontFamily: 'Space Mono, monospace', fontSize: '10px', letterSpacing: '2px', textTransform: 'uppercase', fontWeight: primary ? 700 : 400, padding: '12px 24px', cursor: 'pointer', alignSelf: 'flex-start', transition: 'all 150ms' }}
+    <button onClick={onClick} style={{ border: primary ? 'none' : `1px solid ${BORDER}`, background: primary ? ACCENT : 'transparent', color: primary ? BG : TEXT_OFF, fontFamily: 'Space Mono, monospace', fontSize: '10px', letterSpacing: '2px', textTransform: 'uppercase', fontWeight: primary ? 700 : 400, padding: '12px 24px', cursor: 'pointer', alignSelf: 'flex-start', transition: 'opacity 150ms' }}
       onMouseEnter={(e) => { e.currentTarget.style.opacity = '0.8' }}
       onMouseLeave={(e) => { e.currentTarget.style.opacity = '1' }}
     >
@@ -79,37 +115,29 @@ function ScrollBtn({ onClick, label = 'Continue ↓', primary = false }) {
 
 function WeaponCard() {
   const stats = [
-    { key: 'A',  label: 'Attacks',            value: '2',   desc: 'Dice rolled to hit' },
-    { key: 'WS', label: 'Weapon Skill',        value: '3+',  desc: 'Minimum to hit' },
-    { key: 'S',  label: 'Strength',            value: '5',   desc: 'Used to wound' },
-    { key: 'AP', label: 'Armour Penetration',  value: '-3',  desc: 'Reduces enemy save' },
-    { key: 'D',  label: 'Damage',              value: '1',   desc: 'Per unsaved hit' },
+    { key: 'A',  value: '3',   label: 'Attacks',      desc: 'Roll 3 dice to attack' },
+    { key: 'WS', value: '2+',  label: 'Weapon Skill', desc: 'Need 2+ to score a hit' },
+    { key: 'S',  value: '5',   label: 'Strength',     desc: 'Compared to Toughness' },
+    { key: 'AP', value: '-2',  label: 'Armour Pen.',  desc: 'Cuts armour save by 2' },
+    { key: 'D',  value: '2',   label: 'Damage',       desc: 'Wounds dealt per hit' },
   ]
   return (
     <div style={{ border: `1px solid ${BORDER}`, background: SURFACE }}>
-      {/* Header */}
-      <div style={{ padding: '14px 20px', borderBottom: `1px solid ${BORDER}`, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <div>
-          <div style={{ fontFamily: 'Space Mono, monospace', fontSize: '12px', fontWeight: 700, letterSpacing: '2px', textTransform: 'uppercase', color: TEXT }}>Power Sword</div>
-          <div style={{ fontFamily: 'Space Mono, monospace', fontSize: '9px', color: TEXT_WEAK, marginTop: '4px', letterSpacing: '1px' }}>Sword Brethren — melee weapon</div>
-        </div>
-        <div style={{ border: `1px solid ${ACCENT}`, padding: '3px 8px', fontFamily: 'Space Mono, monospace', fontSize: '8px', letterSpacing: '2px', textTransform: 'uppercase', color: ACCENT }}>
-          Lethal Hits
-        </div>
+      <div style={{ padding: '12px 16px', borderBottom: `1px solid ${BORDER}` }}>
+        <div style={{ fontFamily: 'Space Mono, monospace', fontSize: '11px', fontWeight: 700, letterSpacing: '2px', textTransform: 'uppercase', color: TEXT }}>Master-crafted Power Weapon</div>
+        <div style={{ fontFamily: 'Space Mono, monospace', fontSize: '9px', color: TEXT_WEAK, marginTop: '3px' }}>Sword Brethren · melee</div>
       </div>
-      {/* Stats row */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)' }}>
         {stats.map((s, i) => (
-          <div key={s.key} style={{ padding: '16px 12px', borderRight: i < stats.length - 1 ? `1px solid ${BORDER}` : 'none', textAlign: 'center' }}>
+          <div key={s.key} style={{ padding: '14px 8px', borderRight: i < 4 ? `1px solid ${BORDER}` : 'none', textAlign: 'center' }}>
             <div style={{ fontFamily: 'Space Mono, monospace', fontSize: '20px', fontWeight: 700, color: ACCENT, lineHeight: 1 }}>{s.value}</div>
-            <div style={{ fontFamily: 'Space Mono, monospace', fontSize: '8px', letterSpacing: '1px', textTransform: 'uppercase', color: TEXT_WEAK, marginTop: '6px' }}>{s.key}</div>
+            <div style={{ fontFamily: 'Space Mono, monospace', fontSize: '8px', letterSpacing: '1px', textTransform: 'uppercase', color: TEXT_WEAK, marginTop: '5px' }}>{s.key}</div>
           </div>
         ))}
       </div>
-      {/* Legend */}
       <div style={{ borderTop: `1px solid ${BORDER}`, display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)' }}>
         {stats.map((s, i) => (
-          <div key={s.key} style={{ padding: '10px 12px', borderRight: i < stats.length - 1 ? `1px solid ${BORDER}` : 'none', textAlign: 'center' }}>
+          <div key={s.key} style={{ padding: '8px', borderRight: i < 4 ? `1px solid ${BORDER}` : 'none', textAlign: 'center' }}>
             <div style={{ fontFamily: 'Georgia, serif', fontSize: '11px', color: TEXT_SEC, lineHeight: 1.4 }}>{s.desc}</div>
           </div>
         ))}
@@ -118,201 +146,388 @@ function WeaponCard() {
   )
 }
 
-// ── Section content per step ──────────────────────────────────────────────────
+// ── Defender stat card ────────────────────────────────────────────────────────
 
-function StepContent({ stepKey, onNext, results }) {
-  const content = {
-    'beginner-0': (
-      <>
-        <Tag>Sword Brethren · Power Sword</Tag>
-        <h2 style={{ fontFamily: 'Space Mono, monospace', fontSize: 'clamp(16px, 2vw, 24px)', fontWeight: 700, letterSpacing: '2px', textTransform: 'uppercase', color: TEXT, margin: 0 }}>
-          Understanding weapon stats
-        </h2>
-        <Body>
-          Every weapon in Warhammer 40,000 has five core stats. Here's the Power Sword carried by each Sword Brethren in our example — let's break down what each number means before we roll any dice.
-        </Body>
-        <WeaponCard />
-        <Body>
-          The graph on the right already shows what these six models are capable of in a single fight phase against <strong style={{ color: TEXT }}>Abaddon the Despoiler</strong> (T5, 2+ save, 4++ invuln). No special rules active yet — just raw numbers.
-        </Body>
-        <ScrollBtn onClick={onNext} />
-      </>
-    ),
+function DefenderCard({ showInvuln = true }) {
+  const allStats = [
+    { key: 'M',   value: '8"',  sim: false, desc: '' },
+    { key: 'T',   value: '11',  sim: true,  desc: 'Harder to wound' },
+    { key: 'SV',  value: '3+',  sim: true,  desc: 'Roll to ignore wound' },
+    { key: 'W',   value: '14',  sim: true,  desc: 'HP — wounds to kill' },
+    { key: 'LD',  value: '7+',  sim: false, desc: '' },
+    { key: 'OC',  value: '4',   sim: false, desc: '' },
+    { key: 'INV', value: '4++', sim: true,  inv: true, desc: 'Not affected by AP' },
+  ]
+  const stats = showInvuln ? allStats : allStats.filter((s) => s.key !== 'INV')
+  const cols = stats.length
 
-    'beginner-1': (
-      <>
-        <Tag>Weapon keyword</Tag>
-        <h2 style={{ fontFamily: 'Space Mono, monospace', fontSize: 'clamp(16px, 2vw, 24px)', fontWeight: 700, letterSpacing: '2px', textTransform: 'uppercase', color: TEXT, margin: 0 }}>
-          Lethal Hits
-        </h2>
-        <Body>
-          Power Swords carry <strong style={{ color: TEXT }}>Lethal Hits</strong> as part of their weapon profile. Any unmodified hit roll of <strong style={{ color: ACCENT }}>6</strong> automatically wounds — no wound roll required.
-        </Body>
-        <Body>
-          This is already included in the graph on the right. It's not a bonus — it's the weapon's base behavior. You'll see its value become clearer as we add rules that make 6s happen more often.
-        </Body>
-        <ScrollBtn onClick={onNext} />
-      </>
-    ),
-
-    'beginner-2': (
-      <>
-        <Tag color={ACCENT}>Accept Any Challenge, No Matter the Odds</Tag>
-        <h2 style={{ fontFamily: 'Space Mono, monospace', fontSize: 'clamp(16px, 2vw, 24px)', fontWeight: 700, letterSpacing: '2px', textTransform: 'uppercase', color: TEXT, margin: 0 }}>
-          +1 to wound roll
-        </h2>
-        <Body>
-          Each time a model in this unit makes a melee attack, if the <strong style={{ color: TEXT }}>Strength of the attack ≤ Toughness of the target</strong>, add +1 to the wound roll.
-        </Body>
-        <Body>
-          Our Power Swords are <strong style={{ color: ACCENT }}>S5</strong> and Abaddon is <strong style={{ color: ACCENT }}>T5</strong>. Strength equals Toughness — the condition always triggers. Watch the graph update.
-        </Body>
-        <ScrollBtn onClick={onNext} />
-      </>
-    ),
-
-    'beginner-3': (
-      <>
-        <Tag color={ACCENT}>Marshal · Master-Crafted Power Weapon</Tag>
-        <h2 style={{ fontFamily: 'Space Mono, monospace', fontSize: 'clamp(16px, 2vw, 24px)', fontWeight: 700, letterSpacing: '2px', textTransform: 'uppercase', color: TEXT, margin: 0 }}>
-          Marshal bonus attacks
-        </h2>
-        <Body>
-          Each time the Marshal's unit is selected to fight, add <strong style={{ color: ACCENT }}>+1 Attack</strong> to his Master-Crafted Power Weapon for each enemy unit within 6" (max +3).
-        </Body>
-        <Body>
-          We're fighting Abaddon alone — that's one enemy unit within 6". The Marshal goes from <strong style={{ color: TEXT }}>A5 to A6</strong>. Small change, but every swing matters against a 22-wound target.
-        </Body>
-        <ScrollBtn onClick={onNext} />
-      </>
-    ),
-
-    'beginner-4': (
-      <>
-        <Tag color={ACCENT}>Castellan aura</Tag>
-        <h2 style={{ fontFamily: 'Space Mono, monospace', fontSize: 'clamp(16px, 2vw, 24px)', fontWeight: 700, letterSpacing: '2px', textTransform: 'uppercase', color: TEXT, margin: 0 }}>
-          Re-roll hit rolls
-        </h2>
-        <Body>
-          Until the end of the phase, each time a model in the unit makes an attack, you can <strong style={{ color: TEXT }}>re-roll the Hit roll</strong>.
-        </Body>
-        <Body>
-          Every missed swing gets a second chance. This is one of the most impactful buffs available — it doesn't just add hits, it turns near-misses into Lethal Hits opportunities.
-        </Body>
-        <ScrollBtn onClick={onNext} />
-      </>
-    ),
-
-    'beginner-5': (
-      <>
-        <Tag color={ACCENT}>Marshal aura</Tag>
-        <h2 style={{ fontFamily: 'Space Mono, monospace', fontSize: 'clamp(16px, 2vw, 24px)', fontWeight: 700, letterSpacing: '2px', textTransform: 'uppercase', color: TEXT, margin: 0 }}>
-          Critical Hit on 5+
-        </h2>
-        <Body>
-          While the Marshal leads the unit, an unmodified Hit roll of <strong style={{ color: ACCENT }}>5 or 6</strong> scores a Critical Hit — triggering Lethal Hits on a 5, not just a 6.
-        </Body>
-        <Body>
-          Combined with re-rolls, this fires far more often than it looks. With all five rules active, your Black Templars go from{' '}
-          <strong style={{ color: TEXT }}>{results[0]?.summary.mean_damage.toFixed(2)}</strong> to{' '}
-          <strong style={{ color: HIGHLIGHT }}>{results[4]?.summary.mean_damage.toFixed(2)}</strong> mean damage against Abaddon —{' '}
-          <strong style={{ color: ACCENT }}>+{results[0] && results[4] ? (((results[4].summary.mean_damage / results[0].summary.mean_damage) - 1) * 100).toFixed(0) : '?'}%</strong>.
-        </Body>
-        <ScrollBtn onClick={onNext} label="Open simulator →" primary />
-      </>
-    ),
-
-    'intermediate-0': (
-      <>
-        <Tag>Black Templars vs Abaddon</Tag>
-        <h2 style={{ fontFamily: 'Space Mono, monospace', fontSize: 'clamp(16px, 2vw, 24px)', fontWeight: 700, letterSpacing: '2px', textTransform: 'uppercase', color: TEXT, margin: 0 }}>
-          The setup
-        </h2>
-        <Body>
-          6 Black Templars led by the Marshal and Castellan, all armed with Power Swords (S5 AP-3, Lethal Hits), charging into Abaddon the Despoiler (T5 Sv2+ 4++ W22).
-        </Body>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '0', border: `1px solid ${BORDER}` }}>
-          {[
-            ['4× Sword Brethren', 'Power Sword', 'A2 WS3+ S5 AP-3 D1'],
-            ['1× Castellan',      'Power Sword', 'A4 WS2+ S5 AP-3 D1  +  re-roll hits aura'],
-            ['1× Marshal',        'Master-Crafted PW', 'A5 WS2+ S5 AP-3 D2  +  Crit Hit 5+ aura'],
-          ].map(([unit, weapon, profile], i) => (
-            <div key={i} style={{ padding: '12px 16px', borderBottom: i < 2 ? `1px solid ${BORDER}` : 'none', display: 'grid', gridTemplateColumns: '160px 1fr', gap: '12px' }}>
-              <div style={{ fontFamily: 'Space Mono, monospace', fontSize: '10px', fontWeight: 700, color: TEXT }}>{unit}</div>
-              <div>
-                <div style={{ fontFamily: 'Space Mono, monospace', fontSize: '9px', color: ACCENT, marginBottom: '2px' }}>{weapon}</div>
-                <div style={{ fontFamily: 'Space Mono, monospace', fontSize: '9px', color: TEXT_WEAK }}>{profile}</div>
-              </div>
-            </div>
-          ))}
-        </div>
-        <Body>
-          The graph shows the base result — no special rules active yet. Watch what happens as each ability layers on.
-        </Body>
-        <ScrollBtn onClick={onNext} />
-      </>
-    ),
-
-    'intermediate-1': (
-      <>
-        <Tag color={ACCENT}>Accept Any Challenge, No Matter the Odds</Tag>
-        <h2 style={{ fontFamily: 'Space Mono, monospace', fontSize: 'clamp(16px, 2vw, 24px)', fontWeight: 700, letterSpacing: '2px', textTransform: 'uppercase', color: TEXT, margin: 0 }}>
-          +1 to wound roll
-        </h2>
-        <Body>
-          When Strength ≤ Toughness, add +1 to the wound roll. S5 vs T5 — always active here. A small modifier that compounds heavily with everything that follows.
-        </Body>
-        <ScrollBtn onClick={onNext} />
-      </>
-    ),
-
-    'intermediate-2': (
-      <>
-        <Tag color={ACCENT}>Marshal · Master-Crafted Power Weapon</Tag>
-        <h2 style={{ fontFamily: 'Space Mono, monospace', fontSize: 'clamp(16px, 2vw, 24px)', fontWeight: 700, letterSpacing: '2px', textTransform: 'uppercase', color: TEXT, margin: 0 }}>
-          Marshal +1A per enemy unit in 6"
-        </h2>
-        <Body>
-          One enemy unit within 6" → Marshal goes from A5 to A6. Higher D2 per swing makes this extra attack count more than it would on a basic model.
-        </Body>
-        <ScrollBtn onClick={onNext} />
-      </>
-    ),
-
-    'intermediate-3': (
-      <>
-        <Tag color={ACCENT}>Castellan aura</Tag>
-        <h2 style={{ fontFamily: 'Space Mono, monospace', fontSize: 'clamp(16px, 2vw, 24px)', fontWeight: 700, letterSpacing: '2px', textTransform: 'uppercase', color: TEXT, margin: 0 }}>
-          Re-roll all hit rolls
-        </h2>
-        <Body>
-          Every model in the unit can re-roll their hit roll. Combined with Lethal Hits, more dice means more chances at a 6 auto-wound.
-        </Body>
-        <ScrollBtn onClick={onNext} />
-      </>
-    ),
-
-    'intermediate-4': (
-      <>
-        <Tag color={ACCENT}>Marshal aura</Tag>
-        <h2 style={{ fontFamily: 'Space Mono, monospace', fontSize: 'clamp(16px, 2vw, 24px)', fontWeight: 700, letterSpacing: '2px', textTransform: 'uppercase', color: TEXT, margin: 0 }}>
-          Critical Hit on 5+
-        </h2>
-        <Body>
-          Hit rolls of 5+ trigger Lethal Hits. With re-rolls, this fires on roughly 44% of all attack dice. Full synergy:{' '}
-          <strong style={{ color: TEXT }}>{results[0]?.summary.mean_damage.toFixed(2)}</strong> →{' '}
-          <strong style={{ color: HIGHLIGHT }}>{results[4]?.summary.mean_damage.toFixed(2)}</strong> mean damage{' '}
-          (<strong style={{ color: ACCENT }}>+{results[0] && results[4] ? (((results[4].summary.mean_damage / results[0].summary.mean_damage) - 1) * 100).toFixed(0) : '?'}%</strong>).
-        </Body>
-        <ScrollBtn onClick={onNext} label="Open simulator →" primary />
-      </>
-    ),
+  function valueColor(s) {
+    if (!s.sim) return TEXT_WEAK
+    if (s.inv)  return ACCENT
+    return HIGHLIGHT
   }
 
+  return (
+    <div style={{ border: `1px solid ${BORDER}`, background: SURFACE }}>
+      <div style={{ padding: '12px 16px', borderBottom: `1px solid ${BORDER}` }}>
+        <div style={{ fontFamily: 'Space Mono, monospace', fontSize: '11px', fontWeight: 700, letterSpacing: '2px', textTransform: 'uppercase', color: TEXT }}>Maleceptor</div>
+        <div style={{ fontFamily: 'Space Mono, monospace', fontSize: '9px', color: TEXT_WEAK, marginTop: '3px' }}>Target — Tyranids</div>
+      </div>
+      <div style={{ display: 'grid', gridTemplateColumns: `repeat(${cols}, 1fr)` }}>
+        {stats.map((s, i) => (
+          <div key={s.key} style={{ padding: '14px 8px', borderRight: i < cols - 1 ? `1px solid ${BORDER}` : 'none', textAlign: 'center', opacity: s.sim ? 1 : 0.35 }}>
+            <div style={{ fontFamily: 'Space Mono, monospace', fontSize: '18px', fontWeight: 700, color: valueColor(s), lineHeight: 1 }}>{s.value}</div>
+            <div style={{ fontFamily: 'Space Mono, monospace', fontSize: '8px', letterSpacing: '1px', textTransform: 'uppercase', color: TEXT_WEAK, marginTop: '5px' }}>{s.key}</div>
+          </div>
+        ))}
+      </div>
+      <div style={{ borderTop: `1px solid ${BORDER}`, display: 'grid', gridTemplateColumns: `repeat(${cols}, 1fr)` }}>
+        {stats.map((s, i) => (
+          <div key={s.key} style={{ padding: '8px', borderRight: i < cols - 1 ? `1px solid ${BORDER}` : 'none', textAlign: 'center', opacity: s.sim ? 1 : 0.35 }}>
+            <div style={{ fontFamily: 'Georgia, serif', fontSize: '11px', color: TEXT_SEC, lineHeight: 1.4 }}>{s.desc || '—'}</div>
+          </div>
+        ))}
+      </div>
+    </div>
+  )
+}
+
+// ── Left panel content per step ───────────────────────────────────────────────
+
+function StepContent({ stepKey, onNext, isLast, results }) {
+  const content = {
+
+    'beginner-0': (<>
+      <Tag>Sword Brethren · Master-crafted Power Weapon</Tag>
+      <h2 style={{ fontFamily: 'Space Mono, monospace', fontSize: 'clamp(16px, 2vw, 22px)', fontWeight: 700, letterSpacing: '2px', textTransform: 'uppercase', color: TEXT, margin: 0 }}>
+        Understanding weapon stats
+      </h2>
+      <Body>
+        Every weapon has five core stats. This is a Sword Brethren's Master-crafted Power Weapon — the one we'll use throughout this example, for now without any keyword.
+      </Body>
+      <WeaponCard />
+      <Body>
+        These five numbers alone drive the base output. On the right, the mean damage against our target with just these stats.
+      </Body>
+      <ContinueBtn onClick={onNext} />
+    </>),
+
+    'beginner-1': (<>
+      <Tag>Maleceptor</Tag>
+      <h2 style={{ fontFamily: 'Space Mono, monospace', fontSize: 'clamp(16px, 2vw, 22px)', fontWeight: 700, letterSpacing: '2px', textTransform: 'uppercase', color: TEXT, margin: 0 }}>
+        Defensive stats
+      </h2>
+      <Body>
+        Every defender has stats that resist incoming damage. The highlighted ones are what the simulation uses.
+      </Body>
+      <DefenderCard showInvuln={false} />
+      <Body>
+        Our AP-2 turns its <strong style={{ color: TEXT }}>3+ save</strong> into a <strong style={{ color: HIGHLIGHT }}>5+</strong>. With S5 vs T11, we wound on a <strong style={{ color: HIGHLIGHT }}>6+</strong> — only 1 in 6 wounds land. The right panel shows the damage with just these stats.
+      </Body>
+      <ContinueBtn onClick={onNext} />
+    </>),
+
+    'beginner-2': (<>
+      <Tag>Maleceptor</Tag>
+      <h2 style={{ fontFamily: 'Space Mono, monospace', fontSize: 'clamp(16px, 2vw, 22px)', fontWeight: 700, letterSpacing: '2px', textTransform: 'uppercase', color: TEXT, margin: 0 }}>
+        Invulnerable Save
+      </h2>
+      <Body>
+        The Maleceptor also has a <strong style={{ color: ACCENT }}>4++ invulnerable save</strong> — completely unaffected by AP. Where our AP-2 made its armour a 5+, the invuln is a flat <strong style={{ color: ACCENT }}>4+</strong>. It will always use the better one.
+      </Body>
+      <DefenderCard showInvuln={true} />
+      <Body>
+        Compare the mean damage on the right to the previous page. That drop is the 4++ alone.
+      </Body>
+      <ContinueBtn onClick={onNext} />
+    </>),
+
+    'beginner-3': (<>
+      <Tag>Maleceptor · Aura · Psychic</Tag>
+      <h2 style={{ fontFamily: 'Space Mono, monospace', fontSize: 'clamp(16px, 2vw, 22px)', fontWeight: 700, letterSpacing: '2px', textTransform: 'uppercase', color: TEXT, margin: 0 }}>
+        Encephalic Diffusion
+      </h2>
+      <Body>
+        While within 6" of the Maleceptor, every attacker subtracts <strong style={{ color: HIGHLIGHT }}>−1 from their Hit roll</strong>. Our WS2+ effectively becomes a <strong style={{ color: HIGHLIGHT }}>3+</strong> — one extra miss per six dice on average.
+      </Body>
+      <Body>
+        If our unit were below half-strength, there would also be <strong style={{ color: HIGHLIGHT }}>−1 to wound</strong>. S5 vs T11 already wounds on a <strong style={{ color: TEXT }}>6+</strong> — a −1 would require a 7+, making normal wounding <strong style={{ color: HIGHLIGHT }}>impossible</strong>. This is exactly why Lethal Hits matters: a critical 6 to hit auto-wounds, bypassing the wound roll entirely.
+      </Body>
+      <ContinueBtn onClick={onNext} />
+    </>),
+
+    'beginner-4': (<>
+      <Tag>Weapon keyword</Tag>
+      <h2 style={{ fontFamily: 'Space Mono, monospace', fontSize: 'clamp(16px, 2vw, 22px)', fontWeight: 700, letterSpacing: '2px', textTransform: 'uppercase', color: TEXT, margin: 0 }}>
+        Lethal Hits
+      </h2>
+      <Body>
+        The Master-crafted Power Weapon has <strong style={{ color: TEXT }}>Lethal Hits</strong>. Any unmodified hit roll of <strong style={{ color: ACCENT }}>6</strong> automatically wounds — no wound roll needed. The target still makes their save normally.
+      </Body>
+      <Body>
+        The aura still penalizes us to <strong style={{ color: HIGHLIGHT }}>3+</strong> to hit. But a natural 6 skips the T11 wound roll entirely — the 4++ save still applies. Watch the damage recover.
+      </Body>
+      <ContinueBtn onClick={onNext} />
+    </>),
+
+    'beginner-5': (<>
+      <Tag>Black Templars · Sword Brethren</Tag>
+      <h2 style={{ fontFamily: 'Space Mono, monospace', fontSize: 'clamp(16px, 2vw, 22px)', fontWeight: 700, letterSpacing: '2px', textTransform: 'uppercase', color: TEXT, margin: 0 }}>
+        The full squad
+      </h2>
+      <Body>
+        Our Sword Brethren doesn't fight alone. Three brothers join in, plus a Castellan and a Marshal — 6 models total, all with Lethal Hits, all under the aura.
+      </Body>
+      <div style={{ border: `1px solid ${BORDER}`, background: SURFACE }}>
+        {[
+          { unit: '4× Sword Brethren', profile: 'A3  WS2+  S5  AP-2  D2' },
+          { unit: '1× Castellan',      profile: 'A6  WS2+  S5  AP-2  D2' },
+          { unit: '1× Marshal',        profile: 'A7  WS2+  S5  AP-2  D2' },
+        ].map(({ unit, profile }, i, arr) => (
+          <div key={unit} style={{ display: 'grid', gridTemplateColumns: '1fr auto', padding: '10px 14px', borderBottom: i < arr.length - 1 ? `1px solid ${BORDER}` : 'none', alignItems: 'center' }}>
+            <span style={{ fontFamily: 'Space Mono, monospace', fontSize: '10px', fontWeight: 700, color: TEXT }}>{unit}</span>
+            <span style={{ fontFamily: 'Space Mono, monospace', fontSize: '9px', color: TEXT_WEAK }}>{profile}</span>
+          </div>
+        ))}
+        <div style={{ padding: '8px 14px', borderTop: `1px solid ${BORDER}`, fontFamily: 'Space Mono, monospace', fontSize: '9px', color: ACCENT, letterSpacing: '1.5px' }}>
+          All carry Lethal Hits · −1 to hit (aura)
+        </div>
+      </div>
+      <Body>
+        Six dice pools hitting in parallel. The damage jump on the right shows the raw power of the full squad before any synergies.
+      </Body>
+      <ContinueBtn onClick={onNext} />
+    </>),
+
+    'beginner-6': (<>
+      <Tag color={ACCENT}>Accept Any Challenge, No Matter the Odds</Tag>
+      <h2 style={{ fontFamily: 'Space Mono, monospace', fontSize: 'clamp(16px, 2vw, 22px)', fontWeight: 700, letterSpacing: '2px', textTransform: 'uppercase', color: TEXT, margin: 0 }}>
+        A buff that cancels out
+      </h2>
+      <Body>
+        The ability reads: when <strong style={{ color: TEXT }}>S ≤ T</strong>, add +1 to wound. S5 vs T11 always triggers it — our 6+ would become a <strong style={{ color: ACCENT }}>5+</strong>. One extra wound chance per die.
+      </Body>
+      <Body>
+        But Encephalic Diffusion has a second clause: while the attacker is <strong style={{ color: HIGHLIGHT }}>below half-strength</strong>, also apply −1 to wound. Our unit qualifies. The two modifiers cancel exactly.
+      </Body>
+      <div style={{ border: `1px solid ${BORDER}`, background: SURFACE }}>
+        <div style={{ padding: '10px 14px', borderBottom: `1px solid ${BORDER}`, fontFamily: 'Space Mono, monospace', fontSize: '9px', letterSpacing: '2px', textTransform: 'uppercase', color: TEXT_WEAK }}>Wound modifiers — this matchup</div>
+        {[
+          { rule: 'Accept Any Challenge', mod: '+1 to wound', color: ACCENT },
+          { rule: 'Encephalic Diffusion (< half-strength)', mod: '−1 to wound', color: HIGHLIGHT },
+          { rule: 'Net result', mod: 'still 6+', color: TEXT },
+        ].map(({ rule, mod, color }, i, arr) => (
+          <div key={rule} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px 14px', borderBottom: i < arr.length - 1 ? `1px solid ${BORDER}` : 'none', gap: '8px' }}>
+            <span style={{ fontFamily: 'Georgia, serif', fontSize: '13px', color: TEXT_SEC }}>{rule}</span>
+            <span style={{ fontFamily: 'Space Mono, monospace', fontSize: '12px', fontWeight: 700, color, flexShrink: 0 }}>{mod}</span>
+          </div>
+        ))}
+      </div>
+      <Body>
+        The graph on the right is intentionally the same as the previous page. This is a key insight for list-building: two rules that look like gains can cancel each other in a specific matchup.
+      </Body>
+      <ContinueBtn onClick={onNext} />
+    </>),
+
+    'beginner-7': (<>
+      <Tag color={ACCENT}>Marshal · Master-Crafted Power Weapon</Tag>
+      <h2 style={{ fontFamily: 'Space Mono, monospace', fontSize: 'clamp(16px, 2vw, 22px)', fontWeight: 700, letterSpacing: '2px', textTransform: 'uppercase', color: TEXT, margin: 0 }}>
+        Marshal bonus attacks
+      </h2>
+      <Body>
+        The Marshal's weapon gains <strong style={{ color: ACCENT }}>+1 Attack</strong> per enemy unit within 6" (max +3). One enemy unit here: Marshal goes from A7 to <strong style={{ color: TEXT }}>A8</strong>.
+      </Body>
+      <Body>
+        D2 per hit means that extra attack carries double the weight of a standard swing.
+      </Body>
+      <ContinueBtn onClick={onNext} />
+    </>),
+
+    'beginner-8': (<>
+      <Tag color={ACCENT}>Castellan aura</Tag>
+      <h2 style={{ fontFamily: 'Space Mono, monospace', fontSize: 'clamp(16px, 2vw, 22px)', fontWeight: 700, letterSpacing: '2px', textTransform: 'uppercase', color: TEXT, margin: 0 }}>
+        Re-roll hit rolls
+      </h2>
+      <Body>
+        The Castellan's aura lets every model <strong style={{ color: TEXT }}>re-roll their hit roll</strong>. A 1 or 2 gets a second chance. The −1 aura still applies to the re-roll, so only a 3+ saves the die — but that re-rolled die can land a natural 6.
+      </Body>
+      <div style={{ border: `1px solid ${BORDER}`, background: SURFACE }}>
+        <div style={{ padding: '10px 14px', borderBottom: `1px solid ${BORDER}`, fontFamily: 'Space Mono, monospace', fontSize: '9px', letterSpacing: '2px', textTransform: 'uppercase', color: TEXT_WEAK }}>Per attack — WS3+ effective · crit on 6 only · re-rolls active</div>
+        {[
+          { outcome: 'Miss (1–2, then 1–2 again)', prob: '≈ 11%', note: 'No damage', color: TEXT_WEAK },
+          { outcome: 'Normal hit (3–5)', prob: '≈ 67%', note: '6+ wound → 4++ save → 2 dmg', color: TEXT_SEC },
+          { outcome: 'Lethal crit (6)', prob: '≈ 22%', note: 'Auto-wound · 4++ save → 2 dmg', color: ACCENT },
+        ].map(({ outcome, prob, note, color }, i, arr) => (
+          <div key={outcome} style={{ padding: '10px 14px', borderBottom: i < arr.length - 1 ? `1px solid ${BORDER}` : 'none', display: 'flex', justifyContent: 'space-between', gap: '8px', alignItems: 'flex-start' }}>
+            <div>
+              <div style={{ fontFamily: 'Georgia, serif', fontSize: '13px', color: TEXT_SEC }}>{outcome}</div>
+              <div style={{ fontFamily: 'Space Mono, monospace', fontSize: '9px', color: TEXT_WEAK, marginTop: '3px' }}>{note}</div>
+            </div>
+            <span style={{ fontFamily: 'Space Mono, monospace', fontSize: '12px', fontWeight: 700, color, flexShrink: 0 }}>{prob}</span>
+          </div>
+        ))}
+      </div>
+      <Body>
+        Re-rolls lift the lethal crit rate from 1-in-6 to roughly 1-in-4.5. Every extra 6 skips the T11 wound roll — the 4++ save still applies, but avoiding the wound roll alone is a significant gain against T11.
+      </Body>
+      <ContinueBtn onClick={onNext} />
+    </>),
+
+    'beginner-9': (<>
+      <Tag color={ACCENT}>Marshal aura</Tag>
+      <h2 style={{ fontFamily: 'Space Mono, monospace', fontSize: 'clamp(16px, 2vw, 22px)', fontWeight: 700, letterSpacing: '2px', textTransform: 'uppercase', color: TEXT, margin: 0 }}>
+        Critical Hit on 5+
+      </h2>
+      <Body>
+        The Marshal extends the Lethal Hits trigger: an unmodified <strong style={{ color: ACCENT }}>5 or 6</strong> scores a Critical Hit — auto-wounding, no wound roll needed. The target still rolls their save.
+      </Body>
+      <div style={{ border: `1px solid ${BORDER}`, background: SURFACE }}>
+        <div style={{ padding: '10px 14px', borderBottom: `1px solid ${BORDER}`, fontFamily: 'Space Mono, monospace', fontSize: '9px', letterSpacing: '2px', textTransform: 'uppercase', color: TEXT_WEAK }}>Per attack — WS3+ effective · crit 5+ · re-rolls active</div>
+        {[
+          { outcome: 'Miss (1–2, then 1–2 again)', prob: '≈ 11%', note: 'No damage', color: TEXT_WEAK },
+          { outcome: 'Normal hit (3–4)', prob: '≈ 44%', note: '6+ wound → 4++ save → 2 dmg', color: TEXT_SEC },
+          { outcome: 'Lethal crit (5 or 6)', prob: '≈ 44%', note: 'Auto-wound · 4++ save → 2 dmg', color: ACCENT },
+        ].map(({ outcome, prob, note, color }, i, arr) => (
+          <div key={outcome} style={{ padding: '10px 14px', borderBottom: i < arr.length - 1 ? `1px solid ${BORDER}` : 'none', display: 'flex', justifyContent: 'space-between', gap: '8px', alignItems: 'flex-start' }}>
+            <div>
+              <div style={{ fontFamily: 'Georgia, serif', fontSize: '13px', color: TEXT_SEC }}>{outcome}</div>
+              <div style={{ fontFamily: 'Space Mono, monospace', fontSize: '9px', color: TEXT_WEAK, marginTop: '3px' }}>{note}</div>
+            </div>
+            <span style={{ fontFamily: 'Space Mono, monospace', fontSize: '12px', fontWeight: 700, color, flexShrink: 0 }}>{prob}</span>
+          </div>
+        ))}
+      </div>
+      <div style={{ border: `1px solid ${BORDER}`, background: SURFACE }}>
+        <div style={{ padding: '10px 14px', borderBottom: `1px solid ${BORDER}`, fontFamily: 'Space Mono, monospace', fontSize: '9px', letterSpacing: '2px', textTransform: 'uppercase', color: TEXT_WEAK }}>Attack volume — 26 total</div>
+        {[
+          { unit: '4× Sword Brethren', formula: '3A × 4', total: '12 attacks' },
+          { unit: '1× Castellan',      formula: '6A',     total: '6 attacks' },
+          { unit: '1× Marshal',        formula: '8A (+1A)', total: '8 attacks' },
+        ].map(({ unit, formula, total }, i, arr) => (
+          <div key={unit} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '9px 14px', borderBottom: i < arr.length - 1 ? `1px solid ${BORDER}` : 'none', gap: '8px' }}>
+            <span style={{ fontFamily: 'Space Mono, monospace', fontSize: '9px', color: TEXT_SEC }}>{unit}</span>
+            <span style={{ fontFamily: 'Space Mono, monospace', fontSize: '9px', color: TEXT_WEAK }}>{formula}</span>
+            <span style={{ fontFamily: 'Space Mono, monospace', fontSize: '10px', fontWeight: 700, color: TEXT }}>{total}</span>
+          </div>
+        ))}
+        <div style={{ padding: '8px 14px', fontFamily: 'Space Mono, monospace', fontSize: '9px', color: TEXT_WEAK, borderTop: `1px solid ${BORDER}` }}>
+          Normal hits still need a 6+ to wound, then a 4++ save.
+          Crits skip the wound roll — the 4++ save still applies.
+        </div>
+      </div>
+      <div style={{ padding: '16px', border: `1px solid ${ACCENT}`, background: 'rgba(47,224,255,0.04)' }}>
+        <div style={{ fontFamily: 'Space Mono, monospace', fontSize: '9px', letterSpacing: '2px', textTransform: 'uppercase', color: ACCENT, marginBottom: '8px' }}>Full synergy</div>
+        <p style={{ fontFamily: 'Georgia, serif', fontSize: '14px', lineHeight: 1.7, color: TEXT_SEC, margin: 0 }}>
+          1 Sword Brethren alone: <strong style={{ color: TEXT }}>{results?.base?.summary.mean_damage.toFixed(2)}</strong> mean damage.{' '}
+          Full unit with all five rules: <strong style={{ color: HIGHLIGHT }}>{results?.full3?.summary.mean_damage.toFixed(2)}</strong> — a{' '}
+          <strong style={{ color: ACCENT }}>
+            +{results?.base && results?.full3 ? (((results.full3.summary.mean_damage / results.base.summary.mean_damage) - 1) * 100).toFixed(0) : '?'}%
+          </strong> increase.
+        </p>
+      </div>
+      <ContinueBtn onClick={onNext} label="Open simulator →" primary />
+    </>),
+
+    'intermediate-0': (<>
+      <Tag>Black Templars vs Abaddon</Tag>
+      <h2 style={{ fontFamily: 'Space Mono, monospace', fontSize: 'clamp(16px, 2vw, 22px)', fontWeight: 700, letterSpacing: '2px', textTransform: 'uppercase', color: TEXT, margin: 0 }}>
+        The setup
+      </h2>
+      <Body>
+        6 Black Templars — 4 Sword Brethren, 1 Castellan, 1 Marshal — all with Power Swords (S5 AP-3, Lethal Hits). Target: Abaddon the Despoiler (T5 Sv2+ 4++ W22).
+      </Body>
+      <div style={{ display: 'flex', flexDirection: 'column', border: `1px solid ${BORDER}` }}>
+        {[
+          ['4× Sword Brethren', 'A2 WS3+ S5 AP-3 D1', 'Lethal Hits'],
+          ['1× Castellan',      'A4 WS2+ S5 AP-3 D1', 'Lethal Hits · re-roll hits aura'],
+          ['1× Marshal',        'A5 WS2+ S5 AP-3 D2', 'Lethal Hits · Crit Hit 5+ aura'],
+        ].map(([unit, profile, kw], i) => (
+          <div key={i} style={{ padding: '10px 14px', borderBottom: i < 2 ? `1px solid ${BORDER}` : 'none' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+              <span style={{ fontFamily: 'Space Mono, monospace', fontSize: '10px', fontWeight: 700, color: TEXT }}>{unit}</span>
+              <span style={{ fontFamily: 'Space Mono, monospace', fontSize: '9px', color: TEXT_WEAK }}>{profile}</span>
+            </div>
+            <div style={{ fontFamily: 'Space Mono, monospace', fontSize: '9px', color: ACCENT, marginTop: '3px' }}>{kw}</div>
+          </div>
+        ))}
+      </div>
+      <ContinueBtn onClick={onNext} />
+    </>),
+
+    'intermediate-1': (<>
+      <Tag>Weapon keyword</Tag>
+      <h2 style={{ fontFamily: 'Space Mono, monospace', fontSize: 'clamp(16px, 2vw, 22px)', fontWeight: 700, letterSpacing: '2px', textTransform: 'uppercase', color: TEXT, margin: 0 }}>Lethal Hits</h2>
+      <Body>A natural 6 to hit auto-wounds — no wound roll. Already on every Power Sword in the unit. The graph shows the full unit's output with Lethal Hits active.</Body>
+      <ContinueBtn onClick={onNext} />
+    </>),
+
+    'intermediate-2': (<>
+      <Tag color={ACCENT}>Accept Any Challenge</Tag>
+      <h2 style={{ fontFamily: 'Space Mono, monospace', fontSize: 'clamp(16px, 2vw, 22px)', fontWeight: 700, letterSpacing: '2px', textTransform: 'uppercase', color: TEXT, margin: 0 }}>+1 to wound roll</h2>
+      <Body>S5 vs T5 — the condition always triggers. Every wound roll gets +1. A modifier that compounds heavily with everything that follows.</Body>
+      <ContinueBtn onClick={onNext} />
+    </>),
+
+    'intermediate-3': (<>
+      <Tag color={ACCENT}>Marshal · Master-Crafted Power Weapon</Tag>
+      <h2 style={{ fontFamily: 'Space Mono, monospace', fontSize: 'clamp(16px, 2vw, 22px)', fontWeight: 700, letterSpacing: '2px', textTransform: 'uppercase', color: TEXT, margin: 0 }}>Marshal +1A</h2>
+      <Body>One enemy unit within 6" → Marshal goes from A5 to A6. Higher D2 per swing makes this count.</Body>
+      <ContinueBtn onClick={onNext} />
+    </>),
+
+    'intermediate-4': (<>
+      <Tag color={ACCENT}>Castellan aura</Tag>
+      <h2 style={{ fontFamily: 'Space Mono, monospace', fontSize: 'clamp(16px, 2vw, 22px)', fontWeight: 700, letterSpacing: '2px', textTransform: 'uppercase', color: TEXT, margin: 0 }}>Re-roll hit rolls</h2>
+      <Body>Every model re-rolls misses. More dice, more Lethal Hits procs.</Body>
+      <ContinueBtn onClick={onNext} />
+    </>),
+
+    'intermediate-5': (<>
+      <Tag color={ACCENT}>Marshal aura</Tag>
+      <h2 style={{ fontFamily: 'Space Mono, monospace', fontSize: 'clamp(16px, 2vw, 22px)', fontWeight: 700, letterSpacing: '2px', textTransform: 'uppercase', color: TEXT, margin: 0 }}>Critical Hit on 5+</h2>
+      <Body>
+        Unmodified 5+ triggers Lethal Hits. With re-rolls: roughly 44% of all attack dice proc it. Full synergy:{' '}
+        <strong style={{ color: TEXT }}>{results?.base?.summary.mean_damage.toFixed(2)}</strong> →{' '}
+        <strong style={{ color: HIGHLIGHT }}>{results?.full3?.summary.mean_damage.toFixed(2)}</strong> mean damage{' '}
+        (<strong style={{ color: ACCENT }}>+{results?.base && results?.full3 ? (((results.full3.summary.mean_damage / results.base.summary.mean_damage) - 1) * 100).toFixed(0) : '?'}%</strong>).
+      </Body>
+      <ContinueBtn onClick={onNext} label="Open simulator →" primary />
+    </>),
+  }
   return content[stepKey] ?? null
 }
 
-// ── Damage panel (sticky right) ───────────────────────────────────────────────
+// ── Right panels ──────────────────────────────────────────────────────────────
+
+function SimpleDamagePanel({ result, label = '1× Sword Brethren · Power Sword · vs Abaddon' }) {
+  if (!result) return null
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+      <div style={{ fontFamily: 'Space Mono, monospace', fontSize: '9px', letterSpacing: '2px', textTransform: 'uppercase', color: TEXT_WEAK }}>
+        {label}
+      </div>
+      <div>
+        <div style={{ fontFamily: 'Space Mono, monospace', fontWeight: 700, fontSize: 'clamp(64px, 8vw, 100px)', lineHeight: 1, letterSpacing: '-3px', color: HIGHLIGHT }}>
+          {result.summary.mean_damage.toFixed(2)}
+        </div>
+        <div style={{ fontFamily: 'Space Mono, monospace', fontSize: '9px', letterSpacing: '2px', textTransform: 'uppercase', color: TEXT_WEAK, marginTop: '10px' }}>
+          Mean damage output
+        </div>
+      </div>
+      <div style={{ borderTop: `1px solid ${BORDER}` }} />
+      {[
+        ['Median damage',  result.summary.median_damage],
+        ['P10 — P90',      `${result.summary.p10} — ${result.summary.p90}`],
+        ['Std deviation',  result.summary.std_dev.toFixed(2)],
+      ].map(([label, value]) => (
+        <div key={label} style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 0', borderBottom: `1px solid ${BORDER}` }}>
+          <span style={{ fontFamily: 'Space Mono, monospace', fontSize: '9px', letterSpacing: '1.5px', textTransform: 'uppercase', color: TEXT_WEAK }}>{label}</span>
+          <span style={{ fontFamily: 'Space Mono, monospace', fontSize: '12px', fontWeight: 700, color: TEXT_SEC }}>{value}</span>
+        </div>
+      ))}
+    </div>
+  )
+}
 
 const CustomTooltip = ({ active, payload, label }) => {
   if (!active || !payload?.length) return null
@@ -324,18 +539,16 @@ const CustomTooltip = ({ active, payload, label }) => {
   )
 }
 
-function DamagePanel({ result, rulesActive }) {
+function FullDamagePanel({ result, label }) {
   if (!result) return null
   const { summary, damage_histogram } = result
   const maxProb = Math.max(...damage_histogram.map((b) => b.probability))
-
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '0' }}>
       <div style={{ fontFamily: 'Space Mono, monospace', fontSize: '9px', letterSpacing: '2px', textTransform: 'uppercase', color: TEXT_WEAK, marginBottom: '20px' }}>
-        Black Templars vs Abaddon · {rulesActive === 0 ? 'base' : `${rulesActive} rule${rulesActive > 1 ? 's' : ''} active`}
+        {label}
       </div>
-
-      <div style={{ marginBottom: '20px' }}>
+      <div style={{ marginBottom: '16px' }}>
         <div style={{ fontFamily: 'Space Mono, monospace', fontWeight: 700, fontSize: 'clamp(48px, 5vw, 72px)', lineHeight: 1, letterSpacing: '-2px', color: HIGHLIGHT }}>
           {summary.mean_damage.toFixed(2)}
         </div>
@@ -343,31 +556,27 @@ function DamagePanel({ result, rulesActive }) {
           Mean damage output
         </div>
       </div>
-
       <div style={{ borderTop: `1px solid ${BORDER}`, marginBottom: '12px' }} />
-
       {[
-        ['Median', summary.median_damage],
-        ['Std dev', summary.std_dev.toFixed(2)],
-        ['P10 — P90', `${summary.p10} — ${summary.p90}`],
-      ].map(([label, value]) => (
-        <div key={label} style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 0', borderBottom: `1px solid ${BORDER}` }}>
-          <span style={{ fontFamily: 'Space Mono, monospace', fontSize: '9px', letterSpacing: '1.5px', textTransform: 'uppercase', color: TEXT_WEAK }}>{label}</span>
-          <span style={{ fontFamily: 'Space Mono, monospace', fontSize: '12px', fontWeight: 700, color: TEXT_SEC }}>{value}</span>
+        ['Median',   summary.median_damage],
+        ['Std dev',  summary.std_dev.toFixed(2)],
+        ['P10—P90',  `${summary.p10} — ${summary.p90}`],
+      ].map(([l, v]) => (
+        <div key={l} style={{ display: 'flex', justifyContent: 'space-between', padding: '7px 0', borderBottom: `1px solid ${BORDER}` }}>
+          <span style={{ fontFamily: 'Space Mono, monospace', fontSize: '9px', letterSpacing: '1.5px', textTransform: 'uppercase', color: TEXT_WEAK }}>{l}</span>
+          <span style={{ fontFamily: 'Space Mono, monospace', fontSize: '12px', fontWeight: 700, color: TEXT_SEC }}>{v}</span>
         </div>
       ))}
-
-      <div style={{ borderTop: `1px solid ${BORDER}`, margin: '16px 0 12px' }} />
-
-      <div style={{ fontFamily: 'Space Mono, monospace', fontSize: '8px', letterSpacing: '2.5px', textTransform: 'uppercase', color: TEXT_WEAK, marginBottom: '12px' }}>
+      <div style={{ borderTop: `1px solid ${BORDER}`, margin: '14px 0 10px' }} />
+      <div style={{ fontFamily: 'Space Mono, monospace', fontSize: '8px', letterSpacing: '2.5px', textTransform: 'uppercase', color: TEXT_WEAK, marginBottom: '10px' }}>
         Damage distribution
       </div>
-      <ResponsiveContainer width="100%" height={150}>
+      <ResponsiveContainer width="100%" height={140}>
         <BarChart data={damage_histogram} margin={{ top: 0, right: 0, bottom: 0, left: -20 }} barCategoryGap="18%">
           <XAxis dataKey="damage" tick={{ fill: TEXT_WEAK, fontSize: 8, fontFamily: 'Space Mono, monospace' }} tickLine={{ stroke: BORDER }} axisLine={{ stroke: BORDER }} />
           <YAxis tickFormatter={(v) => `${(v * 100).toFixed(0)}%`} tick={{ fill: TEXT_WEAK, fontSize: 8, fontFamily: 'Space Mono, monospace' }} tickLine={{ stroke: BORDER }} axisLine={{ stroke: BORDER }} />
           <Tooltip content={<CustomTooltip />} cursor={{ fill: 'rgba(47,224,255,0.04)' }} />
-          <Bar dataKey="probability" radius={0} isAnimationActive={true} animationDuration={400}>
+          <Bar dataKey="probability" radius={0} isAnimationActive animationDuration={350}>
             {damage_histogram.map((entry) => (
               <Cell key={entry.damage} fill={entry.probability === maxProb ? HIGHLIGHT : ACCENT} opacity={entry.probability === maxProb ? 0.9 : 0.45} />
             ))}
@@ -378,38 +587,57 @@ function DamagePanel({ result, rulesActive }) {
   )
 }
 
-// ── Progress bar (top) ────────────────────────────────────────────────────────
+// ── Progress bar ──────────────────────────────────────────────────────────────
 
-function ProgressBar({ steps, active }) {
+function ProgressBar({ total, active }) {
   return (
-    <div style={{ display: 'flex', height: '3px', background: SURFACE_E }}>
-      {steps.map((_, i) => (
-        <div key={i} style={{ flex: 1, background: i <= active ? ACCENT : 'transparent', transition: 'background 300ms', marginRight: i < steps.length - 1 ? '2px' : 0 }} />
+    <div style={{ display: 'flex', height: '3px', background: SURFACE_E, gap: '2px' }}>
+      {Array.from({ length: total }).map((_, i) => (
+        <div key={i} style={{ flex: 1, background: i <= active ? ACCENT : 'transparent', transition: 'background 300ms' }} />
       ))}
     </div>
   )
 }
 
+// ── Right panel label per resultKey ──────────────────────────────────────────
+
+const PANEL_LABELS = {
+  base:        '1× Sword Brethren · vs Maleceptor (T11 Sv3+ 4++ W14)',
+  base_no_inv: '1× Sword Brethren · vs Maleceptor (T11 Sv3+ W14)',
+  base_aura:   '1× Sword Brethren · Encephalic Diffusion (−1 hit) · vs Maleceptor',
+  lethal:      '1× Sword Brethren · Lethal Hits · vs Maleceptor',
+  lethal_aura: '1× Sword Brethren · Lethal Hits + aura (−1 hit) · vs Maleceptor',
+  squad_base:  'Full squad · Lethal Hits + aura · vs Maleceptor',
+  full0:       'Full unit · Accept Any Challenge · net wound still 6+ (cancelled)',
+  full1:       'Full unit · + Marshal +1A',
+  full2:       'Full unit · + Re-roll hits',
+  full3:       'Full unit · all rules active',
+}
+
 // ── Main page ─────────────────────────────────────────────────────────────────
 
 export function OnboardingPage() {
-  const navigate  = useNavigate()
-  const level     = localStorage.getItem('ph_level') ?? 'beginner'
-  const steps     = level === 'intermediate' ? INTERMEDIATE_STEPS : BEGINNER_STEPS
-  const prefix    = level === 'intermediate' ? 'intermediate' : 'beginner'
+  const navigate = useNavigate()
+  const level    = localStorage.getItem('ph_level') ?? 'beginner'
+  const steps    = level === 'intermediate' ? INTERMEDIATE_STEPS : BEGINNER_STEPS
+  const prefix   = level === 'intermediate' ? 'intermediate' : 'beginner'
 
   const [activeStep, setActiveStep] = useState(0)
   const sectionRefs = useRef([])
-  const containerRef = useRef(null)
 
-  // Pre-compute all 5 simulation results
-  const results = useMemo(() => (
-    [0, 1, 2, 3, 4].map((simIdx) =>
-      simulate({ attacks: buildAttacks(simIdx), defender: DEFENDER, context: CONTEXT, n_trials: 1000 })
-    )
-  ), [])
+  const results = useMemo(() => ({
+    base:        simulate(SIM_BASE_1SB),
+    base_no_inv: simulate(SIM_BASE_NO_INV),
+    base_aura:   simulate(SIM_AURA),
+    lethal:      simulate(SIM_LETHAL_1SB),
+    lethal_aura: simulate(SIM_LETHAL_AURA),
+    squad_base:  simulate({ attacks: buildFullAttacks(0), defender: DEFENDER, context: CONTEXT, n_trials: 2000 }),
+    full0: simulate({ attacks: buildFullAttacks(1), defender: DEFENDER, context: CONTEXT, n_trials: 2000 }),
+    full1: simulate({ attacks: buildFullAttacks(2), defender: DEFENDER, context: CONTEXT, n_trials: 2000 }),
+    full2: simulate({ attacks: buildFullAttacks(3), defender: DEFENDER, context: CONTEXT, n_trials: 2000 }),
+    full3: simulate({ attacks: buildFullAttacks(4), defender: DEFENDER, context: CONTEXT, n_trials: 2000 }),
+  }), [])
 
-  // IntersectionObserver: update activeStep when section enters viewport
   useEffect(() => {
     const observers = sectionRefs.current.map((el, i) => {
       if (!el) return null
@@ -441,8 +669,8 @@ export function OnboardingPage() {
     navigate('/')
   }
 
-  const activeSimIdx  = steps[activeStep]?.simIdx ?? 0
-  const activeResult  = results[activeSimIdx]
+  const currentStep  = steps[activeStep]
+  const activeResult = results[currentStep?.resultKey]
 
   return (
     <div style={{ minHeight: '100vh', background: BG, display: 'flex', flexDirection: 'column' }}>
@@ -460,14 +688,13 @@ export function OnboardingPage() {
         </span>
       </div>
 
-      {/* Progress bar */}
-      <ProgressBar steps={steps} active={activeStep} />
+      <ProgressBar total={steps.length} active={activeStep} />
 
       {/* Two-column layout */}
       <div style={{ flex: 1, display: 'grid', gridTemplateColumns: '1fr 1fr', alignItems: 'start' }}>
 
         {/* Left — scrollable sections */}
-        <div ref={containerRef} style={{ borderRight: `1px solid ${BORDER}` }}>
+        <div style={{ borderRight: `1px solid ${BORDER}` }}>
           {steps.map((step, i) => (
             <section
               key={i}
@@ -484,9 +711,12 @@ export function OnboardingPage() {
           ))}
         </div>
 
-        {/* Right — sticky graph */}
-        <div style={{ position: 'sticky', top: '55px', height: 'calc(100vh - 55px)', padding: '40px 40px', overflowY: 'auto', display: 'flex', flexDirection: 'column' }}>
-          <DamagePanel result={activeResult} rulesActive={activeSimIdx} />
+        {/* Right — sticky panel */}
+        <div style={{ position: 'sticky', top: '55px', height: 'calc(100vh - 55px)', padding: '40px', overflowY: 'auto' }}>
+          {currentStep?.panelType === 'simple'
+            ? <SimpleDamagePanel result={activeResult} label={PANEL_LABELS[currentStep?.resultKey] ?? ''} />
+            : <FullDamagePanel result={activeResult} label={PANEL_LABELS[currentStep?.resultKey] ?? ''} />
+          }
         </div>
       </div>
     </div>
