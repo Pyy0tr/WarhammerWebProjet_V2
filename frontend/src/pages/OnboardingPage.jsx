@@ -65,10 +65,10 @@ function buildFullAttacks(simIdx) {
 // panelType: 'simple' = mean damage only | 'full' = histogram + stats
 // resultKey: key into the precomputed results map
 const BEGINNER_STEPS = [
-  { label: 'Weapon Stats',    panelType: 'simple', resultKey: 'base_no_inv' },
-  { label: 'Defender Stats',  panelType: 'simple', resultKey: 'base_no_inv' },
-  { label: 'Invuln. Save',         panelType: 'simple', resultKey: 'base' },
-  { label: 'Encephalic Diffusion', panelType: 'simple', resultKey: 'base_aura' },
+  { label: 'Weapon Stats',    panelType: 'full', resultKey: 'base_no_inv' },
+  { label: 'Defender Stats',  panelType: 'full', resultKey: 'base_no_inv' },
+  { label: 'Invuln. Save',         panelType: 'full', resultKey: 'base' },
+  { label: 'Encephalic Diffusion', panelType: 'full', resultKey: 'base_aura' },
   { label: 'Lethal Hits',          panelType: 'full',   resultKey: 'lethal_aura' },
   { label: 'The Squad',            panelType: 'full',   resultKey: 'squad_base' },
   { label: 'Accept Any Challenge',  panelType: 'full',   resultKey: 'full0' },
@@ -416,13 +416,13 @@ function StepContent({ stepKey, onNext, results }) {
         </div>
       </div>
       <div style={{ padding: '16px', border: `1px solid ${ACCENT}`, background: 'rgba(47,224,255,0.04)' }}>
-        <div style={{ fontFamily: 'Space Mono, monospace', fontSize: '9px', letterSpacing: '2px', textTransform: 'uppercase', color: ACCENT, marginBottom: '8px' }}>Full synergy</div>
+        <div style={{ fontFamily: 'Space Mono, monospace', fontSize: '9px', letterSpacing: '2px', textTransform: 'uppercase', color: ACCENT, marginBottom: '8px' }}>Full synergy — per attack die</div>
         <p style={{ fontFamily: 'Georgia, serif', fontSize: '14px', lineHeight: 1.7, color: TEXT_SEC, margin: 0 }}>
-          1 Sword Brethren alone: <strong style={{ color: TEXT }}>{results?.base?.summary.mean_damage.toFixed(2)}</strong> mean damage.{' '}
-          Full unit with all five rules: <strong style={{ color: HIGHLIGHT }}>{results?.full3?.summary.mean_damage.toFixed(2)}</strong> — a{' '}
+          1 attack die with no rules: <strong style={{ color: TEXT }}>{results?.single_base?.summary.mean_damage.toFixed(2)}</strong> mean damage.{' '}
+          Same die with all five rules: <strong style={{ color: HIGHLIGHT }}>{results?.single_full?.summary.mean_damage.toFixed(2)}</strong> — a{' '}
           <strong style={{ color: ACCENT }}>
-            +{results?.base && results?.full3 ? (((results.full3.summary.mean_damage / results.base.summary.mean_damage) - 1) * 100).toFixed(0) : '?'}%
-          </strong> increase.
+            +{results?.single_base && results?.single_full ? (((results.single_full.summary.mean_damage / results.single_base.summary.mean_damage) - 1) * 100).toFixed(0) : '?'}%
+          </strong> increase per die.
         </p>
       </div>
       <ContinueBtn onClick={onNext} label="Open simulator →" primary />
@@ -548,13 +548,25 @@ function FullDamagePanel({ result, label }) {
       <div style={{ fontFamily: 'Space Mono, monospace', fontSize: '9px', letterSpacing: '2px', textTransform: 'uppercase', color: TEXT_WEAK, marginBottom: '20px' }}>
         {label}
       </div>
-      <div style={{ marginBottom: '16px' }}>
-        <div style={{ fontFamily: 'Space Mono, monospace', fontWeight: 700, fontSize: 'clamp(48px, 5vw, 72px)', lineHeight: 1, letterSpacing: '-2px', color: HIGHLIGHT }}>
-          {summary.mean_damage.toFixed(2)}
+      <div style={{ marginBottom: '16px', display: 'flex', alignItems: 'flex-end', gap: '24px' }}>
+        <div>
+          <div style={{ fontFamily: 'Space Mono, monospace', fontWeight: 700, fontSize: 'clamp(48px, 5vw, 72px)', lineHeight: 1, letterSpacing: '-2px', color: HIGHLIGHT }}>
+            {summary.mean_damage.toFixed(2)}
+          </div>
+          <div style={{ fontFamily: 'Space Mono, monospace', fontSize: '9px', letterSpacing: '2px', textTransform: 'uppercase', color: TEXT_WEAK, marginTop: '8px' }}>
+            Mean damage
+          </div>
         </div>
-        <div style={{ fontFamily: 'Space Mono, monospace', fontSize: '9px', letterSpacing: '2px', textTransform: 'uppercase', color: TEXT_WEAK, marginTop: '8px' }}>
-          Mean damage output
-        </div>
+        {result.kill_probabilities?.['1'] != null && (
+          <div style={{ paddingBottom: '4px' }}>
+            <div style={{ fontFamily: 'Space Mono, monospace', fontWeight: 700, fontSize: 'clamp(32px, 3.5vw, 52px)', lineHeight: 1, letterSpacing: '-1px', color: ACCENT }}>
+              {(result.kill_probabilities['1'] * 100).toFixed(0)}%
+            </div>
+            <div style={{ fontFamily: 'Space Mono, monospace', fontSize: '9px', letterSpacing: '2px', textTransform: 'uppercase', color: TEXT_WEAK, marginTop: '8px' }}>
+              Kill chance
+            </div>
+          </div>
+        )}
       </div>
       <div style={{ borderTop: `1px solid ${BORDER}`, marginBottom: '12px' }} />
       {[
@@ -636,6 +648,9 @@ export function OnboardingPage() {
     full1: simulate({ attacks: buildFullAttacks(2), defender: DEFENDER, context: CONTEXT, n_trials: 2000 }),
     full2: simulate({ attacks: buildFullAttacks(3), defender: DEFENDER, context: CONTEXT, n_trials: 2000 }),
     full3: simulate({ attacks: buildFullAttacks(4), defender: DEFENDER, context: CONTEXT, n_trials: 2000 }),
+    // Per-die comparison for synergy box (1 attack, no rules vs all 5 rules)
+    single_base: simulate({ attacks: [{ models: 1, weapon: { attacks: '1', skill: 2, strength: 5, ap: -2, damage: '2', keywords: NO_KW }, buffs: [] }], defender: DEFENDER, context: CONTEXT, n_trials: 4000 }),
+    single_full: simulate({ attacks: [{ models: 1, weapon: { attacks: '1', skill: 2, strength: 5, ap: -2, damage: '2', keywords: LETHAL }, buffs: [{ type: 'HIT_MODIFIER', value: -1 }, { type: 'REROLL_HITS', value: 'all' }, { type: 'CRITICAL_HIT_ON', value: 5 }] }], defender: DEFENDER, context: CONTEXT, n_trials: 4000 }),
   }), [])
 
   useEffect(() => {
