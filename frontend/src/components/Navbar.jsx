@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Link, useLocation } from 'react-router-dom'
+import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { useAuthStore } from '../store/authStore'
 import { AuthModal } from './AuthModal'
 import { ACCENT, ACCENT_H, BG, BORDER, TEXT, TEXT_SEC, TEXT_WEAK } from '../theme'
@@ -122,8 +122,10 @@ function UserChip({ user, onLogout }) {
 
 export function Navbar() {
   const { pathname } = useLocation()
+  const navigate = useNavigate()
   const { user, logout } = useAuthStore()
   const [modal, setModal] = useState(null)
+  const isAdmin = user?.username === 'Pyy0tr'
 
   return (
     <>
@@ -175,9 +177,15 @@ export function Navbar() {
         </div>
 
         <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: '10px' }}>
-          <GhostButton href="https://github.com">
-            Feedback ↗
+          <GhostButton onClick={() => navigate('/feedback')}>
+            Feedback
           </GhostButton>
+
+          {isAdmin && (
+            <GhostButton onClick={() => navigate('/admin/feedback')}>
+              Admin
+            </GhostButton>
+          )}
 
           {user ? (
             <UserChip user={user} onLogout={logout} />

@@ -114,7 +114,7 @@ export function WelcomePage() {
       setExpert(true)
       return
     }
-    navigate('/onboarding')
+    navigate(level.id === 'beginner' ? '/learn' : '/onboarding')
   }
 
   function handleSkip() {

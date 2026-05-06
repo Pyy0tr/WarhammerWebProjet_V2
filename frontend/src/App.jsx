@@ -7,11 +7,14 @@ import { ArmiesPage } from './pages/ArmiesPage'
 import { ResetPasswordPage } from './pages/ResetPasswordPage'
 import { WelcomePage } from './pages/WelcomePage'
 import { OnboardingPage } from './pages/OnboardingPage'
+import { LearnPage } from './pages/LearnPage'
+import { FeedbackPage } from './pages/FeedbackPage'
+import { AdminFeedbackPage } from './pages/AdminFeedbackPage'
 import { Navbar } from './components/Navbar'
 import { useDataStore } from './store/dataStore'
 import { useAuthStore } from './store/authStore'
 
-const NO_NAVBAR = ['/welcome', '/onboarding', '/reset-password']
+const NO_NAVBAR = ['/welcome', '/onboarding', '/learn', '/reset-password']
 
 function NavbarConditional() {
   const { pathname } = useLocation()
@@ -91,12 +94,15 @@ export default function App() {
       <Routes>
         <Route path="/welcome"        element={<WelcomePage />} />
         <Route path="/onboarding"     element={<OnboardingPage />} />
+        <Route path="/learn"          element={<LearnPage />} />
         <Route path="/reset-password" element={<ResetPasswordPage />} />
-        <Route path="/"          element={<OnboardingGuard><HomePage /></OnboardingGuard>} />
-        <Route path="/simulator" element={<OnboardingGuard><SimulatorPage /></OnboardingGuard>} />
-        <Route path="/factions"  element={<OnboardingGuard><FactionsPage /></OnboardingGuard>} />
-        <Route path="/armies"    element={<OnboardingGuard><ArmiesPage /></OnboardingGuard>} />
-        <Route path="*"          element={<Navigate to="/" replace />} />
+        <Route path="/"               element={<OnboardingGuard><HomePage /></OnboardingGuard>} />
+        <Route path="/simulator"      element={<OnboardingGuard><SimulatorPage /></OnboardingGuard>} />
+        <Route path="/factions"       element={<OnboardingGuard><FactionsPage /></OnboardingGuard>} />
+        <Route path="/armies"         element={<OnboardingGuard><ArmiesPage /></OnboardingGuard>} />
+        <Route path="/feedback"       element={<FeedbackPage />} />
+        <Route path="/admin/feedback" element={<AdminFeedbackPage />} />
+        <Route path="*"               element={<Navigate to="/" replace />} />
       </Routes>
     </BrowserRouter>
   )

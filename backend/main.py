@@ -11,7 +11,7 @@ from rate_limiter import limiter
 from sqlalchemy import text
 from dotenv import load_dotenv
 from database import Base, engine
-from routes import auth, armies
+from routes import auth, armies, feedback
 
 load_dotenv()
 
@@ -34,6 +34,17 @@ async def lifespan(_app: FastAPI):
                     ALTER TABLE users ADD COLUMN IF NOT EXISTS reset_token_expires TIMESTAMPTZ;
                     ALTER TABLE users DROP COLUMN IF EXISTS email_verified;
                     ALTER TABLE users DROP COLUMN IF EXISTS verification_token;
+                """))
+                conn.execute(text("""
+                    CREATE TABLE IF NOT EXISTS feedback (
+                        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+                        type VARCHAR(20) NOT NULL,
+                        message TEXT NOT NULL,
+                        email VARCHAR,
+                        username VARCHAR,
+                        is_read BOOLEAN NOT NULL DEFAULT FALSE,
+                        created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+                    );
                 """))
                 conn.commit()
             logger.info("Database tables ready")
@@ -62,6 +73,7 @@ app.add_middleware(
 
 app.include_router(auth.router)
 app.include_router(armies.router)
+app.include_router(feedback.router)
 
 
 @app.get("/health")
