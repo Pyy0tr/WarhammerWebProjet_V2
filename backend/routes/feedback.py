@@ -1,7 +1,10 @@
+import os
 from fastapi import APIRouter, Depends, HTTPException, Request, status
+from fastapi.security import OAuth2PasswordBearer
 from sqlalchemy.orm import Session
 from pydantic import BaseModel
 from typing import Optional
+from jose import jwt, JWTError
 from database import get_db
 from rate_limiter import limiter
 from auth import get_current_user
@@ -10,6 +13,18 @@ import models
 ADMIN_USERNAME = "admin"
 
 router = APIRouter(prefix="/feedback", tags=["feedback"])
+
+optional_oauth2 = OAuth2PasswordBearer(tokenUrl="/auth/login", auto_error=False)
+
+
+def _username_from_token(token: Optional[str]) -> Optional[str]:
+    if not token:
+        return None
+    try:
+        payload = jwt.decode(token, os.environ["JWT_SECRET_KEY"], algorithms=["HS256"])
+        return payload.get("username")
+    except JWTError:
+        return None
 
 
 class FeedbackRequest(BaseModel):
@@ -43,6 +58,7 @@ def submit_feedback(
     request: Request,
     body: FeedbackRequest,
     db: Session = Depends(get_db),
+    token: Optional[str] = Depends(optional_oauth2),
 ):
     if body.type not in ("bug", "suggestion", "other"):
         raise HTTPException(status_code=400, detail="Type invalide")
@@ -51,26 +67,11 @@ def submit_feedback(
     if len(body.message) > 2000:
         raise HTTPException(status_code=400, detail="Message trop long (2000 caractères max)")
 
-    # Identify sender: prefer logged-in user if token present
-    sender_username = None
-    sender_email    = body.email
-    token = request.headers.get("Authorization", "")
-    if token.startswith("Bearer "):
-        try:
-            from auth import get_current_user as _gcu
-            from database import get_db as _gdb
-            from jose import jwt
-            import os
-            payload = jwt.decode(token[7:], os.environ["JWT_SECRET_KEY"], algorithms=["HS256"])
-            sender_username = payload.get("username")
-        except Exception:
-            pass
-
     fb = models.Feedback(
         type     = body.type,
         message  = body.message.strip(),
-        email    = sender_email,
-        username = sender_username,
+        email    = body.email,
+        username = _username_from_token(token),
     )
     db.add(fb)
     db.commit()
