@@ -245,20 +245,34 @@ function simulateOnce(req) {
   // ── Phase 5: damage + FNP ────────────────────────────────────────────────────
 
   let totalDamage = 0
+  let modelWoundsLeft = d.wounds
+  let modelsLeft      = d.models ?? 1
 
   for (let i = 0; i < totalUnsaved; i++) {
+    if (modelsLeft <= 0) break
+
     let dmg = roll(w.damage) + dmgMod
-
     if (hasMelta && ctx.half_range) dmg += roll(kwMelta.value)
-
     dmg = Math.max(0, dmg)
 
+    // FNP: one roll per damage point
+    let effectiveDmg = 0
     if (d.fnp != null) {
       for (let j = 0; j < dmg; j++) {
-        if (d6() < d.fnp) totalDamage++  // fails FNP → damage lands
+        if (d6() < d.fnp) effectiveDmg++  // fails FNP → damage lands
       }
     } else {
-      totalDamage += dmg
+      effectiveDmg = dmg
+    }
+
+    // Cap at current model's remaining wounds — overkill is lost (BUG-002)
+    const dealt = Math.min(effectiveDmg, modelWoundsLeft)
+    totalDamage      += dealt
+    modelWoundsLeft  -= dealt
+
+    if (modelWoundsLeft <= 0) {
+      modelsLeft--
+      modelWoundsLeft = d.wounds
     }
   }
 
