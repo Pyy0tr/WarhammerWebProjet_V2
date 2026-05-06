@@ -148,7 +148,7 @@ jobs:
             --region eu-west-3 \
             --instance-ids ${{ secrets.EC2_INSTANCE_ID }} \
             --document-name "AWS-RunShellScript" \
-            --parameters "commands=[\"/usr/local/bin/aws ecr get-login-password --region eu-west-3 | docker login --username AWS --password-stdin ${{ secrets.ECR_REGISTRY }} && docker pull ${{ secrets.ECR_REGISTRY }}/probhammer-backend:latest && docker rm -f probhammer-backend 2>/dev/null || true && docker run -d --name probhammer-backend --env-file /home/ubuntu/backend.env -p 8000:8000 --restart unless-stopped ${{ secrets.ECR_REGISTRY }}/probhammer-backend:latest\"]" \
+            --parameters "commands=[\"/usr/local/bin/aws ecr get-login-password --region eu-west-3 | docker login --username AWS --password-stdin ${{ secrets.ECR_REGISTRY }} && docker image prune -f && docker pull ${{ secrets.ECR_REGISTRY }}/probhammer-backend:latest && (docker rm -f probhammer-backend 2>/dev/null; true) && docker run -d --name probhammer-backend --env-file /home/ubuntu/backend.env -p 8000:8000 --restart unless-stopped ${{ secrets.ECR_REGISTRY }}/probhammer-backend:latest\"]" \
             --query "Command.CommandId" \
             --output text)
           echo "SSM Command ID: $COMMAND_ID"
