@@ -1,6 +1,6 @@
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { ACCENT, BG, BORDER, TEXT, TEXT_SEC, TEXT_WEAK } from '../theme'
+import { ACCENT, BG, BORDER, SURFACE, TEXT, TEXT_SEC, TEXT_WEAK, TEXT_OFF } from '../theme'
 
 function Separator({ opacity = 0.5 }) {
   return (
@@ -126,6 +126,89 @@ function StepCard({ num, title, desc }) {
       }}>
         {desc}
       </p>
+    </div>
+  )
+}
+
+const GUIDES = [
+  {
+    num: '01',
+    title: 'Bases de combat',
+    desc: 'Comprendre les 5 phases d\'une attaque : Attacks → Hit → Wound → Save → Damage. Avec un exemple concret pas à pas.',
+    duration: '~5 min',
+    route: '/learn',
+  },
+  {
+    num: '02',
+    title: 'Importance des synergies',
+    desc: 'Voir comment les mots-clés se combinent pour démultiplier les dégâts. Exemple live avec les Sword Brethren et le Maleceptor.',
+    duration: '~2 min',
+    route: '/onboarding',
+  },
+  {
+    num: '03',
+    title: 'Explorer les mots-clés',
+    desc: 'Lethal Hits, Devastating Wounds, ANTI, Sustained Hits… Un guide interactif pour chaque mot-clé disponible dans le simulateur.',
+    duration: 'Bientôt',
+    route: null,
+  },
+]
+
+function GuideCard({ guide }) {
+  const navigate = useNavigate()
+  const [hovered, setHovered] = useState(false)
+  const active = hovered && guide.route
+  const soon = !guide.route
+
+  return (
+    <div
+      onClick={() => guide.route && navigate(guide.route)}
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+      style={{
+        flex: 1, minWidth: '220px',
+        border: `1px solid ${active ? ACCENT : BORDER}`,
+        background: active ? 'rgba(47,224,255,0.04)' : SURFACE,
+        padding: '32px 28px',
+        cursor: guide.route ? 'pointer' : 'default',
+        transition: 'border-color 120ms, background 120ms',
+        display: 'flex', flexDirection: 'column', gap: '14px',
+        opacity: soon ? 0.5 : 1,
+      }}
+    >
+      <div style={{
+        fontFamily: 'Space Mono, monospace', fontSize: '9px',
+        letterSpacing: '3px', textTransform: 'uppercase',
+        color: active ? ACCENT : TEXT_OFF,
+        transition: 'color 120ms',
+      }}>
+        {guide.num}
+      </div>
+
+      <div style={{
+        fontFamily: 'Space Mono, monospace', fontSize: '14px',
+        fontWeight: 700, letterSpacing: '2px', textTransform: 'uppercase',
+        color: active ? ACCENT : TEXT,
+        transition: 'color 120ms',
+      }}>
+        {guide.title}
+      </div>
+
+      <p style={{
+        fontFamily: 'Georgia, serif', fontSize: '14px',
+        lineHeight: 1.7, color: TEXT_SEC,
+        margin: 0, flexGrow: 1,
+      }}>
+        {guide.desc}
+      </p>
+
+      <div style={{
+        fontFamily: 'Space Mono, monospace', fontSize: '9px',
+        letterSpacing: '2px', textTransform: 'uppercase',
+        color: soon ? TEXT_OFF : TEXT_WEAK,
+      }}>
+        {guide.duration}
+      </div>
     </div>
   )
 }
@@ -263,6 +346,20 @@ export function HomePage() {
             title="Read the distribution"
             desc="The engine runs up to 10,000 Monte Carlo simulations in the browser and displays the damage histogram, mean, median, and P10–P90 percentiles."
           />
+        </div>
+      </section>
+
+      <section style={{ padding: '64px 56px 72px', borderTop: `1px solid ${BORDER}` }}>
+        <div style={{
+          fontFamily: 'Space Mono, monospace', fontSize: '10px',
+          letterSpacing: '3px', textTransform: 'uppercase',
+          color: TEXT_WEAK, marginBottom: '44px',
+        }}>
+          Guides
+        </div>
+
+        <div style={{ display: 'flex', gap: '16px', flexWrap: 'wrap' }}>
+          {GUIDES.map((g) => <GuideCard key={g.num} guide={g} />)}
         </div>
       </section>
 
