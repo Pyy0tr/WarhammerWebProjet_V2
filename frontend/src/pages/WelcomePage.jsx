@@ -109,12 +109,17 @@ export function WelcomePage() {
   const [expert, setExpert] = useState(false)
 
   function handleSelect(level) {
-    localStorage.setItem('ph_level', level.id)
     if (level.id === 'expert') {
       setExpert(true)
       return
     }
-    navigate(level.id === 'beginner' ? '/learn' : '/onboarding')
+    if (level.id === 'beginner') {
+      localStorage.setItem('ph_level', 'beginner')
+      navigate('/learn')
+    } else {
+      localStorage.setItem('ph_level', 'beginner')
+      navigate('/onboarding')
+    }
   }
 
   function handleSkip() {
