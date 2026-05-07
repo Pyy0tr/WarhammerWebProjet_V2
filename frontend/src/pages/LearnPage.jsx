@@ -55,10 +55,11 @@ function Body({ children }) {
 }
 
 function ContinueBtn({ onClick, label = 'Continue ↓', primary = false }) {
+  if (!primary) return null
   return (
     <button
       onClick={onClick}
-      style={{ border: primary ? 'none' : `1px solid ${BORDER}`, background: primary ? ACCENT : 'transparent', color: primary ? BG : TEXT_OFF, fontFamily: 'Space Mono, monospace', fontSize: '10px', letterSpacing: '2px', textTransform: 'uppercase', fontWeight: primary ? 700 : 400, padding: '12px 24px', cursor: 'pointer', alignSelf: 'flex-start', transition: 'opacity 150ms' }}
+      style={{ border: 'none', background: ACCENT, color: BG, fontFamily: 'Space Mono, monospace', fontSize: '10px', letterSpacing: '2px', textTransform: 'uppercase', fontWeight: 700, padding: '12px 24px', cursor: 'pointer', alignSelf: 'flex-start', transition: 'opacity 150ms' }}
       onMouseEnter={(e) => { e.currentTarget.style.opacity = '0.8' }}
       onMouseLeave={(e) => { e.currentTarget.style.opacity = '1' }}
     >
@@ -521,7 +522,7 @@ export function LearnPage() {
         <div style={{ fontFamily: 'Space Mono, monospace', fontSize: '9px', letterSpacing: '2px', color: TEXT_WEAK }}>
           {activeStep + 1} / {STEPS.length}
         </div>
-        <span onClick={handleSkip} style={{ fontFamily: 'Space Mono, monospace', fontSize: '9px', letterSpacing: '2px', textTransform: 'uppercase', color: TEXT_OFF, cursor: 'pointer', textDecoration: 'underline', textUnderlineOffset: '3px' }}>
+        <span onClick={handleSkip} style={{ fontFamily: 'Space Mono, monospace', fontSize: '9px', letterSpacing: '2px', textTransform: 'uppercase', color: TEXT_WEAK, cursor: 'pointer', border: `1px solid ${BORDER}`, padding: '6px 14px' }}>
           Skip
         </span>
       </div>
@@ -552,6 +553,17 @@ export function LearnPage() {
           }
         </div>
       </div>
+
+      {/* Fixed round scroll button */}
+      <button
+        onClick={() => handleNext(activeStep)}
+        className="arrow-bounce"
+        style={{ position: 'fixed', bottom: '40px', left: '25vw', transform: 'translateX(-50%)', width: '52px', height: '52px', borderRadius: '50%', background: ACCENT, color: BG, border: 'none', cursor: 'pointer', fontSize: '22px', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 4px 24px rgba(47,224,255,0.30)', zIndex: 20, transition: 'opacity 150ms, transform 150ms' }}
+        onMouseEnter={(e) => { e.currentTarget.style.opacity = '0.85'; e.currentTarget.classList.remove('arrow-bounce') }}
+        onMouseLeave={(e) => { e.currentTarget.style.opacity = '1'; e.currentTarget.classList.add('arrow-bounce') }}
+      >
+        ↓
+      </button>
     </div>
   )
 }
