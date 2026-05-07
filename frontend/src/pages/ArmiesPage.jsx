@@ -608,7 +608,7 @@ function ArmyEditor({ user, onNewArmy }) {
 
 // ── Army sidebar item ─────────────────────────────────────────────────────────
 
-function ArmySidebarItem({ army, active, fmt, onClick, animDelay }) {
+function ArmySidebarItem({ army, active, onClick, animDelay }) {
   const [hov, setHov] = useState(false)
   const pts = army.units.reduce((s, e) => s + (e.pts ?? 0), 0)
 
@@ -667,8 +667,6 @@ function ArmySidebar({ user, onNewArmy }) {
   const activeId  = useArmyStore((s) => s.activeId)
   const setActive = useArmyStore((s) => s.setActive)
   const [btnHov, setBtnHov] = useState(false)
-
-  const fmt = (iso) => new Date(iso).toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: '2-digit' })
 
   return (
     <div style={{
@@ -743,7 +741,6 @@ function ArmySidebar({ user, onNewArmy }) {
               key={army.id}
               army={army}
               active={army.id === activeId}
-              fmt={fmt}
               onClick={() => setActive(army.id)}
               animDelay={i * 40}
             />
