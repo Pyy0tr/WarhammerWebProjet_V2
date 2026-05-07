@@ -9,35 +9,33 @@ import { ACCENT, BG, SURFACE, SURFACE_E, BORDER, TEXT, TEXT_SEC, TEXT_WEAK, ERRO
 
 function StatBar({ M, T, Sv, W, LD, OC, invuln }) {
   const stats = [
-    { key: 'M',   value: M  ?? '—',            sim: false },
-    { key: 'T',   value: T  ?? '—',            sim: true  },
-    { key: 'SV',  value: Sv != null ? `${Sv}+` : '—', sim: true },
-    { key: 'W',   value: W  ?? '—',            sim: true  },
-    { key: 'LD',  value: LD ?? '—',            sim: false },
-    { key: 'OC',  value: OC ?? '—',            sim: false },
+    { key: 'M',   value: M  ?? '—',                    sim: false },
+    { key: 'T',   value: T  ?? '—',                    sim: true  },
+    { key: 'SV',  value: Sv != null ? `${Sv}+` : '—', sim: true  },
+    { key: 'W',   value: W  ?? '—',                    sim: true  },
+    { key: 'LD',  value: LD ?? '—',                    sim: false },
+    { key: 'OC',  value: OC ?? '—',                    sim: false },
   ]
   if (invuln) stats.splice(3, 0, { key: 'INV', value: `${invuln}++`, sim: true, inv: true })
   const cols = stats.length
   return (
-    <div style={{ border: `1px solid ${BORDER}`, background: SURFACE, width: '100%' }}>
-      <div style={{ display: 'grid', gridTemplateColumns: `repeat(${cols}, 1fr)` }}>
-        {stats.map((s, i) => (
-          <div key={s.key} style={{
-            padding: '10px 6px', textAlign: 'center',
-            borderRight: i < cols - 1 ? `1px solid ${BORDER}` : 'none',
-            opacity: s.sim ? 1 : 0.35,
-          }}>
-            <div style={{
-              fontFamily: 'Space Mono, monospace', fontSize: '18px', fontWeight: 700, lineHeight: 1,
-              color: s.inv ? ACCENT : s.sim ? HIGHLIGHT : TEXT_WEAK,
-            }}>{s.value}</div>
-            <div style={{
-              fontFamily: 'Space Mono, monospace', fontSize: '7px',
-              letterSpacing: '1px', textTransform: 'uppercase', color: TEXT_WEAK, marginTop: '5px',
-            }}>{s.key}</div>
-          </div>
-        ))}
-      </div>
+    <div style={{ display: 'inline-grid', gridTemplateColumns: `repeat(${cols}, minmax(42px, auto))`, border: `1px solid ${BORDER}`, background: SURFACE }}>
+      {stats.map((s, i) => (
+        <div key={s.key} style={{
+          padding: '10px 8px', textAlign: 'center',
+          borderRight: i < cols - 1 ? `1px solid ${BORDER}` : 'none',
+          opacity: s.sim ? 1 : 0.35,
+        }}>
+          <div style={{
+            fontFamily: 'Space Mono, monospace', fontSize: '18px', fontWeight: 700, lineHeight: 1,
+            color: s.inv ? ACCENT : s.sim ? HIGHLIGHT : TEXT_WEAK,
+          }}>{s.value}</div>
+          <div style={{
+            fontFamily: 'Space Mono, monospace', fontSize: '7px',
+            letterSpacing: '1px', textTransform: 'uppercase', color: TEXT_WEAK, marginTop: '5px',
+          }}>{s.key}</div>
+        </div>
+      ))}
     </div>
   )
 }
@@ -179,7 +177,7 @@ function ArmyUnitCard({ entry, user }) {
         cursor: 'pointer',
       }}
     >
-      {/* Row 1: name + pts + delete */}
+      {/* Row 1: name + delete */}
       <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '8px' }}>
         <div style={{
           fontFamily: 'Space Mono, monospace', fontSize: '12px',
@@ -189,35 +187,39 @@ function ArmyUnitCard({ entry, user }) {
         }}>
           {entry.name}
         </div>
-        {totalPts !== null && (
-          <div style={{
-            flexShrink: 0,
-            fontFamily: 'Space Mono, monospace', fontSize: '11px', fontWeight: 700,
-            color: ACCENT, letterSpacing: '0.5px',
-          }}>
-            {totalPts} <span style={{ fontSize: '8px', color: TEXT_WEAK, fontWeight: 400 }}>pts</span>
-            {entry.models > 1 && pts !== null && (
-              <span style={{ fontSize: '8px', color: TEXT_WEAK, fontWeight: 400, marginLeft: '4px' }}>
-                ({pts}×{entry.models})
-              </span>
-            )}
-          </div>
-        )}
-        <div
+        <button
           onClick={(e) => { e.stopPropagation(); removeUnit(entry.uid, user) }}
           title="Remove unit"
           style={{
-            flexShrink: 0, cursor: 'pointer',
-            fontFamily: 'Space Mono, monospace', fontSize: '14px', lineHeight: 1,
-            color: hov ? ERROR : 'rgba(255,92,122,0.3)',
-            transition: 'color 120ms',
-            padding: '0 2px',
+            flexShrink: 0, cursor: 'pointer', background: 'none',
+            border: `1px solid ${hov ? ERROR : 'rgba(255,92,122,0.25)'}`,
+            color: hov ? ERROR : 'rgba(255,92,122,0.5)',
+            fontFamily: 'Space Mono, monospace', fontSize: '16px', lineHeight: 1,
+            padding: '3px 10px', transition: 'all 120ms',
           }}
-        >×</div>
+        >×</button>
       </div>
 
-      {/* Row 2: stat bar (full width) */}
-      <div style={{ marginBottom: '8px' }}>
+      {/* Row 2: pts cell + stat bar */}
+      <div style={{ display: 'flex', alignItems: 'stretch', marginBottom: '8px' }}>
+        {totalPts !== null && (
+          <div style={{
+            display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
+            padding: '10px 14px', background: SURFACE,
+            border: `1px solid ${BORDER}`, borderRight: 'none', flexShrink: 0,
+          }}>
+            <div style={{
+              fontFamily: 'Space Mono, monospace', fontSize: '18px', fontWeight: 700,
+              color: ACCENT, lineHeight: 1,
+            }}>{totalPts}</div>
+            <div style={{
+              fontFamily: 'Space Mono, monospace', fontSize: '7px',
+              letterSpacing: '1px', textTransform: 'uppercase', color: TEXT_WEAK, marginTop: '5px',
+            }}>
+              pts{entry.models > 1 && pts !== null ? ` ×${entry.models}` : ''}
+            </div>
+          </div>
+        )}
         <StatBar
           M={entry.M} T={entry.T} Sv={entry.Sv} W={entry.W}
           LD={entry.LD} OC={entry.OC} invuln={entry.invuln}
