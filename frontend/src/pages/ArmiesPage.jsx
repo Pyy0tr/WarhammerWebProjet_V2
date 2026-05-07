@@ -129,13 +129,18 @@ function EditableName({ value, onSave, style }) {
 // ── Army unit card ────────────────────────────────────────────────────────────
 
 function ArmyUnitCard({ entry, user }) {
-  const removeUnit = useArmyStore((s) => s.removeUnit)
-  const updateUnit = useArmyStore((s) => s.updateUnit)
-  const navigate   = useNavigate()
+  const removeUnit  = useArmyStore((s) => s.removeUnit)
+  const updateUnit  = useArmyStore((s) => s.updateUnit)
+  const weaponsById = useDataStore((s) => s.weaponsById)
+  const navigate    = useNavigate()
   const [hov, setHov] = useState(false)
 
   const minM = entry.min_models ?? 1
   const maxM = entry.max_models ?? null
+
+  const weaponNames = (entry.weapons ?? [])
+    .map((ref) => weaponsById[ref.id]?.name)
+    .filter(Boolean)
 
   return (
     <div
@@ -167,12 +172,12 @@ function ArmyUnitCard({ entry, user }) {
       </div>
 
       {/* Row 2: chips + models */}
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '8px' }}>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '8px', marginBottom: weaponNames.length ? '6px' : 0 }}>
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px' }}>
-          <Chip color="#f59e0b">T{entry.T}</Chip>
-          <Chip color="#60a5fa">SV{entry.Sv}+</Chip>
-          <Chip color="#34d399">W{entry.W}</Chip>
-          {entry.invuln && <Chip color={ACCENT}>{entry.invuln}++</Chip>}
+          <Chip>T{entry.T}</Chip>
+          <Chip>SV{entry.Sv}+</Chip>
+          <Chip>W{entry.W}</Chip>
+          {entry.invuln && <Chip>{entry.invuln}++</Chip>}
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexShrink: 0 }}>
           <span style={{ fontFamily: 'Space Mono, monospace', fontSize: '8px', color: TEXT_WEAK, letterSpacing: '1px' }}>
@@ -204,6 +209,20 @@ function ArmyUnitCard({ entry, user }) {
           )}
         </div>
       </div>
+
+      {/* Row 3: weapons */}
+      {weaponNames.length > 0 && (
+        <div style={{
+          fontFamily: 'Space Mono, monospace', fontSize: '9px',
+          color: TEXT_WEAK, letterSpacing: '0.5px',
+          whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis',
+        }}>
+          {weaponNames.slice(0, 5).join(' · ')}
+          {weaponNames.length > 5 && (
+            <span style={{ color: ACCENT }}> +{weaponNames.length - 5}</span>
+          )}
+        </div>
+      )}
     </div>
   )
 }
