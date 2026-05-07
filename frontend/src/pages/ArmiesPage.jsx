@@ -119,12 +119,20 @@ function ArmyUnitCard({ entry, user }) {
   const removeUnit  = useArmyStore((s) => s.removeUnit)
   const updateUnit  = useArmyStore((s) => s.updateUnit)
   const weaponsById = useDataStore((s) => s.weaponsById)
+  const unitsById   = useDataStore((s) => s.unitsById)
   const navigate    = useNavigate()
   const [hov, setHov] = useState(false)
 
+  // Fallback vers les données BSData pour les unités ajoutées avant le nouveau schema
+  const ref = unitsById?.[entry.unit_id] ?? {}
+  const M      = entry.M      ?? ref.M      ?? null
+  const LD     = entry.LD     ?? ref.LD     ?? null
+  const OC     = entry.OC     ?? ref.OC     ?? null
+  const pts    = entry.pts    ?? ref.pts    ?? null
+  const invuln = entry.invuln ?? ref.invuln ?? null
+
   const minM = entry.min_models ?? 1
   const maxM = entry.max_models ?? null
-  const pts  = entry.pts ?? null
   const totalPts = pts !== null ? pts * (entry.models ?? 1) : null
 
   const weaponNames = (entry.weapons ?? [])
@@ -132,14 +140,14 @@ function ArmyUnitCard({ entry, user }) {
     .filter(Boolean)
 
   const stats = [
-    { key: 'M',   value: entry.M  ?? '—',                         sim: false },
-    { key: 'T',   value: entry.T  ?? '—',                         sim: true  },
-    { key: 'SV',  value: entry.Sv != null ? `${entry.Sv}+` : '—', sim: true  },
-    { key: 'W',   value: entry.W  ?? '—',                         sim: true  },
-    { key: 'LD',  value: entry.LD ?? '—',                         sim: false },
-    { key: 'OC',  value: entry.OC ?? '—',                         sim: false },
+    { key: 'M',   value: M  ?? '—',                          sim: false },
+    { key: 'T',   value: entry.T  ?? '—',                    sim: true  },
+    { key: 'SV',  value: entry.Sv != null ? `${entry.Sv}+` : '—', sim: true },
+    { key: 'W',   value: entry.W  ?? '—',                    sim: true  },
+    { key: 'LD',  value: LD ?? '—',                          sim: false },
+    { key: 'OC',  value: OC ?? '—',                          sim: false },
   ]
-  if (entry.invuln) stats.splice(3, 0, { key: 'INV', value: `${entry.invuln}++`, sim: true, inv: true })
+  if (invuln) stats.splice(3, 0, { key: 'INV', value: `${invuln}++`, sim: true, inv: true })
   const cols = stats.length
 
   return (
@@ -201,7 +209,7 @@ function ArmyUnitCard({ entry, user }) {
           <div key={s.key} style={{
             padding: '12px 8px', textAlign: 'center',
             borderRight: i < cols - 1 ? `1px solid ${BORDER}` : 'none',
-            opacity: s.sim ? 1 : 0.35,
+            opacity: s.sim ? 1 : 0.65,
           }}>
             <div style={{
               fontFamily: 'Space Mono, monospace', fontSize: '18px', fontWeight: 700, lineHeight: 1,
