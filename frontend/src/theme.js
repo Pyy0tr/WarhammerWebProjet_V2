@@ -10,7 +10,7 @@ export const BORDER    = '#1E3A4C'
 // 2. Typography
 export const TEXT      = '#E6F1FF'   // primary — headings, values
 export const TEXT_SEC  = '#9DB7C6'   // secondary — body, descriptions
-export const TEXT_WEAK = '#5F7C8A'   // placeholders, labels, muted
+export const TEXT_WEAK = '#6E8F9E'   // placeholders, labels, muted
 export const TEXT_OFF  = '#3E5A68'   // disabled
 
 // 3. Accent (interactions only)

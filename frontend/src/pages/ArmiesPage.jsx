@@ -58,6 +58,53 @@ function SmallBtn({ children, onClick, primary, danger }) {
   )
 }
 
+// ── Model count stepper ───────────────────────────────────────────────────────
+
+function ModelStepper({ value, min, max, onChange }) {
+  const [hov, setHov] = useState(null) // 'dec' | 'inc' | null
+  const canDec = value > min
+  const canInc = max === null || value < max
+
+  const btnStyle = (side) => ({
+    fontFamily: 'Space Mono, monospace', fontSize: '13px', lineHeight: 1,
+    background: 'none', border: 'none', cursor: canDec && side === 'dec' || canInc && side === 'inc' ? 'pointer' : 'default',
+    color: hov === side
+      ? ACCENT
+      : (side === 'dec' ? (canDec ? TEXT_SEC : TEXT_WEAK) : (canInc ? TEXT_SEC : TEXT_WEAK)),
+    padding: '4px 8px', transition: 'color 100ms',
+    borderRight: side === 'dec' ? `1px solid ${BORDER}` : 'none',
+    borderLeft:  side === 'inc' ? `1px solid ${BORDER}` : 'none',
+    opacity: (side === 'dec' && !canDec) || (side === 'inc' && !canInc) ? 0.35 : 1,
+  })
+
+  return (
+    <div
+      style={{
+        display: 'inline-flex', alignItems: 'center',
+        border: `1px solid ${BORDER}`, background: 'rgba(47,224,255,0.04)',
+      }}
+      onClick={(e) => e.stopPropagation()}
+    >
+      <button
+        style={btnStyle('dec')}
+        onMouseEnter={() => setHov('dec')} onMouseLeave={() => setHov(null)}
+        onClick={() => canDec && onChange(value - 1)}
+      >−</button>
+      <span style={{
+        fontFamily: 'Space Mono, monospace', fontSize: '12px', fontWeight: 700,
+        color: ACCENT, minWidth: '28px', textAlign: 'center', padding: '4px 6px',
+      }}>
+        {value}
+      </span>
+      <button
+        style={btnStyle('inc')}
+        onMouseEnter={() => setHov('inc')} onMouseLeave={() => setHov(null)}
+        onClick={() => canInc && onChange(value + 1)}
+      >+</button>
+    </div>
+  )
+}
+
 // ── Inline editable name ──────────────────────────────────────────────────────
 
 function EditableName({ value, onSave, style }) {
@@ -248,27 +295,13 @@ function ArmyUnitCard({ entry, user }) {
         padding: '8px 14px', display: 'flex', alignItems: 'center',
         justifyContent: 'space-between', gap: '8px',
       }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}
-          onClick={(e) => e.stopPropagation()}
-        >
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
           <span style={{ fontFamily: 'Space Mono, monospace', fontSize: '8px', color: TEXT_WEAK, letterSpacing: '1px' }}>
             Models
           </span>
-          <input
-            type="number" min={minM} max={maxM ?? undefined} value={entry.models}
-            onClick={(e) => e.stopPropagation()}
-            onChange={(e) => {
-              let v = parseInt(e.target.value) || minM
-              v = Math.max(minM, v)
-              if (maxM !== null) v = Math.min(maxM, v)
-              updateUnit(entry.uid, { models: v }, user)
-            }}
-            style={{
-              width: '44px', background: 'rgba(47,224,255,0.05)',
-              border: `1px solid ${BORDER}`, color: ACCENT,
-              fontFamily: 'Space Mono, monospace', fontSize: '11px',
-              padding: '2px 4px', outline: 'none', textAlign: 'center',
-            }}
+          <ModelStepper
+            value={models} min={minM} max={maxM}
+            onChange={(v) => updateUnit(entry.uid, { models: v }, user)}
           />
           {maxM !== null && (
             <span style={{ fontFamily: 'Space Mono, monospace', fontSize: '8px', color: TEXT_WEAK }}>/ {maxM}</span>
