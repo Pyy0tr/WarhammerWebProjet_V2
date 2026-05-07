@@ -14,6 +14,7 @@ import { KeywordsPage } from './pages/KeywordsPage'
 import { Navbar } from './components/Navbar'
 import { useDataStore } from './store/dataStore'
 import { useAuthStore } from './store/authStore'
+import { useArmyStore } from './store/armyStore'
 
 const NO_NAVBAR = ['/welcome', '/onboarding', '/learn', '/reset-password']
 
@@ -81,11 +82,14 @@ function HalftoneOverlay() {
 }
 
 export default function App() {
-  const load     = useDataStore((s) => s.load)
-  const authInit = useAuthStore((s) => s.init)
+  const load      = useDataStore((s) => s.load)
+  const authInit  = useAuthStore((s) => s.init)
+  const user      = useAuthStore((s) => s.user)
+  const armyInit  = useArmyStore((s) => s.init)
 
   useEffect(() => { load() }, [load])
   useEffect(() => authInit(), [authInit])
+  useEffect(() => { armyInit(user) }, [user, armyInit])
 
   return (
     <BrowserRouter>
