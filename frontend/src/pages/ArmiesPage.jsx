@@ -138,7 +138,7 @@ function ArmyUnitCard({ entry, user }) {
 
   // pts est le coût TOTAL de l'escouade au format minimum, pas un coût par modèle.
   // pts_options définit les tranches pour les autres tailles.
-  function resolvePoints(base, options, n) {
+  function resolvePoints(base, options, n, minN) {
     if (!base) return null
     if (!options || options.length === 0) return base
     const exact = options.find(o => o.condition === 'exact' && o.n_models === n)
@@ -147,9 +147,16 @@ function ArmyUnitCard({ entry, user }) {
       .filter(o => o.condition === 'atLeast' && o.n_models <= n)
       .sort((a, b) => b.n_models - a.n_models)[0]
     if (atLeast) return atLeast.pts
+    // Entre deux tiers connus et au-dessus du minimum : prendre le tier juste au-dessus
+    if (n > (minN ?? 1)) {
+      const nextAbove = [...options]
+        .filter(o => o.n_models > n)
+        .sort((a, b) => a.n_models - b.n_models)[0]
+      if (nextAbove) return nextAbove.pts
+    }
     return base
   }
-  const totalPts = resolvePoints(ptsBase, ptsOptions, models)
+  const totalPts = resolvePoints(ptsBase, ptsOptions, models, minM)
 
   const weaponNames = (entry.weapons ?? [])
     .map((ref) => weaponsById[ref.id]?.name)
@@ -460,15 +467,22 @@ function ArmyEditor({ user, onNewArmy }) {
           {army.units.length}
         </span>
         {(() => {
-          const total = army.units.reduce((sum, e) => {
+          const resolveUnit = (e) => {
             const base = e.pts ?? 0
             const opts = e.pts_options ?? []
-            const n = e.models ?? e.min_models ?? 1
+            const n    = e.models ?? e.min_models ?? 1
+            const minN = e.min_models ?? 1
             const exact = opts.find(o => o.condition === 'exact' && o.n_models === n)
-            if (exact) return sum + exact.pts
+            if (exact) return exact.pts
             const atLeast = [...opts].filter(o => o.condition === 'atLeast' && o.n_models <= n).sort((a,b) => b.n_models - a.n_models)[0]
-            return sum + (atLeast ? atLeast.pts : base)
-          }, 0)
+            if (atLeast) return atLeast.pts
+            if (n > minN) {
+              const next = [...opts].filter(o => o.n_models > n).sort((a,b) => a.n_models - b.n_models)[0]
+              if (next) return next.pts
+            }
+            return base
+          }
+          const total = army.units.reduce((sum, e) => sum + resolveUnit(e), 0)
           return total > 0 ? (
             <span style={{
               fontFamily: 'Space Mono, monospace', fontSize: '13px',
