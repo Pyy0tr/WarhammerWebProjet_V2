@@ -7,17 +7,35 @@ import { ACCENT, BG, SURFACE, SURFACE_E, BORDER, TEXT, TEXT_SEC, TEXT_WEAK, ERRO
 
 // ── Small helpers ─────────────────────────────────────────────────────────────
 
-function Chip({ children, color }) {
+function StatBar({ M, T, Sv, W, LD, OC, invuln }) {
+  const stats = [
+    { label: 'M',   value: M   ?? '—' },
+    { label: 'T',   value: T   ?? '—' },
+    { label: 'SV',  value: Sv  != null ? `${Sv}+` : '—' },
+    { label: 'W',   value: W   ?? '—' },
+    { label: 'LD',  value: LD  ?? '—' },
+    { label: 'OC',  value: OC  ?? '—' },
+  ]
+  if (invuln) stats.splice(3, 0, { label: 'INV', value: `${invuln}++` })
   return (
-    <span style={{
-      fontFamily: 'Space Mono, monospace', fontSize: '8px',
-      letterSpacing: '1px', textTransform: 'uppercase',
-      color: color ?? TEXT_WEAK,
-      border: `1px solid ${color ? color + '55' : BORDER}`,
-      padding: '2px 6px',
-    }}>
-      {children}
-    </span>
+    <div style={{ display: 'inline-flex', border: `1px solid ${BORDER}` }}>
+      {stats.map(({ label, value }, i) => (
+        <div key={label} style={{
+          display: 'flex', flexDirection: 'column', alignItems: 'center',
+          padding: '3px 8px', minWidth: '34px',
+          borderRight: i < stats.length - 1 ? `1px solid ${BORDER}` : 'none',
+        }}>
+          <span style={{
+            fontFamily: 'Space Mono, monospace', fontSize: '7px',
+            letterSpacing: '1px', textTransform: 'uppercase', color: TEXT_WEAK,
+          }}>{label}</span>
+          <span style={{
+            fontFamily: 'Space Mono, monospace', fontSize: '11px',
+            fontWeight: 700, color: TEXT, marginTop: '2px',
+          }}>{value}</span>
+        </div>
+      ))}
+    </div>
   )
 }
 
@@ -137,6 +155,8 @@ function ArmyUnitCard({ entry, user }) {
 
   const minM = entry.min_models ?? 1
   const maxM = entry.max_models ?? null
+  const pts  = entry.pts ?? null
+  const totalPts = pts !== null ? pts * (entry.models ?? 1) : null
 
   const weaponNames = (entry.weapons ?? [])
     .map((ref) => weaponsById[ref.id]?.name)
@@ -156,8 +176,8 @@ function ArmyUnitCard({ entry, user }) {
         cursor: 'pointer',
       }}
     >
-      {/* Row 1: name + delete */}
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '6px' }}>
+      {/* Row 1: name + pts + delete */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '8px' }}>
         <div style={{
           fontFamily: 'Space Mono, monospace', fontSize: '12px',
           fontWeight: 700, color: hov ? ACCENT : TEXT,
@@ -166,20 +186,42 @@ function ArmyUnitCard({ entry, user }) {
         }}>
           {entry.name}
         </div>
-        <div style={{ opacity: hov ? 1 : 0, transition: 'opacity 120ms', flexShrink: 0 }}>
-          <IconBtn danger onClick={(e) => { e.stopPropagation(); removeUnit(entry.uid, user) }} title="Remove unit">×</IconBtn>
-        </div>
+        {totalPts !== null && (
+          <div style={{
+            flexShrink: 0,
+            fontFamily: 'Space Mono, monospace', fontSize: '11px', fontWeight: 700,
+            color: ACCENT, letterSpacing: '0.5px',
+          }}>
+            {totalPts} <span style={{ fontSize: '8px', color: TEXT_WEAK, fontWeight: 400 }}>pts</span>
+            {entry.models > 1 && pts !== null && (
+              <span style={{ fontSize: '8px', color: TEXT_WEAK, fontWeight: 400, marginLeft: '4px' }}>
+                ({pts}×{entry.models})
+              </span>
+            )}
+          </div>
+        )}
+        <div
+          onClick={(e) => { e.stopPropagation(); removeUnit(entry.uid, user) }}
+          title="Remove unit"
+          style={{
+            flexShrink: 0, cursor: 'pointer',
+            fontFamily: 'Space Mono, monospace', fontSize: '14px', lineHeight: 1,
+            color: hov ? ERROR : 'rgba(255,92,122,0.3)',
+            transition: 'color 120ms',
+            padding: '0 2px',
+          }}
+        >×</div>
       </div>
 
-      {/* Row 2: chips + models */}
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '8px', marginBottom: weaponNames.length ? '6px' : 0 }}>
-        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px' }}>
-          <Chip>T{entry.T}</Chip>
-          <Chip>SV{entry.Sv}+</Chip>
-          <Chip>W{entry.W}</Chip>
-          {entry.invuln && <Chip>{entry.invuln}++</Chip>}
-        </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexShrink: 0 }}>
+      {/* Row 2: stat bar + models */}
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '8px', marginBottom: weaponNames.length ? '8px' : 0 }}>
+        <StatBar
+          M={entry.M} T={entry.T} Sv={entry.Sv} W={entry.W}
+          LD={entry.LD} OC={entry.OC} invuln={entry.invuln}
+        />
+        <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexShrink: 0 }}
+          onClick={(e) => e.stopPropagation()}
+        >
           <span style={{ fontFamily: 'Space Mono, monospace', fontSize: '8px', color: TEXT_WEAK, letterSpacing: '1px' }}>
             Models
           </span>
@@ -255,9 +297,13 @@ function ArmyEditor({ user, onNewArmy }) {
     addUnit({
       unit_id:    unit.id,
       name:       unit.name,
+      pts:        unit.pts ?? null,
+      M:          unit.M  ?? null,
       T:          unit.T,
       Sv:         unit.Sv,
       W:          unit.W,
+      LD:         unit.LD ?? null,
+      OC:         unit.OC ?? null,
       invuln:     unit.invuln ?? null,
       kw:         unit.kw ?? [],
       weapons:    unit.weapons ?? [],
@@ -401,6 +447,18 @@ function ArmyEditor({ user, onNewArmy }) {
         }}>
           {army.units.length}
         </span>
+        {(() => {
+          const total = army.units.reduce((sum, e) => sum + (e.pts ?? 0) * (e.models ?? 1), 0)
+          return total > 0 ? (
+            <span style={{
+              fontFamily: 'Space Mono, monospace', fontSize: '13px',
+              fontWeight: 700, color: TEXT, letterSpacing: '0px',
+              marginLeft: 'auto',
+            }}>
+              {total.toLocaleString()} <span style={{ fontSize: '9px', color: TEXT_WEAK, fontWeight: 400, letterSpacing: '1px' }}>PTS</span>
+            </span>
+          ) : null
+        })()}
       </div>
 
       {army.units.length === 0 ? (
