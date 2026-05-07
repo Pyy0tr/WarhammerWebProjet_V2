@@ -14,13 +14,13 @@ function NavLink({ to, children, active }) {
         fontSize: '10px',
         letterSpacing: '2px',
         textTransform: 'uppercase',
-        color: active ? ACCENT : TEXT_WEAK,
+        color: active ? ACCENT : TEXT_SEC,
         transition: 'color 100ms',
         paddingBottom: '2px',
         borderBottom: active ? `1px solid ${ACCENT}` : '1px solid transparent',
       }}
       onMouseEnter={(e) => { e.currentTarget.style.color = active ? ACCENT : TEXT }}
-      onMouseLeave={(e) => { e.currentTarget.style.color = active ? ACCENT : TEXT_WEAK }}
+      onMouseLeave={(e) => { e.currentTarget.style.color = active ? ACCENT : TEXT_SEC }}
     >
       {children}
     </Link>
@@ -30,8 +30,8 @@ function NavLink({ to, children, active }) {
 function GhostButton({ children, onClick, href }) {
   const style = {
     background: 'transparent',
-    border: `1px solid ${BORDER}`,
-    color: ACCENT,
+    border: `1px solid ${TEXT_WEAK}`,
+    color: TEXT_SEC,
     fontFamily: 'Space Mono, monospace',
     fontSize: '8.5px',
     letterSpacing: '2px',
@@ -42,16 +42,18 @@ function GhostButton({ children, onClick, href }) {
     textDecoration: 'none',
     display: 'inline-block',
     lineHeight: 1.4,
-    transition: 'border-color 100ms, background 100ms',
+    transition: 'border-color 100ms, background 100ms, color 100ms',
   }
 
   const handlers = {
     onMouseEnter: (e) => {
       e.currentTarget.style.borderColor = ACCENT
+      e.currentTarget.style.color = ACCENT
       e.currentTarget.style.background = 'rgba(47,224,255,0.07)'
     },
     onMouseLeave: (e) => {
-      e.currentTarget.style.borderColor = BORDER
+      e.currentTarget.style.borderColor = TEXT_WEAK
+      e.currentTarget.style.color = TEXT_SEC
       e.currentTarget.style.background = 'transparent'
     },
   }
@@ -173,6 +175,14 @@ export function Navbar() {
 
           <NavLink to="/simulator" active={pathname === '/simulator'}>
             Simulator
+          </NavLink>
+
+          <NavLink to="/learn" active={pathname === '/learn' || pathname === '/onboarding'}>
+            Learn
+          </NavLink>
+
+          <NavLink to="/keywords" active={pathname === '/keywords'}>
+            Keywords
           </NavLink>
         </div>
 

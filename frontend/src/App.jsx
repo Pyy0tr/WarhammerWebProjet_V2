@@ -10,6 +10,7 @@ import { OnboardingPage } from './pages/OnboardingPage'
 import { LearnPage } from './pages/LearnPage'
 import { FeedbackPage } from './pages/FeedbackPage'
 import { AdminFeedbackPage } from './pages/AdminFeedbackPage'
+import { KeywordsPage } from './pages/KeywordsPage'
 import { Navbar } from './components/Navbar'
 import { useDataStore } from './store/dataStore'
 import { useAuthStore } from './store/authStore'
@@ -100,6 +101,7 @@ export default function App() {
         <Route path="/simulator"      element={<OnboardingGuard><SimulatorPage /></OnboardingGuard>} />
         <Route path="/factions"       element={<OnboardingGuard><FactionsPage /></OnboardingGuard>} />
         <Route path="/armies"         element={<OnboardingGuard><ArmiesPage /></OnboardingGuard>} />
+        <Route path="/keywords"       element={<OnboardingGuard><KeywordsPage /></OnboardingGuard>} />
         <Route path="/feedback"       element={<FeedbackPage />} />
         <Route path="/admin/feedback" element={<AdminFeedbackPage />} />
         <Route path="*"               element={<Navigate to="/" replace />} />

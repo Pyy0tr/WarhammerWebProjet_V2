@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { ACCENT, BG, BORDER, SURFACE, TEXT, TEXT_SEC, TEXT_WEAK, TEXT_OFF } from '../theme'
+import { ACCENT, BG, BORDER, SURFACE, SURFACE_E, TEXT, TEXT_SEC, TEXT_WEAK, TEXT_OFF } from '../theme'
 
 function Separator({ opacity = 0.5 }) {
   return (
@@ -15,91 +15,111 @@ function Separator({ opacity = 0.5 }) {
   )
 }
 
-const LAYERS = [
+const ACTIONS = [
   {
-    label: 'ATTACK PHASE', sub: 'DICE POOL', num: '01',
-    icon: (cx, cy) => (
-      <g opacity="0.6">
-        <circle cx={cx - 18} cy={cy - 6} r="3.5" fill={ACCENT} />
-        <circle cx={cx}      cy={cy}      r="3.5" fill={ACCENT} />
-        <circle cx={cx + 18} cy={cy + 6}  r="3.5" fill={ACCENT} />
-      </g>
-    ),
+    num: '01', label: 'Explore Units',
+    desc: 'Browse 1,487 units across 46 factions. View datasheets, weapons, and stats.',
+    route: '/factions',
   },
   {
-    label: 'HIT ROLL', sub: 'BS / WS CHECK', num: '02',
-    icon: (cx, cy) => (
-      <g stroke={ACCENT} strokeWidth="1.2" fill="none" opacity="0.6">
-        <circle cx={cx} cy={cy} r="12" />
-        <line x1={cx - 20} y1={cy} x2={cx - 14} y2={cy} />
-        <line x1={cx + 14} y1={cy} x2={cx + 20} y2={cy} />
-        <line x1={cx} y1={cy - 20} x2={cx} y2={cy - 14} />
-        <line x1={cx} y1={cy + 14} x2={cx} y2={cy + 20} />
-      </g>
-    ),
+    num: '02', label: 'Create Army',
+    desc: 'Build and save named army lists. Simulate straight from your roster.',
+    route: '/armies',
   },
   {
-    label: 'WOUND ROLL', sub: 'STRENGTH VS TOUGHNESS', num: '03',
-    icon: (cx, cy) => (
-      <path
-        d={`M ${cx + 6},${cy - 16} L ${cx - 4},${cy - 2} L ${cx + 4},${cy - 2} L ${cx - 6},${cy + 16} L ${cx + 10},${cy + 2} L ${cx},${cy + 2} Z`}
-        fill={ACCENT} opacity="0.5" stroke={ACCENT} strokeWidth="0.5"
-      />
-    ),
+    num: '03', label: 'Guides',
+    desc: 'Walk through the 5 attack phases and discover how keywords stack.',
+    route: '/learn',
   },
   {
-    label: 'SAVING THROW', sub: 'ARMOUR / INVULNERABLE', num: '04',
-    icon: (cx, cy) => (
-      <path
-        d={`M ${cx},${cy - 16} L ${cx + 14},${cy - 8} L ${cx + 14},${cy + 4} L ${cx},${cy + 16} L ${cx - 14},${cy + 4} L ${cx - 14},${cy - 8} Z`}
-        fill={ACCENT} opacity="0.25" stroke={ACCENT} strokeWidth="1"
-      />
-    ),
-  },
-  {
-    label: 'DAMAGE', sub: 'FNP — FINAL OUTPUT', num: '05',
-    icon: (cx, cy) => (
-      <g stroke={ACCENT} strokeWidth="1.5" opacity="0.6">
-        <line x1={cx} y1={cy - 18} x2={cx} y2={cy + 18} />
-        <line x1={cx - 16} y1={cy - 9} x2={cx + 16} y2={cy + 9} />
-        <line x1={cx + 16} y1={cy - 9} x2={cx - 16} y2={cy + 9} />
-      </g>
-    ),
+    num: '04', label: 'Keywords',
+    desc: 'Deep dive into every weapon keyword — rules, simulator notes, and when to use each one.',
+    route: '/keywords',
   },
 ]
 
-function CombatDiagram() {
-  const cx = 200, hw = 90, hh = 45, sh = 11, spacing = 96, cy1 = 72
-  const cys = LAYERS.map((_, i) => cy1 + i * spacing)
-  const annX1 = cx + hw, annX2 = annX1 + 60, txtX = annX2 + 8
-  const svgH = cy1 + (LAYERS.length - 1) * spacing + hh + sh + 36
-
+function ActionPanel() {
+  const navigate = useNavigate()
   return (
-    <svg viewBox={`0 0 620 ${svgH}`} style={{ width: '100%', height: 'auto', display: 'block', opacity: 0.9 }}>
-      {cys.slice(0, -1).map((cy, i) => (
-        <g key={`conn-${i}`}>
-          <line x1={cx + hw} y1={cy + sh} x2={cx + hw} y2={cys[i + 1]} stroke={ACCENT} strokeWidth="0.8" strokeDasharray="4 4" opacity="0.35" />
-          <line x1={cx - hw} y1={cy + sh} x2={cx - hw} y2={cys[i + 1]} stroke={ACCENT} strokeWidth="0.8" strokeDasharray="4 4" opacity="0.35" />
-        </g>
-      ))}
-      {cys.map((cy, i) => {
-        const { label, sub, num, icon } = LAYERS[i]
-        const pts = { top: `${cx - hw},${cy} ${cx},${cy - hh} ${cx + hw},${cy} ${cx},${cy + hh}`, right: `${cx + hw},${cy} ${cx},${cy + hh} ${cx},${cy + hh + sh} ${cx + hw},${cy + sh}`, left: `${cx - hw},${cy} ${cx},${cy + hh} ${cx},${cy + hh + sh} ${cx - hw},${cy + sh}` }
-        return (
-          <g key={`layer-${i}`}>
-            <polygon points={pts.left}  fill="rgba(47,224,255,0.04)" stroke={ACCENT} strokeWidth="0.8" />
-            <polygon points={pts.right} fill="rgba(47,224,255,0.07)" stroke={ACCENT} strokeWidth="0.8" />
-            <polygon points={pts.top}   fill="rgba(47,224,255,0.11)" stroke={ACCENT} strokeWidth="1" />
-            {icon(cx, cy)}
-            <line x1={annX1} y1={cy} x2={annX2} y2={cy} stroke={ACCENT} strokeWidth="0.8" />
-            <polygon points={`${annX2 - 1},${cy - 3} ${annX2 + 5},${cy} ${annX2 - 1},${cy + 3}`} fill={ACCENT} />
-            <text x={txtX} y={cy - 5} fontFamily="Space Mono, monospace" fontSize="10" fontWeight="700" fill={TEXT} letterSpacing="1.5">{label}</text>
-            <text x={txtX} y={cy + 8} fontFamily="Space Mono, monospace" fontSize="8" fill={TEXT_WEAK} letterSpacing="1">{sub}</text>
-            <text x={cx + hw + 7} y={cy + sh - 2} fontFamily="Space Mono, monospace" fontSize="7" fill={ACCENT} opacity="0.5">{num}</text>
-          </g>
-        )
-      })}
-    </svg>
+    <div style={{
+      flex: 1, minWidth: 0,
+      display: 'grid',
+      gridTemplateColumns: '1fr 1fr',
+      gridTemplateRows: '1fr 1fr',
+      alignContent: 'stretch',
+    }}>
+      {ACTIONS.map((a) => <ActionCard key={a.num} action={a} navigate={navigate} />)}
+    </div>
+  )
+}
+
+function ActionCard({ action, navigate }) {
+  const [hov, setHov] = useState(false)
+  return (
+    <div
+      onClick={() => navigate(action.route)}
+      onMouseEnter={() => setHov(true)}
+      onMouseLeave={() => setHov(false)}
+      style={{
+        background: hov ? 'rgba(47,224,255,0.05)' : SURFACE,
+        borderRight: `1px solid ${BORDER}`,
+        borderBottom: `1px solid ${BORDER}`,
+        borderTop: `2px solid ${hov ? ACCENT : 'transparent'}`,
+        padding: '28px 28px 24px',
+        cursor: 'pointer',
+        transition: 'background 180ms, border-top-color 180ms',
+        display: 'flex', flexDirection: 'column', justifyContent: 'space-between',
+        position: 'relative', overflow: 'hidden',
+      }}
+    >
+      {/* subtle glow on hover */}
+      {hov && (
+        <div style={{
+          position: 'absolute', top: 0, left: 0, right: 0, height: '60px',
+          background: 'linear-gradient(to bottom, rgba(47,224,255,0.07), transparent)',
+          pointerEvents: 'none',
+        }} />
+      )}
+
+      <div>
+        <div style={{
+          fontFamily: 'Space Mono, monospace', fontSize: '10px',
+          letterSpacing: '3px', textTransform: 'uppercase',
+          color: hov ? ACCENT : TEXT_OFF,
+          transition: 'color 180ms', marginBottom: '14px',
+        }}>
+          {action.num}
+        </div>
+        <div style={{
+          fontFamily: 'Space Mono, monospace', fontSize: '14px',
+          fontWeight: 700, letterSpacing: '2px', textTransform: 'uppercase',
+          color: hov ? ACCENT : TEXT,
+          transition: 'color 180ms', marginBottom: '10px',
+        }}>
+          {action.label}
+        </div>
+        <p style={{
+          fontFamily: 'Georgia, serif', fontSize: '13px',
+          lineHeight: 1.7, color: TEXT_SEC,
+          margin: 0,
+        }}>
+          {action.desc}
+        </p>
+      </div>
+
+      <div style={{
+        display: 'flex', justifyContent: 'flex-end', marginTop: '20px',
+      }}>
+        <span style={{
+          fontFamily: 'Space Mono, monospace', fontSize: '11px',
+          letterSpacing: '2px', textTransform: 'uppercase',
+          color: hov ? ACCENT : TEXT_WEAK,
+          transition: 'color 180ms',
+        }}>
+          {hov ? 'Open →' : '→'}
+        </span>
+      </div>
+    </div>
   )
 }
 
@@ -167,7 +187,7 @@ function GuideCard({ guide }) {
       onMouseLeave={() => setHovered(false)}
       style={{
         flex: 1, minWidth: '220px',
-        border: `1px solid ${active ? ACCENT : BORDER}`,
+        border: `1px solid ${active ? ACCENT : TEXT_WEAK}`,
         background: active ? 'rgba(47,224,255,0.04)' : SURFACE,
         padding: '32px 28px',
         cursor: guide.route ? 'pointer' : 'default',
@@ -224,101 +244,106 @@ export function HomePage() {
     <div style={{ color: TEXT_SEC, paddingTop: '52px' }}>
 
       <section style={{
-        minHeight: 'calc(100vh - 52px)',
-        display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0',
+        height: 'calc(100vh - 52px)',
+        display: 'flex',
       }}>
         {/* Left */}
         <div style={{
-          padding: '60px 56px',
+          flex: 1, minWidth: 0,
+          padding: '0 56px',
           display: 'flex', flexDirection: 'column', justifyContent: 'center',
           borderRight: `1px solid ${BORDER}`,
+          gap: '0',
         }}>
-          <Separator opacity={0.4} />
 
-          <div style={{ padding: '40px 0 36px' }}>
-            <div style={{
-              fontFamily: 'Space Mono, monospace', fontSize: '10px',
-              letterSpacing: '3px', textTransform: 'uppercase',
-              color: TEXT_WEAK, marginBottom: '24px',
+          {/* Eyebrow badge */}
+          <div style={{
+            display: 'inline-flex', alignItems: 'center', gap: '8px',
+            border: `1px solid rgba(47,224,255,0.22)`,
+            background: 'rgba(47,224,255,0.04)',
+            padding: '5px 12px 5px 8px',
+            marginBottom: '28px', width: 'fit-content',
+          }}>
+            <div style={{ width: 6, height: 6, borderRadius: '50%', background: ACCENT, opacity: 0.85 }} />
+            <span style={{
+              fontFamily: 'Space Mono, monospace', fontSize: '9px',
+              letterSpacing: '2px', textTransform: 'uppercase', color: ACCENT,
             }}>
-              Warhammer 40,000 — 10th Edition
-            </div>
-
-            <h1 style={{
-              fontFamily: 'Space Mono, monospace',
-              fontSize: 'clamp(28px, 3.5vw, 52px)',
-              fontWeight: 700, letterSpacing: '0.04em',
-              textTransform: 'uppercase', lineHeight: 1.08,
-              color: TEXT, marginBottom: '28px',
-            }}>
-              Prob<span style={{ color: ACCENT, opacity: 0.6 }}>'</span>Hammer
-            </h1>
-
-            <p style={{
-              fontFamily: 'Georgia, serif',
-              fontSize: 'clamp(15px, 1.4vw, 18px)',
-              lineHeight: 1.75, maxWidth: '420px',
-              color: TEXT_SEC, marginBottom: '36px',
-            }}>
-              Calculate your attack probabilities before you roll.
-              Pick a unit, configure the attack, and get
-              the full damage distribution in under a second.
-            </p>
-
-            <div style={{ display: 'flex', alignItems: 'center', gap: '20px', flexWrap: 'wrap' }}>
-              <button
-                onClick={() => navigate('/simulator')}
-                style={{
-                  border: `1px solid ${ACCENT}`, background: ACCENT, color: BG,
-                  fontFamily: 'Space Mono, monospace', fontSize: '12px', fontWeight: 700,
-                  letterSpacing: '3px', textTransform: 'uppercase',
-                  padding: '15px 32px', borderRadius: 0, cursor: 'pointer',
-                  transition: 'opacity 100ms',
-                }}
-                onMouseEnter={(e) => { e.currentTarget.style.opacity = '0.85' }}
-                onMouseLeave={(e) => { e.currentTarget.style.opacity = '1' }}
-              >
-                Open simulator →
-              </button>
-              <span style={{
-                fontFamily: 'Space Mono, monospace', fontSize: '10px',
-                letterSpacing: '1.5px', color: TEXT_WEAK, textTransform: 'uppercase',
-              }}>
-                No account required
-              </span>
-            </div>
+              Warhammer 40,000 · 10th Edition
+            </span>
           </div>
 
-          <Separator opacity={0.4} />
+          {/* Headline */}
+          <h1 style={{
+            fontFamily: 'Space Mono, monospace',
+            fontSize: 'clamp(36px, 4vw, 64px)',
+            fontWeight: 700, letterSpacing: '0.02em',
+            textTransform: 'uppercase', lineHeight: 1,
+            color: TEXT, margin: 0,
+          }}>
+            Prob<span style={{ color: ACCENT }}>'</span>Hammer
+          </h1>
 
-          <div style={{ display: 'flex', gap: '32px', paddingTop: '20px', flexWrap: 'wrap' }}>
-            {[['1 487', 'units'], ['3 531', 'weapons'], ['46', 'factions'], ['16', 'keywords']].map(([n, l]) => (
+          {/* Accent underline */}
+          <div style={{ width: '48px', height: '2px', background: ACCENT, margin: '18px 0 24px', opacity: 0.7 }} />
+
+          {/* Description */}
+          <p style={{
+            fontFamily: 'Georgia, serif',
+            fontSize: 'clamp(15px, 1.3vw, 17px)',
+            lineHeight: 1.8, maxWidth: '380px',
+            color: TEXT_SEC, margin: '0 0 36px',
+          }}>
+            Calculate your attack probabilities before you roll — full damage distribution in under a second.
+          </p>
+
+          {/* CTAs */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '16px', flexWrap: 'wrap', marginBottom: '48px' }}>
+            <button
+              onClick={() => navigate('/simulator')}
+              style={{
+                border: `1px solid ${ACCENT}`, background: ACCENT, color: BG,
+                fontFamily: 'Space Mono, monospace', fontSize: '11px', fontWeight: 700,
+                letterSpacing: '2.5px', textTransform: 'uppercase',
+                padding: '14px 28px', borderRadius: 0, cursor: 'pointer',
+                transition: 'opacity 120ms',
+              }}
+              onMouseEnter={(e) => { e.currentTarget.style.opacity = '0.85' }}
+              onMouseLeave={(e) => { e.currentTarget.style.opacity = '1' }}
+            >
+              Open simulator →
+            </button>
+          </div>
+
+          {/* Divider */}
+          <div style={{ height: '1px', background: BORDER, marginBottom: '28px', maxWidth: '400px' }} />
+
+          {/* Stats */}
+          <div style={{ display: 'flex', gap: '36px', flexWrap: 'wrap' }}>
+            {[['1 487', 'Units'], ['3 531', 'Weapons'], ['46', 'Factions'], ['16', 'Keywords']].map(([n, l]) => (
               <div key={l}>
                 <div style={{
-                  fontFamily: 'Space Mono, monospace', fontSize: '18px',
-                  fontWeight: 700, lineHeight: 1, color: TEXT,
+                  fontFamily: 'Space Mono, monospace', fontSize: '22px',
+                  fontWeight: 700, lineHeight: 1, color: ACCENT,
+                  letterSpacing: '-0.02em',
                 }}>
                   {n}
                 </div>
                 <div style={{
                   fontFamily: 'Space Mono, monospace', fontSize: '9px',
                   letterSpacing: '1.5px', textTransform: 'uppercase',
-                  color: TEXT_WEAK, marginTop: '5px',
+                  color: TEXT_WEAK, marginTop: '6px',
                 }}>
                   {l}
                 </div>
               </div>
             ))}
           </div>
+
         </div>
 
-        {/* Right — diagram */}
-        <div style={{
-          display: 'flex', alignItems: 'center', justifyContent: 'center',
-          padding: '60px 40px',
-        }}>
-          <CombatDiagram />
-        </div>
+        {/* Right — action panel */}
+        <ActionPanel />
       </section>
 
       <section style={{ padding: '64px 56px 72px', borderTop: `1px solid ${BORDER}` }}>
