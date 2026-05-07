@@ -105,6 +105,7 @@ def slim_unit(u: dict, id_aliases: dict[str, str]) -> dict:
         "faction":    u.get("faction", ""),
         "is_legends": bool(u.get("is_legends", False)),
         "pts":        u.get("pts"),
+        "pts_options": u.get("pts_options") or [],
         "M":          stats.get("M", ""),
         "T":          parse_int(stats.get("T", "4")),
         "Sv":         parse_int(stats.get("SV", "4+")),

@@ -124,16 +124,32 @@ function ArmyUnitCard({ entry, user }) {
   const [hov, setHov] = useState(false)
 
   // Fallback vers les données BSData pour les unités ajoutées avant le nouveau schema
-  const ref = unitsById?.[entry.unit_id] ?? {}
-  const M      = entry.M      ?? ref.M      ?? null
-  const LD     = entry.LD     ?? ref.LD     ?? null
-  const OC     = entry.OC     ?? ref.OC     ?? null
-  const pts    = entry.pts    ?? ref.pts    ?? null
-  const invuln = entry.invuln ?? ref.invuln ?? null
+  const ref        = unitsById?.[entry.unit_id] ?? {}
+  const M          = entry.M          ?? ref.M          ?? null
+  const LD         = entry.LD         ?? ref.LD         ?? null
+  const OC         = entry.OC         ?? ref.OC         ?? null
+  const ptsBase    = entry.pts        ?? ref.pts        ?? null
+  const ptsOptions = entry.pts_options ?? ref.pts_options ?? []
+  const invuln     = entry.invuln     ?? ref.invuln     ?? null
 
   const minM = entry.min_models ?? 1
   const maxM = entry.max_models ?? null
-  const totalPts = pts !== null ? pts * (entry.models ?? 1) : null
+  const models = entry.models ?? minM
+
+  // pts est le coût TOTAL de l'escouade au format minimum, pas un coût par modèle.
+  // pts_options définit les tranches pour les autres tailles.
+  function resolvePoints(base, options, n) {
+    if (!base) return null
+    if (!options || options.length === 0) return base
+    const exact = options.find(o => o.condition === 'exact' && o.n_models === n)
+    if (exact) return exact.pts
+    const atLeast = [...options]
+      .filter(o => o.condition === 'atLeast' && o.n_models <= n)
+      .sort((a, b) => b.n_models - a.n_models)[0]
+    if (atLeast) return atLeast.pts
+    return base
+  }
+  const totalPts = resolvePoints(ptsBase, ptsOptions, models)
 
   const weaponNames = (entry.weapons ?? [])
     .map((ref) => weaponsById[ref.id]?.name)
@@ -183,11 +199,6 @@ function ArmyUnitCard({ entry, user }) {
             <span style={{ fontFamily: 'Space Mono, monospace', fontSize: '8px', color: TEXT_WEAK, marginLeft: '4px', letterSpacing: '1px' }}>
               pts
             </span>
-            {entry.models > 1 && pts !== null && (
-              <div style={{ fontFamily: 'Space Mono, monospace', fontSize: '8px', color: TEXT_WEAK, marginTop: '2px' }}>
-                {pts} × {entry.models}
-              </div>
-            )}
           </div>
         )}
         <button
@@ -295,20 +306,21 @@ function ArmyEditor({ user, onNewArmy }) {
 
   const handleAdd = (unit) => {
     addUnit({
-      unit_id:    unit.id,
-      name:       unit.name,
-      pts:        unit.pts ?? null,
-      M:          unit.M  ?? null,
-      T:          unit.T,
-      Sv:         unit.Sv,
-      W:          unit.W,
-      LD:         unit.LD ?? null,
-      OC:         unit.OC ?? null,
-      invuln:     unit.invuln ?? null,
-      kw:         unit.kw ?? [],
-      weapons:    unit.weapons ?? [],
-      min_models: unit.min_models ?? null,
-      max_models: unit.max_models ?? null,
+      unit_id:     unit.id,
+      name:        unit.name,
+      pts:         unit.pts ?? null,
+      pts_options: unit.pts_options ?? [],
+      M:           unit.M  ?? null,
+      T:           unit.T,
+      Sv:          unit.Sv,
+      W:           unit.W,
+      LD:          unit.LD ?? null,
+      OC:          unit.OC ?? null,
+      invuln:      unit.invuln ?? null,
+      kw:          unit.kw ?? [],
+      weapons:     unit.weapons ?? [],
+      min_models:  unit.min_models ?? null,
+      max_models:  unit.max_models ?? null,
     }, user)
     setQuery('')
     setResults([])
@@ -448,7 +460,15 @@ function ArmyEditor({ user, onNewArmy }) {
           {army.units.length}
         </span>
         {(() => {
-          const total = army.units.reduce((sum, e) => sum + (e.pts ?? 0) * (e.models ?? 1), 0)
+          const total = army.units.reduce((sum, e) => {
+            const base = e.pts ?? 0
+            const opts = e.pts_options ?? []
+            const n = e.models ?? e.min_models ?? 1
+            const exact = opts.find(o => o.condition === 'exact' && o.n_models === n)
+            if (exact) return sum + exact.pts
+            const atLeast = [...opts].filter(o => o.condition === 'atLeast' && o.n_models <= n).sort((a,b) => b.n_models - a.n_models)[0]
+            return sum + (atLeast ? atLeast.pts : base)
+          }, 0)
           return total > 0 ? (
             <span style={{
               fontFamily: 'Space Mono, monospace', fontSize: '13px',
