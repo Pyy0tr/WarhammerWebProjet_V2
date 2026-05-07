@@ -119,6 +119,7 @@ function ArmyUnitCard({ entry, user }) {
 
   return (
     <div
+      onClick={() => navigate('/factions', { state: { unit_id: entry.unit_id } })}
       onMouseEnter={() => setHov(true)}
       onMouseLeave={() => setHov(false)}
       style={{
@@ -126,25 +127,19 @@ function ArmyUnitCard({ entry, user }) {
         padding: '14px 16px',
         transition: 'border-color 120ms',
         background: hov ? 'rgba(47,224,255,0.03)' : 'transparent',
+        cursor: 'pointer',
       }}
     >
       <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: '12px' }}>
 
         {/* Left: name + stats */}
         <div style={{ flex: 1, minWidth: 0 }}>
-          <div
-            onClick={() => navigate('/factions', { state: { unit_id: entry.unit_id } })}
-            title="View in Factions"
-            style={{
-              fontFamily: 'Space Mono, monospace', fontSize: '12px',
-              fontWeight: 700, color: TEXT, marginBottom: '6px',
-              whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis',
-              cursor: 'pointer', textDecoration: 'underline', textDecorationColor: 'transparent',
-              transition: 'color 120ms, text-decoration-color 120ms',
-            }}
-            onMouseEnter={(e) => { e.currentTarget.style.color = ACCENT; e.currentTarget.style.textDecorationColor = ACCENT }}
-            onMouseLeave={(e) => { e.currentTarget.style.color = TEXT;   e.currentTarget.style.textDecorationColor = 'transparent' }}
-          >
+          <div style={{
+            fontFamily: 'Space Mono, monospace', fontSize: '12px',
+            fontWeight: 700, color: hov ? ACCENT : TEXT, marginBottom: '6px',
+            whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis',
+            transition: 'color 120ms',
+          }}>
             {entry.name}
           </div>
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px', marginBottom: '10px' }}>
@@ -168,6 +163,7 @@ function ArmyUnitCard({ entry, user }) {
                   min={minM}
                   max={maxM ?? undefined}
                   value={entry.models}
+                  onClick={(e) => e.stopPropagation()}
                   onChange={(e) => {
                     let v = parseInt(e.target.value) || minM
                     v = Math.max(minM, v)
@@ -193,7 +189,7 @@ function ArmyUnitCard({ entry, user }) {
 
         {/* Right: delete */}
         <div style={{ flexShrink: 0 }}>
-          <IconBtn danger onClick={() => removeUnit(entry.uid, user)} title="Remove unit">×</IconBtn>
+          <IconBtn danger onClick={(e) => { e.stopPropagation(); removeUnit(entry.uid, user) }} title="Remove unit">×</IconBtn>
         </div>
       </div>
     </div>
