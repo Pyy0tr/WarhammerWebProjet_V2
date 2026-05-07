@@ -101,10 +101,23 @@ function Body({ children }) {
 }
 
 function ContinueBtn({ onClick, label = 'Continue ↓', primary = false }) {
+  const [hov, setHov] = useState(false)
+  // Non-primary buttons are replaced by the fixed round button
+  if (!primary) return null
   return (
-    <button onClick={onClick} style={{ border: primary ? 'none' : `1px solid ${BORDER}`, background: primary ? ACCENT : 'transparent', color: primary ? BG : TEXT_OFF, fontFamily: 'Space Mono, monospace', fontSize: '10px', letterSpacing: '2px', textTransform: 'uppercase', fontWeight: primary ? 700 : 400, padding: '12px 24px', cursor: 'pointer', alignSelf: 'flex-start', transition: 'opacity 150ms' }}
-      onMouseEnter={(e) => { e.currentTarget.style.opacity = '0.8' }}
-      onMouseLeave={(e) => { e.currentTarget.style.opacity = '1' }}
+    <button
+      onClick={onClick}
+      onMouseEnter={() => setHov(true)}
+      onMouseLeave={() => setHov(false)}
+      style={{
+        background: hov ? ACCENT : 'transparent',
+        border: `1px solid ${ACCENT}`,
+        color: hov ? BG : ACCENT,
+        fontFamily: 'Space Mono, monospace', fontSize: '10px',
+        letterSpacing: '2px', textTransform: 'uppercase', fontWeight: 700,
+        padding: '14px 32px', cursor: 'pointer', alignSelf: 'flex-start',
+        transition: 'background 160ms ease, color 160ms ease',
+      }}
     >
       {label}
     </button>
@@ -698,7 +711,17 @@ export function OnboardingPage() {
         <div style={{ fontFamily: 'Space Mono, monospace', fontSize: '9px', letterSpacing: '2px', color: TEXT_WEAK }}>
           {activeStep + 1} / {steps.length}
         </div>
-        <span onClick={handleSkip} style={{ fontFamily: 'Space Mono, monospace', fontSize: '9px', letterSpacing: '2px', textTransform: 'uppercase', color: TEXT_OFF, cursor: 'pointer', textDecoration: 'underline', textUnderlineOffset: '3px' }}>
+        <span
+          onClick={handleSkip}
+          style={{
+            fontFamily: 'Space Mono, monospace', fontSize: '9px', letterSpacing: '2px',
+            textTransform: 'uppercase', color: TEXT_WEAK, cursor: 'pointer',
+            border: `1px solid ${BORDER}`, padding: '5px 12px',
+            transition: 'color 150ms, border-color 150ms',
+          }}
+          onMouseEnter={(e) => { e.currentTarget.style.color = TEXT; e.currentTarget.style.borderColor = TEXT_SEC }}
+          onMouseLeave={(e) => { e.currentTarget.style.color = TEXT_WEAK; e.currentTarget.style.borderColor = BORDER }}
+        >
           Skip
         </span>
       </div>
@@ -733,6 +756,41 @@ export function OnboardingPage() {
           }
         </div>
       </div>
+
+      {/* Fixed round continue button — hidden on last step (primary CTA takes over) */}
+      {activeStep < steps.length - 1 && (
+        <button
+          onClick={() => handleNext(activeStep)}
+          className="continue-fab"
+          title="Continue"
+          style={{
+            position: 'fixed', bottom: '40px', left: '25vw',
+            transform: 'translateX(-50%)',
+            width: '56px', height: '56px', borderRadius: '50%',
+            background: 'rgba(10,22,33,0.85)',
+            border: `2px solid ${ACCENT}`,
+            color: ACCENT, cursor: 'pointer',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            fontSize: '22px', lineHeight: 1,
+            boxShadow: `0 0 20px rgba(47,224,255,0.2)`,
+            backdropFilter: 'blur(8px)',
+            transition: 'box-shadow 160ms, background 160ms',
+            zIndex: 50,
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.background = ACCENT
+            e.currentTarget.style.color = BG
+            e.currentTarget.style.boxShadow = `0 0 32px rgba(47,224,255,0.5)`
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.background = 'rgba(10,22,33,0.85)'
+            e.currentTarget.style.color = ACCENT
+            e.currentTarget.style.boxShadow = `0 0 20px rgba(47,224,255,0.2)`
+          }}
+        >
+          <span className="arrow-bounce">↓</span>
+        </button>
+      )}
     </div>
   )
 }

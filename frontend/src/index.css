@@ -64,6 +64,16 @@ input[type=number] { -moz-appearance: textfield; }
   animation: slideInLeft 220ms cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 
+@keyframes arrowBounce {
+  0%, 100% { transform: translateY(0); }
+  60%       { transform: translateY(7px); }
+}
+
+.arrow-bounce {
+  display: inline-block;
+  animation: arrowBounce 1.4s ease-in-out infinite;
+}
+
 .results-enter {
   animation: fadeSlideIn 0.55s cubic-bezier(0.16, 1, 0.3, 1) both;
 }
