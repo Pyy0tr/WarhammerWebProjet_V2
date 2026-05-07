@@ -7,12 +7,13 @@ import { ACCENT, BG, SURFACE, SURFACE_E, BORDER, TEXT, TEXT_SEC, TEXT_WEAK, ERRO
 
 // ── Small helpers ─────────────────────────────────────────────────────────────
 
-function Chip({ children }) {
+function Chip({ children, color }) {
   return (
     <span style={{
       fontFamily: 'Space Mono, monospace', fontSize: '8px',
       letterSpacing: '1px', textTransform: 'uppercase',
-      color: TEXT_WEAK, border: `1px solid ${BORDER}`,
+      color: color ?? TEXT_WEAK,
+      border: `1px solid ${color ? color + '55' : BORDER}`,
       padding: '2px 6px',
     }}>
       {children}
@@ -41,17 +42,24 @@ function IconBtn({ children, onClick, danger, title }) {
   )
 }
 
-function SmallBtn({ children, onClick, primary }) {
+function SmallBtn({ children, onClick, primary, danger }) {
   const [hov, setHov] = useState(false)
+  const bgColor = primary
+    ? (hov ? 'rgba(47,224,255,0.85)' : ACCENT)
+    : danger
+      ? (hov ? 'rgba(255,92,122,0.12)' : 'none')
+      : (hov ? 'rgba(47,224,255,0.08)' : 'none')
+  const borderColor = primary ? ACCENT : danger ? (hov ? ERROR : 'rgba(255,92,122,0.4)') : (hov ? ACCENT : BORDER)
+  const textColor = primary ? BG : danger ? (hov ? ERROR : 'rgba(255,92,122,0.6)') : (hov ? ACCENT : TEXT_WEAK)
   return (
     <button
       onClick={onClick}
       onMouseEnter={() => setHov(true)}
       onMouseLeave={() => setHov(false)}
       style={{
-        background: primary ? (hov ? 'rgba(47,224,255,0.85)' : ACCENT) : (hov ? 'rgba(47,224,255,0.08)' : 'none'),
-        border: `1px solid ${hov ? ACCENT : BORDER}`,
-        color: primary ? BG : (hov ? ACCENT : TEXT_WEAK),
+        background: bgColor,
+        border: `1px solid ${borderColor}`,
+        color: textColor,
         fontFamily: 'Space Mono, monospace', fontSize: '8px',
         letterSpacing: '1.5px', textTransform: 'uppercase',
         padding: '5px 10px', cursor: 'pointer',
@@ -79,6 +87,8 @@ function EditableName({ value, onSave, style }) {
     else setDraft(value)
   }
 
+  const [hovering, setHovering] = useState(false)
+
   if (editing) {
     return (
       <input
@@ -101,8 +111,15 @@ function EditableName({ value, onSave, style }) {
   return (
     <span
       onClick={() => setEditing(true)}
+      onMouseEnter={() => setHovering(true)}
+      onMouseLeave={() => setHovering(false)}
       title="Click to rename"
-      style={{ ...style, cursor: 'text', borderBottom: `1px dashed ${ACCENT}` }}
+      style={{
+        ...style,
+        cursor: 'text',
+        borderBottom: hovering ? `1px dashed rgba(47,224,255,0.5)` : '1px dashed transparent',
+        transition: 'border-bottom-color 120ms',
+      }}
     >
       {value}
     </span>
@@ -117,6 +134,9 @@ function ArmyUnitCard({ entry, user }) {
   const navigate   = useNavigate()
   const [hov, setHov] = useState(false)
 
+  const minM = entry.min_models ?? 1
+  const maxM = entry.max_models ?? null
+
   return (
     <div
       onClick={() => navigate('/factions', { state: { unit_id: entry.unit_id } })}
@@ -124,72 +144,64 @@ function ArmyUnitCard({ entry, user }) {
       onMouseLeave={() => setHov(false)}
       style={{
         border: `1px solid ${hov ? ACCENT : BORDER}`,
-        padding: '14px 16px',
-        transition: 'border-color 120ms',
+        borderLeft: `3px solid ${hov ? ACCENT : 'transparent'}`,
+        padding: '10px 14px',
+        transition: 'border-color 120ms, background 120ms',
         background: hov ? 'rgba(47,224,255,0.03)' : 'transparent',
         cursor: 'pointer',
       }}
     >
-      <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: '12px' }}>
-
-        {/* Left: name + stats */}
-        <div style={{ flex: 1, minWidth: 0 }}>
-          <div style={{
-            fontFamily: 'Space Mono, monospace', fontSize: '12px',
-            fontWeight: 700, color: hov ? ACCENT : TEXT, marginBottom: '6px',
-            whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis',
-            transition: 'color 120ms',
-          }}>
-            {entry.name}
-          </div>
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px', marginBottom: '10px' }}>
-            <Chip>T{entry.T}</Chip>
-            <Chip>SV{entry.Sv}+</Chip>
-            <Chip>W{entry.W}</Chip>
-            {entry.invuln && <Chip>{entry.invuln}++</Chip>}
-          </div>
-
-          {/* Models */}
-          {(() => {
-            const minM = entry.min_models ?? 1
-            const maxM = entry.max_models ?? null
-            return (
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <span style={{ fontFamily: 'Space Mono, monospace', fontSize: '9px', color: TEXT_WEAK, letterSpacing: '1px' }}>
-                  Models
-                </span>
-                <input
-                  type="number"
-                  min={minM}
-                  max={maxM ?? undefined}
-                  value={entry.models}
-                  onClick={(e) => e.stopPropagation()}
-                  onChange={(e) => {
-                    let v = parseInt(e.target.value) || minM
-                    v = Math.max(minM, v)
-                    if (maxM !== null) v = Math.min(maxM, v)
-                    updateUnit(entry.uid, { models: v }, user)
-                  }}
-                  style={{
-                    width: '52px', background: 'rgba(47,224,255,0.05)',
-                    border: `1px solid ${BORDER}`, color: ACCENT,
-                    fontFamily: 'Space Mono, monospace', fontSize: '11px',
-                    padding: '3px 6px', outline: 'none', textAlign: 'center',
-                  }}
-                />
-                {maxM !== null && (
-                  <span style={{ fontFamily: 'Space Mono, monospace', fontSize: '8px', color: TEXT_WEAK }}>
-                    / {maxM}
-                  </span>
-                )}
-              </div>
-            )
-          })()}
+      {/* Row 1: name + delete */}
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '6px' }}>
+        <div style={{
+          fontFamily: 'Space Mono, monospace', fontSize: '12px',
+          fontWeight: 700, color: hov ? ACCENT : TEXT,
+          whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis',
+          transition: 'color 120ms', flex: 1, minWidth: 0,
+        }}>
+          {entry.name}
         </div>
-
-        {/* Right: delete */}
-        <div style={{ flexShrink: 0 }}>
+        <div style={{ opacity: hov ? 1 : 0, transition: 'opacity 120ms', flexShrink: 0 }}>
           <IconBtn danger onClick={(e) => { e.stopPropagation(); removeUnit(entry.uid, user) }} title="Remove unit">×</IconBtn>
+        </div>
+      </div>
+
+      {/* Row 2: chips + models */}
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '8px' }}>
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px' }}>
+          <Chip color="#f59e0b">T{entry.T}</Chip>
+          <Chip color="#60a5fa">SV{entry.Sv}+</Chip>
+          <Chip color="#34d399">W{entry.W}</Chip>
+          {entry.invuln && <Chip color={ACCENT}>{entry.invuln}++</Chip>}
+        </div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexShrink: 0 }}>
+          <span style={{ fontFamily: 'Space Mono, monospace', fontSize: '8px', color: TEXT_WEAK, letterSpacing: '1px' }}>
+            Models
+          </span>
+          <input
+            type="number"
+            min={minM}
+            max={maxM ?? undefined}
+            value={entry.models}
+            onClick={(e) => e.stopPropagation()}
+            onChange={(e) => {
+              let v = parseInt(e.target.value) || minM
+              v = Math.max(minM, v)
+              if (maxM !== null) v = Math.min(maxM, v)
+              updateUnit(entry.uid, { models: v }, user)
+            }}
+            style={{
+              width: '44px', background: 'rgba(47,224,255,0.05)',
+              border: `1px solid ${BORDER}`, color: ACCENT,
+              fontFamily: 'Space Mono, monospace', fontSize: '11px',
+              padding: '2px 4px', outline: 'none', textAlign: 'center',
+            }}
+          />
+          {maxM !== null && (
+            <span style={{ fontFamily: 'Space Mono, monospace', fontSize: '8px', color: TEXT_WEAK }}>
+              / {maxM}
+            </span>
+          )}
         </div>
       </div>
     </div>
@@ -276,7 +288,7 @@ function ArmyEditor({ user, onNewArmy }) {
           value={army.name}
           onSave={(n) => rename(army.id, n, user)}
           style={{
-            fontFamily: 'Space Mono, monospace', fontSize: '18px',
+            fontFamily: 'Space Mono, monospace', fontSize: '24px',
             fontWeight: 700, letterSpacing: '1px', color: TEXT,
           }}
         />
@@ -289,7 +301,7 @@ function ArmyEditor({ user, onNewArmy }) {
             <SmallBtn onClick={() => setConfirm(false)}>No</SmallBtn>
           </div>
         ) : (
-          <SmallBtn onClick={() => setConfirm(true)}>Delete army</SmallBtn>
+          <SmallBtn danger onClick={() => setConfirm(true)}>Delete army</SmallBtn>
         )}
       </div>
 
@@ -359,10 +371,17 @@ function ArmyEditor({ user, onNewArmy }) {
       {/* ── Unit list ── */}
       <div style={{
         fontFamily: 'Space Mono, monospace', fontSize: '9px',
-        letterSpacing: '2px', textTransform: 'uppercase', color: TEXT_WEAK,
-        marginBottom: '14px',
+        letterSpacing: '3px', textTransform: 'uppercase', color: TEXT_SEC,
+        marginBottom: '12px',
+        display: 'flex', alignItems: 'center', gap: '10px',
       }}>
-        Units ({army.units.length})
+        Units
+        <span style={{
+          color: ACCENT, border: `1px solid rgba(47,224,255,0.3)`,
+          padding: '1px 6px', fontSize: '8px',
+        }}>
+          {army.units.length}
+        </span>
       </div>
 
       {army.units.length === 0 ? (
