@@ -606,12 +606,67 @@ function ArmyEditor({ user, onNewArmy }) {
   )
 }
 
+// ── Army sidebar item ─────────────────────────────────────────────────────────
+
+function ArmySidebarItem({ army, active, fmt, onClick, animDelay }) {
+  const [hov, setHov] = useState(false)
+  const pts = army.units.reduce((s, e) => s + (e.pts ?? 0), 0)
+
+  return (
+    <div
+      className="army-item-enter"
+      onClick={onClick}
+      onMouseEnter={() => setHov(true)}
+      onMouseLeave={() => setHov(false)}
+      style={{
+        padding: '14px 18px',
+        cursor: 'pointer',
+        borderBottom: `1px solid ${BORDER}`,
+        borderLeft: `3px solid ${active ? ACCENT : hov ? 'rgba(47,224,255,0.25)' : 'transparent'}`,
+        background: active
+          ? 'rgba(47,224,255,0.07)'
+          : hov ? 'rgba(47,224,255,0.03)' : 'transparent',
+        boxShadow: active ? 'inset 0 0 20px rgba(47,224,255,0.04)' : 'none',
+        transition: 'background 160ms ease, border-left-color 160ms ease, box-shadow 160ms ease',
+        animationDelay: `${animDelay}ms`,
+      }}
+    >
+      <div style={{
+        fontFamily: 'Space Mono, monospace', fontSize: '11px',
+        fontWeight: active ? 700 : 400,
+        color: active ? TEXT : hov ? TEXT : TEXT_SEC,
+        marginBottom: '6px',
+        whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis',
+        transform: hov && !active ? 'translateX(3px)' : 'translateX(0)',
+        transition: 'color 160ms, transform 160ms ease',
+      }}>
+        {army.name}
+      </div>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+        <div style={{ fontFamily: 'Space Mono, monospace', fontSize: '8px', color: TEXT_WEAK }}>
+          {army.units.length} unit{army.units.length !== 1 ? 's' : ''}
+        </div>
+        {pts > 0 && (
+          <div style={{
+            fontFamily: 'Space Mono, monospace', fontSize: '8px',
+            color: active ? ACCENT : TEXT_WEAK,
+            transition: 'color 160ms',
+          }}>
+            {pts} pts
+          </div>
+        )}
+      </div>
+    </div>
+  )
+}
+
 // ── Army sidebar (left panel) ─────────────────────────────────────────────────
 
 function ArmySidebar({ user, onNewArmy }) {
   const armies    = useArmyStore((s) => s.armies)
   const activeId  = useArmyStore((s) => s.activeId)
   const setActive = useArmyStore((s) => s.setActive)
+  const [btnHov, setBtnHov] = useState(false)
 
   const fmt = (iso) => new Date(iso).toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: '2-digit' })
 
@@ -623,90 +678,88 @@ function ArmySidebar({ user, onNewArmy }) {
       background: SURFACE,
     }}>
       {/* Header */}
-      <div style={{
-        padding: '16px 16px 12px',
-        borderBottom: `1px solid ${BORDER}`,
-      }}>
-        <div style={{
-          fontFamily: 'Space Mono, monospace', fontSize: '9px',
-          letterSpacing: '3px', textTransform: 'uppercase', color: TEXT_WEAK,
-          marginBottom: '10px',
-        }}>
-          My Armies
+      <div style={{ padding: '20px 16px 16px' }}>
+        {/* Title row */}
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '4px' }}>
+          <span style={{
+            fontFamily: 'Space Mono, monospace', fontSize: '8px',
+            letterSpacing: '4px', textTransform: 'uppercase', color: TEXT_WEAK,
+          }}>My Armies</span>
+          {armies.length > 0 && (
+            <span style={{
+              fontFamily: 'Space Mono, monospace', fontSize: '7px',
+              color: ACCENT, border: `1px solid rgba(47,224,255,0.3)`,
+              padding: '1px 6px',
+            }}>{armies.length}</span>
+          )}
         </div>
+        {/* Accent line */}
+        <div style={{
+          height: '1px', marginBottom: '14px',
+          background: `linear-gradient(to right, ${ACCENT}55, ${BORDER}88, transparent)`,
+        }} />
+        {/* New army button */}
         <button
           onClick={onNewArmy}
+          onMouseEnter={() => setBtnHov(true)}
+          onMouseLeave={() => setBtnHov(false)}
           style={{
             width: '100%',
-            background: ACCENT, border: `1px solid ${ACCENT}`,
-            color: BG, fontFamily: 'Space Mono, monospace', fontSize: '9px',
+            background: btnHov ? ACCENT : 'transparent',
+            border: `1px solid ${ACCENT}`,
+            color: btnHov ? BG : ACCENT,
+            fontFamily: 'Space Mono, monospace', fontSize: '9px',
             letterSpacing: '2px', textTransform: 'uppercase', fontWeight: 700,
-            padding: '9px 0', cursor: 'pointer', transition: 'opacity 100ms',
+            padding: '10px 0', cursor: 'pointer',
+            transition: 'background 160ms ease, color 160ms ease',
           }}
-          onMouseEnter={(e) => { e.currentTarget.style.opacity = '0.85' }}
-          onMouseLeave={(e) => { e.currentTarget.style.opacity = '1' }}
         >
           + New Army
         </button>
       </div>
 
+      {/* Divider */}
+      <div style={{ height: '1px', background: `linear-gradient(to right, rgba(47,224,255,0.15), ${BORDER}, transparent)` }} />
+
       {/* List */}
       <div style={{ flex: 1, overflowY: 'auto' }}>
         {armies.length === 0 ? (
           <div style={{
-            padding: '20px 16px',
-            fontFamily: 'Space Mono, monospace', fontSize: '10px',
-            color: TEXT_WEAK, lineHeight: 1.7,
+            padding: '28px 16px', textAlign: 'center',
+            fontFamily: 'Space Mono, monospace', fontSize: '9px',
+            color: TEXT_WEAK, lineHeight: 2,
           }}>
-            No armies yet.<br />Click <span style={{ color: ACCENT }}>+ New Army</span> to get started.
+            No armies yet.{' '}
+            <span
+              style={{ color: ACCENT, cursor: 'pointer' }}
+              onClick={onNewArmy}
+            >
+              + New Army
+            </span>
           </div>
         ) : (
-          armies.map((army) => {
-            const active = army.id === activeId
-            return (
-              <div
-                key={army.id}
-                onClick={() => setActive(army.id)}
-                style={{
-                  padding: '14px 20px',
-                  cursor: 'pointer',
-                  borderBottom: `1px solid ${BORDER}`,
-                  borderLeft: `3px solid ${active ? ACCENT : 'transparent'}`,
-                  background: active ? 'rgba(47,224,255,0.06)' : 'transparent',
-                  transition: 'background 100ms, border-left-color 100ms',
-                }}
-                onMouseEnter={(e) => { if (!active) e.currentTarget.style.background = 'rgba(47,224,255,0.03)' }}
-                onMouseLeave={(e) => { if (!active) e.currentTarget.style.background = 'transparent' }}
-              >
-                <div style={{
-                  fontFamily: 'Space Mono, monospace', fontSize: '11px',
-                  fontWeight: active ? 700 : 400, color: active ? TEXT : TEXT_SEC,
-                  marginBottom: '4px',
-                  whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis',
-                }}>
-                  {army.name}
-                </div>
-                <div style={{
-                  fontFamily: 'Space Mono, monospace', fontSize: '8px',
-                  color: TEXT_WEAK, letterSpacing: '0.5px',
-                }}>
-                  {army.units.length} unit{army.units.length !== 1 ? 's' : ''} · {fmt(army.created_at)}
-                </div>
-              </div>
-            )
-          })
+          armies.map((army, i) => (
+            <ArmySidebarItem
+              key={army.id}
+              army={army}
+              active={army.id === activeId}
+              fmt={fmt}
+              onClick={() => setActive(army.id)}
+              animDelay={i * 40}
+            />
+          ))
         )}
       </div>
 
-      {/* Footer hint */}
+      {/* Footer */}
       {!user && (
         <div style={{
           padding: '12px 16px',
           borderTop: `1px solid ${BORDER}`,
           fontFamily: 'Space Mono, monospace', fontSize: '8px',
-          color: TEXT_WEAK, lineHeight: 1.6, letterSpacing: '0.5px',
+          color: TEXT_WEAK, lineHeight: 1.7,
         }}>
-          Sign in to save your armies online and access them from any device.
+          Sign in to sync your armies across devices.
         </div>
       )}
     </div>

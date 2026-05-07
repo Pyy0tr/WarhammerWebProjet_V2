@@ -55,6 +55,15 @@ input[type=number] { -moz-appearance: textfield; }
   to   { opacity: 1; transform: translateY(0); }
 }
 
+@keyframes slideInLeft {
+  from { opacity: 0; transform: translateX(-12px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+
+.army-item-enter {
+  animation: slideInLeft 220ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
 .results-enter {
   animation: fadeSlideIn 0.55s cubic-bezier(0.16, 1, 0.3, 1) both;
 }
