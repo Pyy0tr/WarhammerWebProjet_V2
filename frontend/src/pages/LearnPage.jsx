@@ -462,6 +462,7 @@ export function LearnPage() {
   const navigate = useNavigate()
 
   const [activeStep, setActiveStep] = useState(0)
+  const [btnHov, setBtnHov] = useState(false)
   const sectionRefs = useRef([])
 
   const result = useMemo(() => simulate({
@@ -522,8 +523,8 @@ export function LearnPage() {
         <div style={{ fontFamily: 'Space Mono, monospace', fontSize: '9px', letterSpacing: '2px', color: TEXT_WEAK }}>
           {activeStep + 1} / {STEPS.length}
         </div>
-        <span onClick={handleSkip} style={{ fontFamily: 'Space Mono, monospace', fontSize: '9px', letterSpacing: '2px', textTransform: 'uppercase', color: TEXT_WEAK, cursor: 'pointer', border: `1px solid ${BORDER}`, padding: '6px 14px' }}>
-          Skip
+        <span onClick={handleSkip} style={{ fontFamily: 'Space Mono, monospace', fontSize: '9px', letterSpacing: '2px', textTransform: 'uppercase', color: TEXT_OFF, cursor: 'pointer' }}>
+          Skip →
         </span>
       </div>
 
@@ -554,15 +555,15 @@ export function LearnPage() {
         </div>
       </div>
 
-      {/* Fixed round scroll button */}
+      {/* Fixed scroll button */}
       <button
         onClick={() => handleNext(activeStep)}
-        className="arrow-bounce"
-        style={{ position: 'fixed', bottom: '40px', left: '25vw', transform: 'translateX(-50%)', width: '52px', height: '52px', borderRadius: '50%', background: ACCENT, color: BG, border: 'none', cursor: 'pointer', fontSize: '22px', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 4px 24px rgba(47,224,255,0.30)', zIndex: 20, transition: 'opacity 150ms, transform 150ms' }}
-        onMouseEnter={(e) => { e.currentTarget.style.opacity = '0.85'; e.currentTarget.classList.remove('arrow-bounce') }}
-        onMouseLeave={(e) => { e.currentTarget.style.opacity = '1'; e.currentTarget.classList.add('arrow-bounce') }}
+        onMouseEnter={() => setBtnHov(true)}
+        onMouseLeave={() => setBtnHov(false)}
+        style={{ position: 'fixed', bottom: '40px', left: '25vw', transform: 'translateX(-50%)', border: `1px solid ${ACCENT}`, background: btnHov ? 'rgba(47,224,255,0.08)' : 'transparent', color: ACCENT, fontFamily: 'Space Mono, monospace', fontSize: '9px', letterSpacing: '2px', textTransform: 'uppercase', padding: '10px 20px', cursor: 'pointer', zIndex: 20, transition: 'background 150ms', display: 'flex', alignItems: 'center', gap: '8px' }}
       >
-        ↓
+        <span style={{ display: 'inline-block', animation: 'arrowBounce 1.4s ease-in-out infinite', animationPlayState: btnHov ? 'paused' : 'running' }}>↓</span>
+        Next
       </button>
     </div>
   )
