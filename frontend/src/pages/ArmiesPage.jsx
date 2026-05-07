@@ -140,15 +140,17 @@ function ArmyUnitCard({ entry, user }) {
   // pts_options définit les tranches pour les autres tailles.
   function resolvePoints(base, options, n, minN) {
     if (!base) return null
-    if (!options || options.length === 0) return base
+    const unitSize = minN || 1
+    // Pas de tranches définies → pts est le coût par slot de taille unitSize
+    if (!options || options.length === 0) return base * (n / unitSize)
     const exact = options.find(o => o.condition === 'exact' && o.n_models === n)
     if (exact) return exact.pts
     const atLeast = [...options]
       .filter(o => o.condition === 'atLeast' && o.n_models <= n)
       .sort((a, b) => b.n_models - a.n_models)[0]
     if (atLeast) return atLeast.pts
-    // Entre deux tiers connus et au-dessus du minimum : prendre le tier juste au-dessus
-    if (n > (minN ?? 1)) {
+    // Entre deux tiers connus : prendre le tier juste au-dessus
+    if (n > unitSize) {
       const nextAbove = [...options]
         .filter(o => o.n_models > n)
         .sort((a, b) => a.n_models - b.n_models)[0]
@@ -468,15 +470,16 @@ function ArmyEditor({ user, onNewArmy }) {
         </span>
         {(() => {
           const resolveUnit = (e) => {
-            const base = e.pts ?? 0
-            const opts = e.pts_options ?? []
-            const n    = e.models ?? e.min_models ?? 1
-            const minN = e.min_models ?? 1
+            const base     = e.pts ?? 0
+            const opts     = e.pts_options ?? []
+            const n        = e.models ?? e.min_models ?? 1
+            const unitSize = e.min_models || 1
+            if (!opts.length) return base * (n / unitSize)
             const exact = opts.find(o => o.condition === 'exact' && o.n_models === n)
             if (exact) return exact.pts
             const atLeast = [...opts].filter(o => o.condition === 'atLeast' && o.n_models <= n).sort((a,b) => b.n_models - a.n_models)[0]
             if (atLeast) return atLeast.pts
-            if (n > minN) {
+            if (n > unitSize) {
               const next = [...opts].filter(o => o.n_models > n).sort((a,b) => a.n_models - b.n_models)[0]
               if (next) return next.pts
             }
