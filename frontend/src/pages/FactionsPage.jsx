@@ -1,4 +1,5 @@
 import { useState, useMemo, useEffect } from 'react'
+import { useLocation } from 'react-router-dom'
 import { useDataStore }  from '../store/dataStore'
 import { useArmyStore }  from '../store/armyStore'
 import { useAuthStore }  from '../store/authStore'
@@ -1069,7 +1070,9 @@ function UnitDetailView({ unit, onBack, factionLabel }) {
 // ── Page root ─────────────────────────────────────────────────────────────────
 
 export function FactionsPage() {
-  const loaded = useDataStore((s) => s.loaded)
+  const loaded      = useDataStore((s) => s.loaded)
+  const unitsById   = useDataStore((s) => s.unitsById)
+  const location    = useLocation()
 
   useEffect(() => {
     document.title = "Factions & Units — 46 Factions, 1487 Units | Prob'Hammer WH40K"
@@ -1078,6 +1081,19 @@ export function FactionsPage() {
   const [view, setView]                   = useState('factions')
   const [activeFaction, setActiveFaction] = useState(null)
   const [jumpToUnit, setJumpToUnit]       = useState(null)
+
+  // Jump to unit when navigated from ArmiesPage
+  useEffect(() => {
+    const unitId = location.state?.unit_id
+    if (!unitId || !loaded) return
+    const unit = unitsById?.[unitId]
+    if (!unit) return
+    const faction = unit.factions?.[0] || unit.faction
+    if (!faction) return
+    setActiveFaction(faction)
+    setJumpToUnit(unit)
+    setView('units')
+  }, [location.state, loaded, unitsById])
 
   function handleSelectFaction(factionName, unit = null) {
     setActiveFaction(factionName)

@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { useArmyStore } from '../store/armyStore'
 import { useAuthStore } from '../store/authStore'
 import { useDataStore } from '../store/dataStore'
@@ -113,6 +114,7 @@ function EditableName({ value, onSave, style }) {
 function ArmyUnitCard({ entry, user }) {
   const removeUnit = useArmyStore((s) => s.removeUnit)
   const updateUnit = useArmyStore((s) => s.updateUnit)
+  const navigate   = useNavigate()
   const [hov, setHov] = useState(false)
 
   return (
@@ -130,11 +132,19 @@ function ArmyUnitCard({ entry, user }) {
 
         {/* Left: name + stats */}
         <div style={{ flex: 1, minWidth: 0 }}>
-          <div style={{
-            fontFamily: 'Space Mono, monospace', fontSize: '12px',
-            fontWeight: 700, color: TEXT, marginBottom: '6px',
-            whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis',
-          }}>
+          <div
+            onClick={() => navigate('/factions', { state: { unit_id: entry.unit_id } })}
+            title="View in Factions"
+            style={{
+              fontFamily: 'Space Mono, monospace', fontSize: '12px',
+              fontWeight: 700, color: TEXT, marginBottom: '6px',
+              whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis',
+              cursor: 'pointer', textDecoration: 'underline', textDecorationColor: 'transparent',
+              transition: 'color 120ms, text-decoration-color 120ms',
+            }}
+            onMouseEnter={(e) => { e.currentTarget.style.color = ACCENT; e.currentTarget.style.textDecorationColor = ACCENT }}
+            onMouseLeave={(e) => { e.currentTarget.style.color = TEXT;   e.currentTarget.style.textDecorationColor = 'transparent' }}
+          >
             {entry.name}
           </div>
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px', marginBottom: '10px' }}>
