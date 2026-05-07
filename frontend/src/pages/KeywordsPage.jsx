@@ -276,10 +276,9 @@ function StatChip({ label, value, color }) {
 // ── Comparison panel ───────────────────────────────────────────────────────────
 
 function ComparisonPanel({ kwType }) {
-  const scenario = SCENARIOS[kwType]
-  if (!scenario) return null
-
   const results = useMemo(() => {
+    const scenario = SCENARIOS[kwType]
+    if (!scenario) return null
     try {
       const without = simulate({ ...scenario.without, n_trials: N_TRIALS })
       const with_   = simulate({ ...scenario.with,    n_trials: N_TRIALS })
@@ -289,7 +288,8 @@ function ComparisonPanel({ kwType }) {
     }
   }, [kwType])
 
-  if (!results) return null
+  const scenario = SCENARIOS[kwType]
+  if (!scenario || !results) return null
 
   const { without: r0, with: r1 } = results
 
