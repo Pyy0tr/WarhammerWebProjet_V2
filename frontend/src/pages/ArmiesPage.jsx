@@ -7,38 +7,6 @@ import { ACCENT, BG, SURFACE, SURFACE_E, BORDER, TEXT, TEXT_SEC, TEXT_WEAK, ERRO
 
 // ── Small helpers ─────────────────────────────────────────────────────────────
 
-function StatBar({ M, T, Sv, W, LD, OC, invuln }) {
-  const stats = [
-    { key: 'M',   value: M  ?? '—',                    sim: false },
-    { key: 'T',   value: T  ?? '—',                    sim: true  },
-    { key: 'SV',  value: Sv != null ? `${Sv}+` : '—', sim: true  },
-    { key: 'W',   value: W  ?? '—',                    sim: true  },
-    { key: 'LD',  value: LD ?? '—',                    sim: false },
-    { key: 'OC',  value: OC ?? '—',                    sim: false },
-  ]
-  if (invuln) stats.splice(3, 0, { key: 'INV', value: `${invuln}++`, sim: true, inv: true })
-  const cols = stats.length
-  return (
-    <div style={{ display: 'inline-grid', gridTemplateColumns: `repeat(${cols}, minmax(42px, auto))`, border: `1px solid ${BORDER}`, background: SURFACE }}>
-      {stats.map((s, i) => (
-        <div key={s.key} style={{
-          padding: '10px 8px', textAlign: 'center',
-          borderRight: i < cols - 1 ? `1px solid ${BORDER}` : 'none',
-          opacity: s.sim ? 1 : 0.35,
-        }}>
-          <div style={{
-            fontFamily: 'Space Mono, monospace', fontSize: '18px', fontWeight: 700, lineHeight: 1,
-            color: s.inv ? ACCENT : s.sim ? HIGHLIGHT : TEXT_WEAK,
-          }}>{s.value}</div>
-          <div style={{
-            fontFamily: 'Space Mono, monospace', fontSize: '7px',
-            letterSpacing: '1px', textTransform: 'uppercase', color: TEXT_WEAK, marginTop: '5px',
-          }}>{s.key}</div>
-        </div>
-      ))}
-    </div>
-  )
-}
 
 function IconBtn({ children, onClick, danger, title }) {
   const [hov, setHov] = useState(false)
@@ -163,6 +131,17 @@ function ArmyUnitCard({ entry, user }) {
     .map((ref) => weaponsById[ref.id]?.name)
     .filter(Boolean)
 
+  const stats = [
+    { key: 'M',   value: entry.M  ?? '—',                         sim: false },
+    { key: 'T',   value: entry.T  ?? '—',                         sim: true  },
+    { key: 'SV',  value: entry.Sv != null ? `${entry.Sv}+` : '—', sim: true  },
+    { key: 'W',   value: entry.W  ?? '—',                         sim: true  },
+    { key: 'LD',  value: entry.LD ?? '—',                         sim: false },
+    { key: 'OC',  value: entry.OC ?? '—',                         sim: false },
+  ]
+  if (entry.invuln) stats.splice(3, 0, { key: 'INV', value: `${entry.invuln}++`, sim: true, inv: true })
+  const cols = stats.length
+
   return (
     <div
       onClick={() => navigate('/factions', { state: { unit_id: entry.unit_id } })}
@@ -171,74 +150,84 @@ function ArmyUnitCard({ entry, user }) {
       style={{
         border: `1px solid ${hov ? ACCENT : BORDER}`,
         borderLeft: `3px solid ${hov ? ACCENT : 'transparent'}`,
-        padding: '10px 14px',
-        transition: 'border-color 120ms, background 120ms',
-        background: hov ? 'rgba(47,224,255,0.03)' : 'transparent',
+        background: SURFACE,
         cursor: 'pointer',
+        transition: 'border-color 120ms',
       }}
     >
-      {/* Row 1: name + delete */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '8px' }}>
+      {/* Header: name + pts + delete */}
+      <div style={{
+        padding: '10px 14px', borderBottom: `1px solid ${BORDER}`,
+        display: 'flex', alignItems: 'center', gap: '12px',
+      }}>
         <div style={{
-          fontFamily: 'Space Mono, monospace', fontSize: '12px',
-          fontWeight: 700, color: hov ? ACCENT : TEXT,
-          whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis',
-          transition: 'color 120ms', flex: 1, minWidth: 0,
+          fontFamily: 'Space Mono, monospace', fontSize: '12px', fontWeight: 700,
+          color: hov ? ACCENT : TEXT, whiteSpace: 'nowrap', overflow: 'hidden',
+          textOverflow: 'ellipsis', transition: 'color 120ms', flex: 1, minWidth: 0,
         }}>
           {entry.name}
         </div>
+        {totalPts !== null && (
+          <div style={{ flexShrink: 0, textAlign: 'right', lineHeight: 1 }}>
+            <span style={{ fontFamily: 'Space Mono, monospace', fontSize: '15px', fontWeight: 700, color: ACCENT }}>
+              {totalPts}
+            </span>
+            <span style={{ fontFamily: 'Space Mono, monospace', fontSize: '8px', color: TEXT_WEAK, marginLeft: '4px', letterSpacing: '1px' }}>
+              pts
+            </span>
+            {entry.models > 1 && pts !== null && (
+              <div style={{ fontFamily: 'Space Mono, monospace', fontSize: '8px', color: TEXT_WEAK, marginTop: '2px' }}>
+                {pts} × {entry.models}
+              </div>
+            )}
+          </div>
+        )}
         <button
           onClick={(e) => { e.stopPropagation(); removeUnit(entry.uid, user) }}
           title="Remove unit"
           style={{
             flexShrink: 0, cursor: 'pointer', background: 'none',
-            border: `1px solid ${hov ? ERROR : 'rgba(255,92,122,0.25)'}`,
-            color: hov ? ERROR : 'rgba(255,92,122,0.5)',
-            fontFamily: 'Space Mono, monospace', fontSize: '16px', lineHeight: 1,
-            padding: '3px 10px', transition: 'all 120ms',
+            border: `1px solid ${hov ? ERROR : 'rgba(255,92,122,0.3)'}`,
+            color: hov ? ERROR : 'rgba(255,92,122,0.55)',
+            fontFamily: 'Space Mono, monospace', fontSize: '18px', lineHeight: 1,
+            padding: '5px 12px', transition: 'all 120ms',
           }}
         >×</button>
       </div>
 
-      {/* Row 2: pts cell + stat bar */}
-      <div style={{ display: 'flex', alignItems: 'stretch', marginBottom: '8px' }}>
-        {totalPts !== null && (
-          <div style={{
-            display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
-            padding: '10px 14px', background: SURFACE,
-            border: `1px solid ${BORDER}`, borderRight: 'none', flexShrink: 0,
+      {/* Stats grid — même structure que DefenderCard sur la learn page */}
+      <div style={{ display: 'grid', gridTemplateColumns: `repeat(${cols}, 1fr)`, borderBottom: `1px solid ${BORDER}` }}>
+        {stats.map((s, i) => (
+          <div key={s.key} style={{
+            padding: '12px 8px', textAlign: 'center',
+            borderRight: i < cols - 1 ? `1px solid ${BORDER}` : 'none',
+            opacity: s.sim ? 1 : 0.35,
           }}>
             <div style={{
-              fontFamily: 'Space Mono, monospace', fontSize: '18px', fontWeight: 700,
-              color: ACCENT, lineHeight: 1,
-            }}>{totalPts}</div>
+              fontFamily: 'Space Mono, monospace', fontSize: '18px', fontWeight: 700, lineHeight: 1,
+              color: s.inv ? ACCENT : s.sim ? HIGHLIGHT : TEXT_WEAK,
+            }}>{s.value}</div>
             <div style={{
               fontFamily: 'Space Mono, monospace', fontSize: '7px',
               letterSpacing: '1px', textTransform: 'uppercase', color: TEXT_WEAK, marginTop: '5px',
-            }}>
-              pts{entry.models > 1 && pts !== null ? ` ×${entry.models}` : ''}
-            </div>
+            }}>{s.key}</div>
           </div>
-        )}
-        <StatBar
-          M={entry.M} T={entry.T} Sv={entry.Sv} W={entry.W}
-          LD={entry.LD} OC={entry.OC} invuln={entry.invuln}
-        />
+        ))}
       </div>
 
-      {/* Row 3: models + weapons */}
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '8px' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexShrink: 0 }}
+      {/* Footer: models + weapons */}
+      <div style={{
+        padding: '8px 14px', display: 'flex', alignItems: 'center',
+        justifyContent: 'space-between', gap: '8px',
+      }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}
           onClick={(e) => e.stopPropagation()}
         >
           <span style={{ fontFamily: 'Space Mono, monospace', fontSize: '8px', color: TEXT_WEAK, letterSpacing: '1px' }}>
             Models
           </span>
           <input
-            type="number"
-            min={minM}
-            max={maxM ?? undefined}
-            value={entry.models}
+            type="number" min={minM} max={maxM ?? undefined} value={entry.models}
             onClick={(e) => e.stopPropagation()}
             onChange={(e) => {
               let v = parseInt(e.target.value) || minM
@@ -254,22 +243,17 @@ function ArmyUnitCard({ entry, user }) {
             }}
           />
           {maxM !== null && (
-            <span style={{ fontFamily: 'Space Mono, monospace', fontSize: '8px', color: TEXT_WEAK }}>
-              / {maxM}
-            </span>
+            <span style={{ fontFamily: 'Space Mono, monospace', fontSize: '8px', color: TEXT_WEAK }}>/ {maxM}</span>
           )}
         </div>
         {weaponNames.length > 0 && (
           <div style={{
-            fontFamily: 'Space Mono, monospace', fontSize: '9px',
-            color: TEXT_WEAK, letterSpacing: '0.5px', flex: 1,
-            whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis',
-            textAlign: 'right',
+            fontFamily: 'Space Mono, monospace', fontSize: '9px', color: TEXT_WEAK,
+            letterSpacing: '0.5px', flex: 1, whiteSpace: 'nowrap',
+            overflow: 'hidden', textOverflow: 'ellipsis', textAlign: 'right',
           }}>
             {weaponNames.slice(0, 5).join(' · ')}
-            {weaponNames.length > 5 && (
-              <span style={{ color: ACCENT }}> +{weaponNames.length - 5}</span>
-            )}
+            {weaponNames.length > 5 && <span style={{ color: ACCENT }}> +{weaponNames.length - 5}</span>}
           </div>
         )}
       </div>
