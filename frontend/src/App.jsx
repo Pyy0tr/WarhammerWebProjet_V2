@@ -1,4 +1,4 @@
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom'
 import { HomePage } from './pages/HomePage'
 import { SimulatorPage } from './pages/SimulatorPage'
@@ -12,11 +12,76 @@ import { FeedbackPage } from './pages/FeedbackPage'
 import { AdminFeedbackPage } from './pages/AdminFeedbackPage'
 import { KeywordsPage } from './pages/KeywordsPage'
 import { Navbar } from './components/Navbar'
+import { ACCENT, BG, BORDER, SURFACE, TEXT, TEXT_SEC, TEXT_WEAK, TYPE } from './theme'
 import { useDataStore } from './store/dataStore'
 import { useAuthStore } from './store/authStore'
 import { useArmyStore } from './store/armyStore'
 
 const NO_NAVBAR = ['/welcome', '/onboarding', '/learn', '/reset-password']
+
+const MOBILE_NOTICE_KEY = 'ph_mobile_notice_ts'
+const NOTICE_TTL = 7 * 24 * 60 * 60 * 1000  // 1 week in ms
+
+function isMobile() {
+  return window.innerWidth <= 1024 || navigator.maxTouchPoints > 0
+}
+
+function shouldShowNotice() {
+  if (!isMobile()) return false
+  const last = localStorage.getItem(MOBILE_NOTICE_KEY)
+  if (!last) return true
+  return Date.now() - parseInt(last, 10) > NOTICE_TTL
+}
+
+function MobileNotice() {
+  const [visible, setVisible] = useState(false)
+
+  useEffect(() => {
+    if (shouldShowNotice()) setVisible(true)
+  }, [])
+
+  function dismiss() {
+    localStorage.setItem(MOBILE_NOTICE_KEY, String(Date.now()))
+    setVisible(false)
+  }
+
+  if (!visible) return null
+
+  return (
+    <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.65)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '24px' }}>
+      <div style={{ background: SURFACE, border: `1px solid ${BORDER}`, maxWidth: '360px', width: '100%', display: 'flex', flexDirection: 'column', gap: '20px', padding: '28px 24px' }}>
+
+        {/* Icon + title */}
+        <div style={{ display: 'flex', alignItems: 'flex-start', gap: '14px' }}>
+          <div style={{ width: '36px', height: '36px', border: `1px solid ${ACCENT}`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, color: ACCENT, ...TYPE.statMd }}>
+            ⚠
+          </div>
+          <div>
+            <div style={{ ...TYPE.heading, marginBottom: '6px' }}>Desktop recommended</div>
+            <p style={{ ...TYPE.body, fontSize: '13px', margin: 0 }}>
+              ProbHammer is designed for desktop browsers. Some features may be hard to use on a small screen.
+            </p>
+          </div>
+        </div>
+
+        {/* Reminder note */}
+        <p style={{ ...TYPE.note, color: TEXT_WEAK, margin: 0 }}>
+          This message will reappear in 7 days as a reminder.
+        </p>
+
+        {/* Action */}
+        <button
+          onClick={dismiss}
+          style={{ ...TYPE.ui, background: 'transparent', border: `1px solid ${ACCENT}`, color: ACCENT, padding: '10px 0', cursor: 'pointer', width: '100%', transition: 'background 150ms' }}
+          onMouseEnter={(e) => { e.currentTarget.style.background = 'rgba(47,224,255,0.08)' }}
+          onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent' }}
+        >
+          Got it — continue anyway
+        </button>
+      </div>
+    </div>
+  )
+}
 
 function NavbarConditional() {
   const { pathname } = useLocation()
@@ -94,6 +159,7 @@ export default function App() {
   return (
     <BrowserRouter>
       <HalftoneOverlay />
+      <MobileNotice />
       <NavbarConditional />
 
       <Routes>
