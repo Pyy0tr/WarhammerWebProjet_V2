@@ -20,7 +20,7 @@ import { useArmyStore } from './store/armyStore'
 const NO_NAVBAR = ['/welcome', '/onboarding', '/learn', '/reset-password']
 
 const MOBILE_NOTICE_KEY = 'ph_mobile_notice_ts'
-const NOTICE_TTL = 7 * 24 * 60 * 60 * 1000  // 1 week in ms
+const NOTICE_TTL = 24 * 60 * 60 * 1000  // 1 day in ms
 
 function isMobile() {
   return window.innerWidth <= 1024 || navigator.maxTouchPoints > 0
@@ -63,11 +63,6 @@ function MobileNotice() {
             </p>
           </div>
         </div>
-
-        {/* Reminder note */}
-        <p style={{ ...TYPE.note, color: TEXT_WEAK, margin: 0 }}>
-          This message will reappear in 7 days as a reminder.
-        </p>
 
         {/* Action */}
         <button
