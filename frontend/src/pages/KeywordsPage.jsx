@@ -165,15 +165,15 @@ const SCENARIOS = {
     },
   },
   BLAST: {
-    label: '5× Hellblaster · Plasma Incinerator (A2, BS3+, S7, AP-2, D1) · vs 20 Boyz',
-    note: 'Against 20 Boyz, each Plasma Incinerator gains +4 attacks. 5 weapons × (2+4) = 30 total — triple the base 10.',
+    label: '1× Redemptor Dreadnought · Macro Plasma Incinerator (D6+1, BS3+, S8, AP-3, D2) · vs 20 Boyz',
+    note: 'Against 20 Boyz, Blast adds +4 to the dice roll — the weapon goes from D6+1 to D6+5 attacks before rolling.',
     without: {
-      attacks: [{ models: 5, weapon: { name: '', attacks: '2', skill: 3, strength: 7, ap: -2, damage: '1', keywords: [] }, buffs: [] }],
+      attacks: [{ models: 1, weapon: { name: '', attacks: 'D6+1', skill: 3, strength: 8, ap: -3, damage: '2', keywords: [] }, buffs: [] }],
       defender: { toughness: 5, save: 5, invuln: 5, wounds: 1, models: 20, fnp: null, keywords: [] },
       context: { cover: false, half_range: false, attacker_moved: false, attacker_charged: false, target_visible: true },
     },
     with: {
-      attacks: [{ models: 5, weapon: { name: '', attacks: '2', skill: 3, strength: 7, ap: -2, damage: '1', keywords: [{ type: 'BLAST' }] }, buffs: [] }],
+      attacks: [{ models: 1, weapon: { name: '', attacks: 'D6+1', skill: 3, strength: 8, ap: -3, damage: '2', keywords: [{ type: 'BLAST' }] }, buffs: [] }],
       defender: { toughness: 5, save: 5, invuln: 5, wounds: 1, models: 20, fnp: null, keywords: [] },
       context: { cover: false, half_range: false, attacker_moved: false, attacker_charged: false, target_visible: true },
     },
@@ -264,7 +264,7 @@ function StatChip({ label, value, color }) {
 
 // ── Blast tier table ───────────────────────────────────────────────────────────
 
-const BLAST_WPN     = { name: '', attacks: '2', skill: 3, strength: 7, ap: -2, damage: '1', keywords: [] }
+const BLAST_WPN     = { name: '', attacks: 'D6+1', skill: 3, strength: 8, ap: -3, damage: '2', keywords: [] }
 const BLAST_WPN_KW  = { ...BLAST_WPN, keywords: [{ type: 'BLAST' }] }
 const BLAST_CTX     = { cover: false, half_range: false, attacker_moved: false, attacker_charged: false, target_visible: true }
 const BLAST_TIERS   = [5, 10, 15, 20]
@@ -273,14 +273,14 @@ function BlastTierTable() {
   const tiers = useMemo(() =>
     BLAST_TIERS.map((n) => {
       const def = { toughness: 5, save: 5, invuln: 5, wounds: 1, models: n, fnp: null, keywords: [] }
-      const r0  = simulate({ attacks: [{ models: 5, weapon: BLAST_WPN,    buffs: [] }], defender: def, context: BLAST_CTX, n_trials: 1200 })
-      const r1  = simulate({ attacks: [{ models: 5, weapon: BLAST_WPN_KW, buffs: [] }], defender: def, context: BLAST_CTX, n_trials: 1200 })
+      const r0  = simulate({ attacks: [{ models: 1, weapon: BLAST_WPN,    buffs: [] }], defender: def, context: BLAST_CTX, n_trials: 1500 })
+      const r1  = simulate({ attacks: [{ models: 1, weapon: BLAST_WPN_KW, buffs: [] }], defender: def, context: BLAST_CTX, n_trials: 1500 })
       const bonus = Math.floor(n / 5)
       return {
         n,
         bonus,
-        totalBase: 10,                   // 5 models × A2
-        totalWith: 5 * (2 + bonus),      // each weapon gets +bonus
+        totalBase: 'D6+1',
+        totalWith: bonus === 0 ? 'D6+1' : `D6+${1 + bonus}`,
         killsBase:   r0.summary.mean_damage,
         killsBlast:  r1.summary.mean_damage,
       }
@@ -291,7 +291,7 @@ function BlastTierTable() {
     <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
       <div style={{ ...TYPE.label }}>Attack scaling by squad size</div>
       <div style={{ ...TYPE.label, color: TEXT_SEC }}>
-        5× Hellblaster · Plasma Incinerator (A2) · vs Boyz (T5 SV5+ W1 INV5++)
+        1× Redemptor Dreadnought · Macro Plasma Incinerator (D6+1) · vs Boyz (T5 SV5+ W1 INV5++)
       </div>
 
       {/* Column headers */}
@@ -307,9 +307,9 @@ function BlastTierTable() {
         <div style={{ background: '#0A1621', padding: '10px 10px', ...TYPE.label, display: 'flex', alignItems: 'center' }}>
           Attacks<br/>no Blast
         </div>
-        {tiers.map(({ n }) => (
-          <div key={n} style={{ background: '#0A1621', padding: '10px 6px', textAlign: 'center', ...TYPE.statMd, color: TEXT_SEC, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            10
+        {tiers.map(({ n, totalBase }) => (
+          <div key={n} style={{ background: '#0A1621', padding: '10px 6px', textAlign: 'center', ...TYPE.heading, color: TEXT_SEC, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            {totalBase}
           </div>
         ))}
 
@@ -328,7 +328,7 @@ function BlastTierTable() {
           Total<br/>attacks
         </div>
         {tiers.map(({ n, totalWith }) => (
-          <div key={n} style={{ background: SURFACE, padding: '10px 6px', textAlign: 'center', ...TYPE.statLg, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <div key={n} style={{ background: SURFACE, padding: '10px 6px', textAlign: 'center', ...TYPE.heading, color: TEXT, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
             {totalWith}
           </div>
         ))}
