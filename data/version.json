@@ -1,6 +1,6 @@
 {
-  "sha": "214876a36b706ff5397f8f8f660f9903b0d70f7b",
-  "sha_short": "214876a3",
-  "committed_at": "2026-05-06T21:33:46Z",
-  "message": "2026-05-06 Faction Pack"
+  "sha": "8761913d8cf2ed8bbd5429aea298dbd964275a1d",
+  "sha_short": "8761913d",
+  "committed_at": "2026-05-08T11:34:24Z",
+  "message": "Fixes #7224"
 }
