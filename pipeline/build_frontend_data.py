@@ -99,6 +99,20 @@ def slim_unit(u: dict, id_aliases: dict[str, str]) -> dict:
         if name:
             abilities.append({"name": name, "desc": desc})
 
+    # Secondary stat blocks (e.g. Cenobyte Servitors attached to Grimaldus)
+    model_profiles = []
+    for p in (u.get("model_profiles", []) or []):
+        ps = p.get("stats", {}) or {}
+        model_profiles.append({
+            "name": p["name"],
+            "M":    ps.get("M", ""),
+            "T":    parse_int(ps.get("T", "4")),
+            "Sv":   parse_int(ps.get("SV", "4+")),
+            "W":    parse_int(ps.get("W", "1")),
+            "LD":   ps.get("LD", ""),
+            "OC":   ps.get("OC", ""),
+        })
+
     return {
         "id":         u["bsdata_id"],
         "name":       u["name"],
@@ -119,6 +133,7 @@ def slim_unit(u: dict, id_aliases: dict[str, str]) -> dict:
         "max_models": constraints.get("max_models"),
         "weapons":    weapons,
         "factions":   u.get("playable_in", []),
+        "model_profiles": model_profiles if model_profiles else None,
     }
 
 

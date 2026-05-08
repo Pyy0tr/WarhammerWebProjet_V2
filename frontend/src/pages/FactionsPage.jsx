@@ -772,6 +772,47 @@ function UnitCard({ unit, onClick, showFaction = false }) {
 
 // ── VIEW 3: Unit detail ───────────────────────────────────────────────────────
 
+function StatCell({ label, value }) {
+  return (
+    <div style={{
+      border: `1px solid ${BORDER}`, padding: '14px 22px',
+      marginRight: '-1px', marginBottom: '-1px', textAlign: 'center', minWidth: '64px',
+    }}>
+      <div style={{ fontFamily: 'Space Mono, monospace', fontSize: '8px', letterSpacing: '1.5px', textTransform: 'uppercase', color: TEXT_WEAK, marginBottom: '8px' }}>
+        {label}
+      </div>
+      <div style={{ fontFamily: 'Space Mono, monospace', fontSize: '18px', fontWeight: 700, color: TEXT }}>
+        {value}
+      </div>
+    </div>
+  )
+}
+
+function ProfileRow({ name, M, T, Sv, W, LD, OC, invuln, primary }) {
+  const cells = [
+    ['M', M || '—'], ['T', T], ['SV', `${Sv}+`],
+    ['W', W], ['LD', LD || '—'], ['OC', OC || '—'],
+    ...(invuln ? [['INV', `${invuln}++`]] : []),
+  ]
+  return (
+    <div style={{ marginBottom: primary ? '0' : '-1px' }}>
+      {!primary && (
+        <div style={{
+          fontFamily: 'Space Mono, monospace', fontSize: '9px',
+          letterSpacing: '1.5px', textTransform: 'uppercase',
+          color: TEXT_WEAK, padding: '10px 0 6px',
+          borderTop: `1px solid ${BORDER}`, marginTop: '12px',
+        }}>
+          {name}
+        </div>
+      )}
+      <div style={{ display: 'flex', gap: '0', flexWrap: 'wrap' }}>
+        {cells.map(([label, val]) => <StatCell key={label} label={label} value={val} />)}
+      </div>
+    </div>
+  )
+}
+
 function WeaponSubTable({ title, rows }) {
   if (!rows.length) return null
   return (
@@ -928,30 +969,15 @@ function UnitDetailView({ unit, onBack, factionLabel }) {
         </div>
       </div>
 
-      {/* Stats block */}
+      {/* Stats block — stacked profile rows (Option C) */}
       <div style={{ marginBottom: '32px' }}>
         <div style={{ fontFamily: 'Space Mono, monospace', fontSize: '10px', letterSpacing: '2px', textTransform: 'uppercase', color: TEXT_WEAK, marginBottom: '14px' }}>
           Profile
         </div>
-        <div style={{ display: 'flex', gap: '0', flexWrap: 'wrap' }}>
-          {[
-            ['M', unit.M || '—'], ['T', unit.T], ['SV', `${unit.Sv}+`],
-            ['W', unit.W], ['LD', unit.LD || '—'], ['OC', unit.OC || '—'],
-            ...(unit.invuln ? [['INV', `${unit.invuln}++`]] : []),
-          ].map(([label, val]) => (
-            <div key={label} style={{
-              border: `1px solid ${BORDER}`, padding: '14px 22px',
-              marginRight: '-1px', marginBottom: '-1px', textAlign: 'center', minWidth: '64px',
-            }}>
-              <div style={{ fontFamily: 'Space Mono, monospace', fontSize: '8px', letterSpacing: '1.5px', textTransform: 'uppercase', color: TEXT_WEAK, marginBottom: '8px' }}>
-                {label}
-              </div>
-              <div style={{ fontFamily: 'Space Mono, monospace', fontSize: '18px', fontWeight: 700, color: TEXT }}>
-                {val}
-              </div>
-            </div>
-          ))}
-        </div>
+        <ProfileRow name={unit.name} M={unit.M} T={unit.T} Sv={unit.Sv} W={unit.W} LD={unit.LD} OC={unit.OC} invuln={unit.invuln} primary />
+        {unit.model_profiles?.map((p) => (
+          <ProfileRow key={p.name} name={p.name} M={p.M} T={p.T} Sv={p.Sv} W={p.W} LD={p.LD} OC={p.OC} />
+        ))}
       </div>
 
       {/* Keywords */}

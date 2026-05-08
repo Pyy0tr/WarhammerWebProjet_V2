@@ -157,6 +157,75 @@ function DefenderArmyPicker() {
   )
 }
 
+// ── Profile selector (multi-profile units) ───────────────────────────────────
+
+function ProfileSelector({ unit, setDefender, defender }) {
+  const profiles = unit.model_profiles ?? []
+  const [activeProfileName, setActiveProfileName] = useState(null) // null = main unit
+
+  function selectProfile(p) {
+    setActiveProfileName(p ? p.name : null)
+    if (p) {
+      setDefender({ toughness: p.T, save: p.Sv, wounds: p.W, models: 1 })
+    } else {
+      setDefender({
+        toughness: unit.T, save: unit.Sv, wounds: unit.W,
+        models: unit.min_models ?? unit.max_models ?? defender.models,
+      })
+    }
+  }
+
+  const labelStyle = {
+    fontFamily: 'Space Mono, monospace', fontSize: '8px',
+    letterSpacing: '2px', textTransform: 'uppercase',
+    color: TEXT_WEAK, marginBottom: '8px', display: 'block',
+  }
+
+  const allProfiles = [
+    { name: unit.name, T: unit.T, Sv: unit.Sv, W: unit.W, isMain: true },
+    ...profiles.map((p) => ({ ...p, isMain: false })),
+  ]
+
+  return (
+    <div style={{ marginBottom: '20px' }}>
+      <span style={labelStyle}>Simulate profile</span>
+      <div style={{ border: `1px solid ${BORDER}` }}>
+        {allProfiles.map((p) => {
+          const active = activeProfileName === (p.isMain ? null : p.name)
+          return (
+            <div
+              key={p.name}
+              onClick={() => selectProfile(p.isMain ? null : p)}
+              style={{
+                padding: '9px 12px', cursor: 'pointer',
+                background: active ? SURFACE_E : 'transparent',
+                borderLeft: `2px solid ${active ? ACCENT : 'transparent'}`,
+                borderBottom: `1px solid ${BORDER}`,
+                transition: 'background 80ms',
+                display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+              }}
+              onMouseEnter={(e) => { if (!active) e.currentTarget.style.background = SURFACE }}
+              onMouseLeave={(e) => { if (!active) e.currentTarget.style.background = 'transparent' }}
+            >
+              <span style={{
+                fontFamily: 'Space Mono, monospace', fontSize: '10px',
+                color: active ? ACCENT : TEXT, fontWeight: active ? 700 : 400,
+              }}>
+                {p.name}
+              </span>
+              <span style={{
+                fontFamily: 'Space Mono, monospace', fontSize: '8px', color: TEXT_WEAK,
+              }}>
+                T{p.T} · {p.Sv}+ · W{p.W}
+              </span>
+            </div>
+          )
+        })}
+      </div>
+    </div>
+  )
+}
+
 // ── Main DefenderPanel ───────────────────────────────────────────────────────
 
 export function DefenderPanel() {
@@ -295,6 +364,11 @@ export function DefenderPanel() {
             Change
           </button>
         </div>
+      )}
+
+      {/* Profile selector — shown for multi-profile units in browse mode */}
+      {mode === 'browse' && selectedUnit?.model_profiles?.length > 0 && (
+        <ProfileSelector key={selectedUnit.id} unit={selectedUnit} setDefender={setDefender} defender={defender} />
       )}
       </>)}
 

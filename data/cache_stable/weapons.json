@@ -29482,6 +29482,23 @@
     "max_count": 2
   },
   {
+    "bsdata_id": "c4cf-9bd4-a902-0bfa",
+    "name": "Bolt pistol",
+    "type": "Ranged",
+    "range": "12\"",
+    "A": "1",
+    "BS_WS": "2+",
+    "S": "4",
+    "AP": "0",
+    "D": "1",
+    "keywords": [
+      "Pistol"
+    ],
+    "option_name": "Bolt pistol",
+    "min_count": null,
+    "max_count": 2
+  },
+  {
     "bsdata_id": "89a1-557d-e667-f77f",
     "name": "Screamer pistol",
     "type": "Ranged",
@@ -35554,23 +35571,6 @@
     "max_count": null
   },
   {
-    "bsdata_id": "c8a1-9a5-b48e-135f",
-    "name": "Heavy stubber",
-    "type": "Ranged",
-    "range": "36\"",
-    "A": "3",
-    "BS_WS": "4+",
-    "S": "4",
-    "AP": "0",
-    "D": "1",
-    "keywords": [
-      "Rapid Fire 3"
-    ],
-    "option_name": "Heavy stubber",
-    "min_count": null,
-    "max_count": null
-  },
-  {
     "bsdata_id": "32fb-3f61-367c-fb71",
     "name": "Mining laser",
     "type": "Ranged",
@@ -35602,6 +35602,24 @@
       "Torrent"
     ],
     "option_name": "Atalan incinerator",
+    "min_count": null,
+    "max_count": null
+  },
+  {
+    "bsdata_id": "19c5-b53b-5591-2290",
+    "name": "Heavy stubber",
+    "type": "Ranged",
+    "range": "36\"",
+    "A": "3",
+    "BS_WS": "4+",
+    "S": "4",
+    "AP": "0",
+    "D": "1",
+    "keywords": [
+      "Assault",
+      "Rapid Fire 3"
+    ],
+    "option_name": "Heavy stubber",
     "min_count": null,
     "max_count": null
   },
@@ -35653,6 +35671,23 @@
       "-"
     ],
     "option_name": "Close combat weapon",
+    "min_count": null,
+    "max_count": null
+  },
+  {
+    "bsdata_id": "c8a1-9a5-b48e-135f",
+    "name": "Heavy stubber",
+    "type": "Ranged",
+    "range": "36\"",
+    "A": "3",
+    "BS_WS": "4+",
+    "S": "4",
+    "AP": "0",
+    "D": "1",
+    "keywords": [
+      "Rapid Fire 3"
+    ],
+    "option_name": "Heavy stubber",
     "min_count": null,
     "max_count": null
   },
@@ -39412,6 +39447,74 @@
     "option_name": "Heavy bolter",
     "min_count": null,
     "max_count": 2
+  },
+  {
+    "bsdata_id": "fbe3-cbbc-4eb3-3f62",
+    "name": "Heavy bolter",
+    "type": "Ranged",
+    "range": "36\"",
+    "A": "3",
+    "BS_WS": "2+",
+    "S": "5",
+    "AP": "-1",
+    "D": "2",
+    "keywords": [
+      "Sustained Hits 1"
+    ],
+    "option_name": "Heavy bolter",
+    "min_count": 2,
+    "max_count": 2
+  },
+  {
+    "bsdata_id": "d879-8676-0d7a-747c",
+    "name": "Melta missile array",
+    "type": "Ranged",
+    "range": "24\"",
+    "A": "2",
+    "BS_WS": "2+",
+    "S": "9",
+    "AP": "-2",
+    "D": "D3",
+    "keywords": [
+      "Melta 2"
+    ],
+    "option_name": "Melta missile array",
+    "min_count": 1,
+    "max_count": 1
+  },
+  {
+    "bsdata_id": "7f78-3756-088b-cf67",
+    "name": "Mace of Saint Praxedes",
+    "type": "Melee",
+    "range": "Melee",
+    "A": "4",
+    "BS_WS": "2+",
+    "S": "6",
+    "AP": "-2",
+    "D": "2",
+    "keywords": [
+      "Sustained Hits 1"
+    ],
+    "option_name": "Mace of Saint Praxedes",
+    "min_count": 1,
+    "max_count": 1
+  },
+  {
+    "bsdata_id": "8469-d8a2-af7b-301f",
+    "name": "Throne of Blame",
+    "type": "Melee",
+    "range": "Melee",
+    "A": "4",
+    "BS_WS": "4+",
+    "S": "6",
+    "AP": "0",
+    "D": "1",
+    "keywords": [
+      "Extra Attacks"
+    ],
+    "option_name": "Throne of Blame",
+    "min_count": 1,
+    "max_count": 1
   },
   {
     "bsdata_id": "8420-f533-ec84-a3fd",
@@ -50529,6 +50632,76 @@
     "max_count": 1
   },
   {
+    "bsdata_id": "92b0-20f4-5575-3870",
+    "name": "Jindarii tox-cycler",
+    "type": "Ranged",
+    "range": "36\"",
+    "A": "1",
+    "BS_WS": "2+",
+    "S": "6",
+    "AP": "-2",
+    "D": "2",
+    "keywords": [
+      "Anti-Monster 2+",
+      "Heavy",
+      "Precision"
+    ],
+    "option_name": "Jindarii tox-cycler",
+    "min_count": 1,
+    "max_count": 1
+  },
+  {
+    "bsdata_id": "a1d4-f389-1912-983e",
+    "name": "Stubcarbine",
+    "type": "Ranged",
+    "range": "12\"",
+    "A": "2",
+    "BS_WS": "2+",
+    "S": "5",
+    "AP": "-2",
+    "D": "2",
+    "keywords": [
+      "Pistol"
+    ],
+    "option_name": "Stubcarbine",
+    "min_count": 1,
+    "max_count": 1
+  },
+  {
+    "bsdata_id": "ec37-8df0-f71d-a530",
+    "name": "Butcher blade",
+    "type": "Melee",
+    "range": "Melee",
+    "A": "5",
+    "BS_WS": "3+",
+    "S": "4",
+    "AP": "-2",
+    "D": "1",
+    "keywords": [
+      "-"
+    ],
+    "option_name": "Butcher blade",
+    "min_count": 1,
+    "max_count": 1
+  },
+  {
+    "bsdata_id": "6b45-7d44-0935-5db8",
+    "name": "Garralisk's claws and teeth",
+    "type": "Melee",
+    "range": "Melee",
+    "A": "4",
+    "BS_WS": "4+",
+    "S": "5",
+    "AP": "-1",
+    "D": "1",
+    "keywords": [
+      "Extra Attacks"
+    ],
+    "option_name": "Garralisk's claws and teeth",
+    "min_count": 1,
+    "max_count": 1
+  },
+  {
     "bsdata_id": "6647-d6b0-a4c8-ee5f",
     "name": "Hunter-killer missile",
     "type": "Ranged",
@@ -52286,7 +52459,7 @@
     "AP": "-2",
     "D": "2",
     "keywords": [
-      "Anti-monster 4+"
+      "Anti-Monster 4+"
     ]
   },
   {
@@ -55995,6 +56168,314 @@
     ],
     "option_name": "Zealot's vindicator",
     "min_count": null,
+    "max_count": 1
+  },
+  {
+    "bsdata_id": "761f-9e5c-20f5-ddce",
+    "name": "Laspistol",
+    "type": "Ranged",
+    "range": "12\"",
+    "A": "1",
+    "BS_WS": "2+",
+    "S": "3",
+    "AP": "0",
+    "D": "1",
+    "keywords": [
+      "Pistol"
+    ]
+  },
+  {
+    "bsdata_id": "3d04-a98e-3b04-82c0",
+    "name": "Power sword",
+    "type": "Melee",
+    "range": "Melee",
+    "A": "6",
+    "BS_WS": "2+",
+    "S": "4",
+    "AP": "-2",
+    "D": "1",
+    "keywords": [
+      "-"
+    ]
+  },
+  {
+    "bsdata_id": "5d93-5a47-c043-141c",
+    "name": "Power klaw",
+    "type": "Melee",
+    "range": "Melee",
+    "A": "4",
+    "BS_WS": "2+",
+    "S": "8",
+    "AP": "-2",
+    "D": "2",
+    "keywords": [
+      "-"
+    ]
+  },
+  {
+    "bsdata_id": "4351-15ea-4cb3-0978",
+    "name": "Bale Eye",
+    "type": "Ranged",
+    "range": "12\"",
+    "A": "2",
+    "BS_WS": "2+",
+    "S": "6",
+    "AP": "-2",
+    "D": "D3+1",
+    "keywords": [
+      "Precision"
+    ]
+  },
+  {
+    "bsdata_id": "7466-d82d-3f91-62e2",
+    "name": "Storm bolter",
+    "type": "Ranged",
+    "range": "24\"",
+    "A": "2",
+    "BS_WS": "2+",
+    "S": "4",
+    "AP": "0",
+    "D": "1",
+    "keywords": [
+      "Rapid Fire 2"
+    ]
+  },
+  {
+    "bsdata_id": "7447-eca3-693f-1aee",
+    "name": "Prefectus heavy stubber",
+    "type": "Ranged",
+    "range": "36\"",
+    "A": "3",
+    "BS_WS": "3+",
+    "S": "5",
+    "AP": "0",
+    "D": "1",
+    "keywords": [
+      "Rapid Fire 3"
+    ]
+  },
+  {
+    "bsdata_id": "2b2f-524a-aabb-9fcf",
+    "name": "Enforcer crew",
+    "type": "Melee",
+    "range": "Melee",
+    "A": "10",
+    "BS_WS": "4+",
+    "S": "3",
+    "AP": "0",
+    "D": "1",
+    "keywords": [
+      "Extra Attacks"
+    ]
+  },
+  {
+    "bsdata_id": "a37b-02a5-c3da-64f4",
+    "name": "Armoured hull",
+    "type": "Melee",
+    "range": "Melee",
+    "A": "3",
+    "BS_WS": "4+",
+    "S": "6",
+    "AP": "0",
+    "D": "1",
+    "keywords": [
+      "Extra Attacks"
+    ]
+  },
+  {
+    "bsdata_id": "1c6c-fa10-ab6b-5fa3",
+    "name": "Chiron gatling cannon",
+    "type": "Ranged",
+    "range": "24\"",
+    "A": "12",
+    "BS_WS": "3+",
+    "S": "5",
+    "AP": "0",
+    "D": "1",
+    "keywords": [
+      "-"
+    ]
+  },
+  {
+    "bsdata_id": "b313-690a-02ef-e751",
+    "name": "Power sword and Manus Mortis",
+    "type": "Melee",
+    "range": "Melee",
+    "A": "5",
+    "BS_WS": "2+",
+    "S": "6",
+    "AP": "-2",
+    "D": "2",
+    "keywords": [
+      "Lance"
+    ]
+  },
+  {
+    "bsdata_id": "223d-dc2f-47bc-2bad",
+    "name": "Bolt pistol",
+    "type": "Ranged",
+    "range": "12\"",
+    "A": "1",
+    "BS_WS": "2+",
+    "S": "4",
+    "AP": "0",
+    "D": "1",
+    "keywords": [
+      "Pistol"
+    ]
+  },
+  {
+    "bsdata_id": "4ac6-ae11-f109-3393",
+    "name": "Power sword and Manus Mortis",
+    "type": "Melee",
+    "range": "Melee",
+    "A": "5",
+    "BS_WS": "2+",
+    "S": "6",
+    "AP": "-2",
+    "D": "2",
+    "keywords": [
+      "-"
+    ]
+  },
+  {
+    "bsdata_id": "1c17-a597-52c5-7e60",
+    "name": "Armoured hull",
+    "type": "Melee",
+    "range": "Melee",
+    "A": "3",
+    "BS_WS": "4+",
+    "S": "5",
+    "AP": "0",
+    "D": "1",
+    "keywords": [
+      "-"
+    ],
+    "option_name": "Armoured hull",
+    "min_count": 1,
+    "max_count": 1
+  },
+  {
+    "bsdata_id": "3148-312e-e7d2-ca73",
+    "name": "Heavy stubber",
+    "type": "Ranged",
+    "range": "36\"",
+    "A": "3",
+    "BS_WS": "4+",
+    "S": "4",
+    "AP": "0",
+    "D": "1",
+    "keywords": [
+      "Assault",
+      "Rapid Fire 3"
+    ],
+    "option_name": "Heavy stubber",
+    "min_count": null,
+    "max_count": null
+  },
+  {
+    "bsdata_id": "c7c8-1ae7-924b-9d89",
+    "name": "Meltagun",
+    "type": "Ranged",
+    "range": "12\"",
+    "A": "1",
+    "BS_WS": "4+",
+    "S": "9",
+    "AP": "-4",
+    "D": "D6",
+    "keywords": [
+      "Assault",
+      "Melta 2"
+    ],
+    "option_name": "Meltagun",
+    "min_count": null,
+    "max_count": null
+  },
+  {
+    "bsdata_id": "3117-9060-a275-0647",
+    "name": "Vigilator cannon",
+    "type": "Ranged",
+    "range": "36\"",
+    "A": "D6",
+    "BS_WS": "4+",
+    "S": "8",
+    "AP": "-1",
+    "D": "2",
+    "keywords": [
+      "Assault",
+      "Blast"
+    ],
+    "option_name": "Vigilator cannon",
+    "min_count": null,
+    "max_count": null
+  },
+  {
+    "bsdata_id": "97bb-7a11-5bd1-5d6a",
+    "name": "Melta cannon",
+    "type": "Ranged",
+    "range": "18\"",
+    "A": "2",
+    "BS_WS": "4+",
+    "S": "9",
+    "AP": "-4",
+    "D": "D6",
+    "keywords": [
+      "Assault",
+      "Melta 2"
+    ],
+    "option_name": "Melta cannon",
+    "min_count": null,
+    "max_count": null
+  },
+  {
+    "bsdata_id": "2d24-35b2-a50a-ce58",
+    "name": "Chiron gatling cannon",
+    "type": "Ranged",
+    "range": "24\"",
+    "A": "12",
+    "BS_WS": "4+",
+    "S": "5",
+    "AP": "0",
+    "D": "1",
+    "keywords": [
+      "Assault"
+    ],
+    "option_name": "Chiron gatling cannon",
+    "min_count": null,
+    "max_count": null
+  },
+  {
+    "bsdata_id": "6244-46df-f7a8-50ed",
+    "name": "Heavy lascannon",
+    "type": "Ranged",
+    "range": "48\"",
+    "A": "1",
+    "BS_WS": "4+",
+    "S": "12",
+    "AP": "-3",
+    "D": "D6+1",
+    "keywords": [
+      "Assault"
+    ],
+    "option_name": "Heavy lascannon",
+    "min_count": null,
+    "max_count": null
+  },
+  {
+    "bsdata_id": "cccf-d2e9-4503-1b9a",
+    "name": "Pintle-mounted heavy stubber",
+    "type": "Ranged",
+    "range": "36\"",
+    "A": "3",
+    "BS_WS": "4+",
+    "S": "4",
+    "AP": "0",
+    "D": "1",
+    "keywords": [
+      "Rapid Fire 3"
+    ],
+    "option_name": "Pintle-mounted heavy stubber",
+    "min_count": 1,
     "max_count": 1
   },
   {
@@ -86319,6 +86800,78 @@
     "option_name": "Tankhammer",
     "min_count": null,
     "max_count": 1
+  },
+  {
+    "bsdata_id": "dafe-592e-3f4e-7a2c",
+    "name": "Fixit's wrench",
+    "type": "Melee",
+    "range": "Melee",
+    "A": "1",
+    "BS_WS": "4+",
+    "S": "3",
+    "AP": "0",
+    "D": "1",
+    "keywords": [
+      "Extra Attacks"
+    ]
+  },
+  {
+    "bsdata_id": "95b6-17a6-f4f5-48c3",
+    "name": "Psyko-gatler",
+    "type": "Ranged",
+    "range": "24\"",
+    "A": "12",
+    "BS_WS": "4+",
+    "S": "6",
+    "AP": "-2",
+    "D": "2",
+    "keywords": [
+      "Assault",
+      "Sustained Hits 1"
+    ]
+  },
+  {
+    "bsdata_id": "3d11-8b36-767d-4f9f",
+    "name": "Grabba dragga",
+    "type": "Melee",
+    "range": "Melee",
+    "A": "6",
+    "BS_WS": "2+",
+    "S": "10",
+    "AP": "-2",
+    "D": "3",
+    "keywords": [
+      "Lance"
+    ]
+  },
+  {
+    "bsdata_id": "662c-a8d3-703f-df9b",
+    "name": "Grabba dragga",
+    "type": "Ranged",
+    "range": "12\"",
+    "A": "1",
+    "BS_WS": "2+",
+    "S": "10",
+    "AP": "-2",
+    "D": "3",
+    "keywords": [
+      "Assault",
+      "Precision"
+    ]
+  },
+  {
+    "bsdata_id": "5056-2514-74fe-278a",
+    "name": "Speeding bulk and flaming exhaust",
+    "type": "Melee",
+    "range": "Melee",
+    "A": "6",
+    "BS_WS": "2+",
+    "S": "5",
+    "AP": "-1",
+    "D": "1",
+    "keywords": [
+      "Extra Attacks"
+    ]
   },
   {
     "bsdata_id": "aa64-b7cb-2a9d-f097",
