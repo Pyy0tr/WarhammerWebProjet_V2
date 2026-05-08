@@ -257,6 +257,9 @@ function simulateOnce(req) {
     if (hasMelta && ctx.half_range) dmg += roll(kwMelta.value)
     dmg = Math.max(0, dmg)
 
+    // Damage reduction (defender ability: -N to damage, min 1)
+    if (d.dmg_reduction) dmg = Math.max(1, dmg - d.dmg_reduction)
+
     // FNP: one roll per damage point
     let effectiveDmg = 0
     if (d.fnp != null) {

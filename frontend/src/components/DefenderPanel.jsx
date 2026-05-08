@@ -37,10 +37,11 @@ function DefenderArmyPicker() {
         toughness: unit.T,
         save:      unit.Sv,
         wounds:    unit.W,
-        invuln:    unit.invuln ?? null,
-        models:    unit.models ?? 1,
-        fnp:       null,
-        keywords:  unit.kw ?? [],
+        invuln:        unit.invuln ?? null,
+        models:        unit.models ?? 1,
+        fnp:           null,
+        dmg_reduction: null,
+        keywords:      unit.kw ?? [],
       })
       const fullUnit = getUnitById(unit.unit_id)
       setDefenderUnit(fullUnit || unit)
@@ -175,10 +176,11 @@ export function DefenderPanel() {
       toughness: u.T,
       save:      u.Sv,
       wounds:    u.W,
-      invuln:    u.invuln ?? null,
-      models:    u.min_models ?? u.max_models ?? defender.models,
-      fnp:       null,
-      keywords:  u.kw ?? [],
+      invuln:        u.invuln ?? null,
+      models:        u.min_models ?? u.max_models ?? defender.models,
+      fnp:           null,
+      dmg_reduction: null,
+      keywords:      u.kw ?? [],
     })
   }
 
@@ -344,6 +346,8 @@ export function DefenderPanel() {
             placeholder="None" min={2} max={6} onChange={(v) => setDefender({ invuln: v })} />
           <StatInput label="Feel no pain" value={defender.fnp ?? ''}
             placeholder="None" min={2} max={6} onChange={(v) => setDefender({ fnp: v })} />
+          <StatInput label="Dmg reduction" value={defender.dmg_reduction ?? ''}
+            placeholder="None" min={1} max={5} onChange={(v) => setDefender({ dmg_reduction: v })} />
         </div>
       </div>
 

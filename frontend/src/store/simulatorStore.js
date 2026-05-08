@@ -24,6 +24,7 @@ const defaultDefender = {
   wounds: 2,
   models: 5,
   fnp: null,
+  dmg_reduction: null,
   keywords: [],
 }
 
