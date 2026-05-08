@@ -2,7 +2,7 @@ import { useEffect, useState, useMemo } from 'react'
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts'
 import { KEYWORD_REGISTRY } from '../engine/keywords'
 import { simulate } from '../engine/simulation'
-import { ACCENT, BORDER, SURFACE, TEXT, TEXT_OFF, TEXT_SEC, TEXT_WEAK, SUCCESS, WARNING } from '../theme'
+import { ACCENT, BORDER, SURFACE, TEXT, TEXT_OFF, TEXT_SEC, TEXT_WEAK, SUCCESS, WARNING, TYPE } from '../theme'
 
 const N_TRIALS = 1200
 
@@ -256,19 +256,8 @@ function ChartTooltip({ active, payload, label }) {
 function StatChip({ label, value, color }) {
   return (
     <div style={{ flex: 1, padding: '14px 16px', background: '#0A1621', border: `1px solid #1E3A4C` }}>
-      <div style={{
-        fontFamily: 'Space Mono, monospace', fontSize: '9px',
-        letterSpacing: '2px', textTransform: 'uppercase',
-        color: TEXT_OFF, marginBottom: '8px',
-      }}>
-        {label}
-      </div>
-      <div style={{
-        fontFamily: 'Space Mono, monospace', fontSize: '20px',
-        fontWeight: 700, color,
-      }}>
-        {value}
-      </div>
+      <div style={{ ...TYPE.label, marginBottom: '8px' }}>{label}</div>
+      <div style={{ ...TYPE.statLg, color }}>{value}</div>
     </div>
   )
 }
@@ -300,10 +289,8 @@ function BlastTierTable() {
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-      <div style={{ fontFamily: 'Space Mono, monospace', fontSize: '9px', letterSpacing: '2px', textTransform: 'uppercase', color: TEXT_WEAK }}>
-        Attack scaling by squad size
-      </div>
-      <div style={{ fontFamily: 'Space Mono, monospace', fontSize: '9px', color: TEXT_OFF, letterSpacing: '1px', marginBottom: '2px' }}>
+      <div style={{ ...TYPE.label }}>Attack scaling by squad size</div>
+      <div style={{ ...TYPE.label, color: TEXT_SEC }}>
         5× Hellblaster · Plasma Incinerator (A2) · vs Boyz (T5 SV5+ W1 INV5++)
       </div>
 
@@ -312,52 +299,50 @@ function BlastTierTable() {
         <div style={{ background: SURFACE, padding: '8px 10px' }} />
         {BLAST_TIERS.map((n) => (
           <div key={n} style={{ background: SURFACE, padding: '8px 10px', textAlign: 'center' }}>
-            <span style={{ fontFamily: 'Space Mono, monospace', fontSize: '9px', letterSpacing: '1.5px', textTransform: 'uppercase', color: TEXT_WEAK }}>
-              {n} models
-            </span>
+            <span style={{ ...TYPE.label }}>{n} models</span>
           </div>
         ))}
 
         {/* Base attacks row */}
-        <div style={{ background: '#0A1621', padding: '10px 10px', fontFamily: 'Space Mono, monospace', fontSize: '8px', letterSpacing: '1px', textTransform: 'uppercase', color: TEXT_OFF, display: 'flex', alignItems: 'center' }}>
+        <div style={{ background: '#0A1621', padding: '10px 10px', ...TYPE.label, display: 'flex', alignItems: 'center' }}>
           Attacks<br/>no Blast
         </div>
         {tiers.map(({ n }) => (
-          <div key={n} style={{ background: '#0A1621', padding: '10px 6px', textAlign: 'center', fontFamily: 'Space Mono, monospace', fontSize: '18px', fontWeight: 700, color: TEXT_SEC, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <div key={n} style={{ background: '#0A1621', padding: '10px 6px', textAlign: 'center', ...TYPE.statMd, color: TEXT_SEC, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
             10
           </div>
         ))}
 
         {/* Blast bonus row */}
-        <div style={{ background: '#0A1621', padding: '10px 10px', fontFamily: 'Space Mono, monospace', fontSize: '8px', letterSpacing: '1px', textTransform: 'uppercase', color: TEXT_OFF, display: 'flex', alignItems: 'center' }}>
+        <div style={{ background: '#0A1621', padding: '10px 10px', ...TYPE.label, display: 'flex', alignItems: 'center' }}>
           Blast<br/>bonus
         </div>
         {tiers.map(({ n, bonus }) => (
-          <div key={n} style={{ background: '#0A1621', padding: '10px 6px', textAlign: 'center', fontFamily: 'Space Mono, monospace', fontSize: '18px', fontWeight: 700, color: ACCENT, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <div key={n} style={{ background: '#0A1621', padding: '10px 6px', textAlign: 'center', ...TYPE.statMd, color: ACCENT, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
             +{bonus}
           </div>
         ))}
 
         {/* Total attacks row */}
-        <div style={{ background: SURFACE, padding: '10px 10px', fontFamily: 'Space Mono, monospace', fontSize: '8px', letterSpacing: '1px', textTransform: 'uppercase', color: TEXT_WEAK, display: 'flex', alignItems: 'center' }}>
+        <div style={{ background: SURFACE, padding: '10px 10px', ...TYPE.label, color: TEXT_SEC, display: 'flex', alignItems: 'center' }}>
           Total<br/>attacks
         </div>
         {tiers.map(({ n, totalWith }) => (
-          <div key={n} style={{ background: SURFACE, padding: '10px 6px', textAlign: 'center', fontFamily: 'Space Mono, monospace', fontSize: '20px', fontWeight: 700, color: TEXT, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <div key={n} style={{ background: SURFACE, padding: '10px 6px', textAlign: 'center', ...TYPE.statLg, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
             {totalWith}
           </div>
         ))}
 
         {/* Avg kills row */}
-        <div style={{ background: '#0A1621', padding: '10px 10px', fontFamily: 'Space Mono, monospace', fontSize: '8px', letterSpacing: '1px', textTransform: 'uppercase', color: TEXT_OFF, display: 'flex', alignItems: 'center' }}>
-          Avg kills<br/>(simulated)
+        <div style={{ background: '#0A1621', padding: '10px 10px', ...TYPE.label, display: 'flex', alignItems: 'center' }}>
+          Avg kills<br/>(simul.)
         </div>
         {tiers.map(({ n, killsBase, killsBlast }) => {
           const diff = (killsBlast - killsBase).toFixed(1)
           return (
             <div key={n} style={{ background: '#0A1621', padding: '10px 6px', textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '3px' }}>
-              <span style={{ fontFamily: 'Space Mono, monospace', fontSize: '16px', fontWeight: 700, color: ACCENT }}>{killsBlast}</span>
-              <span style={{ fontFamily: 'Space Mono, monospace', fontSize: '9px', color: SUCCESS }}>+{diff}</span>
+              <span style={{ ...TYPE.statMd, color: ACCENT }}>{killsBlast}</span>
+              <span style={{ ...TYPE.label, color: SUCCESS }}>+{diff}</span>
             </div>
           )
         })}
@@ -424,11 +409,7 @@ function ComparisonPanel({ kwType }) {
         }}>
           {scenario.label}
         </div>
-        <p style={{
-          fontFamily: 'Georgia, serif', fontSize: '13px',
-          lineHeight: 1.65, color: TEXT_WEAK,
-          margin: '8px 0 0', fontStyle: 'italic',
-        }}>
+        <p style={{ ...TYPE.note, color: TEXT_SEC, margin: '8px 0 0' }}>
           {scenario.note}
         </p>
       </div>
@@ -459,11 +440,11 @@ function ComparisonPanel({ kwType }) {
 
           {/* Mean */}
           <div style={{ background: '#0A1621', padding: '16px 16px 12px' }}>
-            <div style={{ fontFamily: 'Space Mono, monospace', fontSize: '9px', letterSpacing: '1.5px', color: TEXT_OFF, textTransform: 'uppercase', marginBottom: '6px' }}>Mean dmg</div>
+            <div style={{ fontFamily: 'Space Mono, monospace', fontSize: '9px', ...TYPE.label, marginBottom: '6px' }}>Mean dmg</div>
             <div style={{ fontFamily: 'Space Mono, monospace', fontSize: '22px', fontWeight: 700, color: TEXT }}>{r0.summary.mean_damage}</div>
           </div>
           <div style={{ background: '#0A1621', padding: '16px 16px 12px', borderLeft: `2px solid ${ACCENT}` }}>
-            <div style={{ fontFamily: 'Space Mono, monospace', fontSize: '9px', letterSpacing: '1.5px', color: TEXT_OFF, textTransform: 'uppercase', marginBottom: '6px' }}>Mean dmg</div>
+            <div style={{ fontFamily: 'Space Mono, monospace', fontSize: '9px', ...TYPE.label, marginBottom: '6px' }}>Mean dmg</div>
             <div style={{ display: 'flex', alignItems: 'baseline', gap: '10px' }}>
               <div style={{ fontFamily: 'Space Mono, monospace', fontSize: '22px', fontWeight: 700, color: ACCENT }}>{r1.summary.mean_damage}</div>
               <div style={{ fontFamily: 'Space Mono, monospace', fontSize: '11px', fontWeight: 700, color: diffColor }}>{diffSign}{meanDiff.toFixed(2)}</div>
@@ -472,11 +453,11 @@ function ComparisonPanel({ kwType }) {
 
           {/* P90 */}
           <div style={{ background: '#0A1621', padding: '12px 16px 16px' }}>
-            <div style={{ fontFamily: 'Space Mono, monospace', fontSize: '9px', letterSpacing: '1.5px', color: TEXT_OFF, textTransform: 'uppercase', marginBottom: '6px' }}>P90 (best 10%)</div>
+            <div style={{ fontFamily: 'Space Mono, monospace', fontSize: '9px', ...TYPE.label, marginBottom: '6px' }}>P90 (best 10%)</div>
             <div style={{ fontFamily: 'Space Mono, monospace', fontSize: '22px', fontWeight: 700, color: TEXT }}>{r0.summary.p90}</div>
           </div>
           <div style={{ background: '#0A1621', padding: '12px 16px 16px', borderLeft: `2px solid ${ACCENT}` }}>
-            <div style={{ fontFamily: 'Space Mono, monospace', fontSize: '9px', letterSpacing: '1.5px', color: TEXT_OFF, textTransform: 'uppercase', marginBottom: '6px' }}>P90 (best 10%)</div>
+            <div style={{ fontFamily: 'Space Mono, monospace', fontSize: '9px', ...TYPE.label, marginBottom: '6px' }}>P90 (best 10%)</div>
             <div style={{ display: 'flex', alignItems: 'baseline', gap: '10px' }}>
               <div style={{ fontFamily: 'Space Mono, monospace', fontSize: '22px', fontWeight: 700, color: ACCENT }}>{r1.summary.p90}</div>
               {r1.summary.p90 !== r0.summary.p90 && (
@@ -504,7 +485,7 @@ function ComparisonPanel({ kwType }) {
           {[['#4A6A7A', 'Without'], [ACCENT, 'With keyword']].map(([color, label]) => (
             <div key={label} style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
               <div style={{ width: 10, height: 10, background: color }} />
-              <span style={{ fontFamily: 'Space Mono, monospace', fontSize: '9px', letterSpacing: '1px', color: TEXT_WEAK, textTransform: 'uppercase' }}>{label}</span>
+              <span style={{ ...TYPE.label }}>{label}</span>
             </div>
           ))}
         </div>
@@ -681,10 +662,8 @@ function DetailPanel({ kw }) {
 
         {/* Simulator note */}
         <div>
-          <div style={{ fontFamily: 'Space Mono, monospace', fontSize: '9px', letterSpacing: '2px', textTransform: 'uppercase', color: TEXT_WEAK, marginBottom: '10px' }}>
-            Simulator note
-          </div>
-          <p style={{ fontFamily: 'Georgia, serif', fontSize: '13px', lineHeight: 1.7, color: TEXT_WEAK, margin: 0, borderLeft: `2px solid ${BORDER}`, paddingLeft: '14px' }}>
+          <div style={{ ...TYPE.label, marginBottom: '10px' }}>Simulator note</div>
+          <p style={{ ...TYPE.note, color: TEXT_SEC, margin: 0, borderLeft: `2px solid ${BORDER}`, paddingLeft: '14px' }}>
             {kw.note}
           </p>
         </div>
