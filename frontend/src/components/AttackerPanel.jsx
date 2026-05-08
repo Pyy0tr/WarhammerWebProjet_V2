@@ -434,10 +434,18 @@ function AbilitiesSection({ _buffs, toggleBuff, hasBuff, keywords, setWeapon }) 
     setWeapon({ keywords: keywords.map((k) => k.type === type ? { ...k, value: val } : k) })
   }
 
-  const activeCrit     = getKw('CRITICAL_HIT_ON')
-  const activeExtra    = getKw('EXTRA_ATTACKS')
-  const activeCover    = getKw('IGNORES_COVER')
+  const activeCrit      = getKw('CRITICAL_HIT_ON')
+  const activeExtra     = getKw('EXTRA_ATTACKS')
+  const activeCover     = getKw('IGNORES_COVER')
   const activeOverwatch = getKw('FIRE_OVERWATCH')
+
+  function setOverwatch(val) {
+    if (activeOverwatch?.value === val) {
+      setWeapon({ keywords: keywords.filter((k) => k.type !== 'FIRE_OVERWATCH') })
+    } else {
+      setWeapon({ keywords: [...keywords.filter((k) => k.type !== 'FIRE_OVERWATCH'), { type: 'FIRE_OVERWATCH', value: val }] })
+    }
+  }
 
   const phases = [
     {
@@ -477,8 +485,11 @@ function AbilitiesSection({ _buffs, toggleBuff, hasBuff, keywords, setWeapon }) 
               style={{ width: '36px', background: SURFACE, border: `1px solid ${ACCENT}`, color: TEXT, fontFamily: 'Space Mono, monospace', fontSize: '10px', padding: '4px 6px', outline: 'none', textAlign: 'center' }}
             />
           )}
-          <AbilityBtn active={!!activeOverwatch} onClick={() => toggleKw('FIRE_OVERWATCH', false, null)}>
-            Fire Overwatch
+          <AbilityBtn active={activeOverwatch?.value === '6'} onClick={() => setOverwatch('6')}>
+            Overwatch 6+
+          </AbilityBtn>
+          <AbilityBtn active={activeOverwatch?.value === '5'} onClick={() => setOverwatch('5')}>
+            Overwatch 5+
           </AbilityBtn>
         </div>
       ),

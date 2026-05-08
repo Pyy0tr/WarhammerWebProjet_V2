@@ -57,7 +57,9 @@ function simulateOnce(req) {
   const hasIgCover   = hasKw(kws, 'IGNORES_COVER')
   const hasIndirect  = hasKw(kws, 'INDIRECT_FIRE')
   const hasExtraAtk  = hasKw(kws, 'EXTRA_ATTACKS')
-  const hasOverwatch = hasKw(kws, 'FIRE_OVERWATCH')
+  const kwOverwatch  = kw(kws, 'FIRE_OVERWATCH')
+  const hasOverwatch = kwOverwatch !== null
+  const owThr        = hasOverwatch ? (parseInt(kwOverwatch.value) || 6) : 6
 
   const kwSustained = kw(kws, 'SUSTAINED_HITS')
   const kwRapid     = kw(kws, 'RAPID_FIRE')
@@ -126,7 +128,7 @@ function simulateOnce(req) {
       if (rerollHits) {
         const eligible = hasOverwatch
           ? (rerollHits.value === 'ones' && die === 1) ||
-            (rerollHits.value === 'all'  && die < 6)
+            (rerollHits.value === 'all'  && die < owThr)
           : (rerollHits.value === 'ones' && die === 1) ||
             (rerollHits.value === 'all'  && (die === 1 || clamp(die + hitMod, 1, 6) < skill) && die < critHitThr)
         if (eligible) die = d6()
@@ -140,9 +142,9 @@ function simulateOnce(req) {
       if (die === 1) return
 
       const isCrit  = die >= critHitThr
-      // Overwatch: only an unmodified 6 scores a hit — BS, modifiers, and hitMod are all ignored
+      // Overwatch: only an unmodified roll >= owThr (5 or 6) scores a hit — BS and modifiers ignored
       const success = hasOverwatch
-        ? die === 6
+        ? die >= owThr
         : isCrit || clamp(die + hitMod, 1, 6) >= skill
       if (!success) return
 

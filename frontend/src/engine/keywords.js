@@ -221,11 +221,12 @@ export const KEYWORD_REGISTRY = [
   },
   {
     type: 'FIRE_OVERWATCH', label: 'Fire Overwatch', group: 'ability',
-    tip: 'Only unmodified 6s hit — shoot in the opponent\'s turn',
+    valued: true, default: '6',
+    tip: 'Only unmodified X+ hits — shoot in the opponent\'s turn',
     phase: 'Hit Roll',
-    rule: "Each time a model in your unit makes a ranged attack, an unmodified Hit roll of 6 is required to score a hit, irrespective of the attacking weapon's Ballistic Skill or any modifiers.",
-    note: "All BS modifiers, re-roll bonuses, and hit penalties are irrelevant to whether the attack scores a hit — only a natural 6 succeeds. Critical hit abilities (Sustained Hits, Lethal Hits) still trigger on hits scored this way.",
-    when: "Use to model Overwatch fire (Stratagem, 1 CP) when the enemy declares a charge or moves within range. Expect roughly 1/6th the normal hit rate regardless of how skilled the shooter is.",
+    rule: "Each time a model in your unit makes a ranged attack, an unmodified Hit roll of X+ is required to score a hit, irrespective of the attacking weapon's Ballistic Skill or any modifiers.",
+    note: "All BS modifiers, re-roll bonuses, and hit penalties are irrelevant — only a natural roll of X+ succeeds. Standard Overwatch requires 6+; some abilities (e.g. Tau Sept) allow 5+. Critical hit abilities still trigger on hits scored this way.",
+    when: "Use to model Overwatch fire (Stratagem, 1 CP) when the enemy declares a charge or moves within range. Standard (6+): expect 1/6th of normal hit rate. Enhanced (5+): expect 2/6th — significantly stronger.",
     implemented: true,
   },
 ]

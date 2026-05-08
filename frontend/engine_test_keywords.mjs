@@ -69,7 +69,7 @@ import { simulate } from './src/engine/simulation.js'
 
 // ── Global settings ───────────────────────────────────────────────────────────
 
-const N   = 10_000   // Monte Carlo trials per test
+const N   = 15_000   // Monte Carlo trials per test
 const TOL = 0.15     // relative tolerance  (0.15 = ±15 %)
 
 // ── Theory helpers ────────────────────────────────────────────────────────────
@@ -362,22 +362,39 @@ console.log('\n── Attacker abilities / buffs ──────────�
   ))
 })()
 
-// B4. FIRE_OVERWATCH (stratagem) — only an unmodified 6 scores a hit
+// B4. FIRE_OVERWATCH 6+ — only an unmodified 6 scores a hit (standard overwatch)
 // BS, hit modifiers, and any other bonuses are completely irrelevant.
 // theory = attacks × (1/6) × pWound × pSaveFail × D
-// Contrast: with BS3+ normally pHit = 4/6, with overwatch pHit = 1/6.
 ;(() => {
   // CONFIG ─────────────────────────
   const ATTACKS = 6,  SKILL = 3,  MODELS = 1  // SKILL=3 → normally 4/6, overwatch → 1/6
   const S = 4,  AP = 0,  D = '1'
   const T = 4,  SV = 3,  W = 1,  DEF_MODELS = 5
   // ────────────────────────────────
-  const pHit = 1 / 6   // natural 6 only — BS and hitMod play no role
+  const pHit = pGe(6)   // natural 6 only — BS and hitMod play no role
   const pW   = pGe(woundOn(S, T))
   const pF   = pSaveFail(SV, AP)
-  test('FIRE_OVERWATCH (only 6s hit)', MODELS * ATTACKS * pHit * pW * pF * expectedRoll(D), mkReq(
+  test('FIRE_OVERWATCH 6+', MODELS * ATTACKS * pHit * pW * pF * expectedRoll(D), mkReq(
     { name:'test', attacks:String(ATTACKS), skill:SKILL, strength:S, ap:AP, damage:D,
-      keywords:[{ type:'FIRE_OVERWATCH' }] },
+      keywords:[{ type:'FIRE_OVERWATCH', value:'6' }] },
+    { models:MODELS, defender:{ toughness:T, save:SV, wounds:W, models:DEF_MODELS } },
+  ))
+})()
+
+// B5. FIRE_OVERWATCH 5+ — enhanced overwatch (e.g. Tau Sept), hits on 5 or 6
+// theory = attacks × (2/6) × pWound × pSaveFail × D
+;(() => {
+  // CONFIG ─────────────────────────
+  const ATTACKS = 6,  SKILL = 3,  MODELS = 1
+  const S = 4,  AP = 0,  D = '1'
+  const T = 4,  SV = 3,  W = 1,  DEF_MODELS = 5
+  // ────────────────────────────────
+  const pHit = pGe(5)   // 5 or 6 hit — twice the rate of standard overwatch
+  const pW   = pGe(woundOn(S, T))
+  const pF   = pSaveFail(SV, AP)
+  test('FIRE_OVERWATCH 5+', MODELS * ATTACKS * pHit * pW * pF * expectedRoll(D), mkReq(
+    { name:'test', attacks:String(ATTACKS), skill:SKILL, strength:S, ap:AP, damage:D,
+      keywords:[{ type:'FIRE_OVERWATCH', value:'5' }] },
     { models:MODELS, defender:{ toughness:T, save:SV, wounds:W, models:DEF_MODELS } },
   ))
 })()
