@@ -77,3 +77,17 @@ input[type=number] { -moz-appearance: textfield; }
 .results-enter {
   animation: fadeSlideIn 0.55s cubic-bezier(0.16, 1, 0.3, 1) both;
 }
+
+/* Force landscape on portrait phones — rotates #root 90° to fill the screen */
+@media screen and (orientation: portrait) and (max-width: 768px) {
+  #root {
+    position: fixed;
+    width: 100vh;          /* landscape width  = portrait height */
+    height: 100vw;         /* landscape height = portrait width  */
+    top: calc(50vh - 50vw);
+    left: calc(50vw - 50vh);
+    transform: rotate(90deg);
+    overflow-y: auto;
+    overflow-x: hidden;
+  }
+}
