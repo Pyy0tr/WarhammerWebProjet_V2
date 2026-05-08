@@ -104,7 +104,7 @@ function simulateOnce(req) {
   const extraPerModel = hasExtraAtk ? roll(kwExtraAtk.value) : 0
   const blastBonus    = hasBlast ? Math.floor(d.models / 5) : 0
 
-  let numAttacks = req.attacker.models * (basePerModel + extraPerModel) + blastBonus
+  let numAttacks = req.attacker.models * (basePerModel + extraPerModel + blastBonus)
 
   if (hasRapid && ctx.half_range) {
     numAttacks += roll(kwRapid.value) * req.attacker.models

@@ -152,11 +152,11 @@ export const KEYWORD_REGISTRY = [
 
   {
     type: 'BLAST', label: 'Blast', group: 'hit',
-    tip: '+1 attack per 5 defender models',
+    tip: '+1 attack per weapon per 5 defender models',
     phase: 'Number of Attacks',
-    rule: "Add 1 to the Attacks characteristic of this weapon for every 5 models in the target unit (rounding down).",
-    note: "Applied before hit rolls, same step as Rapid Fire. A unit of 11 models adds +2 attacks. Stacks with Rapid Fire.",
-    when: "Set 'Number of targets' in the simulator to reflect the full unit size. Blast has no effect on single-model targets — it's designed for clearing hordes. A 20-model unit adds +4 attacks.",
+    rule: "Add 1 to the Attacks characteristic of this weapon for every 5 models in the target unit (rounding down). Each model in the attacking unit benefits individually.",
+    note: "Applied per weapon before hit rolls. 5 Hellblasters vs 20 Boyz: each Plasma Incinerator goes from A2 to A6 → 5×6 = 30 attacks (vs 10 base). Stacks with Rapid Fire.",
+    when: "Set 'Number of targets' to reflect the full squad size. Against 20 models each weapon gains +4 attacks — a 5-model unit multiplies that into +20 total attacks.",
     implemented: true,
   },
   {

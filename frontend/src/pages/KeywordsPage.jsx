@@ -166,7 +166,7 @@ const SCENARIOS = {
   },
   BLAST: {
     label: '5× Hellblaster · Plasma Incinerator (A2, BS3+, S7, AP-2, D1) · vs 20 Boyz',
-    note: 'Against 20 Boyz, Blast adds +4 attacks on top of the 10 base — from 10 to 14 before rolling a die.',
+    note: 'Against 20 Boyz, each Plasma Incinerator gains +4 attacks. 5 weapons × (2+4) = 30 total — triple the base 10.',
     without: {
       attacks: [{ models: 5, weapon: { name: '', attacks: '2', skill: 3, strength: 7, ap: -2, damage: '1', keywords: [] }, buffs: [] }],
       defender: { toughness: 5, save: 5, invuln: 5, wounds: 1, models: 20, fnp: null, keywords: [] },
@@ -286,10 +286,12 @@ function BlastTierTable() {
       const def = { toughness: 5, save: 5, invuln: 5, wounds: 1, models: n, fnp: null, keywords: [] }
       const r0  = simulate({ attacks: [{ models: 5, weapon: BLAST_WPN,    buffs: [] }], defender: def, context: BLAST_CTX, n_trials: 1200 })
       const r1  = simulate({ attacks: [{ models: 5, weapon: BLAST_WPN_KW, buffs: [] }], defender: def, context: BLAST_CTX, n_trials: 1200 })
+      const bonus = Math.floor(n / 5)
       return {
         n,
-        bonus:       Math.floor(n / 5),
-        totalWith:   10 + Math.floor(n / 5),
+        bonus,
+        totalBase: 10,                   // 5 models × A2
+        totalWith: 5 * (2 + bonus),      // each weapon gets +bonus
         killsBase:   r0.summary.mean_damage,
         killsBlast:  r1.summary.mean_damage,
       }
