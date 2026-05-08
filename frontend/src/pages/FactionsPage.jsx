@@ -894,8 +894,14 @@ function ModelOptionsWeapons({ modelOptions }) {
             letterSpacing: '2px', textTransform: 'uppercase',
             color: ACCENT, marginBottom: '14px',
             paddingBottom: '8px', borderBottom: `1px solid ${BORDER}`,
+            display: 'flex', justifyContent: 'space-between', alignItems: 'baseline',
           }}>
-            {mo.name}
+            <span>{mo.name}</span>
+            {mo.max != null && (
+              <span style={{ color: TEXT_WEAK, fontSize: '8px' }}>
+                ×{mo.min != null && mo.min !== mo.max ? `${mo.min}–${mo.max}` : mo.max}
+              </span>
+            )}
           </div>
           {mo.groups.map((g, gi) => {
             const rows = g.wids.map((id) => weaponsById[id]).filter(Boolean)

@@ -829,9 +829,12 @@ def extract_unit(entry: ET.Element, faction: str, index: GlobalIndex) -> dict | 
         m_opts = collect_weapon_options(m_entry, index)
         # Inclure ce modèle seulement s'il a des options d'armes propres
         if m_opts:
+            mn, mx = _extract_squad_constraints(m_entry)
             model_options.append({
                 "name": m_name,
                 "weapon_options": m_opts,
+                "min_count": mn,
+                "max_count": mx,
             })
 
     # Stats : profil principal = première occurrence

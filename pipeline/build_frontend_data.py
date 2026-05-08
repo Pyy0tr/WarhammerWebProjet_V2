@@ -87,6 +87,8 @@ def slim_unit(u: dict, id_aliases: dict[str, str]) -> dict:
     invuln      = extract_invuln(u)
     constraints = u.get("constraints", {}) or {}
     weapons     = collect_weapons(u, id_aliases)
+    min_models  = constraints.get("min_models")
+    max_models  = constraints.get("max_models")
 
     # Keywords — strip BSData internal "Faction:" prefixes for the UI
     useful_kw = [k for k in u.get("keywords", []) if not k.startswith("Faction:")]
@@ -132,7 +134,28 @@ def slim_unit(u: dict, id_aliases: dict[str, str]) -> dict:
                     "wids":  wids,
                 })
         if slim_groups:
-            model_options.append({"name": mo["name"], "groups": slim_groups})
+            model_options.append({
+                "name": mo["name"],
+                "groups": slim_groups,
+                "min": mo.get("min_count"),
+                "max": mo.get("max_count"),
+            })
+
+    # Override unit model count when all roles have fixed counts (min==max).
+    # e.g. Deathwing Knights: parser found 4 (DK only), but DK(4)+Master(1)=5.
+    if model_options:
+        role_maxes = [mo["max"] for mo in model_options]
+        role_mins  = [mo["min"] for mo in model_options]
+        all_fixed  = all(
+            mn is not None and mx is not None and mn == mx
+            for mn, mx in zip(role_mins, role_maxes)
+        )
+        if all_fixed:
+            total = sum(role_maxes)
+            cur_max = constraints.get("max_models") or 0
+            if total > cur_max:
+                min_models = total
+                max_models = total
 
     return {
         "id":         u["bsdata_id"],
@@ -150,8 +173,8 @@ def slim_unit(u: dict, id_aliases: dict[str, str]) -> dict:
         "invuln":     invuln,
         "kw":         useful_kw,
         "abilities":  abilities,
-        "min_models": constraints.get("min_models"),
-        "max_models": constraints.get("max_models"),
+        "min_models": min_models,
+        "max_models": max_models,
         "weapons":       weapons,
         "factions":      u.get("playable_in", []),
         "model_profiles": model_profiles if model_profiles else None,
