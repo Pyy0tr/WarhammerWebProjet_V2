@@ -648,6 +648,7 @@ export function OnboardingPage() {
   const prefix   = level === 'intermediate' ? 'intermediate' : 'beginner'
 
   const [activeStep, setActiveStep] = useState(0)
+  const [btnHov, setBtnHov] = useState(false)
   const sectionRefs = useRef([])
 
   const results = useMemo(() => ({
@@ -711,18 +712,8 @@ export function OnboardingPage() {
         <div style={{ fontFamily: 'Space Mono, monospace', fontSize: '9px', letterSpacing: '2px', color: TEXT_WEAK }}>
           {activeStep + 1} / {steps.length}
         </div>
-        <span
-          onClick={handleSkip}
-          style={{
-            fontFamily: 'Space Mono, monospace', fontSize: '9px', letterSpacing: '2px',
-            textTransform: 'uppercase', color: TEXT_WEAK, cursor: 'pointer',
-            border: `1px solid ${BORDER}`, padding: '5px 12px',
-            transition: 'color 150ms, border-color 150ms',
-          }}
-          onMouseEnter={(e) => { e.currentTarget.style.color = TEXT; e.currentTarget.style.borderColor = TEXT_SEC }}
-          onMouseLeave={(e) => { e.currentTarget.style.color = TEXT_WEAK; e.currentTarget.style.borderColor = BORDER }}
-        >
-          Skip
+        <span onClick={handleSkip} style={{ fontFamily: 'Space Mono, monospace', fontSize: '9px', letterSpacing: '2px', textTransform: 'uppercase', color: TEXT_OFF, cursor: 'pointer' }}>
+          Skip →
         </span>
       </div>
 
@@ -757,40 +748,16 @@ export function OnboardingPage() {
         </div>
       </div>
 
-      {/* Fixed round continue button — hidden on last step (primary CTA takes over) */}
-      {activeStep < steps.length - 1 && (
-        <button
-          onClick={() => handleNext(activeStep)}
-          className="continue-fab"
-          title="Continue"
-          style={{
-            position: 'fixed', bottom: '40px', left: '25vw',
-            transform: 'translateX(-50%)',
-            width: '56px', height: '56px', borderRadius: '50%',
-            background: 'rgba(10,22,33,0.85)',
-            border: `2px solid ${ACCENT}`,
-            color: ACCENT, cursor: 'pointer',
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            fontSize: '22px', lineHeight: 1,
-            boxShadow: `0 0 20px rgba(47,224,255,0.2)`,
-            backdropFilter: 'blur(8px)',
-            transition: 'box-shadow 160ms, background 160ms',
-            zIndex: 50,
-          }}
-          onMouseEnter={(e) => {
-            e.currentTarget.style.background = ACCENT
-            e.currentTarget.style.color = BG
-            e.currentTarget.style.boxShadow = `0 0 32px rgba(47,224,255,0.5)`
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.background = 'rgba(10,22,33,0.85)'
-            e.currentTarget.style.color = ACCENT
-            e.currentTarget.style.boxShadow = `0 0 20px rgba(47,224,255,0.2)`
-          }}
-        >
-          <span className="arrow-bounce">↓</span>
-        </button>
-      )}
+      {/* Fixed scroll button */}
+      <button
+        onClick={() => handleNext(activeStep)}
+        onMouseEnter={() => setBtnHov(true)}
+        onMouseLeave={() => setBtnHov(false)}
+        style={{ position: 'fixed', bottom: '40px', left: '25vw', transform: 'translateX(-50%)', border: `1px solid ${ACCENT}`, background: btnHov ? 'rgba(47,224,255,0.08)' : 'transparent', color: ACCENT, fontFamily: 'Space Mono, monospace', fontSize: '9px', letterSpacing: '2px', textTransform: 'uppercase', padding: '10px 20px', cursor: 'pointer', zIndex: 20, transition: 'background 150ms', display: 'flex', alignItems: 'center', gap: '8px' }}
+      >
+        <span style={{ display: 'inline-block', animation: 'arrowBounce 1.4s ease-in-out infinite', animationPlayState: btnHov ? 'paused' : 'running' }}>↓</span>
+        Next
+      </button>
     </div>
   )
 }
