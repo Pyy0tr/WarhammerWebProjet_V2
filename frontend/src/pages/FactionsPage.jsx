@@ -1035,18 +1035,24 @@ function UnitDetailView({ unit, onBack, factionLabel }) {
         </div>
       )}
 
-      {/* Weapons */}
-      {(unit.model_options?.length > 0 || unit.weapons?.length > 0) && (
-        <div style={{ marginBottom: '32px' }}>
-          <div style={{ fontFamily: 'Space Mono, monospace', fontSize: '10px', letterSpacing: '2px', textTransform: 'uppercase', color: TEXT_WEAK, marginBottom: '16px' }}>
-            Weapons
+      {/* Weapons — use grouped view only when model_options covers all unit weapons */}
+      {unit.weapons?.length > 0 && (() => {
+        const moWids = new Set(
+          (unit.model_options ?? []).flatMap((mo) => mo.groups.flatMap((g) => g.wids))
+        )
+        const useGrouped = moWids.size >= (unit.weapons?.length ?? 0)
+        return (
+          <div style={{ marginBottom: '32px' }}>
+            <div style={{ fontFamily: 'Space Mono, monospace', fontSize: '10px', letterSpacing: '2px', textTransform: 'uppercase', color: TEXT_WEAK, marginBottom: '16px' }}>
+              Weapons
+            </div>
+            {useGrouped
+              ? <ModelOptionsWeapons modelOptions={unit.model_options} />
+              : <WeaponsTable weapons={unit.weapons} />
+            }
           </div>
-          {unit.model_options?.length > 0
-            ? <ModelOptionsWeapons modelOptions={unit.model_options} />
-            : <WeaponsTable weapons={unit.weapons} />
-          }
-        </div>
-      )}
+        )
+      })()}
 
       {/* Abilities */}
       {unit.abilities?.length > 0 && (
