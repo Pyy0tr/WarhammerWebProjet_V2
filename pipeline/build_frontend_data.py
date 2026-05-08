@@ -113,6 +113,27 @@ def slim_unit(u: dict, id_aliases: dict[str, str]) -> dict:
             "OC":   ps.get("OC", ""),
         })
 
+    # Role-based weapon grouping (e.g. Deathwing Knights vs Knight Master)
+    # Each role has named weapon-choice groups (pick N from M options).
+    # Sub-groups are BSData duplicates of the parent weapons list — skipped.
+    model_options = []
+    for mo in (u.get("model_options", []) or []):
+        slim_groups = []
+        for wg in mo.get("weapon_options", []):
+            wids = [
+                id_aliases.get(w["bsdata_id"], w["bsdata_id"])
+                for w in wg.get("weapons", [])
+                if "bsdata_id" in w
+            ]
+            if wids:
+                slim_groups.append({
+                    "group": wg.get("group_name") or "",
+                    "pick":  wg.get("max_select"),
+                    "wids":  wids,
+                })
+        if slim_groups:
+            model_options.append({"name": mo["name"], "groups": slim_groups})
+
     return {
         "id":         u["bsdata_id"],
         "name":       u["name"],
@@ -131,9 +152,10 @@ def slim_unit(u: dict, id_aliases: dict[str, str]) -> dict:
         "abilities":  abilities,
         "min_models": constraints.get("min_models"),
         "max_models": constraints.get("max_models"),
-        "weapons":    weapons,
-        "factions":   u.get("playable_in", []),
+        "weapons":       weapons,
+        "factions":      u.get("playable_in", []),
         "model_profiles": model_profiles if model_profiles else None,
+        "model_options":  model_options  if model_options  else None,
     }
 
 

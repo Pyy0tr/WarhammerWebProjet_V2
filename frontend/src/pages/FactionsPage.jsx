@@ -882,6 +882,49 @@ function WeaponsTable({ weapons }) {
   )
 }
 
+function ModelOptionsWeapons({ modelOptions }) {
+  const weaponsById = useDataStore((s) => s.weaponsById)
+
+  return (
+    <div>
+      {modelOptions.map((mo) => (
+        <div key={mo.name} style={{ marginBottom: '32px' }}>
+          <div style={{
+            fontFamily: 'Space Mono, monospace', fontSize: '9px',
+            letterSpacing: '2px', textTransform: 'uppercase',
+            color: ACCENT, marginBottom: '14px',
+            paddingBottom: '8px', borderBottom: `1px solid ${BORDER}`,
+          }}>
+            {mo.name}
+          </div>
+          {mo.groups.map((g, gi) => {
+            const rows = g.wids.map((id) => weaponsById[id]).filter(Boolean)
+            if (!rows.length) return null
+            return (
+              <div key={gi} style={{ marginBottom: '20px' }}>
+                {g.group && (
+                  <div style={{
+                    fontFamily: 'Space Mono, monospace', fontSize: '8px',
+                    letterSpacing: '1.5px', textTransform: 'uppercase',
+                    color: TEXT_WEAK, marginBottom: '8px',
+                    display: 'flex', alignItems: 'center', gap: '8px',
+                  }}>
+                    {g.group}
+                    {g.pick != null && (
+                      <span style={{ color: TEXT_OFF }}>— pick {g.pick}</span>
+                    )}
+                  </div>
+                )}
+                <WeaponSubTable title="" rows={rows} />
+              </div>
+            )
+          })}
+        </div>
+      ))}
+    </div>
+  )
+}
+
 const tdStyle = {
   fontFamily: 'Space Mono, monospace', fontSize: '11px', color: TEXT_SEC,
   padding: '10px 12px 10px 0', whiteSpace: 'nowrap',
@@ -993,12 +1036,15 @@ function UnitDetailView({ unit, onBack, factionLabel }) {
       )}
 
       {/* Weapons */}
-      {unit.weapons?.length > 0 && (
+      {(unit.model_options?.length > 0 || unit.weapons?.length > 0) && (
         <div style={{ marginBottom: '32px' }}>
           <div style={{ fontFamily: 'Space Mono, monospace', fontSize: '10px', letterSpacing: '2px', textTransform: 'uppercase', color: TEXT_WEAK, marginBottom: '16px' }}>
-            Weapons — {unit.weapons.length} weapon{unit.weapons.length !== 1 ? 's' : ''}
+            Weapons
           </div>
-          <WeaponsTable weapons={unit.weapons} />
+          {unit.model_options?.length > 0
+            ? <ModelOptionsWeapons modelOptions={unit.model_options} />
+            : <WeaponsTable weapons={unit.weapons} />
+          }
         </div>
       )}
 
