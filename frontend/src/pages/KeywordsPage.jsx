@@ -165,16 +165,16 @@ const SCENARIOS = {
     },
   },
   BLAST: {
-    label: '4 attacks · Blast · vs 20-model horde',
-    note: 'Against 20 models Blast adds +4 attacks — bringing the total from 4 to 8 before any rolls.',
+    label: '5× Hellblaster · Plasma Incinerator (A2, BS3+, S7, AP-2, D1) · vs 20 Boyz',
+    note: 'Against 20 Boyz, Blast adds +4 attacks on top of the 10 base — from 10 to 14 before rolling a die.',
     without: {
-      attacks: [{ models: 1, weapon: { name: '', attacks: '4', skill: 3, strength: 4, ap: 0, damage: '1', keywords: [] }, buffs: [] }],
-      defender: { toughness: 3, save: 5, invuln: null, wounds: 1, models: 20, fnp: null, keywords: [] },
+      attacks: [{ models: 5, weapon: { name: '', attacks: '2', skill: 3, strength: 7, ap: -2, damage: '1', keywords: [] }, buffs: [] }],
+      defender: { toughness: 5, save: 5, invuln: 5, wounds: 1, models: 20, fnp: null, keywords: [] },
       context: { cover: false, half_range: false, attacker_moved: false, attacker_charged: false, target_visible: true },
     },
     with: {
-      attacks: [{ models: 1, weapon: { name: '', attacks: '4', skill: 3, strength: 4, ap: 0, damage: '1', keywords: [{ type: 'BLAST' }] }, buffs: [] }],
-      defender: { toughness: 3, save: 5, invuln: null, wounds: 1, models: 20, fnp: null, keywords: [] },
+      attacks: [{ models: 5, weapon: { name: '', attacks: '2', skill: 3, strength: 7, ap: -2, damage: '1', keywords: [{ type: 'BLAST' }] }, buffs: [] }],
+      defender: { toughness: 5, save: 5, invuln: 5, wounds: 1, models: 20, fnp: null, keywords: [] },
       context: { cover: false, half_range: false, attacker_moved: false, attacker_charged: false, target_visible: true },
     },
   },
@@ -268,6 +268,97 @@ function StatChip({ label, value, color }) {
         fontWeight: 700, color,
       }}>
         {value}
+      </div>
+    </div>
+  )
+}
+
+// ── Blast tier table ───────────────────────────────────────────────────────────
+
+const BLAST_WPN     = { name: '', attacks: '2', skill: 3, strength: 7, ap: -2, damage: '1', keywords: [] }
+const BLAST_WPN_KW  = { ...BLAST_WPN, keywords: [{ type: 'BLAST' }] }
+const BLAST_CTX     = { cover: false, half_range: false, attacker_moved: false, attacker_charged: false, target_visible: true }
+const BLAST_TIERS   = [5, 10, 15, 20]
+
+function BlastTierTable() {
+  const tiers = useMemo(() =>
+    BLAST_TIERS.map((n) => {
+      const def = { toughness: 5, save: 5, invuln: 5, wounds: 1, models: n, fnp: null, keywords: [] }
+      const r0  = simulate({ attacks: [{ models: 5, weapon: BLAST_WPN,    buffs: [] }], defender: def, context: BLAST_CTX, n_trials: 1200 })
+      const r1  = simulate({ attacks: [{ models: 5, weapon: BLAST_WPN_KW, buffs: [] }], defender: def, context: BLAST_CTX, n_trials: 1200 })
+      return {
+        n,
+        bonus:       Math.floor(n / 5),
+        totalWith:   10 + Math.floor(n / 5),
+        killsBase:   r0.summary.mean_damage,
+        killsBlast:  r1.summary.mean_damage,
+      }
+    })
+  , [])
+
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+      <div style={{ fontFamily: 'Space Mono, monospace', fontSize: '9px', letterSpacing: '2px', textTransform: 'uppercase', color: TEXT_WEAK }}>
+        Attack scaling by squad size
+      </div>
+      <div style={{ fontFamily: 'Space Mono, monospace', fontSize: '9px', color: TEXT_OFF, letterSpacing: '1px', marginBottom: '2px' }}>
+        5× Hellblaster · Plasma Incinerator (A2) · vs Boyz (T5 SV5+ W1 INV5++)
+      </div>
+
+      {/* Column headers */}
+      <div style={{ display: 'grid', gridTemplateColumns: '80px repeat(4, 1fr)', gap: '1px', background: BORDER }}>
+        <div style={{ background: SURFACE, padding: '8px 10px' }} />
+        {BLAST_TIERS.map((n) => (
+          <div key={n} style={{ background: SURFACE, padding: '8px 10px', textAlign: 'center' }}>
+            <span style={{ fontFamily: 'Space Mono, monospace', fontSize: '9px', letterSpacing: '1.5px', textTransform: 'uppercase', color: TEXT_WEAK }}>
+              {n} models
+            </span>
+          </div>
+        ))}
+
+        {/* Base attacks row */}
+        <div style={{ background: '#0A1621', padding: '10px 10px', fontFamily: 'Space Mono, monospace', fontSize: '8px', letterSpacing: '1px', textTransform: 'uppercase', color: TEXT_OFF, display: 'flex', alignItems: 'center' }}>
+          Attacks<br/>no Blast
+        </div>
+        {tiers.map(({ n }) => (
+          <div key={n} style={{ background: '#0A1621', padding: '10px 6px', textAlign: 'center', fontFamily: 'Space Mono, monospace', fontSize: '18px', fontWeight: 700, color: TEXT_SEC, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            10
+          </div>
+        ))}
+
+        {/* Blast bonus row */}
+        <div style={{ background: '#0A1621', padding: '10px 10px', fontFamily: 'Space Mono, monospace', fontSize: '8px', letterSpacing: '1px', textTransform: 'uppercase', color: TEXT_OFF, display: 'flex', alignItems: 'center' }}>
+          Blast<br/>bonus
+        </div>
+        {tiers.map(({ n, bonus }) => (
+          <div key={n} style={{ background: '#0A1621', padding: '10px 6px', textAlign: 'center', fontFamily: 'Space Mono, monospace', fontSize: '18px', fontWeight: 700, color: ACCENT, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            +{bonus}
+          </div>
+        ))}
+
+        {/* Total attacks row */}
+        <div style={{ background: SURFACE, padding: '10px 10px', fontFamily: 'Space Mono, monospace', fontSize: '8px', letterSpacing: '1px', textTransform: 'uppercase', color: TEXT_WEAK, display: 'flex', alignItems: 'center' }}>
+          Total<br/>attacks
+        </div>
+        {tiers.map(({ n, totalWith }) => (
+          <div key={n} style={{ background: SURFACE, padding: '10px 6px', textAlign: 'center', fontFamily: 'Space Mono, monospace', fontSize: '20px', fontWeight: 700, color: TEXT, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            {totalWith}
+          </div>
+        ))}
+
+        {/* Avg kills row */}
+        <div style={{ background: '#0A1621', padding: '10px 10px', fontFamily: 'Space Mono, monospace', fontSize: '8px', letterSpacing: '1px', textTransform: 'uppercase', color: TEXT_OFF, display: 'flex', alignItems: 'center' }}>
+          Avg kills<br/>(simulated)
+        </div>
+        {tiers.map(({ n, killsBase, killsBlast }) => {
+          const diff = (killsBlast - killsBase).toFixed(1)
+          return (
+            <div key={n} style={{ background: '#0A1621', padding: '10px 6px', textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '3px' }}>
+              <span style={{ fontFamily: 'Space Mono, monospace', fontSize: '16px', fontWeight: 700, color: ACCENT }}>{killsBlast}</span>
+              <span style={{ fontFamily: 'Space Mono, monospace', fontSize: '9px', color: SUCCESS }}>+{diff}</span>
+            </div>
+          )
+        })}
       </div>
     </div>
   )
@@ -559,6 +650,17 @@ function DetailPanel({ kw }) {
           </p>
         </div>
 
+        {/* Blast tier breakdown */}
+        {kw.type === 'BLAST' && (
+          <div>
+            <div style={{ fontFamily: 'Space Mono, monospace', fontSize: '9px', letterSpacing: '2px', textTransform: 'uppercase', color: TEXT_WEAK, marginBottom: '14px', display: 'flex', alignItems: 'center', gap: '10px' }}>
+              <span>Threshold breakdown</span>
+              <div style={{ flex: 1, height: '1px', background: BORDER }} />
+            </div>
+            <BlastTierTable />
+          </div>
+        )}
+
         {/* Comparison simulation */}
         {!kw.notSimulated && SCENARIOS[kw.type] && (
           <div>
@@ -568,7 +670,7 @@ function DetailPanel({ kw }) {
               color: TEXT_WEAK, marginBottom: '14px',
               display: 'flex', alignItems: 'center', gap: '10px',
             }}>
-              <span>Live comparison</span>
+              <span>Live comparison · vs 20 Boyz</span>
               <div style={{ flex: 1, height: '1px', background: BORDER }} />
             </div>
             <ComparisonPanel kwType={kw.type} />
