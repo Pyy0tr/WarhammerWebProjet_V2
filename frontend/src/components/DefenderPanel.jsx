@@ -40,7 +40,7 @@ function DefenderArmyPicker() {
         invuln:        unit.invuln ?? null,
         models:        unit.models ?? 1,
         fnp:           null,
-        dmg_reduction: null,
+        dmg_reduction: false,
         keywords:      unit.kw ?? [],
       })
       const fullUnit = getUnitById(unit.unit_id)
@@ -346,8 +346,6 @@ export function DefenderPanel() {
             placeholder="None" min={2} max={6} onChange={(v) => setDefender({ invuln: v })} />
           <StatInput label="Feel no pain" value={defender.fnp ?? ''}
             placeholder="None" min={2} max={6} onChange={(v) => setDefender({ fnp: v })} />
-          <StatInput label="Dmg reduction" value={defender.dmg_reduction ?? ''}
-            placeholder="None" min={1} max={5} onChange={(v) => setDefender({ dmg_reduction: v })} />
         </div>
       </div>
 
@@ -357,7 +355,21 @@ export function DefenderPanel() {
           letterSpacing: '2.5px', textTransform: 'uppercase',
           color: TEXT_WEAK, marginBottom: '18px',
         }}>
-          Special rules
+          Defender abilities
+        </div>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+          <Toggle label="Damage reduction (-1 to damage, min 1)" checked={defender.dmg_reduction}
+            onChange={(v) => setDefender({ dmg_reduction: v })} />
+        </div>
+      </div>
+
+      <div style={{ borderTop: `1px solid ${BORDER}`, paddingTop: '22px' }}>
+        <div style={{
+          fontFamily: 'Space Mono, monospace', fontSize: '9px',
+          letterSpacing: '2.5px', textTransform: 'uppercase',
+          color: TEXT_WEAK, marginBottom: '18px',
+        }}>
+          Context
         </div>
         <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
           <Toggle label="In cover (+1 to armour save)" checked={context.cover}
