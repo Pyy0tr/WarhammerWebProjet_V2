@@ -801,9 +801,8 @@ def extract_unit(entry: ET.Element, faction: str, index: GlobalIndex) -> dict | 
     model_options = []
 
     def _collect_model_entries(node) -> list[ET.Element]:
-        """Retourne tous les selectionEntry de type model sous un noeud."""
+        """Retourne les selectionEntry de type model au premier niveau de groupes."""
         models = []
-        # Dans les selectionEntryGroups
         seg_n = find_tag(node, "selectionEntryGroups")
         if seg_n is not None:
             for seg in iter_tag(seg_n, "selectionEntryGroup"):
@@ -812,7 +811,6 @@ def extract_unit(entry: ET.Element, faction: str, index: GlobalIndex) -> dict | 
                     for se in iter_tag(se_n, "selectionEntry"):
                         if attr(se, "type", "") == "model":
                             models.append(se)
-        # Dans les selectionEntries directes
         se_n = find_tag(node, "selectionEntries")
         if se_n is not None:
             for se in iter_tag(se_n, "selectionEntry"):
@@ -821,16 +819,13 @@ def extract_unit(entry: ET.Element, faction: str, index: GlobalIndex) -> dict | 
         return models
 
     model_entries = _collect_model_entries(entry)
-    # On ne peuple model_options que s'il y a des modèles avec des armes différenciées
     for m_entry in model_entries:
         m_name = attr(m_entry, "name", "")
         if is_hidden(m_entry):
             continue
         m_opts = collect_weapon_options(m_entry, index)
-        # Inclure ce modèle seulement s'il a des options d'armes propres
         if m_opts:
             mn, mx = _extract_squad_constraints(m_entry)
-            # Stats propres au modèle (ex: Boss Nob W=2 vs Boy W=1)
             m_stats_list: list = []
             collect_from_profiles(m_entry, [], [], m_stats_list, [])
             collect_infolinks(m_entry, index, [], [], m_stats_list)
@@ -858,6 +853,39 @@ def extract_unit(entry: ET.Element, faction: str, index: GlobalIndex) -> dict | 
         # Le premier est le profil principal (déjà dans stats), les suivants sont secondaires
         for prof_name, prof_stats in unit_profiles[1:]:
             secondary_profiles.append({"name": prof_name, "stats": prof_stats})
+
+    # Profils secondaires depuis les model entries à n'importe quelle profondeur
+    # (ex: Neophyte SV4+ dans Crusader Squad — dans selectionEntryGroups imbriqués)
+    # Scan profond : on itère TOUS les selectionEntry type=model de l'unité.
+    unit_fp = (stats.get("T"), stats.get("SV"), stats.get("W"))
+    seen_fps = {
+        (p["stats"].get("T"), p["stats"].get("SV"), p["stats"].get("W"))
+        for p in secondary_profiles
+    }
+    seen_fps.add(unit_fp)
+    # Exclure les fingerprints déjà couverts par model_options (ex: Boss Nob)
+    for mo in model_options:
+        if mo.get("stats"):
+            s = mo["stats"]
+            seen_fps.add((s.get("T"), s.get("SV"), s.get("W")))
+    for m_node in entry.iter():
+        if strip_ns(m_node.tag) != "selectionEntry" or attr(m_node, "type") != "model":
+            continue
+        if is_hidden(m_node):
+            continue
+        s_list: list = []
+        collect_from_profiles(m_node, [], [], s_list, [])
+        collect_infolinks(m_node, index, [], [], s_list)
+        if not s_list:
+            continue
+        s = s_list[0]
+        fp = (s.get("T"), s.get("SV"), s.get("W"))
+        if fp in seen_fps:
+            continue
+        seen_fps.add(fp)
+        # "Neophyte w/ Firearm" → "Neophyte", "Boss Nob" → "Boss Nob"
+        simple_name = attr(m_node, "name", "").split("w/")[0].strip()
+        secondary_profiles.append({"name": simple_name, "stats": s})
 
     # Transport capacity
     transport = transport_list[0] if transport_list else None
