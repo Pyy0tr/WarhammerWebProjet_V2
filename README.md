@@ -47,7 +47,10 @@ All official 10th Edition weapon special rules are implemented:
 ### Unit browser
 - Browse all 46 factions and their full rosters
 - View unit datasheets: stats, weapons, abilities, points cost
-- Search across 1,495 units and 5,406 weapons
+- Multi-profile units (e.g. Grimaldus + Cenobyte Servitors) show each stat block separately
+- Multi-role squads (e.g. Deathwing Knights + Knight Master) show weapons grouped by model role
+- Squad sizes accurately reflect mandatory leaders and attached models (Boss Nob, Terminator Champion, etc.)
+- Search across 1,495 units and 3,561 weapons
 
 ### Army builder *(account required)*
 - Create and save named army lists
@@ -61,7 +64,7 @@ All official 10th Edition weapon special rules are implemented:
 
 Unit data is parsed from [BSData/wh40k-10e](https://github.com/BSData/wh40k-10e), an open-source community-maintained dataset that mirrors official Games Workshop rules.
 
-Current dataset: **1,495 units · 5,406 weapons · 46 factions**
+Current dataset: **1,495 units · 3,561 weapons (deduped from 5,407 raw) · 46 factions**
 
 ---
 
