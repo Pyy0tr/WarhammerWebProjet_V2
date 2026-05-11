@@ -141,8 +141,11 @@ def slim_unit(u: dict, id_aliases: dict[str, str]) -> dict:
                 "max": mo.get("max_count"),
             })
 
-    # Override unit model count when all roles have fixed counts (min==max).
-    # e.g. Deathwing Knights: parser found 4 (DK only), but DK(4)+Master(1)=5.
+    # Fix model counts using per-role constraints.
+    # Case 1 — all roles fixed (e.g. Deathwing Knights: DK×4 + Master×1 = 5).
+    #           BSData unit constraint only saw the variable part; override with sum.
+    # Case 2 — mixed: some roles fixed, some variable (e.g. Boyz: 9-19 Boyz + Boss Nob×1).
+    #           BSData unit constraint tracks variable models only; add the fixed leaders.
     if model_options:
         role_maxes = [mo["max"] for mo in model_options]
         role_mins  = [mo["min"] for mo in model_options]
@@ -156,6 +159,26 @@ def slim_unit(u: dict, id_aliases: dict[str, str]) -> dict:
             if total > cur_max:
                 min_models = total
                 max_models = total
+        else:
+            fixed_sum = sum(
+                mx for mn, mx in zip(role_mins, role_maxes)
+                if mn is not None and mx is not None and mn == mx
+            )
+            if fixed_sum > 0:
+                # If max_variable + fixed_sum == unit max, BSData already counted the fixed models.
+                # Only add when the unit constraint reflects variable models alone (Boyz pattern).
+                max_variable = max(
+                    (mx for mn, mx in zip(role_mins, role_maxes)
+                     if mx is not None
+                     and not (mn is not None and mx is not None and mn == mx)),
+                    default=0,
+                )
+                cur_max = max_models or 0
+                if max_variable + fixed_sum != cur_max:
+                    if min_models is not None:
+                        min_models += fixed_sum
+                    if max_models is not None:
+                        max_models += fixed_sum
 
     return {
         "id":         u["bsdata_id"],
