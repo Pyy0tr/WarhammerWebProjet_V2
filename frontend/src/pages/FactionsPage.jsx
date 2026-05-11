@@ -3,7 +3,7 @@ import { useLocation } from 'react-router-dom'
 import { useDataStore }  from '../store/dataStore'
 import { useArmyStore }  from '../store/armyStore'
 import { useAuthStore }  from '../store/authStore'
-import { ACCENT, BG, SURFACE, BORDER, TEXT, TEXT_SEC, TEXT_WEAK, TEXT_OFF } from '../theme'
+import { ACCENT, BG, SURFACE, SURFACE_E, BORDER, TEXT, TEXT_SEC, TEXT_WEAK, TEXT_OFF } from '../theme'
 import { AbilityText } from '../components/AbilityText'
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
@@ -887,7 +887,7 @@ function ModelOptionsWeapons({ modelOptions, unit }) {
 
   return (
     <div>
-      {modelOptions.map((mo) => {
+      {modelOptions.map((mo, i) => {
         // Compute stat fields that differ from the unit main profile
         const s = mo.stats
         const diffStats = s ? [
@@ -900,12 +900,16 @@ function ModelOptionsWeapons({ modelOptions, unit }) {
         ].filter(Boolean) : []
 
         return (
-          <div key={mo.name} style={{ marginBottom: '32px' }}>
+          <div key={mo.name} style={{
+            marginBottom: '28px',
+            ...(i > 0 && { borderTop: `1px solid ${BORDER}`, paddingTop: '24px' }),
+          }}>
             <div style={{
               fontFamily: 'Space Mono, monospace', fontSize: '9px',
               letterSpacing: '2px', textTransform: 'uppercase',
               color: ACCENT, marginBottom: '14px',
-              paddingBottom: '8px', borderBottom: `1px solid ${BORDER}`,
+              padding: '8px 12px',
+              background: SURFACE_E,
               display: 'flex', justifyContent: 'space-between', alignItems: 'center',
             }}>
               <span>{mo.name}</span>
