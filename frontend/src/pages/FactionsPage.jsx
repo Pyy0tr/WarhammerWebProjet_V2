@@ -788,7 +788,7 @@ function StatCell({ label, value }) {
   )
 }
 
-function ProfileRow({ name, M, T, Sv, W, LD, OC, invuln, primary }) {
+function ProfileRow({ name, count, M, T, Sv, W, LD, OC, invuln, primary }) {
   const cells = [
     ['M', M || '—'], ['T', T], ['SV', `${Sv}+`],
     ['W', W], ['LD', LD || '—'], ['OC', OC || '—'],
@@ -803,7 +803,7 @@ function ProfileRow({ name, M, T, Sv, W, LD, OC, invuln, primary }) {
           color: TEXT_WEAK, padding: '10px 0 6px',
           borderTop: `1px solid ${BORDER}`, marginTop: '12px',
         }}>
-          {name}
+          {name}{count > 1 ? <span style={{ opacity: 0.5, marginLeft: '4px' }}>×{count}</span> : null}
         </div>
       )}
       <div style={{ display: 'flex', gap: '0', flexWrap: 'wrap' }}>
@@ -1045,7 +1045,7 @@ function UnitDetailView({ unit, onBack, factionLabel }) {
         </div>
         <ProfileRow name={unit.name} M={unit.M} T={unit.T} Sv={unit.Sv} W={unit.W} LD={unit.LD} OC={unit.OC} invuln={unit.invuln} primary />
         {unit.model_profiles?.map((p) => (
-          <ProfileRow key={p.name} name={p.name} M={p.M} T={p.T} Sv={p.Sv} W={p.W} LD={p.LD} OC={p.OC} />
+          <ProfileRow key={p.name} name={p.name} count={p.count} M={p.M} T={p.T} Sv={p.Sv} W={p.W} LD={p.LD} OC={p.OC} />
         ))}
         {(unit.model_options ?? []).filter((mo) => mo.stats).map((mo) => (
           <ProfileRow key={mo.name} name={mo.name} M={mo.stats.M} T={mo.stats.T} Sv={mo.stats.Sv} W={mo.stats.W} LD={mo.stats.LD} OC={mo.stats.OC} />

@@ -789,12 +789,34 @@ def extract_unit(entry: ET.Element, faction: str, index: GlobalIndex) -> dict | 
     if min_models is None and max_models is None:
         sub_entries_node = find_tag(entry, "selectionEntries")
         if sub_entries_node is not None:
-            for sub in iter_tag(sub_entries_node, "selectionEntry"):
-                if attr(sub, "type", "") == "model":
+            model_subs = [
+                sub for sub in iter_tag(sub_entries_node, "selectionEntry")
+                if attr(sub, "type", "") == "model"
+            ]
+            if len(model_subs) == 1:
+                mn, mx = _extract_squad_constraints(model_subs[0])
+                if mn is not None or mx is not None:
+                    min_models, max_models = mn, mx
+            elif len(model_subs) > 1:
+                # Plusieurs types de modèles fixes (ex: Grimaldus×1 + Cenobyte Servitor×3)
+                # Si tous ont min==max → additionner pour obtenir la taille totale réelle
+                total_min, total_max, all_fixed = 0, 0, True
+                for sub in model_subs:
                     mn, mx = _extract_squad_constraints(sub)
-                    if mn is not None or mx is not None:
-                        min_models, max_models = mn, mx
+                    if mn is not None and mx is not None and mn == mx:
+                        total_min += mn
+                        total_max += mx
+                    elif mn is not None or mx is not None:
+                        all_fixed = False
                         break
+                if all_fixed and total_max > 0:
+                    min_models, max_models = total_min, total_max
+                else:
+                    for sub in model_subs:
+                        mn, mx = _extract_squad_constraints(sub)
+                        if mn is not None or mx is not None:
+                            min_models, max_models = mn, mx
+                            break
 
     # 6b. Model options : parse chaque selectionEntry type=model avec ses groupes d'armes
     #     Format : [{name, weapon_options}] — vide si l'unité n'a qu'un seul type de modèle
@@ -853,6 +875,20 @@ def extract_unit(entry: ET.Element, faction: str, index: GlobalIndex) -> dict | 
         # Le premier est le profil principal (déjà dans stats), les suivants sont secondaires
         for prof_name, prof_stats in unit_profiles[1:]:
             secondary_profiles.append({"name": prof_name, "stats": prof_stats})
+
+    # Associer un count aux profils secondaires dont le modèle a une contrainte fixe > 1
+    # (ex: Cenobyte Servitor min=3 max=3 → count=3)
+    _sub_node_tmp = find_tag(entry, "selectionEntries")
+    if _sub_node_tmp is not None:
+        _name_to_count: dict[str, int] = {}
+        for _sub in iter_tag(_sub_node_tmp, "selectionEntry"):
+            if attr(_sub, "type", "") == "model":
+                _mn, _mx = _extract_squad_constraints(_sub)
+                if _mn is not None and _mx is not None and _mn == _mx and _mn > 1:
+                    _name_to_count[attr(_sub, "name", "")] = _mn
+        for _p in secondary_profiles:
+            if _p["name"] in _name_to_count:
+                _p["count"] = _name_to_count[_p["name"]]
 
     # Profils secondaires depuis les model entries à n'importe quelle profondeur
     # (ex: Neophyte SV4+ dans Crusader Squad — dans selectionEntryGroups imbriqués)

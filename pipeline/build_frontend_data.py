@@ -105,7 +105,7 @@ def slim_unit(u: dict, id_aliases: dict[str, str]) -> dict:
     model_profiles = []
     for p in (u.get("model_profiles", []) or []):
         ps = p.get("stats", {}) or {}
-        model_profiles.append({
+        entry: dict = {
             "name": p["name"],
             "M":    ps.get("M", ""),
             "T":    parse_int(ps.get("T", "4")),
@@ -113,7 +113,10 @@ def slim_unit(u: dict, id_aliases: dict[str, str]) -> dict:
             "W":    parse_int(ps.get("W", "1")),
             "LD":   ps.get("LD", ""),
             "OC":   ps.get("OC", ""),
-        })
+        }
+        if p.get("count"):
+            entry["count"] = p["count"]
+        model_profiles.append(entry)
 
     # Role-based weapon grouping (e.g. Deathwing Knights vs Knight Master)
     # Each role has named weapon-choice groups (pick N from M options).
