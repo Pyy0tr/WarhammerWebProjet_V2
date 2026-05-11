@@ -830,11 +830,16 @@ def extract_unit(entry: ET.Element, faction: str, index: GlobalIndex) -> dict | 
         # Inclure ce modèle seulement s'il a des options d'armes propres
         if m_opts:
             mn, mx = _extract_squad_constraints(m_entry)
+            # Stats propres au modèle (ex: Boss Nob W=2 vs Boy W=1)
+            m_stats_list: list = []
+            collect_from_profiles(m_entry, [], [], m_stats_list, [])
+            collect_infolinks(m_entry, index, [], [], m_stats_list)
             model_options.append({
                 "name": m_name,
                 "weapon_options": m_opts,
                 "min_count": mn,
                 "max_count": mx,
+                "stats": m_stats_list[0] if m_stats_list else None,
             })
 
     # Stats : profil principal = première occurrence

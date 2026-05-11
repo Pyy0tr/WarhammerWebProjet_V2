@@ -882,51 +882,71 @@ function WeaponsTable({ weapons }) {
   )
 }
 
-function ModelOptionsWeapons({ modelOptions }) {
+function ModelOptionsWeapons({ modelOptions, unit }) {
   const weaponsById = useDataStore((s) => s.weaponsById)
 
   return (
     <div>
-      {modelOptions.map((mo) => (
-        <div key={mo.name} style={{ marginBottom: '32px' }}>
-          <div style={{
-            fontFamily: 'Space Mono, monospace', fontSize: '9px',
-            letterSpacing: '2px', textTransform: 'uppercase',
-            color: ACCENT, marginBottom: '14px',
-            paddingBottom: '8px', borderBottom: `1px solid ${BORDER}`,
-            display: 'flex', justifyContent: 'space-between', alignItems: 'baseline',
-          }}>
-            <span>{mo.name}</span>
-            {mo.max != null && (
-              <span style={{ color: TEXT_WEAK, fontSize: '8px' }}>
-                ×{mo.min != null && mo.min !== mo.max ? `${mo.min}–${mo.max}` : mo.max}
-              </span>
-            )}
-          </div>
-          {mo.groups.map((g, gi) => {
-            const rows = g.wids.map((id) => weaponsById[id]).filter(Boolean)
-            if (!rows.length) return null
-            return (
-              <div key={gi} style={{ marginBottom: '20px' }}>
-                {g.group && (
-                  <div style={{
-                    fontFamily: 'Space Mono, monospace', fontSize: '8px',
-                    letterSpacing: '1.5px', textTransform: 'uppercase',
-                    color: TEXT_WEAK, marginBottom: '8px',
-                    display: 'flex', alignItems: 'center', gap: '8px',
-                  }}>
-                    {g.group}
-                    {g.pick != null && (
-                      <span style={{ color: TEXT_OFF }}>— pick {g.pick}</span>
-                    )}
-                  </div>
+      {modelOptions.map((mo) => {
+        // Compute stat fields that differ from the unit main profile
+        const s = mo.stats
+        const diffStats = s ? [
+          s.M  !== unit.M   && { key: 'M',  label: 'M',  val: s.M },
+          s.T  !== unit.T   && { key: 'T',  label: 'T',  val: s.T },
+          s.Sv !== unit.Sv  && { key: 'Sv', label: 'SV', val: `${s.Sv}+` },
+          s.W  !== unit.W   && { key: 'W',  label: 'W',  val: s.W },
+          s.LD !== unit.LD  && { key: 'LD', label: 'LD', val: s.LD },
+          s.OC !== unit.OC  && { key: 'OC', label: 'OC', val: s.OC },
+        ].filter(Boolean) : []
+
+        return (
+          <div key={mo.name} style={{ marginBottom: '32px' }}>
+            <div style={{
+              fontFamily: 'Space Mono, monospace', fontSize: '9px',
+              letterSpacing: '2px', textTransform: 'uppercase',
+              color: ACCENT, marginBottom: '14px',
+              paddingBottom: '8px', borderBottom: `1px solid ${BORDER}`,
+              display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+            }}>
+              <span>{mo.name}</span>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                {diffStats.map(({ key, label, val }) => (
+                  <span key={key} style={{ color: TEXT_SEC, fontSize: '9px', letterSpacing: '1px' }}>
+                    {label} <span style={{ color: TEXT }}>{val}</span>
+                  </span>
+                ))}
+                {mo.max != null && (
+                  <span style={{ color: TEXT_WEAK, fontSize: '8px' }}>
+                    ×{mo.min != null && mo.min !== mo.max ? `${mo.min}–${mo.max}` : mo.max}
+                  </span>
                 )}
-                <WeaponSubTable title="" rows={rows} />
               </div>
-            )
-          })}
-        </div>
-      ))}
+            </div>
+            {mo.groups.map((g, gi) => {
+              const rows = g.wids.map((id) => weaponsById[id]).filter(Boolean)
+              if (!rows.length) return null
+              return (
+                <div key={gi} style={{ marginBottom: '20px' }}>
+                  {g.group && (
+                    <div style={{
+                      fontFamily: 'Space Mono, monospace', fontSize: '8px',
+                      letterSpacing: '1.5px', textTransform: 'uppercase',
+                      color: TEXT_WEAK, marginBottom: '8px',
+                      display: 'flex', alignItems: 'center', gap: '8px',
+                    }}>
+                      {g.group}
+                      {g.pick != null && (
+                        <span style={{ color: TEXT_OFF }}>— pick {g.pick}</span>
+                      )}
+                    </div>
+                  )}
+                  <WeaponSubTable title="" rows={rows} />
+                </div>
+              )
+            })}
+          </div>
+        )
+      })}
     </div>
   )
 }
@@ -1053,7 +1073,7 @@ function UnitDetailView({ unit, onBack, factionLabel }) {
               Weapons
             </div>
             {useGrouped
-              ? <ModelOptionsWeapons modelOptions={unit.model_options} />
+              ? <ModelOptionsWeapons modelOptions={unit.model_options} unit={unit} />
               : <WeaponsTable weapons={unit.weapons} />
             }
           </div>

@@ -134,12 +134,28 @@ def slim_unit(u: dict, id_aliases: dict[str, str]) -> dict:
                     "wids":  wids,
                 })
         if slim_groups:
-            model_options.append({
+            slim_mo: dict = {
                 "name": mo["name"],
                 "groups": slim_groups,
                 "min": mo.get("min_count"),
                 "max": mo.get("max_count"),
-            })
+            }
+            # Per-model stats — only include if they differ from the unit's main profile
+            m_raw = mo.get("stats") or {}
+            unit_raw = stats  # already extracted above
+            if m_raw and any(
+                str(m_raw.get(k, "")) != str(unit_raw.get(k, ""))
+                for k in ("M", "T", "SV", "W", "LD", "OC")
+            ):
+                slim_mo["stats"] = {
+                    "M":  m_raw.get("M", ""),
+                    "T":  parse_int(m_raw.get("T", "4")),
+                    "Sv": parse_int(m_raw.get("SV", "4+")),
+                    "W":  parse_int(m_raw.get("W", "1")),
+                    "LD": m_raw.get("LD", ""),
+                    "OC": m_raw.get("OC", ""),
+                }
+            model_options.append(slim_mo)
 
     # Fix model counts using per-role constraints.
     # Case 1 — all roles fixed (e.g. Deathwing Knights: DK×4 + Master×1 = 5).
