@@ -1047,6 +1047,9 @@ function UnitDetailView({ unit, onBack, factionLabel }) {
         {unit.model_profiles?.map((p) => (
           <ProfileRow key={p.name} name={p.name} M={p.M} T={p.T} Sv={p.Sv} W={p.W} LD={p.LD} OC={p.OC} />
         ))}
+        {(unit.model_options ?? []).filter((mo) => mo.stats).map((mo) => (
+          <ProfileRow key={mo.name} name={mo.name} M={mo.stats.M} T={mo.stats.T} Sv={mo.stats.Sv} W={mo.stats.W} LD={mo.stats.LD} OC={mo.stats.OC} />
+        ))}
       </div>
 
       {/* Keywords */}
