@@ -1061,19 +1061,31 @@ function UnitDetailView({ unit, onBack, factionLabel }) {
         </div>
       )}
 
-      {/* Weapons — use grouped view only when model_options covers all unit weapons */}
+      {/* Weapons */}
       {unit.weapons?.length > 0 && (() => {
         const moWids = new Set(
           (unit.model_options ?? []).flatMap((mo) => mo.groups.flatMap((g) => g.wids))
         )
-        const useGrouped = moWids.size >= (unit.weapons?.length ?? 0)
+        // Use grouped view if coverage is complete, OR if any role has different stats
+        const hasStatDiffs = (unit.model_options ?? []).some((mo) => mo.stats)
+        const fullCoverage = moWids.size >= (unit.weapons?.length ?? 0)
+        const useGrouped = fullCoverage || hasStatDiffs
+
+        // Weapons not attributed to any role — shown as flat table after grouped roles
+        const uncovered = useGrouped && !fullCoverage
+          ? (unit.weapons ?? []).filter((w) => !moWids.has(w.id))
+          : []
+
         return (
           <div style={{ marginBottom: '32px' }}>
             <div style={{ fontFamily: 'Space Mono, monospace', fontSize: '10px', letterSpacing: '2px', textTransform: 'uppercase', color: TEXT_WEAK, marginBottom: '16px' }}>
               Weapons
             </div>
             {useGrouped
-              ? <ModelOptionsWeapons modelOptions={unit.model_options} unit={unit} />
+              ? <>
+                  <ModelOptionsWeapons modelOptions={unit.model_options} unit={unit} />
+                  {uncovered.length > 0 && <WeaponsTable weapons={uncovered} />}
+                </>
               : <WeaponsTable weapons={unit.weapons} />
             }
           </div>
