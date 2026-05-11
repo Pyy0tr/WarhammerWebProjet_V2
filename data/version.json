@@ -1,6 +1,6 @@
 {
-  "sha": "21bd117071878b55f6c155788c9953ed2b81730f",
-  "sha_short": "21bd1170",
-  "committed_at": "2026-05-10T02:37:54Z",
-  "message": "SM bugs"
+  "sha": "a46c84c8e50b79fe3afbdf64cd1e051e26184f50",
+  "sha_short": "a46c84c8",
+  "committed_at": "2026-05-10T12:40:00Z",
+  "message": "Fixes #7243"
 }
