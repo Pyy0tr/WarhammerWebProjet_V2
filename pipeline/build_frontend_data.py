@@ -40,15 +40,16 @@ def extract_invuln(unit: dict) -> int | None:
 
 def slim_weapon(w: dict) -> dict:
     return {
-        "id":   w["bsdata_id"],
-        "name": w["name"],
-        "type": w.get("type", "Ranged"),
-        "A":    w.get("A", "1"),
-        "BS":   parse_int(w.get("BS_WS", "4+")),
-        "S":    parse_int(w.get("S", "4")),
-        "AP":   parse_int(w.get("AP", "0")),
-        "D":    w.get("D", "1"),
-        "kw":   w.get("keywords", []),
+        "id":    w["bsdata_id"],
+        "name":  w["name"],
+        "type":  w.get("type", "Ranged"),
+        "range": w.get("range", "—"),
+        "A":     w.get("A", "1"),
+        "BS":    parse_int(w.get("BS_WS", "4+")),
+        "S":     parse_int(w.get("S", "4")),
+        "AP":    parse_int(w.get("AP", "0")),
+        "D":     w.get("D", "1"),
+        "kw":    w.get("keywords", []),
     }
 
 
