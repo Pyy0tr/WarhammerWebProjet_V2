@@ -23,7 +23,7 @@ export function StatInput({ label, value, onChange, type = 'number', min, max, s
     <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
       <label style={{
         fontFamily: 'Space Mono, monospace',
-        fontSize: '9px',
+        fontSize: '10px',
         letterSpacing: '2px',
         textTransform: 'uppercase',
         color: TEXT_WEAK,
@@ -41,7 +41,7 @@ export function StatInput({ label, value, onChange, type = 'number', min, max, s
             width: '100%',
             background: SURFACE,
             border: `1px solid ${BORDER}`,
-            borderRadius: 0,
+            borderRadius: '2px',
             color: TEXT,
             fontFamily: 'Space Mono, monospace',
             fontSize: '15px',

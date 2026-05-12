@@ -22,7 +22,7 @@ function Input({ type = 'text', placeholder, value, onChange, disabled }) {
         fontSize: '13px',
         padding: '13px 16px',
         outline: 'none',
-        borderRadius: 0,
+        borderRadius: '2px',
         boxSizing: 'border-box',
         transition: 'border-color 120ms',
         opacity: disabled ? 0.5 : 1,

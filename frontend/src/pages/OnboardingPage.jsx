@@ -90,7 +90,7 @@ const INTERMEDIATE_STEPS = [
 
 function Tag({ children, color = ACCENT }) {
   return (
-    <div style={{ display: 'inline-flex', border: `1px solid ${color}`, padding: '4px 10px', fontFamily: 'Space Mono, monospace', fontSize: '9px', letterSpacing: '2px', textTransform: 'uppercase', color, alignSelf: 'flex-start' }}>
+    <div style={{ display: 'inline-flex', border: `1px solid ${color}`, padding: '4px 10px', fontFamily: 'Space Mono, monospace', fontSize: '10px', letterSpacing: '2px', textTransform: 'uppercase', color, alignSelf: 'flex-start' }}>
       {children}
     </div>
   )
@@ -138,7 +138,7 @@ function WeaponCard() {
     <div style={{ border: `1px solid ${BORDER}`, background: SURFACE }}>
       <div style={{ padding: '12px 16px', borderBottom: `1px solid ${BORDER}` }}>
         <div style={{ fontFamily: 'Space Mono, monospace', fontSize: '11px', fontWeight: 700, letterSpacing: '2px', textTransform: 'uppercase', color: TEXT }}>Master-crafted Power Weapon</div>
-        <div style={{ fontFamily: 'Space Mono, monospace', fontSize: '9px', color: TEXT_WEAK, marginTop: '3px' }}>Sword Brethren · melee</div>
+        <div style={{ fontFamily: 'Space Mono, monospace', fontSize: '10px', color: TEXT_WEAK, marginTop: '3px' }}>Sword Brethren · melee</div>
       </div>
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)' }}>
         {stats.map((s, i) => (
@@ -184,7 +184,7 @@ function DefenderCard({ showInvuln = true }) {
     <div style={{ border: `1px solid ${BORDER}`, background: SURFACE }}>
       <div style={{ padding: '12px 16px', borderBottom: `1px solid ${BORDER}` }}>
         <div style={{ fontFamily: 'Space Mono, monospace', fontSize: '11px', fontWeight: 700, letterSpacing: '2px', textTransform: 'uppercase', color: TEXT }}>Maleceptor</div>
-        <div style={{ fontFamily: 'Space Mono, monospace', fontSize: '9px', color: TEXT_WEAK, marginTop: '3px' }}>Target — Tyranids</div>
+        <div style={{ fontFamily: 'Space Mono, monospace', fontSize: '10px', color: TEXT_WEAK, marginTop: '3px' }}>Target — Tyranids</div>
       </div>
       <div style={{ display: 'grid', gridTemplateColumns: `repeat(${cols}, 1fr)` }}>
         {stats.map((s, i) => (
@@ -299,10 +299,10 @@ function StepContent({ stepKey, onNext, results }) {
         ].map(({ unit, profile }, i, arr) => (
           <div key={unit} style={{ display: 'grid', gridTemplateColumns: '1fr auto', padding: '10px 14px', borderBottom: i < arr.length - 1 ? `1px solid ${BORDER}` : 'none', alignItems: 'center' }}>
             <span style={{ fontFamily: 'Space Mono, monospace', fontSize: '10px', fontWeight: 700, color: TEXT }}>{unit}</span>
-            <span style={{ fontFamily: 'Space Mono, monospace', fontSize: '9px', color: TEXT_WEAK }}>{profile}</span>
+            <span style={{ fontFamily: 'Space Mono, monospace', fontSize: '10px', color: TEXT_WEAK }}>{profile}</span>
           </div>
         ))}
-        <div style={{ padding: '8px 14px', borderTop: `1px solid ${BORDER}`, fontFamily: 'Space Mono, monospace', fontSize: '9px', color: ACCENT, letterSpacing: '1.5px' }}>
+        <div style={{ padding: '8px 14px', borderTop: `1px solid ${BORDER}`, fontFamily: 'Space Mono, monospace', fontSize: '10px', color: ACCENT, letterSpacing: '1.5px' }}>
           All carry Lethal Hits · −1 to hit (aura)
         </div>
       </div>
@@ -324,7 +324,7 @@ function StepContent({ stepKey, onNext, results }) {
         But Encephalic Diffusion has a second clause: while the attacker is <strong style={{ color: HIGHLIGHT }}>below half-strength</strong>, also apply −1 to wound. Our unit qualifies. The two modifiers cancel exactly.
       </Body>
       <div style={{ border: `1px solid ${BORDER}`, background: SURFACE }}>
-        <div style={{ padding: '10px 14px', borderBottom: `1px solid ${BORDER}`, fontFamily: 'Space Mono, monospace', fontSize: '9px', letterSpacing: '2px', textTransform: 'uppercase', color: TEXT_WEAK }}>Wound modifiers — this matchup</div>
+        <div style={{ padding: '10px 14px', borderBottom: `1px solid ${BORDER}`, fontFamily: 'Space Mono, monospace', fontSize: '10px', letterSpacing: '2px', textTransform: 'uppercase', color: TEXT_WEAK }}>Wound modifiers — this matchup</div>
         {[
           { rule: 'Accept Any Challenge', mod: '+1 to wound', color: ACCENT },
           { rule: 'Encephalic Diffusion (< half-strength)', mod: '−1 to wound', color: HIGHLIGHT },
@@ -365,7 +365,7 @@ function StepContent({ stepKey, onNext, results }) {
         The Castellan's aura lets every model <strong style={{ color: TEXT }}>re-roll their hit roll</strong>. A 1 or 2 gets a second chance. The −1 aura still applies to the re-roll, so only a 3+ saves the die — but that re-rolled die can land a natural 6.
       </Body>
       <div style={{ border: `1px solid ${BORDER}`, background: SURFACE }}>
-        <div style={{ padding: '10px 14px', borderBottom: `1px solid ${BORDER}`, fontFamily: 'Space Mono, monospace', fontSize: '9px', letterSpacing: '2px', textTransform: 'uppercase', color: TEXT_WEAK }}>Per attack — WS3+ effective · crit on 6 only · re-rolls active</div>
+        <div style={{ padding: '10px 14px', borderBottom: `1px solid ${BORDER}`, fontFamily: 'Space Mono, monospace', fontSize: '10px', letterSpacing: '2px', textTransform: 'uppercase', color: TEXT_WEAK }}>Per attack — WS3+ effective · crit on 6 only · re-rolls active</div>
         {[
           { outcome: 'Miss (1–2, then 1–2 again)', prob: '≈ 11%', note: 'No damage', color: TEXT_WEAK },
           { outcome: 'Normal hit (3–5)', prob: '≈ 67%', note: '6+ wound → 4++ save → 2 dmg', color: TEXT_SEC },
@@ -374,7 +374,7 @@ function StepContent({ stepKey, onNext, results }) {
           <div key={outcome} style={{ padding: '10px 14px', borderBottom: i < arr.length - 1 ? `1px solid ${BORDER}` : 'none', display: 'flex', justifyContent: 'space-between', gap: '8px', alignItems: 'flex-start' }}>
             <div>
               <div style={{ fontFamily: 'Georgia, serif', fontSize: '13px', color: TEXT_SEC }}>{outcome}</div>
-              <div style={{ fontFamily: 'Space Mono, monospace', fontSize: '9px', color: TEXT_WEAK, marginTop: '3px' }}>{note}</div>
+              <div style={{ fontFamily: 'Space Mono, monospace', fontSize: '10px', color: TEXT_WEAK, marginTop: '3px' }}>{note}</div>
             </div>
             <span style={{ fontFamily: 'Space Mono, monospace', fontSize: '12px', fontWeight: 700, color, flexShrink: 0 }}>{prob}</span>
           </div>
@@ -395,7 +395,7 @@ function StepContent({ stepKey, onNext, results }) {
         The Marshal extends the Lethal Hits trigger: an unmodified <strong style={{ color: ACCENT }}>5 or 6</strong> scores a Critical Hit — auto-wounding, no wound roll needed. The target still rolls their save.
       </Body>
       <div style={{ border: `1px solid ${BORDER}`, background: SURFACE }}>
-        <div style={{ padding: '10px 14px', borderBottom: `1px solid ${BORDER}`, fontFamily: 'Space Mono, monospace', fontSize: '9px', letterSpacing: '2px', textTransform: 'uppercase', color: TEXT_WEAK }}>Per attack — WS3+ effective · crit 5+ · re-rolls active</div>
+        <div style={{ padding: '10px 14px', borderBottom: `1px solid ${BORDER}`, fontFamily: 'Space Mono, monospace', fontSize: '10px', letterSpacing: '2px', textTransform: 'uppercase', color: TEXT_WEAK }}>Per attack — WS3+ effective · crit 5+ · re-rolls active</div>
         {[
           { outcome: 'Miss (1–2, then 1–2 again)', prob: '≈ 11%', note: 'No damage', color: TEXT_WEAK },
           { outcome: 'Normal hit (3–4)', prob: '≈ 44%', note: '6+ wound → 4++ save → 2 dmg', color: TEXT_SEC },
@@ -404,32 +404,32 @@ function StepContent({ stepKey, onNext, results }) {
           <div key={outcome} style={{ padding: '10px 14px', borderBottom: i < arr.length - 1 ? `1px solid ${BORDER}` : 'none', display: 'flex', justifyContent: 'space-between', gap: '8px', alignItems: 'flex-start' }}>
             <div>
               <div style={{ fontFamily: 'Georgia, serif', fontSize: '13px', color: TEXT_SEC }}>{outcome}</div>
-              <div style={{ fontFamily: 'Space Mono, monospace', fontSize: '9px', color: TEXT_WEAK, marginTop: '3px' }}>{note}</div>
+              <div style={{ fontFamily: 'Space Mono, monospace', fontSize: '10px', color: TEXT_WEAK, marginTop: '3px' }}>{note}</div>
             </div>
             <span style={{ fontFamily: 'Space Mono, monospace', fontSize: '12px', fontWeight: 700, color, flexShrink: 0 }}>{prob}</span>
           </div>
         ))}
       </div>
       <div style={{ border: `1px solid ${BORDER}`, background: SURFACE }}>
-        <div style={{ padding: '10px 14px', borderBottom: `1px solid ${BORDER}`, fontFamily: 'Space Mono, monospace', fontSize: '9px', letterSpacing: '2px', textTransform: 'uppercase', color: TEXT_WEAK }}>Attack volume — 26 total</div>
+        <div style={{ padding: '10px 14px', borderBottom: `1px solid ${BORDER}`, fontFamily: 'Space Mono, monospace', fontSize: '10px', letterSpacing: '2px', textTransform: 'uppercase', color: TEXT_WEAK }}>Attack volume — 26 total</div>
         {[
           { unit: '4× Sword Brethren', formula: '3A × 4', total: '12 attacks' },
           { unit: '1× Castellan',      formula: '6A',     total: '6 attacks' },
           { unit: '1× Marshal',        formula: '8A (+1A)', total: '8 attacks' },
         ].map(({ unit, formula, total }, i, arr) => (
           <div key={unit} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '9px 14px', borderBottom: i < arr.length - 1 ? `1px solid ${BORDER}` : 'none', gap: '8px' }}>
-            <span style={{ fontFamily: 'Space Mono, monospace', fontSize: '9px', color: TEXT_SEC }}>{unit}</span>
-            <span style={{ fontFamily: 'Space Mono, monospace', fontSize: '9px', color: TEXT_WEAK }}>{formula}</span>
+            <span style={{ fontFamily: 'Space Mono, monospace', fontSize: '10px', color: TEXT_SEC }}>{unit}</span>
+            <span style={{ fontFamily: 'Space Mono, monospace', fontSize: '10px', color: TEXT_WEAK }}>{formula}</span>
             <span style={{ fontFamily: 'Space Mono, monospace', fontSize: '10px', fontWeight: 700, color: TEXT }}>{total}</span>
           </div>
         ))}
-        <div style={{ padding: '8px 14px', fontFamily: 'Space Mono, monospace', fontSize: '9px', color: TEXT_WEAK, borderTop: `1px solid ${BORDER}` }}>
+        <div style={{ padding: '8px 14px', fontFamily: 'Space Mono, monospace', fontSize: '10px', color: TEXT_WEAK, borderTop: `1px solid ${BORDER}` }}>
           Normal hits still need a 6+ to wound, then a 4++ save.
           Crits skip the wound roll — the 4++ save still applies.
         </div>
       </div>
       <div style={{ padding: '16px', border: `1px solid ${ACCENT}`, background: 'rgba(47,224,255,0.04)' }}>
-        <div style={{ fontFamily: 'Space Mono, monospace', fontSize: '9px', letterSpacing: '2px', textTransform: 'uppercase', color: ACCENT, marginBottom: '8px' }}>Full synergy — per attack die</div>
+        <div style={{ fontFamily: 'Space Mono, monospace', fontSize: '10px', letterSpacing: '2px', textTransform: 'uppercase', color: ACCENT, marginBottom: '8px' }}>Full synergy — per attack die</div>
         <p style={{ fontFamily: 'Georgia, serif', fontSize: '14px', lineHeight: 1.7, color: TEXT_SEC, margin: 0 }}>
           1 attack die with no rules: <strong style={{ color: TEXT }}>{results?.single_base?.summary.mean_damage.toFixed(2)}</strong> mean damage.{' '}
           Same die with all five rules: <strong style={{ color: HIGHLIGHT }}>{results?.single_full?.summary.mean_damage.toFixed(2)}</strong> — a{' '}
@@ -458,9 +458,9 @@ function StepContent({ stepKey, onNext, results }) {
           <div key={i} style={{ padding: '10px 14px', borderBottom: i < 2 ? `1px solid ${BORDER}` : 'none' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between' }}>
               <span style={{ fontFamily: 'Space Mono, monospace', fontSize: '10px', fontWeight: 700, color: TEXT }}>{unit}</span>
-              <span style={{ fontFamily: 'Space Mono, monospace', fontSize: '9px', color: TEXT_WEAK }}>{profile}</span>
+              <span style={{ fontFamily: 'Space Mono, monospace', fontSize: '10px', color: TEXT_WEAK }}>{profile}</span>
             </div>
-            <div style={{ fontFamily: 'Space Mono, monospace', fontSize: '9px', color: ACCENT, marginTop: '3px' }}>{kw}</div>
+            <div style={{ fontFamily: 'Space Mono, monospace', fontSize: '10px', color: ACCENT, marginTop: '3px' }}>{kw}</div>
           </div>
         ))}
       </div>
@@ -516,14 +516,14 @@ function SimpleDamagePanel({ result, label = '1× Sword Brethren · Power Sword 
   if (!result) return null
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-      <div style={{ fontFamily: 'Space Mono, monospace', fontSize: '9px', letterSpacing: '2px', textTransform: 'uppercase', color: TEXT_WEAK }}>
+      <div style={{ fontFamily: 'Space Mono, monospace', fontSize: '10px', letterSpacing: '2px', textTransform: 'uppercase', color: TEXT_WEAK }}>
         {label}
       </div>
       <div>
         <div style={{ fontFamily: 'Space Mono, monospace', fontWeight: 700, fontSize: 'clamp(64px, 8vw, 100px)', lineHeight: 1, letterSpacing: '-3px', color: HIGHLIGHT }}>
           {result.summary.mean_damage.toFixed(2)}
         </div>
-        <div style={{ fontFamily: 'Space Mono, monospace', fontSize: '9px', letterSpacing: '2px', textTransform: 'uppercase', color: TEXT_WEAK, marginTop: '10px' }}>
+        <div style={{ fontFamily: 'Space Mono, monospace', fontSize: '10px', letterSpacing: '2px', textTransform: 'uppercase', color: TEXT_WEAK, marginTop: '10px' }}>
           Mean damage output
         </div>
       </div>
@@ -534,7 +534,7 @@ function SimpleDamagePanel({ result, label = '1× Sword Brethren · Power Sword 
         ['Std deviation',  result.summary.std_dev.toFixed(2)],
       ].map(([label, value]) => (
         <div key={label} style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 0', borderBottom: `1px solid ${BORDER}` }}>
-          <span style={{ fontFamily: 'Space Mono, monospace', fontSize: '9px', letterSpacing: '1.5px', textTransform: 'uppercase', color: TEXT_WEAK }}>{label}</span>
+          <span style={{ fontFamily: 'Space Mono, monospace', fontSize: '10px', letterSpacing: '1.5px', textTransform: 'uppercase', color: TEXT_WEAK }}>{label}</span>
           <span style={{ fontFamily: 'Space Mono, monospace', fontSize: '12px', fontWeight: 700, color: TEXT_SEC }}>{value}</span>
         </div>
       ))}
@@ -545,7 +545,7 @@ function SimpleDamagePanel({ result, label = '1× Sword Brethren · Power Sword 
 const CustomTooltip = ({ active, payload, label }) => {
   if (!active || !payload?.length) return null
   return (
-    <div style={{ background: BG, border: `1px solid ${ACCENT}`, padding: '8px 12px', fontFamily: 'Space Mono, monospace', fontSize: '9px', letterSpacing: '1.5px', color: TEXT }}>
+    <div style={{ background: BG, border: `1px solid ${ACCENT}`, padding: '8px 12px', fontFamily: 'Space Mono, monospace', fontSize: '10px', letterSpacing: '1.5px', color: TEXT }}>
       <div style={{ color: TEXT_WEAK, marginBottom: '3px' }}>DMG {label}</div>
       <div style={{ fontWeight: 700, color: ACCENT }}>{(payload[0].value * 100).toFixed(1)}%</div>
     </div>
@@ -558,7 +558,7 @@ function FullDamagePanel({ result, label }) {
   const maxProb = Math.max(...damage_histogram.map((b) => b.probability))
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '0' }}>
-      <div style={{ fontFamily: 'Space Mono, monospace', fontSize: '9px', letterSpacing: '2px', textTransform: 'uppercase', color: TEXT_WEAK, marginBottom: '20px' }}>
+      <div style={{ fontFamily: 'Space Mono, monospace', fontSize: '10px', letterSpacing: '2px', textTransform: 'uppercase', color: TEXT_WEAK, marginBottom: '20px' }}>
         {label}
       </div>
       <div style={{ marginBottom: '16px', display: 'flex', alignItems: 'flex-end', gap: '24px' }}>
@@ -566,7 +566,7 @@ function FullDamagePanel({ result, label }) {
           <div style={{ fontFamily: 'Space Mono, monospace', fontWeight: 700, fontSize: 'clamp(48px, 5vw, 72px)', lineHeight: 1, letterSpacing: '-2px', color: HIGHLIGHT }}>
             {summary.mean_damage.toFixed(2)}
           </div>
-          <div style={{ fontFamily: 'Space Mono, monospace', fontSize: '9px', letterSpacing: '2px', textTransform: 'uppercase', color: TEXT_WEAK, marginTop: '8px' }}>
+          <div style={{ fontFamily: 'Space Mono, monospace', fontSize: '10px', letterSpacing: '2px', textTransform: 'uppercase', color: TEXT_WEAK, marginTop: '8px' }}>
             Mean damage
           </div>
         </div>
@@ -575,7 +575,7 @@ function FullDamagePanel({ result, label }) {
             <div style={{ fontFamily: 'Space Mono, monospace', fontWeight: 700, fontSize: 'clamp(32px, 3.5vw, 52px)', lineHeight: 1, letterSpacing: '-1px', color: ACCENT }}>
               {(result.kill_probabilities['1'] * 100).toFixed(0)}%
             </div>
-            <div style={{ fontFamily: 'Space Mono, monospace', fontSize: '9px', letterSpacing: '2px', textTransform: 'uppercase', color: TEXT_WEAK, marginTop: '8px' }}>
+            <div style={{ fontFamily: 'Space Mono, monospace', fontSize: '10px', letterSpacing: '2px', textTransform: 'uppercase', color: TEXT_WEAK, marginTop: '8px' }}>
               Kill chance
             </div>
           </div>
@@ -588,7 +588,7 @@ function FullDamagePanel({ result, label }) {
         ['P10—P90',  `${summary.p10} — ${summary.p90}`],
       ].map(([l, v]) => (
         <div key={l} style={{ display: 'flex', justifyContent: 'space-between', padding: '7px 0', borderBottom: `1px solid ${BORDER}` }}>
-          <span style={{ fontFamily: 'Space Mono, monospace', fontSize: '9px', letterSpacing: '1.5px', textTransform: 'uppercase', color: TEXT_WEAK }}>{l}</span>
+          <span style={{ fontFamily: 'Space Mono, monospace', fontSize: '10px', letterSpacing: '1.5px', textTransform: 'uppercase', color: TEXT_WEAK }}>{l}</span>
           <span style={{ fontFamily: 'Space Mono, monospace', fontSize: '12px', fontWeight: 700, color: TEXT_SEC }}>{v}</span>
         </div>
       ))}
@@ -709,10 +709,10 @@ export function OnboardingPage() {
         <div style={{ fontFamily: 'Space Mono, monospace', fontSize: '12px', fontWeight: 700, letterSpacing: '3px', color: ACCENT }}>
           PROB<span style={{ opacity: 0.4 }}>'</span>HAMMER
         </div>
-        <div style={{ fontFamily: 'Space Mono, monospace', fontSize: '9px', letterSpacing: '2px', color: TEXT_WEAK }}>
+        <div style={{ fontFamily: 'Space Mono, monospace', fontSize: '10px', letterSpacing: '2px', color: TEXT_WEAK }}>
           {activeStep + 1} / {steps.length}
         </div>
-        <span onClick={handleSkip} style={{ fontFamily: 'Space Mono, monospace', fontSize: '9px', letterSpacing: '2px', textTransform: 'uppercase', color: TEXT_OFF, cursor: 'pointer' }}>
+        <span onClick={handleSkip} style={{ fontFamily: 'Space Mono, monospace', fontSize: '10px', letterSpacing: '2px', textTransform: 'uppercase', color: TEXT_OFF, cursor: 'pointer' }}>
           Skip →
         </span>
       </div>
@@ -753,7 +753,7 @@ export function OnboardingPage() {
         onClick={() => handleNext(activeStep)}
         onMouseEnter={() => setBtnHov(true)}
         onMouseLeave={() => setBtnHov(false)}
-        style={{ position: 'fixed', bottom: '40px', left: '25vw', transform: 'translateX(-50%)', border: `1px solid ${ACCENT}`, background: btnHov ? 'rgba(47,224,255,0.08)' : 'transparent', color: ACCENT, fontFamily: 'Space Mono, monospace', fontSize: '9px', letterSpacing: '2px', textTransform: 'uppercase', padding: '10px 20px', cursor: 'pointer', zIndex: 20, transition: 'background 150ms', display: 'flex', alignItems: 'center', gap: '8px' }}
+        style={{ position: 'fixed', bottom: '40px', left: '25vw', transform: 'translateX(-50%)', border: `1px solid ${ACCENT}`, background: btnHov ? 'rgba(47,224,255,0.08)' : 'transparent', color: ACCENT, fontFamily: 'Space Mono, monospace', fontSize: '10px', letterSpacing: '2px', textTransform: 'uppercase', padding: '10px 20px', cursor: 'pointer', zIndex: 20, transition: 'background 150ms', display: 'flex', alignItems: 'center', gap: '8px' }}
       >
         <span style={{ display: 'inline-block', animation: 'arrowBounce 1.4s ease-in-out infinite', animationPlayState: btnHov ? 'paused' : 'running' }}>↓</span>
         Next

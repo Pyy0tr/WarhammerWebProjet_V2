@@ -61,7 +61,7 @@ function UnitRow({ unit, onClick }) {
           {unit.name}
         </span>
         <span style={{
-          fontFamily: 'Space Mono, monospace', fontSize: '9px',
+          fontFamily: 'Space Mono, monospace', fontSize: '10px',
           color: TEXT_WEAK, whiteSpace: 'nowrap', marginLeft: '12px',
         }}>
           T{unit.T} · {unit.Sv}+ · W{unit.W}
@@ -95,7 +95,7 @@ function WeaponRow({ weapon, onClick }) {
           {weapon.name}
         </span>
         <span style={{
-          fontFamily: 'Space Mono, monospace', fontSize: '9px',
+          fontFamily: 'Space Mono, monospace', fontSize: '10px',
           color: TEXT_WEAK, whiteSpace: 'nowrap', marginLeft: '12px',
         }}>
           {fmtWeaponLine(weapon)}
@@ -151,7 +151,7 @@ function BrowsePanel({ onSelectUnit }) {
                 {group}
               </span>
               <span style={{
-                fontFamily: 'Space Mono, monospace', fontSize: '9px',
+                fontFamily: 'Space Mono, monospace', fontSize: '10px',
                 color: TEXT_OFF, marginLeft: '8px',
               }}>
                 {isGroupOpen ? '▲' : '▼'}
@@ -194,7 +194,7 @@ function BrowsePanel({ onSelectUnit }) {
                       {units.length === 0 ? (
                         <div style={{
                           padding: '12px 20px 12px 40px',
-                          fontFamily: 'Space Mono, monospace', fontSize: '9px',
+                          fontFamily: 'Space Mono, monospace', fontSize: '10px',
                           color: TEXT_OFF,
                         }}>
                           No units
@@ -223,7 +223,7 @@ function SearchResults({ results, onSelectUnit }) {
     return (
       <div style={{
         padding: '32px 20px', textAlign: 'center',
-        fontFamily: 'Space Mono, monospace', fontSize: '9px',
+        fontFamily: 'Space Mono, monospace', fontSize: '10px',
         letterSpacing: '2px', color: TEXT_OFF, textTransform: 'uppercase',
       }}>
         No results
@@ -258,7 +258,7 @@ function WeaponStep({ unit, onSelectWeapon, _onBack }) {
           {unit.name}
         </div>
         <div style={{
-          fontFamily: 'Space Mono, monospace', fontSize: '9px',
+          fontFamily: 'Space Mono, monospace', fontSize: '10px',
           color: TEXT_WEAK, letterSpacing: '1px',
         }}>
           T{unit.T} · SV{unit.Sv}+ · W{unit.W}
@@ -271,7 +271,7 @@ function WeaponStep({ unit, onSelectWeapon, _onBack }) {
       {weapons.length === 0 ? (
         <div style={{
           padding: '24px 20px',
-          fontFamily: 'Space Mono, monospace', fontSize: '9px',
+          fontFamily: 'Space Mono, monospace', fontSize: '10px',
           color: TEXT_OFF, letterSpacing: '1px',
         }}>
           No weapon data available. Configure manually.
@@ -393,7 +393,7 @@ export function UnitDrawer({ isOpen, onClose, role, onSelect }) {
                 width: '100%', boxSizing: 'border-box',
                 background: SURFACE,
                 border: `1px solid ${query.length >= 2 ? ACCENT : BORDER}`,
-                borderRadius: 0, color: TEXT,
+                borderRadius: '2px', color: TEXT,
                 fontFamily: 'Space Mono, monospace', fontSize: '13px',
                 fontWeight: 700, padding: '9px 36px 9px 12px',
                 outline: 'none', transition: 'border-color 100ms',

@@ -55,7 +55,7 @@ function FeedbackCard({ fb, onMarkRead }) {
         </div>
 
         {/* Date */}
-        <div style={{ fontFamily: 'Space Mono, monospace', fontSize: '9px', color: TEXT_OFF, flexShrink: 0 }}>
+        <div style={{ fontFamily: 'Space Mono, monospace', fontSize: '10px', color: TEXT_OFF, flexShrink: 0 }}>
           {formatDate(fb.created_at)}
         </div>
 
@@ -73,7 +73,7 @@ function FeedbackCard({ fb, onMarkRead }) {
           {!fb.is_read && (
             <button
               onClick={(e) => { e.stopPropagation(); onMarkRead(fb.id) }}
-              style={{ background: 'transparent', border: `1px solid ${BORDER}`, color: TEXT_OFF, fontFamily: 'Space Mono, monospace', fontSize: '9px', letterSpacing: '2px', textTransform: 'uppercase', padding: '8px 16px', cursor: 'pointer', alignSelf: 'flex-start', transition: 'border-color 150ms, color 150ms' }}
+              style={{ background: 'transparent', border: `1px solid ${BORDER}`, color: TEXT_OFF, fontFamily: 'Space Mono, monospace', fontSize: '10px', letterSpacing: '2px', textTransform: 'uppercase', padding: '8px 16px', cursor: 'pointer', alignSelf: 'flex-start', transition: 'border-color 150ms, color 150ms' }}
               onMouseEnter={(e) => { e.currentTarget.style.borderColor = ACCENT; e.currentTarget.style.color = ACCENT }}
               onMouseLeave={(e) => { e.currentTarget.style.borderColor = BORDER; e.currentTarget.style.color = TEXT_OFF }}
             >
@@ -142,7 +142,7 @@ export function AdminFeedbackPage() {
             {unread} non lu{unread > 1 ? 's' : ''}
           </div>
         )}
-        <div style={{ marginLeft: 'auto', fontFamily: 'Space Mono, monospace', fontSize: '9px', color: TEXT_OFF }}>
+        <div style={{ marginLeft: 'auto', fontFamily: 'Space Mono, monospace', fontSize: '10px', color: TEXT_OFF }}>
           {feedbacks.length} total
         </div>
       </div>
@@ -159,7 +159,7 @@ export function AdminFeedbackPage() {
                 background: active ? SURFACE_E : 'transparent',
                 border: `1px solid ${active ? TEXT_WEAK : BORDER}`,
                 color: active ? TEXT : TEXT_OFF,
-                fontFamily: 'Space Mono, monospace', fontSize: '9px',
+                fontFamily: 'Space Mono, monospace', fontSize: '10px',
                 letterSpacing: '2px', textTransform: 'uppercase',
                 padding: '6px 14px', cursor: 'pointer',
                 transition: 'all 150ms',

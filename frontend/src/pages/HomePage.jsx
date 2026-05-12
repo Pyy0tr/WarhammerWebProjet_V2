@@ -5,7 +5,7 @@ import { ACCENT, BG, BORDER, SURFACE, SURFACE_E, TEXT, TEXT_SEC, TEXT_WEAK, TEXT
 function Separator({ opacity = 0.5 }) {
   return (
     <div style={{
-      fontFamily: 'Space Mono, monospace', fontSize: '9px',
+      fontFamily: 'Space Mono, monospace', fontSize: '10px',
       letterSpacing: '3px', color: ACCENT,
       overflow: 'hidden', whiteSpace: 'nowrap', lineHeight: 1,
       padding: '10px 0', userSelect: 'none', opacity,
@@ -67,7 +67,8 @@ function ActionCard({ action, navigate }) {
         borderTop: `2px solid ${hov ? ACCENT : 'transparent'}`,
         padding: '28px 28px 24px',
         cursor: 'pointer',
-        transition: 'background 180ms, border-top-color 180ms',
+        transition: 'background 180ms, border-top-color 180ms, box-shadow 180ms',
+        boxShadow: hov ? '0 8px 32px rgba(0,0,0,0.35), inset 0 1px 0 rgba(47,224,255,0.08)' : 'none',
         display: 'flex', flexDirection: 'column', justifyContent: 'space-between',
         position: 'relative', overflow: 'hidden',
       }}
@@ -190,14 +191,16 @@ function GuideCard({ guide }) {
         border: `1px solid ${active ? ACCENT : TEXT_WEAK}`,
         background: active ? 'rgba(47,224,255,0.04)' : SURFACE,
         padding: '32px 28px',
+        borderRadius: '4px',
         cursor: guide.route ? 'pointer' : 'default',
-        transition: 'border-color 120ms, background 120ms',
+        transition: 'border-color 120ms, background 120ms, box-shadow 120ms',
+        boxShadow: active ? '0 8px 32px rgba(0,0,0,0.3), 0 0 0 1px rgba(47,224,255,0.1)' : 'none',
         display: 'flex', flexDirection: 'column', gap: '14px',
         opacity: soon ? 0.5 : 1,
       }}
     >
       <div style={{
-        fontFamily: 'Space Mono, monospace', fontSize: '9px',
+        fontFamily: 'Space Mono, monospace', fontSize: '10px',
         letterSpacing: '3px', textTransform: 'uppercase',
         color: active ? ACCENT : TEXT_OFF,
         transition: 'color 120ms',
@@ -223,7 +226,7 @@ function GuideCard({ guide }) {
       </p>
 
       <div style={{
-        fontFamily: 'Space Mono, monospace', fontSize: '9px',
+        fontFamily: 'Space Mono, monospace', fontSize: '10px',
         letterSpacing: '2px', textTransform: 'uppercase',
         color: soon ? TEXT_OFF : TEXT_WEAK,
       }}>
@@ -266,7 +269,7 @@ export function HomePage() {
           }}>
             <div style={{ width: 6, height: 6, borderRadius: '50%', background: ACCENT, opacity: 0.85 }} />
             <span style={{
-              fontFamily: 'Space Mono, monospace', fontSize: '9px',
+              fontFamily: 'Space Mono, monospace', fontSize: '10px',
               letterSpacing: '2px', textTransform: 'uppercase', color: ACCENT,
             }}>
               Warhammer 40,000 · 10th Edition
@@ -305,8 +308,8 @@ export function HomePage() {
                 border: `1px solid ${ACCENT}`, background: ACCENT, color: BG,
                 fontFamily: 'Space Mono, monospace', fontSize: '11px', fontWeight: 700,
                 letterSpacing: '2.5px', textTransform: 'uppercase',
-                padding: '14px 28px', borderRadius: 0, cursor: 'pointer',
-                transition: 'opacity 120ms',
+                padding: '14px 28px', borderRadius: '3px', cursor: 'pointer',
+                transition: 'opacity 120ms, box-shadow 120ms',
               }}
               onMouseEnter={(e) => { e.currentTarget.style.opacity = '0.85' }}
               onMouseLeave={(e) => { e.currentTarget.style.opacity = '1' }}
@@ -330,7 +333,7 @@ export function HomePage() {
                   {n}
                 </div>
                 <div style={{
-                  fontFamily: 'Space Mono, monospace', fontSize: '9px',
+                  fontFamily: 'Space Mono, monospace', fontSize: '10px',
                   letterSpacing: '1.5px', textTransform: 'uppercase',
                   color: TEXT_WEAK, marginTop: '6px',
                 }}>
@@ -392,7 +395,7 @@ export function HomePage() {
         borderTop: `1px solid ${BORDER}`,
         padding: '20px 56px',
         display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap', gap: '8px',
-        fontFamily: 'Space Mono, monospace', fontSize: '9px',
+        fontFamily: 'Space Mono, monospace', fontSize: '10px',
         letterSpacing: '2px', textTransform: 'uppercase', color: TEXT_WEAK,
       }}>
         <span>Prob'Hammer — V2</span>

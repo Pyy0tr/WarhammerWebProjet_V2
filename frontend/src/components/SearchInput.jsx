@@ -43,7 +43,7 @@ export function SearchInput({ label, value, placeholder, onSearch, results, onSe
       <label style={{
         display: 'block',
         fontFamily: 'Space Mono, monospace',
-        fontSize: '9px',
+        fontSize: '10px',
         letterSpacing: '2px',
         textTransform: 'uppercase',
         color: TEXT_WEAK,
@@ -64,7 +64,7 @@ export function SearchInput({ label, value, placeholder, onSearch, results, onSe
             width: '100%',
             background: SURFACE,
             border: `1px solid ${open ? ACCENT : BORDER}`,
-            borderRadius: 0,
+            borderRadius: '2px',
             color: TEXT,
             fontFamily: 'Space Mono, monospace',
             fontSize: '15px',

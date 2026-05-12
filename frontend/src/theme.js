@@ -43,14 +43,14 @@ export const FONT_SERIF = "Georgia, 'Times New Roman', serif"
 export const TYPE = {
   // Space Mono — UI chrome
   display: { fontFamily: FONT_MONO, fontSize: '20px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '2px', lineHeight: 1.2, color: TEXT },
-  heading: { fontFamily: FONT_MONO, fontSize: '11px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '2px', lineHeight: 1,   color: TEXT },
-  label:   { fontFamily: FONT_MONO, fontSize: '9px',  fontWeight: 400, textTransform: 'uppercase', letterSpacing: '2px', lineHeight: 1,   color: TEXT_WEAK },
-  ui:      { fontFamily: FONT_MONO, fontSize: '10px', fontWeight: 400, textTransform: 'uppercase', letterSpacing: '2px', lineHeight: 1,   color: TEXT_SEC },
+  heading: { fontFamily: FONT_MONO, fontSize: '12px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '2px', lineHeight: 1,   color: TEXT },
+  label:   { fontFamily: FONT_MONO, fontSize: '10px', fontWeight: 400, textTransform: 'uppercase', letterSpacing: '2px', lineHeight: 1,   color: TEXT_WEAK },
+  ui:      { fontFamily: FONT_MONO, fontSize: '11px', fontWeight: 400, textTransform: 'uppercase', letterSpacing: '2px', lineHeight: 1,   color: TEXT_SEC },
   // Georgia — reading text
   body:    { fontFamily: FONT_SERIF, fontSize: '14px', fontWeight: 400, lineHeight: 1.75, color: TEXT_SEC },
   note:    { fontFamily: FONT_SERIF, fontSize: '13px', fontWeight: 400, lineHeight: 1.65, fontStyle: 'italic', color: TEXT_WEAK },
   // Space Mono — numeric values (no case/spacing transform)
   statLg:  { fontFamily: FONT_MONO, fontSize: '22px', fontWeight: 700, lineHeight: 1, color: TEXT },
   statMd:  { fontFamily: FONT_MONO, fontSize: '16px', fontWeight: 700, lineHeight: 1, color: TEXT_SEC },
-  statSm:  { fontFamily: FONT_MONO, fontSize: '11px', fontWeight: 700, lineHeight: 1, color: TEXT_WEAK },
+  statSm:  { fontFamily: FONT_MONO, fontSize: '12px', fontWeight: 700, lineHeight: 1, color: TEXT_WEAK },
 }

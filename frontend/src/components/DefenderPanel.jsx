@@ -144,7 +144,7 @@ function DefenderArmyPicker() {
             {unit.name}
           </div>
           <div style={{
-            fontFamily: 'Space Mono, monospace', fontSize: '9px',
+            fontFamily: 'Space Mono, monospace', fontSize: '10px',
             color: TEXT_WEAK, marginTop: '4px', letterSpacing: '0.5px',
           }}>
             T{unit.T} · Sv{unit.Sv}+ · W{unit.W}
@@ -283,7 +283,7 @@ export function DefenderPanel() {
               background: 'none', border: 'none',
               borderBottom: mode === id ? `2px solid ${ACCENT}` : '2px solid transparent',
               color: mode === id ? ACCENT : TEXT_OFF,
-              fontFamily: 'Space Mono, monospace', fontSize: '9px',
+              fontFamily: 'Space Mono, monospace', fontSize: '10px',
               letterSpacing: '2px', textTransform: 'uppercase',
               cursor: 'pointer', marginBottom: '-1px',
               transition: 'color 100ms',
@@ -319,7 +319,7 @@ export function DefenderPanel() {
               background: ACCENT, border: `1px solid ${ACCENT}`,
               color: BG, fontFamily: 'Space Mono, monospace', fontSize: '10px',
               fontWeight: 700, letterSpacing: '2px', textTransform: 'uppercase',
-              padding: '12px 28px', cursor: 'pointer', borderRadius: 0,
+              padding: '12px 28px', cursor: 'pointer', borderRadius: '3px',
               transition: 'opacity 100ms',
             }}
             onMouseEnter={(e) => { e.currentTarget.style.opacity = '0.85' }}
@@ -425,7 +425,7 @@ export function DefenderPanel() {
 
       <div style={{ borderTop: `1px solid ${BORDER}`, paddingTop: '22px' }}>
         <div style={{
-          fontFamily: 'Space Mono, monospace', fontSize: '9px',
+          fontFamily: 'Space Mono, monospace', fontSize: '10px',
           letterSpacing: '2.5px', textTransform: 'uppercase',
           color: TEXT_WEAK, marginBottom: '18px',
         }}>
@@ -439,7 +439,7 @@ export function DefenderPanel() {
 
       <div style={{ borderTop: `1px solid ${BORDER}`, paddingTop: '22px' }}>
         <div style={{
-          fontFamily: 'Space Mono, monospace', fontSize: '9px',
+          fontFamily: 'Space Mono, monospace', fontSize: '10px',
           letterSpacing: '2.5px', textTransform: 'uppercase',
           color: TEXT_WEAK, marginBottom: '18px',
         }}>

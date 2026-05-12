@@ -44,14 +44,14 @@ function StepBar({ current, onStep }) {
               display: 'flex', alignItems: 'center', justifyContent: 'center',
               background: active ? ACCENT : completed ? SURFACE_E : 'transparent',
               border: `1px solid ${active || completed ? ACCENT : BORDER}`,
-              fontFamily: 'Space Mono, monospace', fontSize: '9px', fontWeight: 700,
+              fontFamily: 'Space Mono, monospace', fontSize: '10px', fontWeight: 700,
               color: active ? BG : completed ? ACCENT : TEXT_OFF,
               transition: 'all 150ms',
             }}>
               {completed ? '\u2713' : s.n}
             </span>
             <span style={{
-              fontFamily: 'Space Mono, monospace', fontSize: '9px',
+              fontFamily: 'Space Mono, monospace', fontSize: '10px',
               letterSpacing: '1.5px', textTransform: 'uppercase',
               color: active ? ACCENT : completed ? TEXT_SEC : TEXT_OFF,
               fontWeight: active ? 700 : 400,
@@ -192,7 +192,7 @@ function ReviewStep() {
           style={{
             flex: 1, padding: '12px',
             background: 'transparent', border: `1px solid ${BORDER}`,
-            color: ACCENT, fontFamily: 'Space Mono, monospace', fontSize: '9px',
+            color: ACCENT, fontFamily: 'Space Mono, monospace', fontSize: '10px',
             letterSpacing: '1.5px', textTransform: 'uppercase', cursor: 'pointer',
             transition: 'background 100ms',
           }}
@@ -207,7 +207,7 @@ function ReviewStep() {
             style={{
               flex: 1, padding: '12px',
               background: ACCENT, border: `1px solid ${ACCENT}`,
-              color: BG, fontFamily: 'Space Mono, monospace', fontSize: '9px',
+              color: BG, fontFamily: 'Space Mono, monospace', fontSize: '10px',
               fontWeight: 700, letterSpacing: '1.5px', textTransform: 'uppercase',
               cursor: 'pointer', transition: 'opacity 100ms',
             }}
@@ -251,7 +251,7 @@ function DefenderStep() {
           style={{
             padding: '12px 20px',
             background: 'transparent', border: `1px solid ${BORDER}`,
-            color: TEXT_WEAK, fontFamily: 'Space Mono, monospace', fontSize: '9px',
+            color: TEXT_WEAK, fontFamily: 'Space Mono, monospace', fontSize: '10px',
             letterSpacing: '1.5px', textTransform: 'uppercase', cursor: 'pointer',
             transition: 'color 100ms',
           }}
@@ -307,7 +307,7 @@ function ResultsStep() {
             {attacks.map((atk) => (
               <div key={atk._id} style={{
                 padding: '6px 10px', border: `1px solid ${BORDER}`,
-                fontFamily: 'Space Mono, monospace', fontSize: '9px', color: TEXT_SEC,
+                fontFamily: 'Space Mono, monospace', fontSize: '10px', color: TEXT_SEC,
               }}>
                 {atk.models}x {atk.weapon.name || 'Custom'}
               </div>
@@ -324,7 +324,7 @@ function ResultsStep() {
           style={{
             padding: '10px 18px',
             background: 'transparent', border: `1px solid ${BORDER}`,
-            color: TEXT_WEAK, fontFamily: 'Space Mono, monospace', fontSize: '9px',
+            color: TEXT_WEAK, fontFamily: 'Space Mono, monospace', fontSize: '10px',
             letterSpacing: '1.5px', textTransform: 'uppercase', cursor: 'pointer',
             transition: 'color 100ms',
           }}
@@ -338,7 +338,7 @@ function ResultsStep() {
           style={{
             padding: '10px 18px',
             background: 'transparent', border: `1px solid ${BORDER}`,
-            color: TEXT_WEAK, fontFamily: 'Space Mono, monospace', fontSize: '9px',
+            color: TEXT_WEAK, fontFamily: 'Space Mono, monospace', fontSize: '10px',
             letterSpacing: '1.5px', textTransform: 'uppercase', cursor: 'pointer',
             transition: 'color 100ms',
           }}
@@ -352,7 +352,7 @@ function ResultsStep() {
           style={{
             padding: '10px 18px',
             background: 'transparent', border: `1px solid ${ERROR}44`,
-            color: ERROR, fontFamily: 'Space Mono, monospace', fontSize: '9px',
+            color: ERROR, fontFamily: 'Space Mono, monospace', fontSize: '10px',
             letterSpacing: '1.5px', textTransform: 'uppercase', cursor: 'pointer',
             transition: 'background 100ms, border-color 100ms',
           }}
@@ -371,7 +371,7 @@ function ResultsStep() {
 function Separator() {
   return (
     <div style={{
-      fontFamily: 'Space Mono, monospace', fontSize: '9px', letterSpacing: '3px',
+      fontFamily: 'Space Mono, monospace', fontSize: '10px', letterSpacing: '3px',
       color: ACCENT, overflow: 'hidden', whiteSpace: 'nowrap', lineHeight: 1,
       padding: '10px 0', userSelect: 'none', opacity: 0.4,
     }}>
@@ -692,7 +692,7 @@ function ProgressTracker() {
                   }}
                 >
                   {isCompleted && (
-                    <span style={{ fontSize: '9px', color: BG, fontWeight: 900, lineHeight: 1 }}>✓</span>
+                    <span style={{ fontSize: '10px', color: BG, fontWeight: 900, lineHeight: 1 }}>✓</span>
                   )}
                   {isActive && (
                     <div style={{
@@ -990,14 +990,14 @@ function AttackStep() {
       {attacks.length > 0 && (
         <div style={{
           marginTop: '16px', textAlign: 'center',
-          fontFamily: 'Space Mono, monospace', fontSize: '9px', color: TEXT_WEAK,
+          fontFamily: 'Space Mono, monospace', fontSize: '10px', color: TEXT_WEAK,
         }}>
           {attacks.length} attack{attacks.length > 1 ? 's' : ''} already configured —{' '}
           <button
             onClick={() => setStep(2)}
             style={{
               background: 'none', border: 'none', color: ACCENT,
-              fontFamily: 'Space Mono, monospace', fontSize: '9px',
+              fontFamily: 'Space Mono, monospace', fontSize: '10px',
               cursor: 'pointer', textDecoration: 'underline', padding: 0,
             }}
           >
@@ -1093,7 +1093,7 @@ export function SimulatorPage() {
         <Separator />
         <div style={{
           display: 'flex', justifyContent: 'space-between', paddingTop: '12px',
-          fontFamily: 'Space Mono, monospace', fontSize: '9px',
+          fontFamily: 'Space Mono, monospace', fontSize: '10px',
           letterSpacing: '2px', textTransform: 'uppercase', color: TEXT_OFF,
         }}>
           <span>WH40K PROBABILITY ENGINE — V2</span>

@@ -10,7 +10,7 @@ const StatRow = ({ label, value, highlight = false }) => (
     borderBottom: `1px solid ${BORDER}`,
   }}>
     <span style={{
-      fontFamily: 'Space Mono, monospace', fontSize: '9px',
+      fontFamily: 'Space Mono, monospace', fontSize: '10px',
       letterSpacing: '1.5px', textTransform: 'uppercase',
       color: highlight ? TEXT_SEC : TEXT_WEAK,
     }}>
@@ -33,7 +33,7 @@ const CustomTooltip = ({ active, payload, label }) => {
     <div style={{
       background: BG, border: `1px solid ${ACCENT}`,
       padding: '8px 12px', fontFamily: 'Space Mono, monospace',
-      fontSize: '9px', letterSpacing: '1.5px', color: TEXT,
+      fontSize: '10px', letterSpacing: '1.5px', color: TEXT,
     }}>
       <div style={{ marginBottom: '3px', color: TEXT_WEAK }}>DAMAGE {label}</div>
       <div style={{ fontWeight: 700, color: ACCENT }}>{(payload[0].value * 100).toFixed(1)}%</div>
@@ -53,7 +53,7 @@ export function ResultsPanel({ result }) {
           —
         </div>
         <div style={{
-          fontFamily: 'Space Mono, monospace', fontSize: '9px',
+          fontFamily: 'Space Mono, monospace', fontSize: '10px',
           letterSpacing: '3px', textTransform: 'uppercase',
           color: TEXT_WEAK, marginTop: '12px',
         }}>
@@ -86,7 +86,7 @@ export function ResultsPanel({ result }) {
           {summary.mean_damage.toFixed(2)}
         </div>
         <div style={{
-          fontFamily: 'Space Mono, monospace', fontSize: '9px',
+          fontFamily: 'Space Mono, monospace', fontSize: '10px',
           letterSpacing: '3px', textTransform: 'uppercase',
           color: TEXT_WEAK, marginTop: '8px',
         }}>

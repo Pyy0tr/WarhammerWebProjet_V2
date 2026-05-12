@@ -395,7 +395,7 @@ function ComparisonPanel({ kwType }) {
       {/* Scenario header */}
       <div>
         <div style={{
-          fontFamily: 'Space Mono, monospace', fontSize: '9px',
+          fontFamily: 'Space Mono, monospace', fontSize: '10px',
           letterSpacing: '2px', textTransform: 'uppercase',
           color: TEXT_WEAK, marginBottom: '6px',
         }}>
@@ -423,7 +423,7 @@ function ComparisonPanel({ kwType }) {
           {/* Labels row */}
           <div style={{ background: '#0F2230', padding: '8px 16px' }}>
             <span style={{
-              fontFamily: 'Space Mono, monospace', fontSize: '9px',
+              fontFamily: 'Space Mono, monospace', fontSize: '10px',
               letterSpacing: '2px', textTransform: 'uppercase', color: TEXT_WEAK,
             }}>
               Without
@@ -431,7 +431,7 @@ function ComparisonPanel({ kwType }) {
           </div>
           <div style={{ background: '#0F2230', padding: '8px 16px', borderLeft: `2px solid ${ACCENT}` }}>
             <span style={{
-              fontFamily: 'Space Mono, monospace', fontSize: '9px',
+              fontFamily: 'Space Mono, monospace', fontSize: '10px',
               letterSpacing: '2px', textTransform: 'uppercase', color: ACCENT,
             }}>
               With keyword
@@ -440,11 +440,11 @@ function ComparisonPanel({ kwType }) {
 
           {/* Mean */}
           <div style={{ background: '#0A1621', padding: '16px 16px 12px' }}>
-            <div style={{ fontFamily: 'Space Mono, monospace', fontSize: '9px', ...TYPE.label, marginBottom: '6px' }}>Mean dmg</div>
+            <div style={{ fontFamily: 'Space Mono, monospace', fontSize: '10px', ...TYPE.label, marginBottom: '6px' }}>Mean dmg</div>
             <div style={{ fontFamily: 'Space Mono, monospace', fontSize: '22px', fontWeight: 700, color: TEXT }}>{r0.summary.mean_damage}</div>
           </div>
           <div style={{ background: '#0A1621', padding: '16px 16px 12px', borderLeft: `2px solid ${ACCENT}` }}>
-            <div style={{ fontFamily: 'Space Mono, monospace', fontSize: '9px', ...TYPE.label, marginBottom: '6px' }}>Mean dmg</div>
+            <div style={{ fontFamily: 'Space Mono, monospace', fontSize: '10px', ...TYPE.label, marginBottom: '6px' }}>Mean dmg</div>
             <div style={{ display: 'flex', alignItems: 'baseline', gap: '10px' }}>
               <div style={{ fontFamily: 'Space Mono, monospace', fontSize: '22px', fontWeight: 700, color: ACCENT }}>{r1.summary.mean_damage}</div>
               <div style={{ fontFamily: 'Space Mono, monospace', fontSize: '11px', fontWeight: 700, color: diffColor }}>{diffSign}{meanDiff.toFixed(2)}</div>
@@ -453,11 +453,11 @@ function ComparisonPanel({ kwType }) {
 
           {/* P90 */}
           <div style={{ background: '#0A1621', padding: '12px 16px 16px' }}>
-            <div style={{ fontFamily: 'Space Mono, monospace', fontSize: '9px', ...TYPE.label, marginBottom: '6px' }}>P90 (best 10%)</div>
+            <div style={{ fontFamily: 'Space Mono, monospace', fontSize: '10px', ...TYPE.label, marginBottom: '6px' }}>P90 (best 10%)</div>
             <div style={{ fontFamily: 'Space Mono, monospace', fontSize: '22px', fontWeight: 700, color: TEXT }}>{r0.summary.p90}</div>
           </div>
           <div style={{ background: '#0A1621', padding: '12px 16px 16px', borderLeft: `2px solid ${ACCENT}` }}>
-            <div style={{ fontFamily: 'Space Mono, monospace', fontSize: '9px', ...TYPE.label, marginBottom: '6px' }}>P90 (best 10%)</div>
+            <div style={{ fontFamily: 'Space Mono, monospace', fontSize: '10px', ...TYPE.label, marginBottom: '6px' }}>P90 (best 10%)</div>
             <div style={{ display: 'flex', alignItems: 'baseline', gap: '10px' }}>
               <div style={{ fontFamily: 'Space Mono, monospace', fontSize: '22px', fontWeight: 700, color: ACCENT }}>{r1.summary.p90}</div>
               {r1.summary.p90 !== r0.summary.p90 && (
@@ -473,7 +473,7 @@ function ComparisonPanel({ kwType }) {
       {/* Histogram */}
       <div>
         <div style={{
-          fontFamily: 'Space Mono, monospace', fontSize: '9px',
+          fontFamily: 'Space Mono, monospace', fontSize: '10px',
           letterSpacing: '2px', textTransform: 'uppercase',
           color: TEXT_WEAK, marginBottom: '10px',
         }}>
@@ -581,7 +581,7 @@ function DetailPanel({ kw }) {
         <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: '16px' }}>
           <div>
             <div style={{
-              fontFamily: 'Space Mono, monospace', fontSize: '9px',
+              fontFamily: 'Space Mono, monospace', fontSize: '10px',
               letterSpacing: '3px', textTransform: 'uppercase',
               color: TEXT_WEAK, marginBottom: '10px',
             }}>
@@ -615,7 +615,7 @@ function DetailPanel({ kw }) {
 
         {/* Rule */}
         <div>
-          <div style={{ fontFamily: 'Space Mono, monospace', fontSize: '9px', letterSpacing: '2px', textTransform: 'uppercase', color: TEXT_WEAK, marginBottom: '10px' }}>
+          <div style={{ fontFamily: 'Space Mono, monospace', fontSize: '10px', letterSpacing: '2px', textTransform: 'uppercase', color: TEXT_WEAK, marginBottom: '10px' }}>
             Official Rule
           </div>
           <div style={{ background: SURFACE, border: `1px solid ${BORDER}`, padding: '14px 18px', fontFamily: 'Georgia, serif', fontSize: '14px', lineHeight: 1.75, color: TEXT_SEC }}>
@@ -625,7 +625,7 @@ function DetailPanel({ kw }) {
 
         {/* When to use */}
         <div>
-          <div style={{ fontFamily: 'Space Mono, monospace', fontSize: '9px', letterSpacing: '2px', textTransform: 'uppercase', color: ACCENT, marginBottom: '10px', opacity: 0.8 }}>
+          <div style={{ fontFamily: 'Space Mono, monospace', fontSize: '10px', letterSpacing: '2px', textTransform: 'uppercase', color: ACCENT, marginBottom: '10px', opacity: 0.8 }}>
             When to use
           </div>
           <p style={{ fontFamily: 'Georgia, serif', fontSize: '14px', lineHeight: 1.8, color: TEXT_SEC, margin: 0 }}>
@@ -636,7 +636,7 @@ function DetailPanel({ kw }) {
         {/* Blast tier breakdown */}
         {kw.type === 'BLAST' && (
           <div>
-            <div style={{ fontFamily: 'Space Mono, monospace', fontSize: '9px', letterSpacing: '2px', textTransform: 'uppercase', color: TEXT_WEAK, marginBottom: '14px', display: 'flex', alignItems: 'center', gap: '10px' }}>
+            <div style={{ fontFamily: 'Space Mono, monospace', fontSize: '10px', letterSpacing: '2px', textTransform: 'uppercase', color: TEXT_WEAK, marginBottom: '14px', display: 'flex', alignItems: 'center', gap: '10px' }}>
               <span>Threshold breakdown</span>
               <div style={{ flex: 1, height: '1px', background: BORDER }} />
             </div>
@@ -648,7 +648,7 @@ function DetailPanel({ kw }) {
         {!kw.notSimulated && SCENARIOS[kw.type] && (
           <div>
             <div style={{
-              fontFamily: 'Space Mono, monospace', fontSize: '9px',
+              fontFamily: 'Space Mono, monospace', fontSize: '10px',
               letterSpacing: '2px', textTransform: 'uppercase',
               color: TEXT_WEAK, marginBottom: '14px',
               display: 'flex', alignItems: 'center', gap: '10px',
@@ -700,7 +700,7 @@ export function KeywordsPage() {
           Keyword Reference
         </h1>
         <span style={{
-          fontFamily: 'Space Mono, monospace', fontSize: '9px',
+          fontFamily: 'Space Mono, monospace', fontSize: '10px',
           letterSpacing: '2px', textTransform: 'uppercase', color: TEXT_WEAK,
         }}>
           {KEYWORD_REGISTRY.length} keywords · 10th Edition

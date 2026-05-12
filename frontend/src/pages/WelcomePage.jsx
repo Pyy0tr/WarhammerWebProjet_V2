@@ -59,7 +59,7 @@ function LevelCard({ level, selected, onClick }) {
     >
       <div style={{
         fontFamily: 'Space Mono, monospace',
-        fontSize: '9px',
+        fontSize: '10px',
         letterSpacing: '3px',
         textTransform: 'uppercase',
         color: active ? ACCENT : TEXT_OFF,
@@ -93,7 +93,7 @@ function LevelCard({ level, selected, onClick }) {
 
       <div style={{
         fontFamily: 'Space Mono, monospace',
-        fontSize: '9px',
+        fontSize: '10px',
         letterSpacing: '2px',
         textTransform: 'uppercase',
         color: TEXT_WEAK,

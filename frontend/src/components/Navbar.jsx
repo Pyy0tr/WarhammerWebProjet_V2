@@ -15,12 +15,19 @@ function NavLink({ to, children, active }) {
         letterSpacing: '2px',
         textTransform: 'uppercase',
         color: active ? ACCENT : TEXT_SEC,
-        transition: 'color 100ms',
-        paddingBottom: '2px',
-        borderBottom: active ? `1px solid ${ACCENT}` : '1px solid transparent',
+        transition: 'color 100ms, background 100ms',
+        padding: '4px 10px',
+        borderRadius: '3px',
+        background: active ? 'rgba(47,224,255,0.08)' : 'transparent',
       }}
-      onMouseEnter={(e) => { e.currentTarget.style.color = active ? ACCENT : TEXT }}
-      onMouseLeave={(e) => { e.currentTarget.style.color = active ? ACCENT : TEXT_SEC }}
+      onMouseEnter={(e) => {
+        e.currentTarget.style.color = active ? ACCENT : TEXT
+        if (!active) e.currentTarget.style.background = 'rgba(255,255,255,0.04)'
+      }}
+      onMouseLeave={(e) => {
+        e.currentTarget.style.color = active ? ACCENT : TEXT_SEC
+        if (!active) e.currentTarget.style.background = 'transparent'
+      }}
     >
       {children}
     </Link>
@@ -33,12 +40,12 @@ function GhostButton({ children, onClick, href }) {
     border: `1px solid ${TEXT_WEAK}`,
     color: TEXT_SEC,
     fontFamily: 'Space Mono, monospace',
-    fontSize: '8.5px',
+    fontSize: '10px',
     letterSpacing: '2px',
     textTransform: 'uppercase',
     padding: '6px 14px',
     cursor: 'pointer',
-    borderRadius: 0,
+    borderRadius: '3px',
     textDecoration: 'none',
     display: 'inline-block',
     lineHeight: 1.4,
@@ -71,13 +78,13 @@ function SolidButton({ children, onClick }) {
         border: `1px solid ${ACCENT}`,
         color: BG,
         fontFamily: 'Space Mono, monospace',
-        fontSize: '8.5px',
+        fontSize: '10px',
         letterSpacing: '2px',
         fontWeight: 700,
         textTransform: 'uppercase',
         padding: '6px 14px',
         cursor: 'pointer',
-        borderRadius: 0,
+        borderRadius: '3px',
         transition: 'opacity 100ms',
       }}
       onMouseEnter={(e) => { e.currentTarget.style.opacity = '0.85' }}
@@ -94,7 +101,7 @@ function UserChip({ user, onLogout }) {
   return (
     <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
       <span style={{
-        fontFamily: 'Space Mono, monospace', fontSize: '9px',
+        fontFamily: 'Space Mono, monospace', fontSize: '10px',
         letterSpacing: '1px', color: TEXT_SEC,
       }}>
         {label}

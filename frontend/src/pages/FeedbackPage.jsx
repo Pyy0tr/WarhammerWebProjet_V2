@@ -51,7 +51,7 @@ export function FeedbackPage() {
     return (
       <div style={{ minHeight: 'calc(100vh - 52px)', marginTop: '52px', background: BG, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '40px 24px' }}>
         <div style={{ maxWidth: '480px', width: '100%', display: 'flex', flexDirection: 'column', gap: '24px', border: `1px solid ${ACCENT}`, background: SURFACE, padding: '48px 44px' }}>
-          <div style={{ fontFamily: 'Space Mono, monospace', fontSize: '9px', letterSpacing: '3px', textTransform: 'uppercase', color: ACCENT }}>Envoyé</div>
+          <div style={{ fontFamily: 'Space Mono, monospace', fontSize: '10px', letterSpacing: '3px', textTransform: 'uppercase', color: ACCENT }}>Envoyé</div>
           <h1 style={{ fontFamily: 'Space Mono, monospace', fontSize: '20px', fontWeight: 700, letterSpacing: '2px', textTransform: 'uppercase', color: TEXT, margin: 0 }}>
             Merci pour ton feedback
           </h1>
@@ -77,7 +77,7 @@ export function FeedbackPage() {
 
         {/* Header */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-          <div style={{ fontFamily: 'Space Mono, monospace', fontSize: '9px', letterSpacing: '3px', textTransform: 'uppercase', color: TEXT_WEAK }}>
+          <div style={{ fontFamily: 'Space Mono, monospace', fontSize: '10px', letterSpacing: '3px', textTransform: 'uppercase', color: TEXT_WEAK }}>
             Prob'Hammer — Feedback
           </div>
           <h1 style={{ fontFamily: 'Space Mono, monospace', fontSize: 'clamp(18px, 2.5vw, 26px)', fontWeight: 700, letterSpacing: '2px', textTransform: 'uppercase', color: TEXT, margin: 0 }}>
@@ -92,7 +92,7 @@ export function FeedbackPage() {
 
           {/* Type selector */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-            <div style={{ fontFamily: 'Space Mono, monospace', fontSize: '9px', letterSpacing: '2px', textTransform: 'uppercase', color: TEXT_WEAK }}>
+            <div style={{ fontFamily: 'Space Mono, monospace', fontSize: '10px', letterSpacing: '2px', textTransform: 'uppercase', color: TEXT_WEAK }}>
               Type *
             </div>
             <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
@@ -127,8 +127,8 @@ export function FeedbackPage() {
           {/* Message */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-              <div style={{ fontFamily: 'Space Mono, monospace', fontSize: '9px', letterSpacing: '2px', textTransform: 'uppercase', color: TEXT_WEAK }}>Message *</div>
-              <div style={{ fontFamily: 'Space Mono, monospace', fontSize: '9px', color: message.length > 1800 ? HIGHLIGHT : TEXT_OFF }}>{message.length}/2000</div>
+              <div style={{ fontFamily: 'Space Mono, monospace', fontSize: '10px', letterSpacing: '2px', textTransform: 'uppercase', color: TEXT_WEAK }}>Message *</div>
+              <div style={{ fontFamily: 'Space Mono, monospace', fontSize: '10px', color: message.length > 1800 ? HIGHLIGHT : TEXT_OFF }}>{message.length}/2000</div>
             </div>
             <textarea
               value={message}
@@ -150,7 +150,7 @@ export function FeedbackPage() {
           {/* Email (only if not logged in) */}
           {!user && (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-              <div style={{ fontFamily: 'Space Mono, monospace', fontSize: '9px', letterSpacing: '2px', textTransform: 'uppercase', color: TEXT_WEAK }}>
+              <div style={{ fontFamily: 'Space Mono, monospace', fontSize: '10px', letterSpacing: '2px', textTransform: 'uppercase', color: TEXT_WEAK }}>
                 Email <span style={{ color: TEXT_OFF }}>(optionnel — pour que je puisse te répondre)</span>
               </div>
               <input
@@ -171,7 +171,7 @@ export function FeedbackPage() {
           )}
 
           {user && (
-            <div style={{ fontFamily: 'Space Mono, monospace', fontSize: '9px', color: TEXT_OFF, letterSpacing: '1.5px' }}>
+            <div style={{ fontFamily: 'Space Mono, monospace', fontSize: '10px', color: TEXT_OFF, letterSpacing: '1.5px' }}>
               Envoyé en tant que <span style={{ color: TEXT_WEAK }}>{user.username}</span>
             </div>
           )}
