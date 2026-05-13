@@ -191,6 +191,10 @@ export function Navbar() {
           <NavLink to="/keywords" active={pathname === '/keywords'}>
             Keywords
           </NavLink>
+
+          <NavLink to="/detachments" active={pathname === '/detachments'}>
+            Detachments
+          </NavLink>
         </div>
 
         <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: '10px' }}>
