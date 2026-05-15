@@ -95,9 +95,10 @@ function simulateOnce(req) {
   const effAp       = w.ap + apMod
 
   // Context modifiers
-  if (hasHeavy && !ctx.attacker_moved)  hitMod += 1
-  if (hasLance && ctx.attacker_charged) woundMod += 1
+  if (hasHeavy && !ctx.attacker_moved)    hitMod += 1
+  if (hasLance && ctx.attacker_charged)  woundMod += 1
   if (hasIndirect && !ctx.target_visible) hitMod -= 1
+  if (d.debuff_hit_roll)                 hitMod -= 1   // defender ability: -1 to attacker hit rolls
 
   hitMod   = clamp(hitMod,   -1, 1)
   woundMod = clamp(woundMod, -1, 1)

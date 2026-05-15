@@ -39,9 +39,10 @@ function DefenderArmyPicker() {
         wounds:    unit.W,
         invuln:        unit.invuln ?? null,
         models:        unit.models ?? 1,
-        fnp:           null,
-        dmg_reduction: false,
-        keywords:      unit.kw ?? [],
+        fnp:            null,
+        dmg_reduction:  false,
+        debuff_hit_roll: false,
+        keywords:       unit.kw ?? [],
       })
       const fullUnit = getUnitById(unit.unit_id)
       setDefenderUnit(fullUnit || unit)
@@ -247,9 +248,10 @@ export function DefenderPanel() {
       wounds:    u.W,
       invuln:        u.invuln ?? null,
       models:        u.min_models ?? u.max_models ?? defender.models,
-      fnp:           null,
-      dmg_reduction: null,
-      keywords:      u.kw ?? [],
+      fnp:             null,
+      dmg_reduction:   null,
+      debuff_hit_roll: false,
+      keywords:        u.kw ?? [],
     })
   }
 
@@ -434,6 +436,8 @@ export function DefenderPanel() {
         <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
           <Toggle label="Damage reduction (-1 to damage, min 1)" checked={defender.dmg_reduction}
             onChange={(v) => setDefender({ dmg_reduction: v })} />
+          <Toggle label="-1 to attacker hit rolls" checked={defender.debuff_hit_roll}
+            onChange={(v) => setDefender({ debuff_hit_roll: v })} />
         </div>
       </div>
 

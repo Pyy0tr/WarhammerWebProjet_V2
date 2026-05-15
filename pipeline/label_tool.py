@@ -56,6 +56,8 @@ EFFECT_TYPES = [
     "CRITICAL_HIT_ON", "CRITICAL_WOUND_ON",
     # Manipulation de dé
     "SET_ROLL_TO_6",
+    # Debuffs défenseurs
+    "DEBUFF_HIT_ROLL",
 ]
 TYPE2IDX = {t: i for i, t in enumerate(EFFECT_TYPES)}
 

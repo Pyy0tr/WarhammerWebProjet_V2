@@ -66,7 +66,7 @@ SIMULATOR_EFFECTS = {
     "TWIN_LINKED", "TORRENT", "IGNORES_COVER",
     "INVULN_SAVE", "FEEL_NO_PAIN", "DAMAGE_REDUCTION",
     "CRITICAL_HIT_ON", "CRITICAL_WOUND_ON",
-    "SET_ROLL_TO_6",
+    "SET_ROLL_TO_6", "DEBUFF_HIT_ROLL",
 }
 
 TARGET_KEYWORDS = [
@@ -276,6 +276,17 @@ def extract_labels(text: str) -> dict:
     if m:
         val = int(m.group(1) or m.group(2))
         effects.append({"type": "OC_MODIFIER", "value": val})
+
+    # DEBUFF_HIT_ROLL  (defender ability: -1 to attacker's hit rolls)
+    if re.search(
+        r'subtract 1 from (?:the )?hit roll(?:s)? (?:made )?(?:for|by|against) (?:that|enemy|the attacking)'
+        r'|(?:enemy|attacking) unit(?:s)? (?:must )?subtract(?:s)? 1 from (?:the )?hit roll'
+        r'|-1 to (?:the )?hit roll(?:s)? of (?:the )?(?:enemy|attacking)'
+        r'|each time (?:an? )?(?:enemy|attacking) (?:model|unit).{0,60}subtract 1 from (?:the )?hit',
+        t
+    ):
+        if not any(e["type"] == "DEBUFF_HIT_ROLL" for e in effects):
+            effects.append({"type": "DEBUFF_HIT_ROLL"})
 
     # ── Phase ────────────────────────────────────────────────────────────────
 

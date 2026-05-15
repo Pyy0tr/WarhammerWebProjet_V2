@@ -465,6 +465,32 @@ console.log('\n── Attacker abilities / buffs ──────────�
   ))
 })()
 
+// ── Section D — Defender abilities ───────────────────────────────────────────
+
+console.log('\n── Defender abilities ──────────────────────────────────────\n')
+
+// D1. DEBUFF_HIT_ROLL — defender imposes -1 to attacker hit rolls
+// Engine: hitMod -= 1, then clamp(-1,1) → effective roll = clamp(die - 1, 1, 6)
+// Hit iff clamp(die - 1, 1, 6) >= skill  OR isCrit (die=6)
+// Equivalent to pHit = pGe(skill + 1)  (same as facing a 1-higher BS target)
+// theory = attacks × pGe(SKILL+1) × pWound × pSaveFail × E[D]
+;(() => {
+  // CONFIG ─────────────────────────
+  const ATTACKS = 4, SKILL = 3, MODELS = 1
+  const S = 4, AP = 0, D = '1'
+  const T = 4, SV = 3, W = 2, DEF_MODELS = 5
+  // ────────────────────────────────
+  const pHit   = pGe(SKILL + 1)
+  const pWound = pGe(woundOn(S, T))
+  const pFail  = pSaveFail(SV, AP)
+  const eD     = expectedRoll(D)
+  const theory = MODELS * ATTACKS * pHit * pWound * pFail * eD
+  test('DEBUFF_HIT_ROLL (-1 to attacker hits)', theory, mkReq(
+    { name:'test', attacks:String(ATTACKS), skill:SKILL, strength:S, ap:AP, damage:D, keywords:[] },
+    { models:MODELS, defender:{ toughness:T, save:SV, wounds:W, models:DEF_MODELS, debuff_hit_roll:true } },
+  ))
+})()
+
 // ── Summary ───────────────────────────────────────────────────────────────────
 
 console.log('')
