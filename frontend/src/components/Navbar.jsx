@@ -195,6 +195,10 @@ export function Navbar() {
           <NavLink to="/detachments" active={pathname === '/detachments'}>
             Detachments
           </NavLink>
+
+          <NavLink to="/combos" active={pathname === '/combos'}>
+            Combos
+          </NavLink>
         </div>
 
         <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: '10px' }}>

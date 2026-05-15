@@ -12,6 +12,7 @@ import { FeedbackPage } from './pages/FeedbackPage'
 import { AdminFeedbackPage } from './pages/AdminFeedbackPage'
 import { KeywordsPage } from './pages/KeywordsPage'
 import { DetachmentsPage } from './pages/DetachmentsPage'
+import { ComboPage } from './pages/ComboPage'
 import { Navbar } from './components/Navbar'
 import { ACCENT, BG, BORDER, SURFACE, TEXT, TEXT_SEC, TEXT_WEAK, TYPE } from './theme'
 import { useDataStore } from './store/dataStore'
@@ -169,6 +170,7 @@ export default function App() {
         <Route path="/armies"         element={<OnboardingGuard><ArmiesPage /></OnboardingGuard>} />
         <Route path="/keywords"       element={<OnboardingGuard><KeywordsPage /></OnboardingGuard>} />
         <Route path="/detachments"    element={<OnboardingGuard><DetachmentsPage /></OnboardingGuard>} />
+        <Route path="/combos"         element={<OnboardingGuard><ComboPage /></OnboardingGuard>} />
         <Route path="/feedback"       element={<FeedbackPage />} />
         <Route path="/admin/feedback" element={<AdminFeedbackPage />} />
         <Route path="*"               element={<Navigate to="/" replace />} />

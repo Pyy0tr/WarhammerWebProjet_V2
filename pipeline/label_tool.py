@@ -178,10 +178,14 @@ def display_example(ex: dict, probs: np.ndarray, tokens: list, attns: list, idx:
 
     for etype in EFFECT_TYPES:
         i    = TYPE2IDX[etype]
+        auto = "✓" if etype in auto_effects else ""
+        if i >= len(probs):
+            table.add_row(f"[dim]{etype}[/dim]", "[dim]— (retrain needed)[/dim]",
+                          f"[green]{auto}[/]", "")
+            continue
         p    = probs[i]
         bar  = "█" * int(p * 20) + "░" * (20 - int(p * 20))
         col  = prob_color(p)
-        auto = "✓" if etype in auto_effects else ""
         pred = f"[{col}]✓[/]" if p >= THRESHOLD else ""
         table.add_row(
             f"[{col}]{etype}[/]" if p >= 0.15 else f"[dim]{etype}[/dim]",
@@ -204,7 +208,7 @@ def prompt_labels(probs: np.ndarray, ex: dict) -> list[dict] | None:
     """
     Retourne la liste d'effets corrigée, ou None si skip, ou 'quit'.
     """
-    predicted = [EFFECT_TYPES[i] for i, p in enumerate(probs) if p >= THRESHOLD]
+    predicted = [EFFECT_TYPES[i] for i, p in enumerate(probs) if i < len(EFFECT_TYPES) and p >= THRESHOLD]
     pred_str  = ", ".join(predicted) if predicted else "(aucun)"
 
     rprint(f"[dim]Prédiction modèle :[/] [cyan]{pred_str}[/]")
@@ -323,7 +327,7 @@ def main():
         # Filtre disagreements
         if args.disagreements:
             auto_effects = {e["type"] for e in ex["labels"]["effects"]}
-            predicted    = {EFFECT_TYPES[i] for i, p in enumerate(probs) if p >= THRESHOLD}
+            predicted    = {EFFECT_TYPES[i] for i, p in enumerate(probs) if i < len(EFFECT_TYPES) and p >= THRESHOLD}
             if auto_effects == predicted:
                 continue
 
