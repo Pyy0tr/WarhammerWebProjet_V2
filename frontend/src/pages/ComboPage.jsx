@@ -323,7 +323,6 @@ export function ComboPage() {
                           const range = stats.max - stats.min
                           const ratio = range < 0.001 ? 0 : (val - stats.min) / range
                           const bg    = cellBg(ratio)
-                          const delta = isBase ? null : val - baseDmg[def.id]
                           const pct   = (isBase || !baseDmg[def.id]) ? null
                             : ((val - baseDmg[def.id]) / Math.max(baseDmg[def.id], 0.01)) * 100
 
