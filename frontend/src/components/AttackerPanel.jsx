@@ -504,6 +504,9 @@ function AbilitiesSection({ _buffs, toggleBuff, hasBuff, keywords, setWeapon }) 
           <AbilityBtn active={hasBuff('REROLL_WOUNDS', 'all')} onClick={() => toggleBuff('REROLL_WOUNDS', 'all')}>
             Reroll failed wounds
           </AbilityBtn>
+          <AbilityBtn active={!!getKw('SET_ROLL_TO_6')} onClick={() => toggleKw('SET_ROLL_TO_6', false, null)}>
+            Set die → 6
+          </AbilityBtn>
         </div>
       ),
     },

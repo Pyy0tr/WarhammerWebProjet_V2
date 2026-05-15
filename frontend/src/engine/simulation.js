@@ -44,6 +44,7 @@ function simulateOnce(req) {
   const bufs = req.attacker.buffs ?? []
 
   // Keyword flags
+  const hasSetRoll6  = hasKw(kws, 'SET_ROLL_TO_6')
   const hasTorrent   = hasKw(kws, 'TORRENT')
   const hasLethal    = hasKw(kws, 'LETHAL_HITS')
   const hasSustained = hasKw(kws, 'SUSTAINED_HITS')
@@ -100,6 +101,45 @@ function simulateOnce(req) {
 
   hitMod   = clamp(hitMod,   -1, 1)
   woundMod = clamp(woundMod, -1, 1)
+
+  // ── Pré-calcul wound threshold (utilisé phase 3 et décision SET_ROLL_TO_6) ──
+
+  const wThr = woundThreshold(effStrength, d.toughness)
+
+  // ── SET_ROLL_TO_6: décision optimale avant les jets ───────────────────────────
+  // Compare E[gain hit use] vs E[gain wound use] (eD s'annule des deux côtés).
+  //
+  // Wound use : un wound roll à 6 (blessure garantie, toujours crit wound)
+  //   E = DevWounds ? 1 : pSaveFail
+  //
+  // Hit use : un crit hit (die=6) → wound phase
+  //   Sans LETHAL  : pWound × pSaveFail
+  //   Avec LETHAL  : pSaveFail            (auto-wound = même que wound use sans DevWounds)
+  //   Avec SUSTAINED X : + E[X] × pHit × (hasLethal ? pSaveFail : pWound × pSaveFail)
+  //     → hit devient supérieur quand les hits bonus du Sustained compensent
+  //
+  // Règle : wound use est toujours ≥ sauf si SUSTAINED_HITS actif avec suffisamment de pHit
+
+  let set6UseOn = 'wound'
+  if (hasSetRoll6) {
+    const pWoundPre  = Math.max(0, (7 - wThr) / 6)
+    let   arSvPre    = Math.max(d.save - effAp, 2)
+    if (ctx.cover && !hasIgCover) arSvPre -= 1
+    const effSvPre   = Math.min(d.invuln != null ? Math.min(arSvPre, d.invuln) : arSvPre, 7) + saveMod
+    const pFailPre   = Math.max(0, Math.min(1, (effSvPre - 1) / 6))
+
+    const eWound = hasDevWounds ? 1 : pFailPre
+
+    let eHit = hasLethal ? pFailPre : pWoundPre * pFailPre
+    if (hasSustained) {
+      const pHit = Math.max(0, (7 - clamp(w.skill, 2, 6)) / 6)
+      const sv   = kwSustained.value
+      const eSus = sv === 'D6' ? 3.5 : sv === 'D3' ? 2 : (parseFloat(sv) || 1)
+      eHit += eSus * pHit * (hasLethal ? pFailPre : pWoundPre * pFailPre)
+    }
+
+    if (eHit >= eWound) set6UseOn = 'hit'
+  }
 
   // ── Phase 1: attacks ─────────────────────────────────────────────────────────
 
@@ -168,11 +208,13 @@ function simulateOnce(req) {
     for (let i = 0; i < numAttacks; i++) {
       resolveHit(rollHit(), 0)
     }
+
+    // SET_ROLL_TO_6 sur hit roll : injecte un crit hit (die=6) supplémentaire
+    if (hasSetRoll6 && set6UseOn === 'hit') resolveHit(6, 0)
   }
 
   // ── Phase 3: wound rolls ─────────────────────────────────────────────────────
 
-  const wThr = woundThreshold(effStrength, d.toughness)
   const hitsToRoll = Math.max(0, hits - autoWounds)
 
   let woundsNormal = 0
@@ -215,6 +257,15 @@ function simulateOnce(req) {
       mortalWounds++
     } else {
       woundsNormal++
+    }
+  }
+
+  // SET_ROLL_TO_6 sur wound roll : injecte un wound roll à 6 (blessure garantie, crit wound)
+  if (hasSetRoll6 && set6UseOn === 'wound') {
+    const { success, isCrit } = evaluateWound(6)
+    if (success) {
+      if (isCrit && hasDevWounds) mortalWounds++
+      else woundsNormal++
     }
   }
 

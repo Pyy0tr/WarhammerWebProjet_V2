@@ -220,6 +220,15 @@ export const KEYWORD_REGISTRY = [
     implemented: true,
   },
   {
+    type: 'SET_ROLL_TO_6', label: 'Set Die → 6', group: 'ability',
+    tip: 'Once per phase, change one hit/wound/damage die to an unmodified 6',
+    phase: 'Any',
+    rule: "Once per phase, you can change the result of one Hit roll, one Wound roll, or one Damage roll made for a model in that unit to an unmodified 6.",
+    note: "Simulated as one free wound roll with result 6 (optimal use case — a 6 always wounds and is a critical wound). If Devastating Wounds is active, the wound becomes a mortal wound and bypasses saves.",
+    when: "Most impactful against high-Toughness targets (guaranteed wound regardless of Strength) or when Devastating Wounds is active (free mortal wound). Against targets with poor saves, the guaranteed wound that still needs a save is usually less impactful than using it on a damage roll for max damage.",
+    implemented: true,
+  },
+  {
     type: 'FIRE_OVERWATCH', label: 'Fire Overwatch', group: 'ability',
     valued: true, default: '6',
     tip: 'Only unmodified X+ hits — shoot in the opponent\'s turn',

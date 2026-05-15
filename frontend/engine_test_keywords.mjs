@@ -399,6 +399,72 @@ console.log('\n── Attacker abilities / buffs ──────────�
   ))
 })()
 
+// C1. SET_ROLL_TO_6 — wound use (optimal: no LETHAL, no SUSTAINED, no DevWounds)
+// Engine injects 1 wound roll at die=6 → guaranteed wound going through saves.
+// theory = normal_path + 1 guaranteed wound → saves
+// theory = (attacks × pHit × pWound + 1) × pSaveFail × E[D]
+;(() => {
+  // CONFIG ─────────────────────────
+  const ATTACKS = 4,  SKILL = 3,  MODELS = 1
+  const S = 4,  AP = -1,  D = '2'
+  const T = 4,  SV = 3,  W = 2,  DEF_MODELS = 3
+  // ────────────────────────────────
+  const pHit   = pGe(SKILL)
+  const pWound = pGe(woundOn(S, T))
+  const pFail  = pSaveFail(SV, AP)
+  const eD     = expectedRoll(D)
+  const theory = (MODELS * ATTACKS * pHit * pWound + 1) * pFail * eD
+  test('SET_ROLL_TO_6 (wound use)', theory, mkReq(
+    { name:'test', attacks:String(ATTACKS), skill:SKILL, strength:S, ap:AP, damage:D,
+      keywords:[{ type:'SET_ROLL_TO_6' }] },
+    { models:MODELS, defender:{ toughness:T, save:SV, wounds:W, models:DEF_MODELS } },
+  ))
+})()
+
+// C2. SET_ROLL_TO_6 — hit use (LETHAL_HITS + SUSTAINED_HITS active)
+// Engine decision: eHit (LETHAL+SUS) > eWound → injects 1 crit hit (die=6).
+//
+// Anatomy of one die roll:
+//   die=1          (1/6): miss
+//   die=2-5        (3/6): non-crit hit → wound roll → save
+//   die=6  pCrit   (1/6): crit → LETHAL auto-wound + SUSTAINED extra hit
+//     The sustained extra hit is rolled at normal BS (depth=1, no further SUSTAINED):
+//       die=6 (1/6): crit again → LETHAL auto-wound (no SUSTAINED cascade)
+//       die=2-5 (3/6): hit → wound → save
+//     perSusHit = pCrit × pFail + pNonCritH × pWound × pFail
+//
+// perCrit  = pFail + eSus × perSusHit          (LETHAL + sustained contribution)
+// perAtk   = pCrit × perCrit + pNonCritH × pWound × pFail
+// SET6 hit = one extra crit (die=6) → perCrit
+;(() => {
+  // CONFIG ─────────────────────────
+  const ATTACKS = 3, SKILL = 3, MODELS = 1, SUS = 1
+  const S = 4, AP = 0, D = '1'
+  const T = 4, SV = 4, W = 1, DEF_MODELS = 3
+  // ────────────────────────────────
+  const pHit      = pGe(SKILL)
+  const pCrit     = pGe(6)                             // 1/6 — only unmodified 6
+  const pNonCritH = pHit - pCrit
+  const pWound    = pGe(woundOn(S, T))
+  const pFail     = pSaveFail(SV, AP)
+  const eD        = expectedRoll(D)
+  const eSus      = SUS
+
+  const perSusHit = pCrit * pFail + pNonCritH * pWound * pFail
+  const perCrit   = pFail + eSus * perSusHit           // auto-wound + sustained
+  const perAtk    = pCrit * perCrit + pNonCritH * pWound * pFail
+  const theory    = (MODELS * ATTACKS * perAtk + perCrit) * eD
+  test('SET_ROLL_TO_6 (hit use: LETHAL+SUSTAINED)', theory, mkReq(
+    { name:'test', attacks:String(ATTACKS), skill:SKILL, strength:S, ap:AP, damage:D,
+      keywords:[
+        { type:'SET_ROLL_TO_6' },
+        { type:'LETHAL_HITS' },
+        { type:'SUSTAINED_HITS', value: String(SUS) },
+      ] },
+    { models:MODELS, defender:{ toughness:T, save:SV, wounds:W, models:DEF_MODELS } },
+  ))
+})()
+
 // ── Summary ───────────────────────────────────────────────────────────────────
 
 console.log('')
