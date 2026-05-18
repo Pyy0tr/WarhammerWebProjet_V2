@@ -1,0 +1,186 @@
+{
+  "test_macro_f1": 0.4414,
+  "test_micro_f1": 0.8983,
+  "per_class": {
+    "HIT_MODIFIER": {
+      "precision": 0.952,
+      "recall": 0.952,
+      "f1": 0.952,
+      "support": 21
+    },
+    "WOUND_MODIFIER": {
+      "precision": 0.95,
+      "recall": 1.0,
+      "f1": 0.974,
+      "support": 19
+    },
+    "AP_MODIFIER": {
+      "precision": 1.0,
+      "recall": 0.857,
+      "f1": 0.923,
+      "support": 7
+    },
+    "DAMAGE_MODIFIER": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1": 0.0,
+      "support": 1
+    },
+    "ATTACKS_MODIFIER": {
+      "precision": 0.857,
+      "recall": 0.75,
+      "f1": 0.8,
+      "support": 8
+    },
+    "STRENGTH_MODIFIER": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1": 0.0,
+      "support": 8
+    },
+    "REROLL_HITS": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "support": 13
+    },
+    "REROLL_WOUNDS": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "support": 10
+    },
+    "REROLL_SAVES": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1": 0.0,
+      "support": 0
+    },
+    "LETHAL_HITS": {
+      "precision": 1.0,
+      "recall": 0.833,
+      "f1": 0.909,
+      "support": 6
+    },
+    "SUSTAINED_HITS": {
+      "precision": 0.917,
+      "recall": 1.0,
+      "f1": 0.957,
+      "support": 11
+    },
+    "DEVASTATING_WOUNDS": {
+      "precision": 1.0,
+      "recall": 0.833,
+      "f1": 0.909,
+      "support": 6
+    },
+    "TWIN_LINKED": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1": 0.0,
+      "support": 0
+    },
+    "TORRENT": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1": 0.0,
+      "support": 3
+    },
+    "IGNORES_COVER": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "support": 7
+    },
+    "LANCE": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1": 0.0,
+      "support": 0
+    },
+    "MELTA": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1": 0.0,
+      "support": 0
+    },
+    "FEEL_NO_PAIN": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "support": 10
+    },
+    "MORTAL_WOUNDS": {
+      "precision": 1.0,
+      "recall": 0.967,
+      "f1": 0.983,
+      "support": 30
+    },
+    "INVULN_SAVE": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "support": 13
+    },
+    "DAMAGE_REDUCTION": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1": 0.0,
+      "support": 1
+    },
+    "DAMAGE_HALVED": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1": 0.0,
+      "support": 0
+    },
+    "COVER": {
+      "precision": 1.0,
+      "recall": 0.714,
+      "f1": 0.833,
+      "support": 7
+    },
+    "BATTLESHOCK_IMMUNITY": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1": 0.0,
+      "support": 0
+    },
+    "MOVE_MODIFIER": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1": 0.0,
+      "support": 3
+    },
+    "OC_MODIFIER": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1": 0.0,
+      "support": 3
+    },
+    "CRITICAL_HIT_ON": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1": 0.0,
+      "support": 4
+    },
+    "CRITICAL_WOUND_ON": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1": 0.0,
+      "support": 0
+    },
+    "SET_ROLL_TO_6": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1": 0.0,
+      "support": 0
+    },
+    "DEBUFF_HIT_ROLL": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1": 0.0,
+      "support": 0
+    }
+  }
+}

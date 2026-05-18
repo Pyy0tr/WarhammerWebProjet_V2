@@ -64,6 +64,11 @@ Thumbs.db
 *.swp
 *.swo
 
+# ML — modèle trop lourd pour git (257 MB), dataset brut régénérable
+data/ml/model/
+data/ml/dataset_raw.jsonl
+data/ml/venv/
+
 # Interne — ne pas exposer publiquement
 bugsRequest/
 CLAUDE.md

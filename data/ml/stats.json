@@ -1,0 +1,42 @@
+{
+  "total": 4587,
+  "by_type": {
+    "stratagem": 1223,
+    "enhancement": 802,
+    "unit_ability": 2562
+  },
+  "simulatable": 1432,
+  "non_simulatable": 3155,
+  "effect_distribution": {
+    "HIT_MODIFIER": 277,
+    "MORTAL_WOUNDS": 274,
+    "REROLL_HITS": 165,
+    "WOUND_MODIFIER": 159,
+    "REROLL_WOUNDS": 141,
+    "INVULN_SAVE": 137,
+    "SUSTAINED_HITS": 116,
+    "FEEL_NO_PAIN": 111,
+    "AP_MODIFIER": 95,
+    "LETHAL_HITS": 90,
+    "ATTACKS_MODIFIER": 83,
+    "IGNORES_COVER": 69,
+    "COVER": 68,
+    "DEVASTATING_WOUNDS": 58,
+    "STRENGTH_MODIFIER": 58,
+    "MOVE_MODIFIER": 48,
+    "CRITICAL_HIT_ON": 36,
+    "DAMAGE_REDUCTION": 33,
+    "LANCE": 30,
+    "OC_MODIFIER": 28,
+    "DAMAGE_MODIFIER": 25,
+    "TORRENT": 14,
+    "REROLL_SAVES": 8,
+    "TWIN_LINKED": 6,
+    "SET_ROLL_TO_6": 5,
+    "MELTA": 2,
+    "DAMAGE_HALVED": 2,
+    "CRITICAL_WOUND_ON": 2,
+    "DEBUFF_HIT_ROLL": 1
+  },
+  "avg_confidence": 0.475
+}
