@@ -2,7 +2,7 @@ import { useEffect, useState, useMemo } from 'react'
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts'
 import { KEYWORD_REGISTRY } from '../engine/keywords'
 import { simulate } from '../engine/simulation'
-import { ACCENT_TEXT, ACCENT, BORDER, SURFACE, TEXT, TEXT_OFF, TEXT_SEC, TEXT_WEAK, SUCCESS, WARNING, TYPE } from '../theme'
+import { ACCENT_TEXT, ACCENT, BORDER, SURFACE, TEXT, TEXT_OFF, TEXT_SEC, TEXT_WEAK, SUCCESS, WARNING, TYPE , FONT_UI} from '../theme'
 
 const N_TRIALS = 1200
 
@@ -239,7 +239,7 @@ function ChartTooltip({ active, payload, label }) {
     <div style={{
       background: '#0F2230', border: `1px solid #1E3A4C`,
       padding: '8px 12px',
-      fontFamily: 'Space Mono, monospace', fontSize: '10px',
+      fontFamily: FONT_UI, fontSize: '10px',
     }}>
       <div style={{ color: TEXT_WEAK, marginBottom: '4px', letterSpacing: '1px' }}>DMG {label}</div>
       {payload.map((p) => (
@@ -395,14 +395,14 @@ function ComparisonPanel({ kwType }) {
       {/* Scenario header */}
       <div>
         <div style={{
-          fontFamily: 'Space Mono, monospace', fontSize: '10px',
+          fontFamily: FONT_UI, fontSize: '10px',
           letterSpacing: '2px', textTransform: 'uppercase',
           color: TEXT_WEAK, marginBottom: '6px',
         }}>
           Scenario
         </div>
         <div style={{
-          fontFamily: 'Space Mono, monospace', fontSize: '10px',
+          fontFamily: FONT_UI, fontSize: '10px',
           letterSpacing: '1px', color: TEXT_SEC,
           padding: '8px 12px', border: `1px solid #1E3A4C`,
           background: '#0A1621',
@@ -423,7 +423,7 @@ function ComparisonPanel({ kwType }) {
           {/* Labels row */}
           <div style={{ background: '#0F2230', padding: '8px 16px' }}>
             <span style={{
-              fontFamily: 'Space Mono, monospace', fontSize: '10px',
+              fontFamily: FONT_UI, fontSize: '10px',
               letterSpacing: '2px', textTransform: 'uppercase', color: TEXT_WEAK,
             }}>
               Without
@@ -431,7 +431,7 @@ function ComparisonPanel({ kwType }) {
           </div>
           <div style={{ background: '#0F2230', padding: '8px 16px', borderLeft: `2px solid ${ACCENT}` }}>
             <span style={{
-              fontFamily: 'Space Mono, monospace', fontSize: '10px',
+              fontFamily: FONT_UI, fontSize: '10px',
               letterSpacing: '2px', textTransform: 'uppercase', color: ACCENT_TEXT,
             }}>
               With keyword
@@ -440,28 +440,28 @@ function ComparisonPanel({ kwType }) {
 
           {/* Mean */}
           <div style={{ background: '#0A1621', padding: '16px 16px 12px' }}>
-            <div style={{ fontFamily: 'Space Mono, monospace', fontSize: '10px', ...TYPE.label, marginBottom: '6px' }}>Mean dmg</div>
-            <div style={{ fontFamily: 'Space Mono, monospace', fontSize: '22px', fontWeight: 700, color: TEXT }}>{r0.summary.mean_damage}</div>
+            <div style={{ fontFamily: FONT_UI, fontSize: '10px', ...TYPE.label, marginBottom: '6px' }}>Mean dmg</div>
+            <div style={{ fontFamily: FONT_UI, fontSize: '22px', fontWeight: 700, color: TEXT }}>{r0.summary.mean_damage}</div>
           </div>
           <div style={{ background: '#0A1621', padding: '16px 16px 12px', borderLeft: `2px solid ${ACCENT}` }}>
-            <div style={{ fontFamily: 'Space Mono, monospace', fontSize: '10px', ...TYPE.label, marginBottom: '6px' }}>Mean dmg</div>
+            <div style={{ fontFamily: FONT_UI, fontSize: '10px', ...TYPE.label, marginBottom: '6px' }}>Mean dmg</div>
             <div style={{ display: 'flex', alignItems: 'baseline', gap: '10px' }}>
-              <div style={{ fontFamily: 'Space Mono, monospace', fontSize: '22px', fontWeight: 700, color: ACCENT_TEXT }}>{r1.summary.mean_damage}</div>
-              <div style={{ fontFamily: 'Space Mono, monospace', fontSize: '11px', fontWeight: 700, color: diffColor }}>{diffSign}{meanDiff.toFixed(2)}</div>
+              <div style={{ fontFamily: FONT_UI, fontSize: '22px', fontWeight: 700, color: ACCENT_TEXT }}>{r1.summary.mean_damage}</div>
+              <div style={{ fontFamily: FONT_UI, fontSize: '11px', fontWeight: 700, color: diffColor }}>{diffSign}{meanDiff.toFixed(2)}</div>
             </div>
           </div>
 
           {/* P90 */}
           <div style={{ background: '#0A1621', padding: '12px 16px 16px' }}>
-            <div style={{ fontFamily: 'Space Mono, monospace', fontSize: '10px', ...TYPE.label, marginBottom: '6px' }}>P90 (best 10%)</div>
-            <div style={{ fontFamily: 'Space Mono, monospace', fontSize: '22px', fontWeight: 700, color: TEXT }}>{r0.summary.p90}</div>
+            <div style={{ fontFamily: FONT_UI, fontSize: '10px', ...TYPE.label, marginBottom: '6px' }}>P90 (best 10%)</div>
+            <div style={{ fontFamily: FONT_UI, fontSize: '22px', fontWeight: 700, color: TEXT }}>{r0.summary.p90}</div>
           </div>
           <div style={{ background: '#0A1621', padding: '12px 16px 16px', borderLeft: `2px solid ${ACCENT}` }}>
-            <div style={{ fontFamily: 'Space Mono, monospace', fontSize: '10px', ...TYPE.label, marginBottom: '6px' }}>P90 (best 10%)</div>
+            <div style={{ fontFamily: FONT_UI, fontSize: '10px', ...TYPE.label, marginBottom: '6px' }}>P90 (best 10%)</div>
             <div style={{ display: 'flex', alignItems: 'baseline', gap: '10px' }}>
-              <div style={{ fontFamily: 'Space Mono, monospace', fontSize: '22px', fontWeight: 700, color: ACCENT_TEXT }}>{r1.summary.p90}</div>
+              <div style={{ fontFamily: FONT_UI, fontSize: '22px', fontWeight: 700, color: ACCENT_TEXT }}>{r1.summary.p90}</div>
               {r1.summary.p90 !== r0.summary.p90 && (
-                <div style={{ fontFamily: 'Space Mono, monospace', fontSize: '11px', fontWeight: 700, color: diffColor }}>
+                <div style={{ fontFamily: FONT_UI, fontSize: '11px', fontWeight: 700, color: diffColor }}>
                   {r1.summary.p90 > r0.summary.p90 ? '+' : ''}{r1.summary.p90 - r0.summary.p90}
                 </div>
               )}
@@ -473,7 +473,7 @@ function ComparisonPanel({ kwType }) {
       {/* Histogram */}
       <div>
         <div style={{
-          fontFamily: 'Space Mono, monospace', fontSize: '10px',
+          fontFamily: FONT_UI, fontSize: '10px',
           letterSpacing: '2px', textTransform: 'uppercase',
           color: TEXT_WEAK, marginBottom: '10px',
         }}>
@@ -494,14 +494,14 @@ function ComparisonPanel({ kwType }) {
           <BarChart data={chartData} barGap={1} barCategoryGap="20%">
             <XAxis
               dataKey="damage"
-              tick={{ fontFamily: 'Space Mono, monospace', fontSize: 9, fill: TEXT_OFF }}
+              tick={{ fontFamily: FONT_UI, fontSize: 9, fill: TEXT_OFF }}
               axisLine={{ stroke: '#1E3A4C' }}
               tickLine={false}
-              label={{ value: 'Damage', position: 'insideBottom', offset: -2, fontFamily: 'Space Mono, monospace', fontSize: 8, fill: TEXT_OFF }}
+              label={{ value: 'Damage', position: 'insideBottom', offset: -2, fontFamily: FONT_UI, fontSize: 8, fill: TEXT_OFF }}
             />
             <YAxis
               tickFormatter={(v) => `${(v * 100).toFixed(0)}%`}
-              tick={{ fontFamily: 'Space Mono, monospace', fontSize: 8, fill: TEXT_OFF }}
+              tick={{ fontFamily: FONT_UI, fontSize: 8, fill: TEXT_OFF }}
               axisLine={false}
               tickLine={false}
               width={34}
@@ -536,7 +536,7 @@ function KeywordRow({ kw, selected, onClick }) {
       }}
     >
       <span style={{
-        fontFamily: 'Space Mono, monospace', fontSize: '11px',
+        fontFamily: FONT_UI, fontSize: '11px',
         fontWeight: selected ? 700 : 400,
         letterSpacing: '1px', textTransform: 'uppercase',
         color: (selected || hov) ? ACCENT : TEXT_SEC,
@@ -546,7 +546,7 @@ function KeywordRow({ kw, selected, onClick }) {
       </span>
       {kw.notSimulated && (
         <span style={{
-          fontFamily: 'Space Mono, monospace', fontSize: '8px',
+          fontFamily: FONT_UI, fontSize: '8px',
           letterSpacing: '1px', textTransform: 'uppercase',
           color: TEXT_OFF, padding: '2px 6px',
           border: `1px solid #1E3A4C`, flexShrink: 0,
@@ -565,7 +565,7 @@ function DetailPanel({ kw }) {
     return (
       <div style={{
         flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center',
-        color: TEXT_WEAK, fontFamily: 'Space Mono, monospace',
+        color: TEXT_WEAK, fontFamily: FONT_UI,
         fontSize: '10px', letterSpacing: '2px', textTransform: 'uppercase',
       }}>
         Select a keyword
@@ -581,14 +581,14 @@ function DetailPanel({ kw }) {
         <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: '16px' }}>
           <div>
             <div style={{
-              fontFamily: 'Space Mono, monospace', fontSize: '10px',
+              fontFamily: FONT_UI, fontSize: '10px',
               letterSpacing: '3px', textTransform: 'uppercase',
               color: TEXT_WEAK, marginBottom: '10px',
             }}>
               {kw.phase}
             </div>
             <h2 style={{
-              fontFamily: 'Space Mono, monospace', fontSize: '20px',
+              fontFamily: FONT_UI, fontSize: '20px',
               fontWeight: 700, letterSpacing: '2px', textTransform: 'uppercase',
               color: TEXT, margin: 0,
             }}>
@@ -604,7 +604,7 @@ function DetailPanel({ kw }) {
           }}>
             <div style={{ width: 6, height: 6, borderRadius: '50%', background: kw.notSimulated ? TEXT_OFF : SUCCESS }} />
             <span style={{
-              fontFamily: 'Space Mono, monospace', fontSize: '8px',
+              fontFamily: FONT_UI, fontSize: '8px',
               letterSpacing: '1.5px', textTransform: 'uppercase',
               color: kw.notSimulated ? TEXT_OFF : SUCCESS,
             }}>
@@ -615,7 +615,7 @@ function DetailPanel({ kw }) {
 
         {/* Rule */}
         <div>
-          <div style={{ fontFamily: 'Space Mono, monospace', fontSize: '10px', letterSpacing: '2px', textTransform: 'uppercase', color: TEXT_WEAK, marginBottom: '10px' }}>
+          <div style={{ fontFamily: FONT_UI, fontSize: '10px', letterSpacing: '2px', textTransform: 'uppercase', color: TEXT_WEAK, marginBottom: '10px' }}>
             Official Rule
           </div>
           <div style={{ background: SURFACE, border: `1px solid ${BORDER}`, padding: '14px 18px', fontFamily: 'Inter, -apple-system, system-ui, sans-serif', fontSize: '14px', lineHeight: 1.75, color: TEXT_SEC }}>
@@ -625,7 +625,7 @@ function DetailPanel({ kw }) {
 
         {/* When to use */}
         <div>
-          <div style={{ fontFamily: 'Space Mono, monospace', fontSize: '10px', letterSpacing: '2px', textTransform: 'uppercase', color: ACCENT_TEXT, marginBottom: '10px', opacity: 0.8 }}>
+          <div style={{ fontFamily: FONT_UI, fontSize: '10px', letterSpacing: '2px', textTransform: 'uppercase', color: ACCENT_TEXT, marginBottom: '10px', opacity: 0.8 }}>
             When to use
           </div>
           <p style={{ fontFamily: 'Inter, -apple-system, system-ui, sans-serif', fontSize: '14px', lineHeight: 1.8, color: TEXT_SEC, margin: 0 }}>
@@ -636,7 +636,7 @@ function DetailPanel({ kw }) {
         {/* Blast tier breakdown */}
         {kw.type === 'BLAST' && (
           <div>
-            <div style={{ fontFamily: 'Space Mono, monospace', fontSize: '10px', letterSpacing: '2px', textTransform: 'uppercase', color: TEXT_WEAK, marginBottom: '14px', display: 'flex', alignItems: 'center', gap: '10px' }}>
+            <div style={{ fontFamily: FONT_UI, fontSize: '10px', letterSpacing: '2px', textTransform: 'uppercase', color: TEXT_WEAK, marginBottom: '14px', display: 'flex', alignItems: 'center', gap: '10px' }}>
               <span>Threshold breakdown</span>
               <div style={{ flex: 1, height: '1px', background: BORDER }} />
             </div>
@@ -648,7 +648,7 @@ function DetailPanel({ kw }) {
         {!kw.notSimulated && SCENARIOS[kw.type] && (
           <div>
             <div style={{
-              fontFamily: 'Space Mono, monospace', fontSize: '10px',
+              fontFamily: FONT_UI, fontSize: '10px',
               letterSpacing: '2px', textTransform: 'uppercase',
               color: TEXT_WEAK, marginBottom: '14px',
               display: 'flex', alignItems: 'center', gap: '10px',
@@ -693,14 +693,14 @@ export function KeywordsPage() {
         flexShrink: 0,
       }}>
         <h1 style={{
-          fontFamily: 'Space Mono, monospace', fontSize: '13px',
+          fontFamily: FONT_UI, fontSize: '13px',
           fontWeight: 700, letterSpacing: '3px', textTransform: 'uppercase',
           color: TEXT, margin: 0,
         }}>
           Keyword Reference
         </h1>
         <span style={{
-          fontFamily: 'Space Mono, monospace', fontSize: '10px',
+          fontFamily: FONT_UI, fontSize: '10px',
           letterSpacing: '2px', textTransform: 'uppercase', color: TEXT_WEAK,
         }}>
           {KEYWORD_REGISTRY.length} keywords · 10th Edition
@@ -724,7 +724,7 @@ export function KeywordsPage() {
               <div key={group} style={{ marginBottom: '8px' }}>
                 <div style={{
                   padding: '12px 16px 6px',
-                  fontFamily: 'Space Mono, monospace', fontSize: '8px',
+                  fontFamily: FONT_UI, fontSize: '8px',
                   letterSpacing: '2.5px', textTransform: 'uppercase', color: TEXT_OFF,
                 }}>
                   {label}

@@ -17,10 +17,20 @@
 }
 
 body {
-  background-color: #F8FAFB;
-  color: #0F1B24;
+  background-color: #F7F9F5;
+  color: #141A12;
   font-family: var(--sans);
   -webkit-font-smoothing: antialiased;
+}
+
+button {
+  font-family: var(--sans);
+  text-transform: none;
+  letter-spacing: normal;
+}
+
+input, select, textarea {
+  font-family: var(--sans);
 }
 
 #root {

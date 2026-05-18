@@ -7,8 +7,7 @@ import { simulate } from '../engine/simulation'
 import { KEYWORD_BY_TYPE } from '../engine/keywords.js'
 import {
   ACCENT_TEXT, ACCENT, BG, BORDER, ERROR, SURFACE, SURFACE_E,
-  TEXT, TEXT_OFF, TEXT_SEC, TEXT_WEAK, SUCCESS, TYPE,
-} from '../theme'
+  TEXT, TEXT_OFF, TEXT_SEC, TEXT_WEAK, SUCCESS, TYPE, FONT_UI} from '../theme'
 
 const N_TRIALS = 2000
 
@@ -100,14 +99,14 @@ function StepBar({ current, onStep }) {
               display: 'flex', alignItems: 'center', justifyContent: 'center',
               background: active ? ACCENT : completed ? SURFACE_E : 'transparent',
               border: `1px solid ${active || completed ? ACCENT : BORDER}`,
-              fontFamily: 'Space Mono, monospace', fontSize: '10px', fontWeight: 700,
+              fontFamily: FONT_UI, fontSize: '10px', fontWeight: 700,
               color: active ? BG : completed ? ACCENT : TEXT_OFF,
               transition: 'all 150ms',
             }}>
               {completed ? '✓' : s.n}
             </span>
             <span style={{
-              fontFamily: 'Space Mono, monospace', fontSize: '10px',
+              fontFamily: FONT_UI, fontSize: '10px',
               letterSpacing: '1.5px', textTransform: 'uppercase',
               color: active ? ACCENT : completed ? TEXT_SEC : TEXT_OFF,
               fontWeight: active ? 700 : 400, transition: 'color 150ms',
@@ -124,15 +123,7 @@ function StepBar({ current, onStep }) {
 // ── Separator (identical to SimulatorPage) ───────────────────────────────────
 
 function Separator() {
-  return (
-    <div style={{
-      fontFamily: 'Space Mono, monospace', fontSize: '10px', letterSpacing: '3px',
-      color: ACCENT_TEXT, overflow: 'hidden', whiteSpace: 'nowrap', lineHeight: 1,
-      padding: '10px 0', userSelect: 'none', opacity: 0.4,
-    }}>
-      {'≈ '.repeat(300)}
-    </div>
-  )
+  return <div style={{ height: '1px', background: BORDER, margin: '8px 0' }} />
 }
 
 // ── Attack card (identical to SimulatorPage) ─────────────────────────────────
@@ -148,28 +139,28 @@ function AttackCard({ attack, idx, onEdit, onRemove }) {
     <div style={{ border: `1px solid ${BORDER}`, padding: '14px 16px', background: SURFACE, display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
       <div style={{ flex: 1 }}>
         <div style={{ display: 'flex', alignItems: 'baseline', gap: '8px', marginBottom: '4px' }}>
-          <span style={{ fontFamily: 'Space Mono, monospace', fontSize: '8px', letterSpacing: '1.5px', color: TEXT_OFF }}>#{idx + 1}</span>
-          <span style={{ fontFamily: 'Space Mono, monospace', fontSize: '12px', fontWeight: 700, color: ACCENT_TEXT }}>{w.name || 'Custom weapon'}</span>
+          <span style={{ fontFamily: FONT_UI, fontSize: '8px', letterSpacing: '1.5px', color: TEXT_OFF }}>#{idx + 1}</span>
+          <span style={{ fontFamily: FONT_UI, fontSize: '12px', fontWeight: 700, color: ACCENT_TEXT }}>{w.name || 'Custom weapon'}</span>
         </div>
-        <div style={{ fontFamily: 'Space Mono, monospace', fontSize: '10px', color: TEXT_SEC, letterSpacing: '0.5px' }}>
+        <div style={{ fontFamily: FONT_UI, fontSize: '10px', color: TEXT_SEC, letterSpacing: '0.5px' }}>
           {attack.models}× · A{w.attacks} · BS{w.skill}+ · S{w.strength} · AP{w.ap} · D{w.damage}
         </div>
         {kwList.length > 0 && (
-          <div style={{ fontFamily: 'Space Mono, monospace', fontSize: '8px', color: TEXT_WEAK, marginTop: '4px', letterSpacing: '0.5px', textTransform: 'uppercase' }}>
+          <div style={{ fontFamily: FONT_UI, fontSize: '8px', color: TEXT_WEAK, marginTop: '4px', letterSpacing: '0.5px', textTransform: 'uppercase' }}>
             {kwList.join(' · ')}
           </div>
         )}
         {attack.buffs?.length > 0 && (
-          <div style={{ fontFamily: 'Space Mono, monospace', fontSize: '8px', color: 'rgba(194,143,133,0.7)', marginTop: '3px', letterSpacing: '0.5px', textTransform: 'uppercase' }}>
+          <div style={{ fontFamily: FONT_UI, fontSize: '8px', color: 'rgba(194,143,133,0.7)', marginTop: '3px', letterSpacing: '0.5px', textTransform: 'uppercase' }}>
             {attack.buffs.map((b) => `${b.type.replace(/_/g, ' ')} (${b.value})`).join(' · ')}
           </div>
         )}
       </div>
       <div style={{ display: 'flex', gap: '6px', marginLeft: '12px', flexShrink: 0 }}>
-        <button onClick={() => onEdit(idx)} style={{ background: 'none', border: `1px solid ${BORDER}`, color: ACCENT_TEXT, fontFamily: 'Space Mono, monospace', fontSize: '8px', letterSpacing: '1px', textTransform: 'uppercase', padding: '4px 8px', cursor: 'pointer' }}
+        <button onClick={() => onEdit(idx)} style={{ background: 'none', border: `1px solid ${BORDER}`, color: ACCENT_TEXT, fontFamily: FONT_UI, fontSize: '8px', letterSpacing: '1px', textTransform: 'uppercase', padding: '4px 8px', cursor: 'pointer' }}
           onMouseEnter={e => { e.currentTarget.style.borderColor = ACCENT }}
           onMouseLeave={e => { e.currentTarget.style.borderColor = BORDER }}>Edit</button>
-        <button onClick={() => onRemove(idx)} style={{ background: 'none', border: `1px solid rgba(255,92,122,0.3)`, color: ERROR, fontFamily: 'Space Mono, monospace', fontSize: '8px', letterSpacing: '1px', textTransform: 'uppercase', padding: '4px 8px', cursor: 'pointer' }}
+        <button onClick={() => onRemove(idx)} style={{ background: 'none', border: `1px solid rgba(255,92,122,0.3)`, color: ERROR, fontFamily: FONT_UI, fontSize: '8px', letterSpacing: '1px', textTransform: 'uppercase', padding: '4px 8px', cursor: 'pointer' }}
           onMouseEnter={e => { e.currentTarget.style.borderColor = ERROR }}
           onMouseLeave={e => { e.currentTarget.style.borderColor = 'rgba(255,92,122,0.3)' }}>×</button>
       </div>
@@ -196,7 +187,7 @@ function AttackStep() {
           background: hasWeapon ? ACCENT : 'transparent',
           border: `1px solid ${hasWeapon ? ACCENT : BORDER}`,
           color: hasWeapon ? BG : TEXT_OFF,
-          fontFamily: 'Space Mono, monospace', fontSize: '10px',
+          fontFamily: FONT_UI, fontSize: '10px',
           fontWeight: 700, letterSpacing: '2px', textTransform: 'uppercase',
           cursor: hasWeapon ? 'pointer' : 'default', opacity: hasWeapon ? 1 : 0.4, transition: 'opacity 120ms',
         }}
@@ -206,9 +197,9 @@ function AttackStep() {
         </button>
       </div>
       {attacks.length > 0 && (
-        <div style={{ marginTop: '16px', textAlign: 'center', fontFamily: 'Space Mono, monospace', fontSize: '10px', color: TEXT_WEAK }}>
+        <div style={{ marginTop: '16px', textAlign: 'center', fontFamily: FONT_UI, fontSize: '10px', color: TEXT_WEAK }}>
           {attacks.length} attack{attacks.length > 1 ? 's' : ''} configured —{' '}
-          <button onClick={() => setStep(2)} style={{ background: 'none', border: 'none', color: ACCENT_TEXT, fontFamily: 'Space Mono, monospace', fontSize: '10px', cursor: 'pointer', textDecoration: 'underline', padding: 0 }}>
+          <button onClick={() => setStep(2)} style={{ background: 'none', border: 'none', color: ACCENT_TEXT, fontFamily: FONT_UI, fontSize: '10px', cursor: 'pointer', textDecoration: 'underline', padding: 0 }}>
             review
           </button>
         </div>
@@ -228,11 +219,11 @@ function ReviewStep() {
 
   return (
     <div style={{ maxWidth: '640px', margin: '0 auto' }}>
-      <div style={{ fontFamily: 'Space Mono, monospace', fontSize: '8px', letterSpacing: '2px', textTransform: 'uppercase', color: TEXT_WEAK, marginBottom: '16px' }}>
+      <div style={{ fontFamily: FONT_UI, fontSize: '8px', letterSpacing: '2px', textTransform: 'uppercase', color: TEXT_WEAK, marginBottom: '16px' }}>
         Attacks configured ({attacks.length})
       </div>
       {attacks.length === 0 && (
-        <div style={{ padding: '32px', border: `1px dashed ${BORDER}`, textAlign: 'center', fontFamily: 'Space Mono, monospace', fontSize: '10px', color: TEXT_WEAK }}>
+        <div style={{ padding: '32px', border: `1px dashed ${BORDER}`, textAlign: 'center', fontFamily: FONT_UI, fontSize: '10px', color: TEXT_WEAK }}>
           No attacks yet. Add at least one to continue.
         </div>
       )}
@@ -244,7 +235,7 @@ function ReviewStep() {
       <div style={{ display: 'flex', gap: '12px' }}>
         <button onClick={() => { resetAttacker(); setStep(1) }} style={{
           flex: 1, padding: '12px', background: 'transparent', border: `1px solid ${BORDER}`,
-          color: ACCENT_TEXT, fontFamily: 'Space Mono, monospace', fontSize: '10px',
+          color: ACCENT_TEXT, fontFamily: FONT_UI, fontSize: '10px',
           letterSpacing: '1.5px', textTransform: 'uppercase', cursor: 'pointer', transition: 'background 100ms',
         }}
           onMouseEnter={e => { e.currentTarget.style.background = 'rgba(47,224,255,0.07)' }}
@@ -254,7 +245,7 @@ function ReviewStep() {
         {attacks.length > 0 && (
           <button onClick={() => setStep(3)} style={{
             flex: 1, padding: '12px', background: ACCENT, border: `1px solid ${ACCENT}`,
-            color: TEXT, fontFamily: 'Space Mono, monospace', fontSize: '10px',
+            color: TEXT, fontFamily: FONT_UI, fontSize: '10px',
             fontWeight: 700, letterSpacing: '1.5px', textTransform: 'uppercase', cursor: 'pointer', transition: 'opacity 100ms',
           }}
             onMouseEnter={e => { e.currentTarget.style.opacity = '0.85' }}
@@ -278,7 +269,7 @@ function ContextStep({ onRunMatrix, running }) {
       <div style={{ display: 'flex', gap: '12px', marginTop: '28px' }}>
         <button onClick={() => setStep(2)} style={{
           padding: '12px 20px', background: 'transparent', border: `1px solid ${BORDER}`,
-          color: TEXT_WEAK, fontFamily: 'Space Mono, monospace', fontSize: '10px',
+          color: TEXT_WEAK, fontFamily: FONT_UI, fontSize: '10px',
           letterSpacing: '1.5px', textTransform: 'uppercase', cursor: 'pointer', transition: 'color 100ms',
         }}
           onMouseEnter={e => { e.currentTarget.style.color = ACCENT }}
@@ -289,7 +280,7 @@ function ContextStep({ onRunMatrix, running }) {
           flex: 1, padding: '14px',
           background: running ? SURFACE : ACCENT, border: `1px solid ${ACCENT}`,
           color: running ? TEXT_WEAK : BG,
-          fontFamily: 'Space Mono, monospace', fontSize: '11px',
+          fontFamily: FONT_UI, fontSize: '11px',
           fontWeight: 700, letterSpacing: '3px', textTransform: 'uppercase',
           cursor: running ? 'default' : 'pointer', opacity: running ? 0.5 : 1, transition: 'opacity 120ms',
         }}
@@ -320,12 +311,12 @@ function MatrixStep({ matrix, onBack }) {
       {/* Summary chips */}
       {attacks.length > 0 && (
         <div style={{ marginBottom: '24px' }}>
-          <div style={{ fontFamily: 'Space Mono, monospace', fontSize: '8px', letterSpacing: '2px', textTransform: 'uppercase', color: TEXT_WEAK, marginBottom: '10px' }}>
+          <div style={{ fontFamily: FONT_UI, fontSize: '8px', letterSpacing: '2px', textTransform: 'uppercase', color: TEXT_WEAK, marginBottom: '10px' }}>
             Attacks ({attacks.length}) · {N_TRIALS.toLocaleString()} trials per cell
           </div>
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
             {attacks.map((atk) => (
-              <div key={atk._id} style={{ padding: '6px 10px', border: `1px solid ${BORDER}`, fontFamily: 'Space Mono, monospace', fontSize: '10px', color: TEXT_SEC }}>
+              <div key={atk._id} style={{ padding: '6px 10px', border: `1px solid ${BORDER}`, fontFamily: FONT_UI, fontSize: '10px', color: TEXT_SEC }}>
                 {atk.models}× {atk.weapon.name || 'Custom'}
               </div>
             ))}
@@ -359,7 +350,7 @@ function MatrixStep({ matrix, onBack }) {
               return (
                 <tr key={row.id} style={{ borderTop: ri > 0 ? `1px solid ${BORDER}` : 'none' }}>
                   <td style={{ padding: '12px 0', verticalAlign: 'middle' }}>
-                    <span style={{ fontFamily: 'Space Mono, monospace', fontSize: '10px', letterSpacing: '1.5px', textTransform: 'uppercase', color: isBase ? TEXT_SEC : TEXT }}>
+                    <span style={{ fontFamily: FONT_UI, fontSize: '10px', letterSpacing: '1.5px', textTransform: 'uppercase', color: isBase ? TEXT_SEC : TEXT }}>
                       {row.label}
                     </span>
                   </td>
@@ -374,11 +365,11 @@ function MatrixStep({ matrix, onBack }) {
                       : ((val - baseDmg[def.id]) / Math.max(baseDmg[def.id], 0.01)) * 100
                     return (
                       <td key={def.id} style={{ padding: '10px 8px', textAlign: 'center', verticalAlign: 'middle', background: bg }}>
-                        <div style={{ fontFamily: 'Space Mono, monospace', fontSize: '14px', fontWeight: 700, color: ratio > 0.55 ? SUCCESS : TEXT, lineHeight: 1 }}>
+                        <div style={{ fontFamily: FONT_UI, fontSize: '14px', fontWeight: 700, color: ratio > 0.55 ? SUCCESS : TEXT, lineHeight: 1 }}>
                           {val.toFixed(1)}
                         </div>
                         {!isBase && pct !== null && (
-                          <div style={{ fontFamily: 'Space Mono, monospace', fontSize: '9px', color: pct > 0.5 ? SUCCESS : TEXT_OFF, marginTop: '4px', lineHeight: 1 }}>
+                          <div style={{ fontFamily: FONT_UI, fontSize: '9px', color: pct > 0.5 ? SUCCESS : TEXT_OFF, marginTop: '4px', lineHeight: 1 }}>
                             {pct > 0.5 ? `+${pct.toFixed(0)}%` : '—'}
                           </div>
                         )}
@@ -407,7 +398,7 @@ function MatrixStep({ matrix, onBack }) {
       <div style={{ display: 'flex', gap: '12px', marginTop: '32px' }}>
         <button onClick={onBack} style={{
           padding: '10px 18px', background: 'transparent', border: `1px solid ${BORDER}`,
-          color: TEXT_WEAK, fontFamily: 'Space Mono, monospace', fontSize: '10px',
+          color: TEXT_WEAK, fontFamily: FONT_UI, fontSize: '10px',
           letterSpacing: '1.5px', textTransform: 'uppercase', cursor: 'pointer', transition: 'color 100ms',
         }}
           onMouseEnter={e => { e.currentTarget.style.color = ACCENT }}
@@ -416,7 +407,7 @@ function MatrixStep({ matrix, onBack }) {
         </button>
         <button onClick={resetAll} style={{
           padding: '10px 18px', background: 'transparent', border: `1px solid ${ERROR}44`,
-          color: ERROR, fontFamily: 'Space Mono, monospace', fontSize: '10px',
+          color: ERROR, fontFamily: FONT_UI, fontSize: '10px',
           letterSpacing: '1.5px', textTransform: 'uppercase', cursor: 'pointer', transition: 'background 100ms, border-color 100ms',
         }}
           onMouseEnter={e => { e.currentTarget.style.background = `${ERROR}18`; e.currentTarget.style.borderColor = ERROR }}
@@ -451,12 +442,12 @@ function KeywordDefinitionPanel() {
       <div style={{ width: '100%', maxWidth: '300px', opacity: def ? 1 : 0, transform: def ? 'translateX(0)' : 'translateX(-12px)', transition: 'opacity 200ms ease, transform 200ms ease' }}>
         {(visible || def) && display && (
           <div style={{ border: `1px solid ${def ? ACCENT + '44' : BORDER}`, background: SURFACE, padding: '22px', transition: 'border-color 200ms ease' }}>
-            <div style={{ fontFamily: 'Space Mono, monospace', fontSize: '7px', letterSpacing: '2.5px', textTransform: 'uppercase', color: TEXT_OFF, marginBottom: '10px' }}>{display.phase}</div>
-            <div style={{ fontFamily: 'Space Mono, monospace', fontSize: '14px', fontWeight: 700, letterSpacing: '1px', textTransform: 'uppercase', color: ACCENT_TEXT, marginBottom: '16px', lineHeight: 1.2 }}>{display.label}</div>
+            <div style={{ fontFamily: FONT_UI, fontSize: '7px', letterSpacing: '2.5px', textTransform: 'uppercase', color: TEXT_OFF, marginBottom: '10px' }}>{display.phase}</div>
+            <div style={{ fontFamily: FONT_UI, fontSize: '14px', fontWeight: 700, letterSpacing: '1px', textTransform: 'uppercase', color: ACCENT_TEXT, marginBottom: '16px', lineHeight: 1.2 }}>{display.label}</div>
             <div style={{ height: '1px', background: `linear-gradient(to right, ${ACCENT}44, ${BORDER})`, marginBottom: '16px' }} />
             <p style={{ fontFamily: 'Inter, -apple-system, system-ui, sans-serif', fontSize: '13px', lineHeight: 1.75, color: TEXT_SEC, margin: '0 0 14px 0' }}>{display.rule}</p>
             <div style={{ padding: '10px 12px', background: 'rgba(47,224,255,0.04)', borderLeft: `2px solid ${ACCENT}55` }}>
-              <div style={{ fontFamily: 'Space Mono, monospace', fontSize: '7px', letterSpacing: '2px', textTransform: 'uppercase', color: TEXT_WEAK, marginBottom: '6px' }}>Note</div>
+              <div style={{ fontFamily: FONT_UI, fontSize: '7px', letterSpacing: '2px', textTransform: 'uppercase', color: TEXT_WEAK, marginBottom: '6px' }}>Note</div>
               <p style={{ fontFamily: 'Inter, -apple-system, system-ui, sans-serif', fontSize: '12px', lineHeight: 1.7, color: TEXT_WEAK, margin: 0, fontStyle: 'italic' }}>{display.note}</p>
             </div>
           </div>
@@ -501,14 +492,14 @@ function UnitAbilitiesPanel({ role }) {
   return (
     <div style={{ position: 'fixed', left: 'calc(50% + 280px + 24px)', right: '48px', top: '50%', transform: 'translateY(-50%)', zIndex: 10 }}>
       <div style={{ border: `1px solid ${BORDER}`, background: SURFACE, padding: '18px', maxHeight: 'calc(100vh - 160px)', overflowY: 'auto' }} className="combo-abilities-scroll">
-        <div style={{ fontFamily: 'Space Mono, monospace', fontSize: '7px', letterSpacing: '2.5px', textTransform: 'uppercase', color: TEXT_OFF, marginBottom: '6px' }}>{role} unit</div>
-        <div key={`name-${animKey}`} style={{ fontFamily: 'Space Mono, monospace', fontSize: '13px', fontWeight: 700, textTransform: 'uppercase', color: ACCENT_TEXT, marginBottom: '14px', lineHeight: 1.2, animation: 'comboHeaderScan 400ms ease forwards' }}>{unit.name}</div>
+        <div style={{ fontFamily: FONT_UI, fontSize: '7px', letterSpacing: '2.5px', textTransform: 'uppercase', color: TEXT_OFF, marginBottom: '6px' }}>{role} unit</div>
+        <div key={`name-${animKey}`} style={{ fontFamily: FONT_UI, fontSize: '13px', fontWeight: 700, textTransform: 'uppercase', color: ACCENT_TEXT, marginBottom: '14px', lineHeight: 1.2, animation: 'comboHeaderScan 400ms ease forwards' }}>{unit.name}</div>
         <div key={`divider-${animKey}`} style={{ height: '1px', background: `linear-gradient(to right, ${ACCENT}44, ${BORDER})`, marginBottom: '14px', animation: 'comboDividerGrow 350ms ease forwards' }} />
-        <div style={{ fontFamily: 'Space Mono, monospace', fontSize: '7px', letterSpacing: '2px', textTransform: 'uppercase', color: TEXT_WEAK, marginBottom: '12px' }}>{abilities.length} abilit{abilities.length !== 1 ? 'ies' : 'y'}</div>
+        <div style={{ fontFamily: FONT_UI, fontSize: '7px', letterSpacing: '2px', textTransform: 'uppercase', color: TEXT_WEAK, marginBottom: '12px' }}>{abilities.length} abilit{abilities.length !== 1 ? 'ies' : 'y'}</div>
         <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
           {abilities.map((ab, i) => (
             <div key={`${animKey}-${i}`} className="combo-ability-card" style={{ animation: 'comboAbilityIn 280ms ease forwards', animationDelay: `${i * 40}ms`, opacity: 0 }}>
-              <div style={{ fontFamily: 'Space Mono, monospace', fontSize: '10px', fontWeight: 700, letterSpacing: '0.5px', textTransform: 'uppercase', color: TEXT, marginBottom: '6px' }}>{ab.name}</div>
+              <div style={{ fontFamily: FONT_UI, fontSize: '10px', fontWeight: 700, letterSpacing: '0.5px', textTransform: 'uppercase', color: TEXT, marginBottom: '6px' }}>{ab.name}</div>
               {ab.desc && <p style={{ fontFamily: 'Inter, -apple-system, system-ui, sans-serif', fontSize: '11px', lineHeight: 1.65, color: TEXT_SEC, margin: 0 }}><AbilityText text={ab.desc} /></p>}
             </div>
           ))}
@@ -556,10 +547,10 @@ export function ComboPage() {
         <div style={{ padding: '18px 0 14px' }}>
           <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', gap: '16px' }}>
             <div style={{ display: 'flex', alignItems: 'baseline', gap: '16px' }}>
-              <h1 style={{ fontFamily: 'Space Mono, monospace', fontWeight: 700, fontSize: 'clamp(18px, 2vw, 26px)', letterSpacing: '0.05em', textTransform: 'uppercase', lineHeight: 1, color: TEXT }}>
+              <h1 style={{ fontFamily: FONT_UI, fontWeight: 700, fontSize: 'clamp(18px, 2vw, 26px)', letterSpacing: '0.05em', textTransform: 'uppercase', lineHeight: 1, color: TEXT }}>
                 Keyword Matrix
               </h1>
-              <span style={{ fontFamily: 'Space Mono, monospace', fontSize: '10px', letterSpacing: '2px', textTransform: 'uppercase', color: TEXT_WEAK }}>
+              <span style={{ fontFamily: FONT_UI, fontSize: '10px', letterSpacing: '2px', textTransform: 'uppercase', color: TEXT_WEAK }}>
                 Combo Builder · WH40K 10e
               </span>
             </div>
@@ -569,7 +560,7 @@ export function ComboPage() {
               style={{
                 background: resetHover ? ERROR : `${ERROR}22`,
                 border: `1px solid ${ERROR}`, color: resetHover ? BG : ERROR,
-                fontFamily: 'Space Mono, monospace', fontSize: '10px',
+                fontFamily: FONT_UI, fontSize: '10px',
                 fontWeight: 700, letterSpacing: '2px', textTransform: 'uppercase',
                 padding: '9px 20px', cursor: 'pointer',
                 display: 'flex', alignItems: 'center', gap: '8px',
@@ -600,7 +591,7 @@ export function ComboPage() {
 
       <div style={{ padding: '0 48px 24px' }}>
         <Separator />
-        <div style={{ display: 'flex', justifyContent: 'space-between', paddingTop: '12px', fontFamily: 'Space Mono, monospace', fontSize: '10px', letterSpacing: '2px', textTransform: 'uppercase', color: TEXT_OFF }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', paddingTop: '12px', fontFamily: FONT_UI, fontSize: '10px', letterSpacing: '2px', textTransform: 'uppercase', color: TEXT_OFF }}>
           <span>WH40K KEYWORD MATRIX — V2</span>
           <span>SIMULATION RUNS IN BROWSER — ZERO LATENCY</span>
         </div>

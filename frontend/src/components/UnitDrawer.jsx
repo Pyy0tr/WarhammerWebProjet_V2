@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
 import { useDataStore } from '../store/dataStore'
-import { ACCENT_TEXT, ACCENT, BG, SURFACE, SURFACE_E, BORDER, TEXT, TEXT_SEC, TEXT_WEAK, TEXT_OFF } from '../theme'
+import { ACCENT_TEXT, ACCENT, BG, SURFACE, SURFACE_E, BORDER, TEXT, TEXT_SEC, TEXT_WEAK, TEXT_OFF , FONT_UI} from '../theme'
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
@@ -29,7 +29,7 @@ function fmtWeaponLine(w) {
 function SectionLabel({ children }) {
   return (
     <div style={{
-      fontFamily: 'Space Mono, monospace', fontSize: '8px',
+      fontFamily: FONT_UI, fontSize: '8px',
       letterSpacing: '2.5px', textTransform: 'uppercase',
       color: TEXT_WEAK, padding: '16px 20px 8px',
     }}>
@@ -55,13 +55,13 @@ function UnitRow({ unit, onClick }) {
     >
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
         <span style={{
-          fontFamily: 'Space Mono, monospace', fontSize: '12px',
+          fontFamily: FONT_UI, fontSize: '12px',
           fontWeight: 700, color: ACCENT_TEXT,
         }}>
           {unit.name}
         </span>
         <span style={{
-          fontFamily: 'Space Mono, monospace', fontSize: '10px',
+          fontFamily: FONT_UI, fontSize: '10px',
           color: TEXT_WEAK, whiteSpace: 'nowrap', marginLeft: '12px',
         }}>
           T{unit.T} · {unit.Sv}+ · W{unit.W}
@@ -89,13 +89,13 @@ function WeaponRow({ weapon, onClick }) {
     >
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
         <span style={{
-          fontFamily: 'Space Mono, monospace', fontSize: '12px',
+          fontFamily: FONT_UI, fontSize: '12px',
           fontWeight: 700, color: ACCENT_TEXT,
         }}>
           {weapon.name}
         </span>
         <span style={{
-          fontFamily: 'Space Mono, monospace', fontSize: '10px',
+          fontFamily: FONT_UI, fontSize: '10px',
           color: TEXT_WEAK, whiteSpace: 'nowrap', marginLeft: '12px',
         }}>
           {fmtWeaponLine(weapon)}
@@ -104,7 +104,7 @@ function WeaponRow({ weapon, onClick }) {
       {weapon.kw?.length > 0 && (
         <div style={{
           marginTop: '3px',
-          fontFamily: 'Space Mono, monospace', fontSize: '8px',
+          fontFamily: FONT_UI, fontSize: '8px',
           letterSpacing: '1px', color: TEXT_OFF, textTransform: 'uppercase',
         }}>
           {weapon.kw.slice(0, 4).join(' · ')}
@@ -145,13 +145,13 @@ function BrowsePanel({ onSelectUnit }) {
               }}
             >
               <span style={{
-                fontFamily: 'Space Mono, monospace', fontSize: '11px',
+                fontFamily: FONT_UI, fontSize: '11px',
                 fontWeight: 700, color: ACCENT_TEXT, letterSpacing: '1px',
               }}>
                 {group}
               </span>
               <span style={{
-                fontFamily: 'Space Mono, monospace', fontSize: '10px',
+                fontFamily: FONT_UI, fontSize: '10px',
                 color: TEXT_OFF, marginLeft: '8px',
               }}>
                 {isGroupOpen ? '▲' : '▼'}
@@ -177,13 +177,13 @@ function BrowsePanel({ onSelectUnit }) {
                     }}
                   >
                     <span style={{
-                      fontFamily: 'Space Mono, monospace', fontSize: '10px',
+                      fontFamily: FONT_UI, fontSize: '10px',
                       color: isFactionOpen ? ACCENT : TEXT_SEC, letterSpacing: '0.5px',
                     }}>
                       {label}
                     </span>
                     <span style={{
-                      fontFamily: 'Space Mono, monospace', fontSize: '8px', color: TEXT_OFF,
+                      fontFamily: FONT_UI, fontSize: '8px', color: TEXT_OFF,
                     }}>
                       {isFactionOpen ? '▲' : `${units.length}`}
                     </span>
@@ -194,7 +194,7 @@ function BrowsePanel({ onSelectUnit }) {
                       {units.length === 0 ? (
                         <div style={{
                           padding: '12px 20px 12px 40px',
-                          fontFamily: 'Space Mono, monospace', fontSize: '10px',
+                          fontFamily: FONT_UI, fontSize: '10px',
                           color: TEXT_OFF,
                         }}>
                           No units
@@ -223,7 +223,7 @@ function SearchResults({ results, onSelectUnit }) {
     return (
       <div style={{
         padding: '32px 20px', textAlign: 'center',
-        fontFamily: 'Space Mono, monospace', fontSize: '10px',
+        fontFamily: FONT_UI, fontSize: '10px',
         letterSpacing: '2px', color: TEXT_OFF, textTransform: 'uppercase',
       }}>
         No results
@@ -252,13 +252,13 @@ function WeaponStep({ unit, onSelectWeapon, _onBack }) {
         background: SURFACE,
       }}>
         <div style={{
-          fontFamily: 'Space Mono, monospace', fontSize: '13px',
+          fontFamily: FONT_UI, fontSize: '13px',
           fontWeight: 700, color: ACCENT_TEXT, marginBottom: '6px',
         }}>
           {unit.name}
         </div>
         <div style={{
-          fontFamily: 'Space Mono, monospace', fontSize: '10px',
+          fontFamily: FONT_UI, fontSize: '10px',
           color: TEXT_WEAK, letterSpacing: '1px',
         }}>
           T{unit.T} · SV{unit.Sv}+ · W{unit.W}
@@ -271,7 +271,7 @@ function WeaponStep({ unit, onSelectWeapon, _onBack }) {
       {weapons.length === 0 ? (
         <div style={{
           padding: '24px 20px',
-          fontFamily: 'Space Mono, monospace', fontSize: '10px',
+          fontFamily: FONT_UI, fontSize: '10px',
           color: TEXT_OFF, letterSpacing: '1px',
         }}>
           No weapon data available. Configure manually.
@@ -360,7 +360,7 @@ export function UnitDrawer({ isOpen, onClose, role, onSelect }) {
             padding: '16px 0 12px',
           }}>
             <span style={{
-              fontFamily: 'Space Mono, monospace', fontSize: '10px',
+              fontFamily: FONT_UI, fontSize: '10px',
               fontWeight: 700, letterSpacing: '3px', textTransform: 'uppercase',
               color: ACCENT_TEXT,
             }}>
@@ -393,8 +393,8 @@ export function UnitDrawer({ isOpen, onClose, role, onSelect }) {
                 width: '100%', boxSizing: 'border-box',
                 background: SURFACE,
                 border: `1px solid ${query.length >= 2 ? ACCENT : BORDER}`,
-                borderRadius: '2px', color: TEXT,
-                fontFamily: 'Space Mono, monospace', fontSize: '13px',
+                borderRadius: '4px', color: TEXT,
+                fontFamily: FONT_UI, fontSize: '13px',
                 fontWeight: 700, padding: '9px 36px 9px 12px',
                 outline: 'none', transition: 'border-color 100ms',
               }}
@@ -440,7 +440,7 @@ export function UnitDrawer({ isOpen, onClose, role, onSelect }) {
           padding: '12px 20px',
           borderTop: `1px solid ${BORDER}`,
           flexShrink: 0,
-          fontFamily: 'Space Mono, monospace', fontSize: '8px',
+          fontFamily: FONT_UI, fontSize: '8px',
           letterSpacing: '2px', color: TEXT_OFF, textTransform: 'uppercase',
         }}>
           {loaded ? `${useDataStore.getState().units.length} units · ${useDataStore.getState().factions.length} factions` : 'Loading…'}

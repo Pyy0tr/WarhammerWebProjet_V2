@@ -4,7 +4,7 @@ import { AttackerPanel } from '../components/AttackerPanel'
 import { DefenderPanel } from '../components/DefenderPanel'
 import { ResultsPanel } from '../components/ResultsPanel'
 import { AbilityText } from '../components/AbilityText'
-import { ACCENT_TEXT, ACCENT, ACCENT_H, BG, SURFACE, SURFACE_E, BORDER, TEXT, TEXT_SEC, TEXT_WEAK, TEXT_OFF, ERROR } from '../theme'
+import { ACCENT_TEXT, ACCENT, ACCENT_H, BG, SURFACE, SURFACE_E, BORDER, TEXT, TEXT_SEC, TEXT_WEAK, TEXT_OFF, ERROR , FONT_UI} from '../theme'
 import { KEYWORD_BY_TYPE } from '../engine/keywords.js'
 
 // ── Step indicator ───────────────────────────────────────────────────────────
@@ -44,14 +44,14 @@ function StepBar({ current, onStep }) {
               display: 'flex', alignItems: 'center', justifyContent: 'center',
               background: active ? ACCENT : completed ? SURFACE_E : 'transparent',
               border: `1px solid ${active || completed ? ACCENT : BORDER}`,
-              fontFamily: 'Space Mono, monospace', fontSize: '10px', fontWeight: 700,
+              fontFamily: FONT_UI, fontSize: '10px', fontWeight: 700,
               color: active ? BG : completed ? ACCENT : TEXT_OFF,
               transition: 'all 150ms',
             }}>
               {completed ? '\u2713' : s.n}
             </span>
             <span style={{
-              fontFamily: 'Space Mono, monospace', fontSize: '10px',
+              fontFamily: FONT_UI, fontSize: '10px',
               letterSpacing: '1.5px', textTransform: 'uppercase',
               color: active ? ACCENT : completed ? TEXT_SEC : TEXT_OFF,
               fontWeight: active ? 700 : 400,
@@ -84,27 +84,27 @@ function AttackCard({ attack, idx, onEdit, onRemove }) {
       <div style={{ flex: 1 }}>
         <div style={{ display: 'flex', alignItems: 'baseline', gap: '8px', marginBottom: '4px' }}>
           <span style={{
-            fontFamily: 'Space Mono, monospace', fontSize: '8px',
+            fontFamily: FONT_UI, fontSize: '8px',
             letterSpacing: '1.5px', color: TEXT_OFF,
           }}>
             #{idx + 1}
           </span>
           <span style={{
-            fontFamily: 'Space Mono, monospace', fontSize: '12px',
+            fontFamily: FONT_UI, fontSize: '12px',
             fontWeight: 700, color: ACCENT_TEXT,
           }}>
             {w.name || 'Custom weapon'}
           </span>
         </div>
         <div style={{
-          fontFamily: 'Space Mono, monospace', fontSize: '10px',
+          fontFamily: FONT_UI, fontSize: '10px',
           color: TEXT_SEC, letterSpacing: '0.5px',
         }}>
           {attack.models}x &middot; A{w.attacks} &middot; BS{w.skill}+ &middot; S{w.strength} &middot; AP{w.ap} &middot; D{w.damage}
         </div>
         {kwList.length > 0 && (
           <div style={{
-            fontFamily: 'Space Mono, monospace', fontSize: '8px',
+            fontFamily: FONT_UI, fontSize: '8px',
             color: TEXT_WEAK, marginTop: '4px', letterSpacing: '0.5px', textTransform: 'uppercase',
           }}>
             {kwList.join(' \u00b7 ')}
@@ -112,7 +112,7 @@ function AttackCard({ attack, idx, onEdit, onRemove }) {
         )}
         {attack.buffs?.length > 0 && (
           <div style={{
-            fontFamily: 'Space Mono, monospace', fontSize: '8px',
+            fontFamily: FONT_UI, fontSize: '8px',
             color: 'rgba(194,143,133,0.7)', marginTop: '3px', letterSpacing: '0.5px', textTransform: 'uppercase',
           }}>
             {attack.buffs.map((b) => `${b.type.replace(/_/g, ' ')} (${b.value})`).join(' \u00b7 ')}
@@ -124,7 +124,7 @@ function AttackCard({ attack, idx, onEdit, onRemove }) {
           onClick={() => onEdit(idx)}
           style={{
             background: 'none', border: `1px solid ${BORDER}`,
-            color: ACCENT_TEXT, fontFamily: 'Space Mono, monospace', fontSize: '8px',
+            color: ACCENT_TEXT, fontFamily: FONT_UI, fontSize: '8px',
             letterSpacing: '1px', textTransform: 'uppercase', padding: '4px 8px',
             cursor: 'pointer', transition: 'border-color 100ms',
           }}
@@ -137,7 +137,7 @@ function AttackCard({ attack, idx, onEdit, onRemove }) {
           onClick={() => onRemove(idx)}
           style={{
             background: 'none', border: `1px solid rgba(255,92,122,0.3)`,
-            color: ERROR, fontFamily: 'Space Mono, monospace', fontSize: '8px',
+            color: ERROR, fontFamily: FONT_UI, fontSize: '8px',
             letterSpacing: '1px', textTransform: 'uppercase', padding: '4px 8px',
             cursor: 'pointer', transition: 'border-color 100ms',
           }}
@@ -163,7 +163,7 @@ function ReviewStep() {
   return (
     <div style={{ maxWidth: '640px', margin: '0 auto' }}>
       <div style={{
-        fontFamily: 'Space Mono, monospace', fontSize: '8px',
+        fontFamily: FONT_UI, fontSize: '8px',
         letterSpacing: '2px', textTransform: 'uppercase', color: TEXT_WEAK,
         marginBottom: '16px',
       }}>
@@ -173,7 +173,7 @@ function ReviewStep() {
       {attacks.length === 0 && (
         <div style={{
           padding: '32px', border: `1px dashed ${BORDER}`,
-          textAlign: 'center', fontFamily: 'Space Mono, monospace',
+          textAlign: 'center', fontFamily: FONT_UI,
           fontSize: '10px', color: TEXT_WEAK,
         }}>
           No attacks yet. Add at least one attack to continue.
@@ -192,7 +192,7 @@ function ReviewStep() {
           style={{
             flex: 1, padding: '12px',
             background: 'transparent', border: `1px solid ${BORDER}`,
-            color: ACCENT_TEXT, fontFamily: 'Space Mono, monospace', fontSize: '10px',
+            color: ACCENT_TEXT, fontFamily: FONT_UI, fontSize: '10px',
             letterSpacing: '1.5px', textTransform: 'uppercase', cursor: 'pointer',
             transition: 'background 100ms',
           }}
@@ -207,7 +207,7 @@ function ReviewStep() {
             style={{
               flex: 1, padding: '12px',
               background: ACCENT, border: `1px solid ${ACCENT}`,
-              color: TEXT, fontFamily: 'Space Mono, monospace', fontSize: '10px',
+              color: TEXT, fontFamily: FONT_UI, fontSize: '10px',
               fontWeight: 700, letterSpacing: '1.5px', textTransform: 'uppercase',
               cursor: 'pointer', transition: 'opacity 100ms',
             }}
@@ -237,7 +237,7 @@ function DefenderStep() {
       {error && (
         <div style={{
           marginTop: '16px', border: `1px solid rgba(255,92,122,0.5)`,
-          padding: '10px 14px', fontFamily: 'Space Mono, monospace',
+          padding: '10px 14px', fontFamily: FONT_UI,
           fontSize: '10px', letterSpacing: '1.5px', textTransform: 'uppercase',
           color: ERROR,
         }}>
@@ -251,7 +251,7 @@ function DefenderStep() {
           style={{
             padding: '12px 20px',
             background: 'transparent', border: `1px solid ${BORDER}`,
-            color: TEXT_WEAK, fontFamily: 'Space Mono, monospace', fontSize: '10px',
+            color: TEXT_WEAK, fontFamily: FONT_UI, fontSize: '10px',
             letterSpacing: '1.5px', textTransform: 'uppercase', cursor: 'pointer',
             transition: 'color 100ms',
           }}
@@ -268,7 +268,7 @@ function DefenderStep() {
             background: loading ? SURFACE : ACCENT,
             border: `1px solid ${ACCENT}`,
             color: loading ? TEXT_WEAK : BG,
-            fontFamily: 'Space Mono, monospace', fontSize: '11px',
+            fontFamily: FONT_UI, fontSize: '11px',
             fontWeight: 700, letterSpacing: '3px', textTransform: 'uppercase',
             cursor: loading ? 'default' : 'pointer',
             opacity: loading ? 0.5 : 1,
@@ -297,7 +297,7 @@ function ResultsStep() {
       {attacks.length > 0 && (
         <div style={{ marginBottom: '28px' }}>
           <div style={{
-            fontFamily: 'Space Mono, monospace', fontSize: '8px',
+            fontFamily: FONT_UI, fontSize: '8px',
             letterSpacing: '2px', textTransform: 'uppercase', color: TEXT_WEAK,
             marginBottom: '10px',
           }}>
@@ -307,7 +307,7 @@ function ResultsStep() {
             {attacks.map((atk) => (
               <div key={atk._id} style={{
                 padding: '6px 10px', border: `1px solid ${BORDER}`,
-                fontFamily: 'Space Mono, monospace', fontSize: '10px', color: TEXT_SEC,
+                fontFamily: FONT_UI, fontSize: '10px', color: TEXT_SEC,
               }}>
                 {atk.models}x {atk.weapon.name || 'Custom'}
               </div>
@@ -324,7 +324,7 @@ function ResultsStep() {
           style={{
             padding: '10px 18px',
             background: 'transparent', border: `1px solid ${BORDER}`,
-            color: TEXT_WEAK, fontFamily: 'Space Mono, monospace', fontSize: '10px',
+            color: TEXT_WEAK, fontFamily: FONT_UI, fontSize: '10px',
             letterSpacing: '1.5px', textTransform: 'uppercase', cursor: 'pointer',
             transition: 'color 100ms',
           }}
@@ -338,7 +338,7 @@ function ResultsStep() {
           style={{
             padding: '10px 18px',
             background: 'transparent', border: `1px solid ${BORDER}`,
-            color: TEXT_WEAK, fontFamily: 'Space Mono, monospace', fontSize: '10px',
+            color: TEXT_WEAK, fontFamily: FONT_UI, fontSize: '10px',
             letterSpacing: '1.5px', textTransform: 'uppercase', cursor: 'pointer',
             transition: 'color 100ms',
           }}
@@ -352,7 +352,7 @@ function ResultsStep() {
           style={{
             padding: '10px 18px',
             background: 'transparent', border: `1px solid ${ERROR}44`,
-            color: ERROR, fontFamily: 'Space Mono, monospace', fontSize: '10px',
+            color: ERROR, fontFamily: FONT_UI, fontSize: '10px',
             letterSpacing: '1.5px', textTransform: 'uppercase', cursor: 'pointer',
             transition: 'background 100ms, border-color 100ms',
           }}
@@ -369,15 +369,7 @@ function ResultsStep() {
 // ── Separator ────────────────────────────────────────────────────────────────
 
 function Separator() {
-  return (
-    <div style={{
-      fontFamily: 'Space Mono, monospace', fontSize: '10px', letterSpacing: '3px',
-      color: ACCENT_TEXT, overflow: 'hidden', whiteSpace: 'nowrap', lineHeight: 1,
-      padding: '10px 0', userSelect: 'none', opacity: 0.4,
-    }}>
-      {'≈ '.repeat(300)}
-    </div>
-  )
+  return <div style={{ height: '1px', background: BORDER, margin: '8px 0' }} />
 }
 
 function KeywordDefinitionPanel() {
@@ -423,7 +415,7 @@ function KeywordDefinitionPanel() {
             transition: 'border-color 200ms ease',
           }}>
             <div style={{
-              fontFamily: 'Space Mono, monospace', fontSize: '7px',
+              fontFamily: FONT_UI, fontSize: '7px',
               letterSpacing: '2.5px', textTransform: 'uppercase',
               color: TEXT_OFF, marginBottom: '10px',
             }}>
@@ -431,7 +423,7 @@ function KeywordDefinitionPanel() {
             </div>
 
             <div style={{
-              fontFamily: 'Space Mono, monospace', fontSize: '14px',
+              fontFamily: FONT_UI, fontSize: '14px',
               fontWeight: 700, letterSpacing: '1px', textTransform: 'uppercase',
               color: ACCENT_TEXT, marginBottom: '16px', lineHeight: 1.2,
             }}>
@@ -457,7 +449,7 @@ function KeywordDefinitionPanel() {
               borderLeft: `2px solid ${ACCENT}55`,
             }}>
               <div style={{
-                fontFamily: 'Space Mono, monospace', fontSize: '7px',
+                fontFamily: FONT_UI, fontSize: '7px',
                 letterSpacing: '2px', textTransform: 'uppercase',
                 color: TEXT_WEAK, marginBottom: '6px',
               }}>
@@ -644,7 +636,7 @@ function ProgressTracker() {
     }}>
       {/* Header */}
       <div style={{
-        fontFamily: 'Space Mono, monospace', fontSize: '8px',
+        fontFamily: FONT_UI, fontSize: '8px',
         letterSpacing: '3px', textTransform: 'uppercase',
         color: TEXT_OFF, marginBottom: '24px',
       }}>
@@ -728,7 +720,7 @@ function ProgressTracker() {
                 <div
                   key={isActive ? `label-active-${node.id}` : `label-${node.id}`}
                   style={{
-                    fontFamily: 'Space Mono, monospace',
+                    fontFamily: FONT_UI,
                     fontSize: '10px',
                     letterSpacing: '1.5px',
                     textTransform: 'uppercase',
@@ -762,7 +754,7 @@ function ProgressTracker() {
                   <div
                     className="tracker-summary"
                     style={{
-                      fontFamily: 'Space Mono, monospace',
+                      fontFamily: FONT_UI,
                       fontSize: '10px',
                       color: TEXT_WEAK,
                       letterSpacing: '0.3px',
@@ -877,7 +869,7 @@ function UnitAbilitiesPanel({ role }) {
           >
             {/* Header */}
             <div style={{
-              fontFamily: 'Space Mono, monospace', fontSize: '7px',
+              fontFamily: FONT_UI, fontSize: '7px',
               letterSpacing: '2.5px', textTransform: 'uppercase',
               color: TEXT_OFF, marginBottom: '6px',
             }}>
@@ -886,7 +878,7 @@ function UnitAbilitiesPanel({ role }) {
             <div
               key={`name-${animKey}`}
               style={{
-                fontFamily: 'Space Mono, monospace', fontSize: '13px',
+                fontFamily: FONT_UI, fontSize: '13px',
                 fontWeight: 700, textTransform: 'uppercase',
                 color: ACCENT_TEXT, marginBottom: '14px', lineHeight: 1.2,
                 animation: 'headerScan 400ms ease forwards',
@@ -906,7 +898,7 @@ function UnitAbilitiesPanel({ role }) {
 
             {/* Abilities count */}
             <div style={{
-              fontFamily: 'Space Mono, monospace', fontSize: '7px',
+              fontFamily: FONT_UI, fontSize: '7px',
               letterSpacing: '2px', textTransform: 'uppercase',
               color: TEXT_WEAK, marginBottom: '12px',
             }}>
@@ -926,7 +918,7 @@ function UnitAbilitiesPanel({ role }) {
                   }}
                 >
                   <div style={{
-                    fontFamily: 'Space Mono, monospace', fontSize: '10px',
+                    fontFamily: FONT_UI, fontSize: '10px',
                     fontWeight: 700, letterSpacing: '0.5px', textTransform: 'uppercase',
                     color: TEXT, marginBottom: '6px',
                   }}>
@@ -974,7 +966,7 @@ function AttackStep() {
             background: hasWeapon ? ACCENT : 'transparent',
             border: `1px solid ${hasWeapon ? ACCENT : BORDER}`,
             color: hasWeapon ? BG : TEXT_OFF,
-            fontFamily: 'Space Mono, monospace', fontSize: '10px',
+            fontFamily: FONT_UI, fontSize: '10px',
             fontWeight: 700, letterSpacing: '2px', textTransform: 'uppercase',
             cursor: hasWeapon ? 'pointer' : 'default',
             opacity: hasWeapon ? 1 : 0.4,
@@ -990,14 +982,14 @@ function AttackStep() {
       {attacks.length > 0 && (
         <div style={{
           marginTop: '16px', textAlign: 'center',
-          fontFamily: 'Space Mono, monospace', fontSize: '10px', color: TEXT_WEAK,
+          fontFamily: FONT_UI, fontSize: '10px', color: TEXT_WEAK,
         }}>
           {attacks.length} attack{attacks.length > 1 ? 's' : ''} already configured —{' '}
           <button
             onClick={() => setStep(2)}
             style={{
               background: 'none', border: 'none', color: ACCENT_TEXT,
-              fontFamily: 'Space Mono, monospace', fontSize: '10px',
+              fontFamily: FONT_UI, fontSize: '10px',
               cursor: 'pointer', textDecoration: 'underline', padding: 0,
             }}
           >
@@ -1036,14 +1028,14 @@ export function SimulatorPage() {
           <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', gap: '16px' }}>
             <div style={{ display: 'flex', alignItems: 'baseline', gap: '16px' }}>
               <h1 style={{
-                fontFamily: 'Space Mono, monospace', fontWeight: 700,
+                fontFamily: FONT_UI, fontWeight: 700,
                 fontSize: 'clamp(18px, 2vw, 26px)', letterSpacing: '0.05em',
                 textTransform: 'uppercase', lineHeight: 1, color: TEXT,
               }}>
                 Probability Simulator
               </h1>
               <span style={{
-                fontFamily: 'Space Mono, monospace', fontSize: '10px',
+                fontFamily: FONT_UI, fontSize: '10px',
                 letterSpacing: '2px', textTransform: 'uppercase', color: TEXT_WEAK,
               }}>
                 Monte Carlo &middot; WH40K 10e
@@ -1058,7 +1050,7 @@ export function SimulatorPage() {
                 background: resetHover ? ERROR : `${ERROR}22`,
                 border: `1px solid ${ERROR}`,
                 color: resetHover ? BG : ERROR,
-                fontFamily: 'Space Mono, monospace', fontSize: '10px',
+                fontFamily: FONT_UI, fontSize: '10px',
                 fontWeight: 700, letterSpacing: '2px', textTransform: 'uppercase',
                 padding: '9px 20px', cursor: 'pointer',
                 display: 'flex', alignItems: 'center', gap: '8px',
@@ -1093,7 +1085,7 @@ export function SimulatorPage() {
         <Separator />
         <div style={{
           display: 'flex', justifyContent: 'space-between', paddingTop: '12px',
-          fontFamily: 'Space Mono, monospace', fontSize: '10px',
+          fontFamily: FONT_UI, fontSize: '10px',
           letterSpacing: '2px', textTransform: 'uppercase', color: TEXT_OFF,
         }}>
           <span>WH40K PROBABILITY ENGINE — V2</span>

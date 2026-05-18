@@ -1,62 +1,68 @@
-// ── ProbHammer Design System — Light theme ────────────────────────────────────
-// Single source of truth for all colors AND typography.
+// ── ProbHammer Design System — GitHub-warm / Olive ───────────────────────────
 //
-// Typography rules:
-//   • Titles / labels / nav / stats → Space Mono (FONT_MONO), uppercase, ls 2px
-//   • Body / descriptions / long text → Inter (FONT_SANS), no case transform
-//   • STAT_* values → FONT_MONO, no textTransform, no letterSpacing
-//   • Section labels → TYPE.label + TEXT_WEAK
-//   • Use TYPE spread: style={{ ...TYPE.label, color: TEXT_OFF }}
+// Inspiré de GitHub : radius 6px, system font, hiérarchie claire.
+// Accent : vert olive/sauge — chaleureux, lisible, distinctif.
 //
-// Color rules:
-//   • ACCENT (#2FE0FF) is for fills and borders only — NOT for text on light bg
-//   • For text that needs accent color → use TEXT (dark) or TEXT_SEC
-//   • Solid buttons: background ACCENT + color TEXT (dark text on cyan bg)
-//   • Ghost buttons: border BORDER, hover border ACCENT, color TEXT_SEC→TEXT
+// Règles :
+//   • System font pour tout le texte UI et corps
+//   • Space Mono UNIQUEMENT pour les valeurs numériques (stats, rolls)
+//   • ACCENT (#5A7A45) pour fills/borders — texte lisible via ACCENT_TEXT (#3D6B2A)
+//   • Radius 6px partout (boutons, cards, inputs, tags)
+//   • Ombres légères sur cards : 0 1px 3px rgba(0,0,0,0.08)
 
-// 1. Backgrounds (light, layered depth)
-export const BG        = '#F8FAFB'   // base page — near-white cool
-export const SURFACE   = '#FFFFFF'   // cards, panels
-export const SURFACE_E = '#EEF4F8'   // elevated: hover, focus
-export const BORDER    = '#C8D8E4'   // borders — visible but soft
+// 1. Backgrounds
+export const BG        = '#F7F9F5'   // blanc vert très léger
+export const SURFACE   = '#FFFFFF'   // surface card
+export const SURFACE_E = '#F0F4ED'   // hover / elevated
+export const BORDER    = '#D5DDD0'   // bordures douces
 
-// 2. Typography
-export const TEXT      = '#0F1B24'   // primary — headings, values
-export const TEXT_SEC  = '#3B5668'   // secondary — body, descriptions
-export const TEXT_WEAK = '#6B8FA3'   // muted — placeholders, labels
-export const TEXT_OFF  = '#A0BDCC'   // disabled
+// 2. Typographie
+export const TEXT      = '#141A12'   // quasi-noir (warm)
+export const TEXT_SEC  = '#404A3D'   // secondaire
+export const TEXT_WEAK = '#6B7A67'   // atténué
+export const TEXT_OFF  = '#A8B8A3'   // désactivé
 
-// 3. Accent (fills and borders only — not for text)
-export const ACCENT      = '#2FE0FF'   // cyan — fills, active borders
-export const ACCENT_H    = '#6FF0FF'   // hover state
-export const ACCENT_A    = '#1FB8D6'   // active / pressed
-export const ACCENT_TEXT = '#0090A8'   // readable cyan for text labels (contrast 6.3:1 on BG)
+// 3. Accent olive
+export const ACCENT       = '#5A7A45'   // olive — fills, active borders, button bg
+export const ACCENT_H     = '#4A6A37'   // hover sur olive
+export const ACCENT_A     = '#3D6B2A'   // pressed
+export const ACCENT_TEXT  = '#3D6B2A'   // texte olive sur fond clair (6.3:1 contraste)
+export const ACCENT_LIGHT = '#EAF0E6'   // tint clair pour backgrounds / tags
 
-// 4. Functional states (darker variants — readable on light bg)
-export const SUCCESS   = '#0A7F55'   // dark green
-export const WARNING   = '#B85C00'   // dark amber
-export const ERROR     = '#C03050'   // dark red
+// 4. États fonctionnels
+export const SUCCESS   = '#2A7A4A'
+export const WARNING   = '#B85C00'
+export const ERROR     = '#C03050'
+export const HIGHLIGHT = '#7A4A3F'
 
-// 5. Results highlight
-export const HIGHLIGHT = '#7A4A3F'   // dark warm
+// ── Polices ───────────────────────────────────────────────────────────────────
+export const FONT_UI   = "system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif"
+export const FONT_STAT = "'Space Mono', 'Courier New', monospace"  // stats/valeurs uniquement
 
-// ── Font families ─────────────────────────────────────────────────────────────
-export const FONT_MONO  = "'Space Mono', 'Courier New', monospace"
-export const FONT_SANS  = "Inter, -apple-system, BlinkMacSystemFont, system-ui, sans-serif"
-export const FONT_SERIF = FONT_SANS  // redirect legacy serif refs to sans
+// Aliases pour ne pas casser les imports existants
+export const FONT_MONO  = FONT_STAT
+export const FONT_SANS  = FONT_UI
+export const FONT_SERIF = FONT_UI
 
-// ── Type scale ────────────────────────────────────────────────────────────────
+// ── Constantes de layout ──────────────────────────────────────────────────────
+export const RADIUS = '6px'
+export const SHADOW_SM = '0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.04)'
+export const SHADOW_MD = '0 4px 12px rgba(0,0,0,0.10), 0 2px 4px rgba(0,0,0,0.06)'
+
+// ── Échelle typographique ─────────────────────────────────────────────────────
+// Spread dans les inline styles : style={{ ...TYPE.heading }}
+// Ne surcharger que la couleur.
 export const TYPE = {
-  // Space Mono — UI chrome (titles, labels, nav, tags)
-  display: { fontFamily: FONT_MONO, fontSize: '20px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '2px', lineHeight: 1.2, color: TEXT },
-  heading: { fontFamily: FONT_MONO, fontSize: '12px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '2px', lineHeight: 1,   color: TEXT },
-  label:   { fontFamily: FONT_MONO, fontSize: '10px', fontWeight: 400, textTransform: 'uppercase', letterSpacing: '2px', lineHeight: 1,   color: TEXT_WEAK },
-  ui:      { fontFamily: FONT_MONO, fontSize: '11px', fontWeight: 400, textTransform: 'uppercase', letterSpacing: '2px', lineHeight: 1,   color: TEXT_SEC },
-  // Inter — reading text (descriptions, rules, long text)
-  body:    { fontFamily: FONT_SANS, fontSize: '14px', fontWeight: 400, lineHeight: 1.75, color: TEXT_SEC },
-  note:    { fontFamily: FONT_SANS, fontSize: '13px', fontWeight: 400, lineHeight: 1.65, fontStyle: 'italic', color: TEXT_WEAK },
-  // Space Mono — numeric values (no case/spacing transform)
-  statLg:  { fontFamily: FONT_MONO, fontSize: '22px', fontWeight: 700, lineHeight: 1, color: TEXT },
-  statMd:  { fontFamily: FONT_MONO, fontSize: '16px', fontWeight: 700, lineHeight: 1, color: TEXT_SEC },
-  statSm:  { fontFamily: FONT_MONO, fontSize: '12px', fontWeight: 700, lineHeight: 1, color: TEXT_WEAK },
+  // System font — texte UI et corps
+  display:    { fontFamily: FONT_UI, fontSize: '22px', fontWeight: 600, lineHeight: 1.3,  color: TEXT },
+  heading:    { fontFamily: FONT_UI, fontSize: '15px', fontWeight: 600, lineHeight: 1.4,  color: TEXT },
+  subheading: { fontFamily: FONT_UI, fontSize: '13px', fontWeight: 600, lineHeight: 1.4,  color: TEXT_SEC },
+  label:      { fontFamily: FONT_UI, fontSize: '11px', fontWeight: 500, lineHeight: 1.4,  color: TEXT_WEAK, textTransform: 'uppercase', letterSpacing: '0.4px' },
+  ui:         { fontFamily: FONT_UI, fontSize: '13px', fontWeight: 500, lineHeight: 1.4,  color: TEXT_SEC },
+  body:       { fontFamily: FONT_UI, fontSize: '14px', fontWeight: 400, lineHeight: 1.65, color: TEXT_SEC },
+  note:       { fontFamily: FONT_UI, fontSize: '12px', fontWeight: 400, lineHeight: 1.5,  color: TEXT_WEAK, fontStyle: 'italic' },
+  // Space Mono — uniquement pour les valeurs numériques
+  statLg:     { fontFamily: FONT_STAT, fontSize: '22px', fontWeight: 700, lineHeight: 1, color: TEXT },
+  statMd:     { fontFamily: FONT_STAT, fontSize: '16px', fontWeight: 700, lineHeight: 1, color: TEXT_SEC },
+  statSm:     { fontFamily: FONT_STAT, fontSize: '12px', fontWeight: 700, lineHeight: 1, color: TEXT_WEAK },
 }

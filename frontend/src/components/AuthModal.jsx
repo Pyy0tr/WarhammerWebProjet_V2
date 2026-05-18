@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react'
 import { useAuthStore } from '../store/authStore'
-import { ACCENT_TEXT, ACCENT, BG, SURFACE, BORDER, TEXT, TEXT_SEC, TEXT_OFF, ERROR as ERR_COLOR } from '../theme'
+import { ACCENT_TEXT, ACCENT, BG, SURFACE, BORDER, TEXT, TEXT_SEC, TEXT_OFF, ERROR as ERR_COLOR , FONT_UI} from '../theme'
 
 function Input({ type = 'text', placeholder, value, onChange, disabled }) {
   const [focused, setFocused] = useState(false)
@@ -18,11 +18,11 @@ function Input({ type = 'text', placeholder, value, onChange, disabled }) {
         background: SURFACE,
         border: `1px solid ${focused ? ACCENT : BORDER}`,
         color: TEXT,
-        fontFamily: 'Space Mono, monospace',
+        fontFamily: FONT_UI,
         fontSize: '13px',
         padding: '13px 16px',
         outline: 'none',
-        borderRadius: '2px',
+        borderRadius: '4px',
         boxSizing: 'border-box',
         transition: 'border-color 120ms',
         opacity: disabled ? 0.5 : 1,
@@ -41,7 +41,7 @@ function PrimaryBtn({ children, onClick, disabled, loading }) {
         background: disabled || loading ? SURFACE : ACCENT,
         border: 'none',
         color: disabled || loading ? TEXT_OFF : BG,
-        fontFamily: 'Space Mono, monospace',
+        fontFamily: FONT_UI,
         fontSize: '11px',
         letterSpacing: '2px',
         textTransform: 'uppercase',
@@ -154,7 +154,7 @@ export function AuthModal({ isOpen, onClose, initialTab = 'login' }) {
         }}>×</button>
 
         <div style={{
-          fontFamily: 'Space Mono, monospace', fontSize: '15px',
+          fontFamily: FONT_UI, fontSize: '15px',
           fontWeight: 700, letterSpacing: '3px', color: ACCENT_TEXT,
         }}>
           PROB<span style={{ opacity: 0.4 }}>'</span>HAMMER
@@ -168,7 +168,7 @@ export function AuthModal({ isOpen, onClose, initialTab = 'login' }) {
                 background: 'none', border: 'none',
                 borderBottom: tab === id ? `2px solid ${ACCENT}` : '2px solid transparent',
                 color: tab === id ? ACCENT : TEXT_OFF,
-                fontFamily: 'Space Mono, monospace', fontSize: '10px',
+                fontFamily: FONT_UI, fontSize: '10px',
                 letterSpacing: '2px', textTransform: 'uppercase',
                 cursor: 'pointer', marginBottom: '-1px', transition: 'color 120ms',
               }}>
@@ -179,7 +179,7 @@ export function AuthModal({ isOpen, onClose, initialTab = 'login' }) {
         )}
 
         {tab === 'forgot' && (
-          <div style={{ fontFamily: 'Space Mono, monospace', fontSize: '11px', letterSpacing: '2px', color: TEXT_OFF, textTransform: 'uppercase' }}>
+          <div style={{ fontFamily: FONT_UI, fontSize: '11px', letterSpacing: '2px', color: TEXT_OFF, textTransform: 'uppercase' }}>
             Mot de passe oublié
           </div>
         )}
@@ -190,7 +190,7 @@ export function AuthModal({ isOpen, onClose, initialTab = 'login' }) {
             <Input placeholder="Username" value={username} onChange={(e) => setUsername(e.target.value)} disabled={busy} />
             <Input type="password" placeholder="Password" value={password} onChange={(e) => setPassword(e.target.value)} disabled={busy} />
             <PrimaryBtn onClick={handleLogin} disabled={!username || !password} loading={busy}>Sign in</PrimaryBtn>
-            <p style={{ fontFamily: 'Space Mono, monospace', fontSize: '10px', color: TEXT_OFF, margin: 0, textAlign: 'center' }}>
+            <p style={{ fontFamily: FONT_UI, fontSize: '10px', color: TEXT_OFF, margin: 0, textAlign: 'center' }}>
               No account yet?{' '}
               <span onClick={() => setTab('register')} style={{ color: ACCENT_TEXT, cursor: 'pointer', textDecoration: 'underline' }}>Create account</span>
               {' · '}
@@ -204,7 +204,7 @@ export function AuthModal({ isOpen, onClose, initialTab = 'login' }) {
             <Input type="password" placeholder="Password" value={password} onChange={(e) => setPassword(e.target.value)} disabled={busy} />
             <Input type="password" placeholder="Confirm password" value={confirm} onChange={(e) => setConfirm(e.target.value)} disabled={busy} />
             <PrimaryBtn onClick={handleRegister} disabled={!username || !email || !password || !confirm} loading={busy}>Create account</PrimaryBtn>
-            <p style={{ fontFamily: 'Space Mono, monospace', fontSize: '10px', color: TEXT_OFF, margin: 0, textAlign: 'center' }}>
+            <p style={{ fontFamily: FONT_UI, fontSize: '10px', color: TEXT_OFF, margin: 0, textAlign: 'center' }}>
               Already have an account?{' '}
               <span onClick={() => setTab('login')} style={{ color: ACCENT_TEXT, cursor: 'pointer', textDecoration: 'underline' }}>Sign in</span>
             </p>
@@ -215,15 +215,15 @@ export function AuthModal({ isOpen, onClose, initialTab = 'login' }) {
               <Input type="email" placeholder="Ton adresse email" value={email} onChange={(e) => setEmail(e.target.value)} disabled={busy} />
               <PrimaryBtn onClick={handleForgot} disabled={!email} loading={busy}>Envoyer le lien</PrimaryBtn>
             </> : (
-              <p style={{ fontFamily: 'Space Mono, monospace', fontSize: '11px', color: ACCENT_TEXT, margin: 0, lineHeight: 1.6 }}>{info}</p>
+              <p style={{ fontFamily: FONT_UI, fontSize: '11px', color: ACCENT_TEXT, margin: 0, lineHeight: 1.6 }}>{info}</p>
             )}
-            <p style={{ fontFamily: 'Space Mono, monospace', fontSize: '10px', color: TEXT_OFF, margin: 0, textAlign: 'center' }}>
+            <p style={{ fontFamily: FONT_UI, fontSize: '10px', color: TEXT_OFF, margin: 0, textAlign: 'center' }}>
               <span onClick={() => setTab('login')} style={{ color: TEXT_OFF, cursor: 'pointer', textDecoration: 'underline' }}>Retour</span>
             </p>
           </>}
 
           {error && (
-            <p style={{ fontFamily: 'Space Mono, monospace', fontSize: '10px', color: ERR_COLOR, margin: 0, lineHeight: 1.5 }}>
+            <p style={{ fontFamily: FONT_UI, fontSize: '10px', color: ERR_COLOR, margin: 0, lineHeight: 1.5 }}>
               {error}
             </p>
           )}

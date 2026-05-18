@@ -1,7 +1,7 @@
 import { useState, useCallback } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { useAuthStore } from '../store/authStore'
-import { ACCENT_TEXT, ACCENT, BG, SURFACE, BORDER, TEXT, TEXT_OFF, ERROR as ERR_COLOR, SUCCESS } from '../theme'
+import { ACCENT_TEXT, ACCENT, BG, SURFACE, BORDER, TEXT, TEXT_OFF, ERROR as ERR_COLOR, SUCCESS , FONT_UI} from '../theme'
 
 function Input({ type = 'text', placeholder, value, onChange, disabled }) {
   const [focused, setFocused] = useState(false)
@@ -19,11 +19,11 @@ function Input({ type = 'text', placeholder, value, onChange, disabled }) {
         background: SURFACE,
         border: `1px solid ${focused ? ACCENT : BORDER}`,
         color: TEXT,
-        fontFamily: 'Space Mono, monospace',
+        fontFamily: FONT_UI,
         fontSize: '13px',
         padding: '13px 16px',
         outline: 'none',
-        borderRadius: '2px',
+        borderRadius: '4px',
         boxSizing: 'border-box',
         transition: 'border-color 120ms',
         opacity: disabled ? 0.5 : 1,
@@ -62,7 +62,7 @@ export function ResetPasswordPage() {
   if (!token) {
     return (
       <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: BG }}>
-        <p style={{ fontFamily: 'Space Mono, monospace', color: ERR_COLOR, fontSize: '13px' }}>Lien invalide.</p>
+        <p style={{ fontFamily: FONT_UI, color: ERR_COLOR, fontSize: '13px' }}>Lien invalide.</p>
       </div>
     )
   }
@@ -70,15 +70,15 @@ export function ResetPasswordPage() {
   return (
     <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: BG, padding: '20px' }}>
       <div style={{ width: '100%', maxWidth: '460px', background: SURFACE, border: `1px solid ${BORDER}`, padding: '40px 36px 36px', display: 'flex', flexDirection: 'column', gap: '24px' }}>
-        <div style={{ fontFamily: 'Space Mono, monospace', fontSize: '15px', fontWeight: 700, letterSpacing: '3px', color: ACCENT_TEXT }}>
+        <div style={{ fontFamily: FONT_UI, fontSize: '15px', fontWeight: 700, letterSpacing: '3px', color: ACCENT_TEXT }}>
           PROB<span style={{ opacity: 0.4 }}>'</span>HAMMER
         </div>
-        <div style={{ fontFamily: 'Space Mono, monospace', fontSize: '11px', letterSpacing: '2px', color: TEXT_OFF, textTransform: 'uppercase' }}>
+        <div style={{ fontFamily: FONT_UI, fontSize: '11px', letterSpacing: '2px', color: TEXT_OFF, textTransform: 'uppercase' }}>
           Nouveau mot de passe
         </div>
 
         {success ? (
-          <p style={{ fontFamily: 'Space Mono, monospace', fontSize: '12px', color: SUCCESS, lineHeight: 1.6 }}>
+          <p style={{ fontFamily: FONT_UI, fontSize: '12px', color: SUCCESS, lineHeight: 1.6 }}>
             Mot de passe mis à jour. Redirection...
           </p>
         ) : (
@@ -91,14 +91,14 @@ export function ResetPasswordPage() {
               style={{
                 width: '100%', background: !password || !confirm || busy ? SURFACE : ACCENT,
                 border: 'none', color: !password || !confirm || busy ? TEXT_OFF : BG,
-                fontFamily: 'Space Mono, monospace', fontSize: '11px', letterSpacing: '2px',
+                fontFamily: FONT_UI, fontSize: '11px', letterSpacing: '2px',
                 textTransform: 'uppercase', fontWeight: 700, padding: '14px',
                 cursor: !password || !confirm || busy ? 'not-allowed' : 'pointer',
               }}
             >
               {busy ? '...' : 'Valider'}
             </button>
-            {error && <p style={{ fontFamily: 'Space Mono, monospace', fontSize: '10px', color: ERR_COLOR, margin: 0 }}>{error}</p>}
+            {error && <p style={{ fontFamily: FONT_UI, fontSize: '10px', color: ERR_COLOR, margin: 0 }}>{error}</p>}
           </div>
         )}
       </div>

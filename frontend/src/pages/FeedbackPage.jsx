@@ -4,8 +4,7 @@ import { useAuthStore } from '../store/authStore'
 import { api } from '../lib/api'
 import {
   ACCENT_TEXT, ACCENT, BG, BORDER, HIGHLIGHT, SURFACE, SURFACE_E,
-  TEXT, TEXT_SEC, TEXT_WEAK, TEXT_OFF,
-} from '../theme'
+  TEXT, TEXT_SEC, TEXT_WEAK, TEXT_OFF, FONT_UI} from '../theme'
 
 const TYPES = [
   { id: 'bug',        label: 'Bug',        desc: 'Something is broken or gives wrong results' },
@@ -51,8 +50,8 @@ export function FeedbackPage() {
     return (
       <div style={{ minHeight: 'calc(100vh - 52px)', marginTop: '52px', background: BG, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '40px 24px' }}>
         <div style={{ maxWidth: '480px', width: '100%', display: 'flex', flexDirection: 'column', gap: '24px', border: `1px solid ${ACCENT}`, background: SURFACE, padding: '48px 44px' }}>
-          <div style={{ fontFamily: 'Space Mono, monospace', fontSize: '10px', letterSpacing: '3px', textTransform: 'uppercase', color: ACCENT_TEXT }}>Envoyé</div>
-          <h1 style={{ fontFamily: 'Space Mono, monospace', fontSize: '20px', fontWeight: 700, letterSpacing: '2px', textTransform: 'uppercase', color: TEXT, margin: 0 }}>
+          <div style={{ fontFamily: FONT_UI, fontSize: '10px', letterSpacing: '3px', textTransform: 'uppercase', color: ACCENT_TEXT }}>Envoyé</div>
+          <h1 style={{ fontFamily: FONT_UI, fontSize: '20px', fontWeight: 700, letterSpacing: '2px', textTransform: 'uppercase', color: TEXT, margin: 0 }}>
             Merci pour ton feedback
           </h1>
           <p style={{ fontFamily: 'Inter, -apple-system, system-ui, sans-serif', fontSize: '15px', lineHeight: 1.7, color: TEXT_SEC, margin: 0 }}>
@@ -60,7 +59,7 @@ export function FeedbackPage() {
           </p>
           <button
             onClick={() => navigate('/')}
-            style={{ background: 'transparent', border: `1px solid ${BORDER}`, color: TEXT_OFF, fontFamily: 'Space Mono, monospace', fontSize: '10px', letterSpacing: '2px', textTransform: 'uppercase', padding: '12px 24px', cursor: 'pointer', alignSelf: 'flex-start', transition: 'opacity 150ms' }}
+            style={{ background: 'transparent', border: `1px solid ${BORDER}`, color: TEXT_OFF, fontFamily: FONT_UI, fontSize: '10px', letterSpacing: '2px', textTransform: 'uppercase', padding: '12px 24px', cursor: 'pointer', alignSelf: 'flex-start', transition: 'opacity 150ms' }}
             onMouseEnter={(e) => { e.currentTarget.style.opacity = '0.7' }}
             onMouseLeave={(e) => { e.currentTarget.style.opacity = '1' }}
           >
@@ -77,10 +76,10 @@ export function FeedbackPage() {
 
         {/* Header */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-          <div style={{ fontFamily: 'Space Mono, monospace', fontSize: '10px', letterSpacing: '3px', textTransform: 'uppercase', color: TEXT_WEAK }}>
+          <div style={{ fontFamily: FONT_UI, fontSize: '10px', letterSpacing: '3px', textTransform: 'uppercase', color: TEXT_WEAK }}>
             Prob'Hammer — Feedback
           </div>
-          <h1 style={{ fontFamily: 'Space Mono, monospace', fontSize: 'clamp(18px, 2.5vw, 26px)', fontWeight: 700, letterSpacing: '2px', textTransform: 'uppercase', color: TEXT, margin: 0 }}>
+          <h1 style={{ fontFamily: FONT_UI, fontSize: 'clamp(18px, 2.5vw, 26px)', fontWeight: 700, letterSpacing: '2px', textTransform: 'uppercase', color: TEXT, margin: 0 }}>
             Envoie un feedback
           </h1>
           <p style={{ fontFamily: 'Inter, -apple-system, system-ui, sans-serif', fontSize: '15px', lineHeight: 1.7, color: TEXT_SEC, margin: 0 }}>
@@ -92,7 +91,7 @@ export function FeedbackPage() {
 
           {/* Type selector */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-            <div style={{ fontFamily: 'Space Mono, monospace', fontSize: '10px', letterSpacing: '2px', textTransform: 'uppercase', color: TEXT_WEAK }}>
+            <div style={{ fontFamily: FONT_UI, fontSize: '10px', letterSpacing: '2px', textTransform: 'uppercase', color: TEXT_WEAK }}>
               Type *
             </div>
             <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
@@ -116,7 +115,7 @@ export function FeedbackPage() {
                     onMouseEnter={(e) => { if (!selected) e.currentTarget.style.borderColor = TEXT_WEAK }}
                     onMouseLeave={(e) => { if (!selected) e.currentTarget.style.borderColor = BORDER }}
                   >
-                    <div style={{ fontFamily: 'Space Mono, monospace', fontSize: '10px', fontWeight: 700, letterSpacing: '1.5px', textTransform: 'uppercase', color: selected ? col : TEXT }}>{t.label}</div>
+                    <div style={{ fontFamily: FONT_UI, fontSize: '10px', fontWeight: 700, letterSpacing: '1.5px', textTransform: 'uppercase', color: selected ? col : TEXT }}>{t.label}</div>
                     <div style={{ fontFamily: 'Inter, -apple-system, system-ui, sans-serif', fontSize: '11px', color: TEXT_WEAK, marginTop: '4px', lineHeight: 1.4 }}>{t.desc}</div>
                   </button>
                 )
@@ -127,8 +126,8 @@ export function FeedbackPage() {
           {/* Message */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-              <div style={{ fontFamily: 'Space Mono, monospace', fontSize: '10px', letterSpacing: '2px', textTransform: 'uppercase', color: TEXT_WEAK }}>Message *</div>
-              <div style={{ fontFamily: 'Space Mono, monospace', fontSize: '10px', color: message.length > 1800 ? HIGHLIGHT : TEXT_OFF }}>{message.length}/2000</div>
+              <div style={{ fontFamily: FONT_UI, fontSize: '10px', letterSpacing: '2px', textTransform: 'uppercase', color: TEXT_WEAK }}>Message *</div>
+              <div style={{ fontFamily: FONT_UI, fontSize: '10px', color: message.length > 1800 ? HIGHLIGHT : TEXT_OFF }}>{message.length}/2000</div>
             </div>
             <textarea
               value={message}
@@ -150,7 +149,7 @@ export function FeedbackPage() {
           {/* Email (only if not logged in) */}
           {!user && (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-              <div style={{ fontFamily: 'Space Mono, monospace', fontSize: '10px', letterSpacing: '2px', textTransform: 'uppercase', color: TEXT_WEAK }}>
+              <div style={{ fontFamily: FONT_UI, fontSize: '10px', letterSpacing: '2px', textTransform: 'uppercase', color: TEXT_WEAK }}>
                 Email <span style={{ color: TEXT_OFF }}>(optionnel — pour que je puisse te répondre)</span>
               </div>
               <input
@@ -160,7 +159,7 @@ export function FeedbackPage() {
                 placeholder="ton@email.com"
                 style={{
                   background: SURFACE, border: `1px solid ${BORDER}`, color: TEXT,
-                  fontFamily: 'Space Mono, monospace', fontSize: '12px',
+                  fontFamily: FONT_UI, fontSize: '12px',
                   padding: '12px 16px', outline: 'none',
                   transition: 'border-color 150ms',
                 }}
@@ -171,13 +170,13 @@ export function FeedbackPage() {
           )}
 
           {user && (
-            <div style={{ fontFamily: 'Space Mono, monospace', fontSize: '10px', color: TEXT_OFF, letterSpacing: '1.5px' }}>
+            <div style={{ fontFamily: FONT_UI, fontSize: '10px', color: TEXT_OFF, letterSpacing: '1.5px' }}>
               Envoyé en tant que <span style={{ color: TEXT_WEAK }}>{user.username}</span>
             </div>
           )}
 
           {error && (
-            <div style={{ fontFamily: 'Space Mono, monospace', fontSize: '10px', color: HIGHLIGHT, letterSpacing: '1px' }}>
+            <div style={{ fontFamily: FONT_UI, fontSize: '10px', color: HIGHLIGHT, letterSpacing: '1px' }}>
               {error}
             </div>
           )}
@@ -187,7 +186,7 @@ export function FeedbackPage() {
             disabled={loading}
             style={{
               background: ACCENT, border: 'none', color: TEXT,
-              fontFamily: 'Space Mono, monospace', fontSize: '10px',
+              fontFamily: FONT_UI, fontSize: '10px',
               letterSpacing: '2px', textTransform: 'uppercase', fontWeight: 700,
               padding: '14px 28px', cursor: loading ? 'wait' : 'pointer',
               alignSelf: 'flex-start', opacity: loading ? 0.6 : 1,

@@ -1,42 +1,93 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { ACCENT_TEXT, ACCENT, BG, BORDER, SURFACE, SURFACE_E, TEXT, TEXT_SEC, TEXT_WEAK, TEXT_OFF } from '../theme'
-
-function Separator({ opacity = 0.5 }) {
-  return (
-    <div style={{
-      fontFamily: 'Space Mono, monospace', fontSize: '10px',
-      letterSpacing: '3px', color: ACCENT_TEXT,
-      overflow: 'hidden', whiteSpace: 'nowrap', lineHeight: 1,
-      padding: '10px 0', userSelect: 'none', opacity,
-    }}>
-      {'≈ '.repeat(300)}
-    </div>
-  )
-}
+import {
+  ACCENT, ACCENT_H, ACCENT_TEXT, ACCENT_LIGHT,
+  BORDER, SURFACE, SURFACE_E,
+  TEXT, TEXT_SEC, TEXT_WEAK, TEXT_OFF,
+  FONT_UI, FONT_STAT,
+  RADIUS, SHADOW_SM, SHADOW_MD,
+} from '../theme'
 
 const ACTIONS = [
   {
-    num: '01', label: 'Explore Units',
+    num: '01',
+    label: 'Explore Units',
     desc: 'Browse 1,487 units across 46 factions. View datasheets, weapons, and stats.',
     route: '/factions',
   },
   {
-    num: '02', label: 'Create Army',
+    num: '02',
+    label: 'Create Army',
     desc: 'Build and save named army lists. Simulate straight from your roster.',
     route: '/armies',
   },
   {
-    num: '03', label: 'Guides',
+    num: '03',
+    label: 'Guides',
     desc: 'Walk through the 5 attack phases and discover how keywords stack.',
     route: '/learn',
   },
   {
-    num: '04', label: 'Keywords',
+    num: '04',
+    label: 'Keywords',
     desc: 'Deep dive into every weapon keyword — rules, simulator notes, and when to use each one.',
     route: '/keywords',
   },
 ]
+
+function ActionCard({ action, navigate }) {
+  const [hov, setHov] = useState(false)
+  return (
+    <div
+      onClick={() => navigate(action.route)}
+      onMouseEnter={() => setHov(true)}
+      onMouseLeave={() => setHov(false)}
+      style={{
+        background: hov ? SURFACE_E : SURFACE,
+        borderRight: `1px solid ${BORDER}`,
+        borderBottom: `1px solid ${BORDER}`,
+        borderTop: `2px solid ${hov ? ACCENT : 'transparent'}`,
+        padding: '28px 28px 24px',
+        cursor: 'pointer',
+        transition: 'background 150ms, border-top-color 150ms',
+        display: 'flex', flexDirection: 'column', justifyContent: 'space-between',
+      }}
+    >
+      <div>
+        <div style={{
+          fontFamily: FONT_UI, fontSize: '11px', fontWeight: 500,
+          color: hov ? ACCENT_TEXT : TEXT_OFF,
+          transition: 'color 150ms', marginBottom: '10px',
+        }}>
+          {action.num}
+        </div>
+        <div style={{
+          fontFamily: FONT_UI, fontSize: '15px', fontWeight: 600,
+          color: hov ? ACCENT_TEXT : TEXT,
+          transition: 'color 150ms', marginBottom: '10px',
+        }}>
+          {action.label}
+        </div>
+        <p style={{
+          fontFamily: FONT_UI, fontSize: '13px',
+          lineHeight: 1.65, color: TEXT_SEC, margin: 0,
+        }}>
+          {action.desc}
+        </p>
+      </div>
+
+      <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '20px' }}>
+        <span style={{
+          fontFamily: FONT_UI, fontSize: '13px', fontWeight: 500,
+          color: hov ? ACCENT_TEXT : TEXT_WEAK,
+          transition: 'color 150ms',
+        }}>
+          {hov ? 'Open →' : '→'}
+        </span>
+      </div>
+    </div>
+  )
+}
 
 function ActionPanel() {
   const navigate = useNavigate()
@@ -53,97 +104,24 @@ function ActionPanel() {
   )
 }
 
-function ActionCard({ action, navigate }) {
-  const [hov, setHov] = useState(false)
-  return (
-    <div
-      onClick={() => navigate(action.route)}
-      onMouseEnter={() => setHov(true)}
-      onMouseLeave={() => setHov(false)}
-      style={{
-        background: hov ? 'rgba(47,224,255,0.05)' : SURFACE,
-        borderRight: `1px solid ${BORDER}`,
-        borderBottom: `1px solid ${BORDER}`,
-        borderTop: `2px solid ${hov ? ACCENT : 'transparent'}`,
-        padding: '28px 28px 24px',
-        cursor: 'pointer',
-        transition: 'background 180ms, border-top-color 180ms, box-shadow 180ms',
-        boxShadow: hov ? '0 2px 12px rgba(0,0,0,0.08), inset 0 1px 0 rgba(47,224,255,0.15)' : 'none',
-        display: 'flex', flexDirection: 'column', justifyContent: 'space-between',
-        position: 'relative', overflow: 'hidden',
-      }}
-    >
-      {/* subtle glow on hover */}
-      {hov && (
-        <div style={{
-          position: 'absolute', top: 0, left: 0, right: 0, height: '60px',
-          background: 'linear-gradient(to bottom, rgba(47,224,255,0.07), transparent)',
-          pointerEvents: 'none',
-        }} />
-      )}
-
-      <div>
-        <div style={{
-          fontFamily: 'Space Mono, monospace', fontSize: '10px',
-          letterSpacing: '3px', textTransform: 'uppercase',
-          color: hov ? ACCENT : TEXT_OFF,
-          transition: 'color 180ms', marginBottom: '14px',
-        }}>
-          {action.num}
-        </div>
-        <div style={{
-          fontFamily: 'Space Mono, monospace', fontSize: '14px',
-          fontWeight: 700, letterSpacing: '2px', textTransform: 'uppercase',
-          color: hov ? ACCENT : TEXT,
-          transition: 'color 180ms', marginBottom: '10px',
-        }}>
-          {action.label}
-        </div>
-        <p style={{
-          fontFamily: 'Inter, -apple-system, system-ui, sans-serif', fontSize: '13px',
-          lineHeight: 1.7, color: TEXT_SEC,
-          margin: 0,
-        }}>
-          {action.desc}
-        </p>
-      </div>
-
-      <div style={{
-        display: 'flex', justifyContent: 'flex-end', marginTop: '20px',
-      }}>
-        <span style={{
-          fontFamily: 'Space Mono, monospace', fontSize: '11px',
-          letterSpacing: '2px', textTransform: 'uppercase',
-          color: hov ? ACCENT : TEXT_WEAK,
-          transition: 'color 180ms',
-        }}>
-          {hov ? 'Open →' : '→'}
-        </span>
-      </div>
-    </div>
-  )
-}
-
 function StepCard({ num, title, desc }) {
   return (
     <div style={{ flex: 1, borderTop: `2px solid ${BORDER}`, paddingTop: '24px' }}>
       <div style={{
-        fontFamily: 'Space Mono, monospace', fontSize: '10px',
-        letterSpacing: '2px', textTransform: 'uppercase',
-        color: ACCENT_TEXT, marginBottom: '12px',
+        fontFamily: FONT_UI, fontSize: '11px', fontWeight: 500,
+        color: ACCENT_TEXT, marginBottom: '8px',
       }}>
         {num}
       </div>
       <div style={{
-        fontFamily: 'Space Mono, monospace', fontSize: '13px',
-        fontWeight: 700, letterSpacing: '2px', textTransform: 'uppercase',
-        color: TEXT, marginBottom: '12px',
+        fontFamily: FONT_UI, fontSize: '15px', fontWeight: 600,
+        color: TEXT, marginBottom: '10px',
       }}>
         {title}
       </div>
       <p style={{
-        fontFamily: 'Inter, -apple-system, system-ui, sans-serif', fontSize: '15px',
-        lineHeight: 1.75, color: TEXT_SEC, margin: 0,
+        fontFamily: FONT_UI, fontSize: '14px',
+        lineHeight: 1.7, color: TEXT_SEC, margin: 0,
       }}>
         {desc}
       </p>
@@ -177,57 +155,53 @@ const GUIDES = [
 
 function GuideCard({ guide }) {
   const navigate = useNavigate()
-  const [hovered, setHovered] = useState(false)
-  const active = hovered && guide.route
+  const [hov, setHov] = useState(false)
+  const active = hov && guide.route
   const soon = !guide.route
 
   return (
     <div
       onClick={() => guide.route && navigate(guide.route)}
-      onMouseEnter={() => setHovered(true)}
-      onMouseLeave={() => setHovered(false)}
+      onMouseEnter={() => setHov(true)}
+      onMouseLeave={() => setHov(false)}
       style={{
         flex: 1, minWidth: '220px',
-        border: `1px solid ${active ? ACCENT : TEXT_WEAK}`,
-        background: active ? 'rgba(47,224,255,0.04)' : SURFACE,
-        padding: '32px 28px',
-        borderRadius: '4px',
+        border: `1px solid ${active ? ACCENT : BORDER}`,
+        background: active ? ACCENT_LIGHT : SURFACE,
+        padding: '28px 24px',
+        borderRadius: RADIUS,
         cursor: guide.route ? 'pointer' : 'default',
-        transition: 'border-color 120ms, background 120ms, box-shadow 120ms',
-        boxShadow: active ? '0 2px 12px rgba(0,0,0,0.08), 0 0 0 1px rgba(47,224,255,0.3)' : 'none',
-        display: 'flex', flexDirection: 'column', gap: '14px',
-        opacity: soon ? 0.5 : 1,
+        transition: 'border-color 150ms, background 150ms, box-shadow 150ms',
+        boxShadow: active ? SHADOW_MD : SHADOW_SM,
+        display: 'flex', flexDirection: 'column', gap: '10px',
+        opacity: soon ? 0.55 : 1,
       }}
     >
       <div style={{
-        fontFamily: 'Space Mono, monospace', fontSize: '10px',
-        letterSpacing: '3px', textTransform: 'uppercase',
-        color: active ? ACCENT : TEXT_OFF,
-        transition: 'color 120ms',
+        fontFamily: FONT_UI, fontSize: '11px', fontWeight: 500,
+        color: active ? ACCENT_TEXT : TEXT_OFF,
+        transition: 'color 150ms',
       }}>
         {guide.num}
       </div>
 
       <div style={{
-        fontFamily: 'Space Mono, monospace', fontSize: '14px',
-        fontWeight: 700, letterSpacing: '2px', textTransform: 'uppercase',
-        color: active ? ACCENT : TEXT,
-        transition: 'color 120ms',
+        fontFamily: FONT_UI, fontSize: '15px', fontWeight: 600,
+        color: active ? ACCENT_TEXT : TEXT,
+        transition: 'color 150ms',
       }}>
         {guide.title}
       </div>
 
       <p style={{
-        fontFamily: 'Inter, -apple-system, system-ui, sans-serif', fontSize: '14px',
-        lineHeight: 1.7, color: TEXT_SEC,
-        margin: 0, flexGrow: 1,
+        fontFamily: FONT_UI, fontSize: '14px',
+        lineHeight: 1.65, color: TEXT_SEC, margin: 0, flexGrow: 1,
       }}>
         {guide.desc}
       </p>
 
       <div style={{
-        fontFamily: 'Space Mono, monospace', fontSize: '10px',
-        letterSpacing: '2px', textTransform: 'uppercase',
+        fontFamily: FONT_UI, fontSize: '12px',
         color: soon ? TEXT_OFF : TEXT_WEAK,
       }}>
         {guide.duration}
@@ -244,10 +218,10 @@ export function HomePage() {
   }, [])
 
   return (
-    <div style={{ color: TEXT_SEC, paddingTop: '52px' }}>
+    <div style={{ color: TEXT_SEC, paddingTop: '56px' }}>
 
       <section style={{
-        height: 'calc(100vh - 52px)',
+        height: 'calc(100vh - 56px)',
         display: 'flex',
       }}>
         {/* Left */}
@@ -262,57 +236,54 @@ export function HomePage() {
           {/* Eyebrow badge */}
           <div style={{
             display: 'inline-flex', alignItems: 'center', gap: '8px',
-            border: `1px solid rgba(47,224,255,0.22)`,
-            background: 'rgba(47,224,255,0.04)',
-            padding: '5px 12px 5px 8px',
+            border: `1px solid ${BORDER}`,
+            background: ACCENT_LIGHT,
+            padding: '5px 12px 5px 10px',
+            borderRadius: RADIUS,
             marginBottom: '28px', width: 'fit-content',
           }}>
-            <div style={{ width: 6, height: 6, borderRadius: '50%', background: ACCENT, opacity: 0.85 }} />
-            <span style={{
-              fontFamily: 'Space Mono, monospace', fontSize: '10px',
-              letterSpacing: '2px', textTransform: 'uppercase', color: ACCENT_TEXT,
-            }}>
+            <div style={{ width: 6, height: 6, borderRadius: '50%', background: ACCENT }} />
+            <span style={{ fontFamily: FONT_UI, fontSize: '12px', fontWeight: 500, color: ACCENT_TEXT }}>
               Warhammer 40,000 · 10th Edition
             </span>
           </div>
 
           {/* Headline */}
           <h1 style={{
-            fontFamily: 'Space Mono, monospace',
-            fontSize: 'clamp(36px, 4vw, 64px)',
-            fontWeight: 700, letterSpacing: '0.02em',
-            textTransform: 'uppercase', lineHeight: 1,
+            fontFamily: FONT_UI,
+            fontSize: 'clamp(36px, 4vw, 60px)',
+            fontWeight: 700,
+            lineHeight: 1.1,
             color: TEXT, margin: 0,
           }}>
-            Prob<span style={{ color: ACCENT_TEXT }}>'</span>Hammer
+            Prob'Hammer
           </h1>
 
           {/* Accent underline */}
-          <div style={{ width: '48px', height: '2px', background: ACCENT, margin: '18px 0 24px', opacity: 0.7 }} />
+          <div style={{ width: '40px', height: '3px', background: ACCENT, margin: '16px 0 20px', borderRadius: '2px' }} />
 
           {/* Description */}
           <p style={{
-            fontFamily: 'Inter, -apple-system, system-ui, sans-serif',
-            fontSize: 'clamp(15px, 1.3vw, 17px)',
-            lineHeight: 1.8, maxWidth: '380px',
-            color: TEXT_SEC, margin: '0 0 36px',
+            fontFamily: FONT_UI,
+            fontSize: 'clamp(14px, 1.2vw, 16px)',
+            lineHeight: 1.75, maxWidth: '380px',
+            color: TEXT_SEC, margin: '0 0 32px',
           }}>
             Calculate your attack probabilities before you roll — full damage distribution in under a second.
           </p>
 
           {/* CTAs */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '16px', flexWrap: 'wrap', marginBottom: '48px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap', marginBottom: '48px' }}>
             <button
               onClick={() => navigate('/simulator')}
               style={{
-                border: `1px solid ${ACCENT}`, background: ACCENT, color: TEXT,
-                fontFamily: 'Space Mono, monospace', fontSize: '11px', fontWeight: 700,
-                letterSpacing: '2.5px', textTransform: 'uppercase',
-                padding: '14px 28px', borderRadius: '3px', cursor: 'pointer',
-                transition: 'opacity 120ms, box-shadow 120ms',
+                border: `1px solid ${ACCENT}`, background: ACCENT, color: '#FFFFFF',
+                fontFamily: FONT_UI, fontSize: '14px', fontWeight: 600,
+                padding: '10px 24px', borderRadius: RADIUS, cursor: 'pointer',
+                transition: 'background 120ms, border-color 120ms',
               }}
-              onMouseEnter={(e) => { e.currentTarget.style.opacity = '0.85' }}
-              onMouseLeave={(e) => { e.currentTarget.style.opacity = '1' }}
+              onMouseEnter={(e) => { e.currentTarget.style.background = ACCENT_H; e.currentTarget.style.borderColor = ACCENT_H }}
+              onMouseLeave={(e) => { e.currentTarget.style.background = ACCENT; e.currentTarget.style.borderColor = ACCENT }}
             >
               Open simulator →
             </button>
@@ -326,15 +297,13 @@ export function HomePage() {
             {[['1 487', 'Units'], ['3 531', 'Weapons'], ['46', 'Factions'], ['16', 'Keywords']].map(([n, l]) => (
               <div key={l}>
                 <div style={{
-                  fontFamily: 'Space Mono, monospace', fontSize: '22px',
+                  fontFamily: FONT_STAT, fontSize: '22px',
                   fontWeight: 700, lineHeight: 1, color: ACCENT_TEXT,
-                  letterSpacing: '-0.02em',
                 }}>
                   {n}
                 </div>
                 <div style={{
-                  fontFamily: 'Space Mono, monospace', fontSize: '10px',
-                  letterSpacing: '1.5px', textTransform: 'uppercase',
+                  fontFamily: FONT_UI, fontSize: '12px', fontWeight: 500,
                   color: TEXT_WEAK, marginTop: '6px',
                 }}>
                   {l}
@@ -351,9 +320,9 @@ export function HomePage() {
 
       <section style={{ padding: '64px 56px 72px', borderTop: `1px solid ${BORDER}` }}>
         <div style={{
-          fontFamily: 'Space Mono, monospace', fontSize: '10px',
-          letterSpacing: '3px', textTransform: 'uppercase',
-          color: TEXT_WEAK, marginBottom: '44px',
+          fontFamily: FONT_UI, fontSize: '12px', fontWeight: 600,
+          color: TEXT_WEAK, textTransform: 'uppercase', letterSpacing: '0.5px',
+          marginBottom: '40px',
         }}>
           How it works
         </div>
@@ -379,9 +348,9 @@ export function HomePage() {
 
       <section style={{ padding: '64px 56px 72px', borderTop: `1px solid ${BORDER}` }}>
         <div style={{
-          fontFamily: 'Space Mono, monospace', fontSize: '10px',
-          letterSpacing: '3px', textTransform: 'uppercase',
-          color: TEXT_WEAK, marginBottom: '44px',
+          fontFamily: FONT_UI, fontSize: '12px', fontWeight: 600,
+          color: TEXT_WEAK, textTransform: 'uppercase', letterSpacing: '0.5px',
+          marginBottom: '40px',
         }}>
           Guides
         </div>
@@ -393,12 +362,11 @@ export function HomePage() {
 
       <div style={{
         borderTop: `1px solid ${BORDER}`,
-        padding: '20px 56px',
+        padding: '16px 56px',
         display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap', gap: '8px',
-        fontFamily: 'Space Mono, monospace', fontSize: '10px',
-        letterSpacing: '2px', textTransform: 'uppercase', color: TEXT_WEAK,
+        fontFamily: FONT_UI, fontSize: '12px', color: TEXT_WEAK,
       }}>
-        <span>Prob'Hammer — V2</span>
+        <span>Prob'Hammer · V2</span>
         <span>Data by BSData Community</span>
         <span>Warhammer 40,000 © Games Workshop</span>
       </div>

@@ -1,9 +1,9 @@
-import { ACCENT_TEXT, ACCENT } from '../theme'
+import { ACCENT_TEXT, ACCENT , FONT_UI} from '../theme'
 
 const HIGHLIGHT_STYLE = {
   color: ACCENT_TEXT,
   fontWeight: 700,
-  fontFamily: 'Space Mono, monospace',
+  fontFamily: FONT_UI,
   fontSize: '0.9em',
   letterSpacing: '0.02em',
 }

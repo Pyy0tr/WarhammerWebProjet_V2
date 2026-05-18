@@ -1,4 +1,4 @@
-import { ACCENT_TEXT, ACCENT, ACCENT_H, SURFACE, BORDER, TEXT, TEXT_WEAK } from '../theme'
+import { ACCENT_TEXT, ACCENT, ACCENT_H, SURFACE, BORDER, TEXT, TEXT_WEAK , FONT_UI} from '../theme'
 
 export function StatInput({ label, value, onChange, type = 'number', min, max, step = 1, placeholder }) {
   const isNum = type === 'number'
@@ -22,7 +22,7 @@ export function StatInput({ label, value, onChange, type = 'number', min, max, s
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
       <label style={{
-        fontFamily: 'Space Mono, monospace',
+        fontFamily: FONT_UI,
         fontSize: '10px',
         letterSpacing: '2px',
         textTransform: 'uppercase',
@@ -41,9 +41,9 @@ export function StatInput({ label, value, onChange, type = 'number', min, max, s
             width: '100%',
             background: SURFACE,
             border: `1px solid ${BORDER}`,
-            borderRadius: '2px',
+            borderRadius: '4px',
             color: TEXT,
-            fontFamily: 'Space Mono, monospace',
+            fontFamily: FONT_UI,
             fontSize: '15px',
             fontWeight: 700,
             padding: '10px 12px',

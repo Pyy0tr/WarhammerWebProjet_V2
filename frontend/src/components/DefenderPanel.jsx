@@ -6,7 +6,7 @@ import { useAuthStore } from '../store/authStore'
 import { StatInput } from './StatInput'
 import { Toggle } from './Toggle'
 import { UnitDrawer } from './UnitDrawer'
-import { ACCENT_TEXT, ACCENT, BG, BORDER, SURFACE, SURFACE_E, TEXT, TEXT_SEC, TEXT_WEAK, TEXT_OFF } from '../theme'
+import { ACCENT_TEXT, ACCENT, BG, BORDER, SURFACE, SURFACE_E, TEXT, TEXT_SEC, TEXT_WEAK, TEXT_OFF , FONT_UI} from '../theme'
 
 // ── Army Picker (Defender) ───────────────────────────────────────────────────
 
@@ -56,7 +56,7 @@ function DefenderArmyPicker() {
     return (
       <div style={{
         padding: '20px 0',
-        fontFamily: 'Space Mono, monospace', fontSize: '10px',
+        fontFamily: FONT_UI, fontSize: '10px',
         color: TEXT_WEAK, lineHeight: 1.7,
       }}>
         No saved armies.{' '}
@@ -70,13 +70,13 @@ function DefenderArmyPicker() {
   const selectStyle = {
     width: '100%', background: SURFACE,
     border: `1px solid ${BORDER}`,
-    color: TEXT, fontFamily: 'Space Mono, monospace',
+    color: TEXT, fontFamily: FONT_UI,
     fontSize: '11px', padding: '8px 10px',
     outline: 'none', cursor: 'pointer',
   }
 
   const labelStyle = {
-    fontFamily: 'Space Mono, monospace', fontSize: '8px',
+    fontFamily: FONT_UI, fontSize: '8px',
     letterSpacing: '2px', textTransform: 'uppercase',
     color: TEXT_WEAK, marginBottom: '6px', display: 'block',
   }
@@ -96,7 +96,7 @@ function DefenderArmyPicker() {
         <div>
           <span style={labelStyle}>Target unit</span>
           {army.units.length === 0 ? (
-            <div style={{ fontFamily: 'Space Mono, monospace', fontSize: '10px', color: TEXT_WEAK }}>
+            <div style={{ fontFamily: FONT_UI, fontSize: '10px', color: TEXT_WEAK }}>
               No units in this army.
             </div>
           ) : (
@@ -119,10 +119,10 @@ function DefenderArmyPicker() {
                     onMouseEnter={(e) => { if (!active) e.currentTarget.style.background = SURFACE }}
                     onMouseLeave={(e) => { if (!active) e.currentTarget.style.background = 'transparent' }}
                   >
-                    <div style={{ fontFamily: 'Space Mono, monospace', fontSize: '11px', color: active ? ACCENT : TEXT, fontWeight: active ? 700 : 400 }}>
+                    <div style={{ fontFamily: FONT_UI, fontSize: '11px', color: active ? ACCENT : TEXT, fontWeight: active ? 700 : 400 }}>
                       {u.name}
                     </div>
-                    <div style={{ fontFamily: 'Space Mono, monospace', fontSize: '8px', color: TEXT_WEAK, marginTop: '2px' }}>
+                    <div style={{ fontFamily: FONT_UI, fontSize: '8px', color: TEXT_WEAK, marginTop: '2px' }}>
                       {u.models} models · T{u.T} · Sv{u.Sv}+ · W{u.W}
                       {u.invuln ? ` · ${u.invuln}++` : ''}
                     </div>
@@ -139,13 +139,13 @@ function DefenderArmyPicker() {
           padding: '10px 14px', border: `1px solid ${BORDER}`, background: SURFACE,
         }}>
           <div style={{
-            fontFamily: 'Space Mono, monospace', fontSize: '12px',
+            fontFamily: FONT_UI, fontSize: '12px',
             fontWeight: 700, color: ACCENT_TEXT,
           }}>
             {unit.name}
           </div>
           <div style={{
-            fontFamily: 'Space Mono, monospace', fontSize: '10px',
+            fontFamily: FONT_UI, fontSize: '10px',
             color: TEXT_WEAK, marginTop: '4px', letterSpacing: '0.5px',
           }}>
             T{unit.T} · Sv{unit.Sv}+ · W{unit.W}
@@ -177,7 +177,7 @@ function ProfileSelector({ unit, setDefender, defender }) {
   }
 
   const labelStyle = {
-    fontFamily: 'Space Mono, monospace', fontSize: '8px',
+    fontFamily: FONT_UI, fontSize: '8px',
     letterSpacing: '2px', textTransform: 'uppercase',
     color: TEXT_WEAK, marginBottom: '8px', display: 'block',
   }
@@ -209,13 +209,13 @@ function ProfileSelector({ unit, setDefender, defender }) {
               onMouseLeave={(e) => { if (!active) e.currentTarget.style.background = 'transparent' }}
             >
               <span style={{
-                fontFamily: 'Space Mono, monospace', fontSize: '10px',
+                fontFamily: FONT_UI, fontSize: '10px',
                 color: active ? ACCENT : TEXT, fontWeight: active ? 700 : 400,
               }}>
                 {p.name}
               </span>
               <span style={{
-                fontFamily: 'Space Mono, monospace', fontSize: '8px', color: TEXT_WEAK,
+                fontFamily: FONT_UI, fontSize: '8px', color: TEXT_WEAK,
               }}>
                 T{p.T} · {p.Sv}+ · W{p.W}
               </span>
@@ -266,11 +266,11 @@ export function DefenderPanel() {
     <section>
       <div style={{ display: 'flex', alignItems: 'baseline', gap: '10px', marginBottom: '20px' }}>
         <span style={{
-          fontFamily: 'Space Mono, monospace', fontSize: '8px',
+          fontFamily: FONT_UI, fontSize: '8px',
           letterSpacing: '2px', textTransform: 'uppercase', color: TEXT_OFF,
         }}>UNIT.002</span>
         <span style={{
-          fontFamily: 'Space Mono, monospace', fontSize: '11px',
+          fontFamily: FONT_UI, fontSize: '11px',
           fontWeight: 700, letterSpacing: '3px', textTransform: 'uppercase', color: TEXT,
         }}>Defender</span>
       </div>
@@ -285,7 +285,7 @@ export function DefenderPanel() {
               background: 'none', border: 'none',
               borderBottom: mode === id ? `2px solid ${ACCENT}` : '2px solid transparent',
               color: mode === id ? ACCENT : TEXT_OFF,
-              fontFamily: 'Space Mono, monospace', fontSize: '10px',
+              fontFamily: FONT_UI, fontSize: '10px',
               letterSpacing: '2px', textTransform: 'uppercase',
               cursor: 'pointer', marginBottom: '-1px',
               transition: 'color 100ms',
@@ -309,7 +309,7 @@ export function DefenderPanel() {
           marginBottom: '20px',
         }}>
           <div style={{
-            fontFamily: 'Space Mono, monospace', fontSize: '10px',
+            fontFamily: FONT_UI, fontSize: '10px',
             letterSpacing: '1.5px', textTransform: 'uppercase',
             color: TEXT_WEAK, lineHeight: 1.7,
           }}>
@@ -319,9 +319,9 @@ export function DefenderPanel() {
             onClick={() => setDrawerOpen(true)}
             style={{
               background: ACCENT, border: `1px solid ${ACCENT}`,
-              color: TEXT, fontFamily: 'Space Mono, monospace', fontSize: '10px',
+              color: TEXT, fontFamily: FONT_UI, fontSize: '10px',
               fontWeight: 700, letterSpacing: '2px', textTransform: 'uppercase',
-              padding: '12px 28px', cursor: 'pointer', borderRadius: '3px',
+              padding: '12px 28px', cursor: 'pointer', borderRadius: '6px',
               transition: 'opacity 100ms',
             }}
             onMouseEnter={(e) => { e.currentTarget.style.opacity = '0.85' }}
@@ -339,13 +339,13 @@ export function DefenderPanel() {
         }}>
           <div>
             <div style={{
-              fontFamily: 'Space Mono, monospace', fontSize: '12px',
+              fontFamily: FONT_UI, fontSize: '12px',
               fontWeight: 700, color: ACCENT_TEXT,
             }}>
               {selectedUnit.name}
             </div>
             <div style={{
-              fontFamily: 'Space Mono, monospace', fontSize: '8.5px',
+              fontFamily: FONT_UI, fontSize: '8.5px',
               color: TEXT_WEAK, marginTop: '3px', letterSpacing: '1px',
             }}>
               T{defender.toughness} · SV{defender.save}+ · W{defender.wounds}
@@ -356,7 +356,7 @@ export function DefenderPanel() {
             onClick={() => setDrawerOpen(true)}
             style={{
               background: 'none', border: 'none', color: ACCENT_TEXT,
-              fontFamily: 'Space Mono, monospace', fontSize: '8px',
+              fontFamily: FONT_UI, fontSize: '8px',
               letterSpacing: '1.5px', textTransform: 'uppercase',
               cursor: 'pointer', opacity: 0.6, padding: 0,
             }}
@@ -387,7 +387,7 @@ export function DefenderPanel() {
             min={1} max={24} onChange={(v) => setDefender({ wounds: v })} />
           <div>
             <div style={{
-              fontFamily: 'Space Mono, monospace', fontSize: '8px',
+              fontFamily: FONT_UI, fontSize: '8px',
               letterSpacing: '2px', textTransform: 'uppercase',
               color: TEXT_WEAK, marginBottom: '6px',
               display: 'flex', alignItems: 'baseline', gap: '6px',
@@ -409,7 +409,7 @@ export function DefenderPanel() {
                 width: '100%', boxSizing: 'border-box',
                 background: 'rgba(47,224,255,0.04)',
                 border: `1px solid ${BORDER}`,
-                color: TEXT, fontFamily: 'Space Mono, monospace',
+                color: TEXT, fontFamily: FONT_UI,
                 fontSize: '13px', padding: '9px 10px',
                 outline: 'none',
               }}
@@ -427,7 +427,7 @@ export function DefenderPanel() {
 
       <div style={{ borderTop: `1px solid ${BORDER}`, paddingTop: '22px' }}>
         <div style={{
-          fontFamily: 'Space Mono, monospace', fontSize: '10px',
+          fontFamily: FONT_UI, fontSize: '10px',
           letterSpacing: '2.5px', textTransform: 'uppercase',
           color: TEXT_WEAK, marginBottom: '18px',
         }}>
@@ -443,7 +443,7 @@ export function DefenderPanel() {
 
       <div style={{ borderTop: `1px solid ${BORDER}`, paddingTop: '22px' }}>
         <div style={{
-          fontFamily: 'Space Mono, monospace', fontSize: '10px',
+          fontFamily: FONT_UI, fontSize: '10px',
           letterSpacing: '2.5px', textTransform: 'uppercase',
           color: TEXT_WEAK, marginBottom: '18px',
         }}>

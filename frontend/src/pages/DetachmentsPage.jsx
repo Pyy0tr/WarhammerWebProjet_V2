@@ -1,8 +1,7 @@
 import { useEffect, useState, useMemo } from 'react'
 import {
   ACCENT_TEXT, ACCENT, BORDER, BG, ERROR, SUCCESS, SURFACE, SURFACE_E, TEXT, TEXT_OFF,
-  TEXT_SEC, TEXT_WEAK, TYPE, WARNING,
-} from '../theme'
+  TEXT_SEC, TEXT_WEAK, TYPE, WARNING, FONT_UI} from '../theme'
 
 // ── Phase colors ─────────────────────────────────────────────────────────────
 
@@ -32,7 +31,7 @@ function PhaseChip({ phases }) {
       color,
       border: `1px solid ${color}`,
       padding: '2px 6px',
-      borderRadius: '2px',
+      borderRadius: '4px',
       opacity: 0.85,
       whiteSpace: 'nowrap',
     }}>
@@ -50,7 +49,7 @@ function CpBadge({ cost }) {
       color,
       border: `1px solid ${color}`,
       padding: '1px 7px',
-      borderRadius: '2px',
+      borderRadius: '4px',
       minWidth: '28px',
       textAlign: 'center',
       display: 'inline-block',
@@ -136,14 +135,14 @@ function EnhCard({ enh }) {
     <div style={{
       background: SURFACE_E,
       border: `1px solid ${BORDER}`,
-      borderRadius: '3px',
+      borderRadius: '6px',
       padding: '12px 14px',
       display: 'flex', flexDirection: 'column', gap: '6px',
     }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '8px' }}>
         <div style={{ ...TYPE.heading, color: TEXT }}>{enh.name}</div>
         {enh.cost && (
-          <span style={{ ...TYPE.label, color: SUCCESS, border: `1px solid ${SUCCESS}`, padding: '1px 6px', borderRadius: '2px', whiteSpace: 'nowrap' }}>
+          <span style={{ ...TYPE.label, color: SUCCESS, border: `1px solid ${SUCCESS}`, padding: '1px 6px', borderRadius: '4px', whiteSpace: 'nowrap' }}>
             {enh.cost} pts
           </span>
         )}
@@ -165,7 +164,7 @@ function DetachmentSection({ det }) {
   const hasContent = det.stratagems.length > 0 || det.enhancements.length > 0
 
   return (
-    <div style={{ border: `1px solid ${BORDER}`, borderRadius: '3px', overflow: 'hidden' }}>
+    <div style={{ border: `1px solid ${BORDER}`, borderRadius: '6px', overflow: 'hidden' }}>
       {/* Header */}
       <div
         onClick={() => hasContent && setOpen(v => !v)}
@@ -184,12 +183,12 @@ function DetachmentSection({ det }) {
         </div>
         <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
           {det.stratagems.length > 0 && (
-            <span style={{ ...TYPE.label, color: ACCENT_TEXT, border: `1px solid rgba(47,224,255,0.3)`, padding: '1px 7px', borderRadius: '2px' }}>
+            <span style={{ ...TYPE.label, color: ACCENT_TEXT, border: `1px solid rgba(47,224,255,0.3)`, padding: '1px 7px', borderRadius: '4px' }}>
               {det.stratagems.length} strats
             </span>
           )}
           {det.enhancements.length > 0 && (
-            <span style={{ ...TYPE.label, color: SUCCESS, border: `1px solid rgba(61,220,151,0.3)`, padding: '1px 7px', borderRadius: '2px' }}>
+            <span style={{ ...TYPE.label, color: SUCCESS, border: `1px solid rgba(61,220,151,0.3)`, padding: '1px 7px', borderRadius: '4px' }}>
               {det.enhancements.length} enhs
             </span>
           )}
@@ -233,7 +232,7 @@ function ArmyRulesSection({ rules }) {
   const [open, setOpen] = useState(false)
   if (!rules?.length) return null
   return (
-    <div style={{ border: `1px solid ${BORDER}`, borderRadius: '3px', overflow: 'hidden', marginBottom: '16px' }}>
+    <div style={{ border: `1px solid ${BORDER}`, borderRadius: '6px', overflow: 'hidden', marginBottom: '16px' }}>
       <div
         onClick={() => setOpen(v => !v)}
         style={{
@@ -415,9 +414,9 @@ export function DetachmentsPage() {
               width: '100%', boxSizing: 'border-box',
               background: 'rgba(47,224,255,0.04)',
               border: `1px solid ${BORDER}`,
-              borderRadius: '2px',
+              borderRadius: '4px',
               color: TEXT,
-              fontFamily: 'Space Mono, monospace',
+              fontFamily: FONT_UI,
               fontSize: '11px',
               padding: '7px 10px',
               outline: 'none',

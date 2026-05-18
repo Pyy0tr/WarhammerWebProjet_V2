@@ -5,7 +5,7 @@ import { useArmyStore }      from '../store/armyStore'
 import { useAuthStore }      from '../store/authStore'
 import { StatInput }  from './StatInput'
 import { UnitDrawer } from './UnitDrawer'
-import { ACCENT_TEXT, ACCENT, ACCENT_H, BG, SURFACE, SURFACE_E, BORDER, TEXT, TEXT_SEC, TEXT_WEAK, TEXT_OFF } from '../theme'
+import { ACCENT_TEXT, ACCENT, ACCENT_H, BG, SURFACE, SURFACE_E, BORDER, TEXT, TEXT_SEC, TEXT_WEAK, TEXT_OFF , FONT_UI} from '../theme'
 import { KW_GROUPS, SIMPLE_KW_TYPES } from '../engine/keywords.js'
 
 // ── KeywordPicker ─────────────────────────────────────────────────────────────
@@ -59,7 +59,7 @@ function KeywordPicker() {
   }
 
   const chipBase = {
-    fontFamily: 'Space Mono, monospace', fontSize: '8.5px',
+    fontFamily: FONT_UI, fontSize: '8.5px',
     letterSpacing: '1px', textTransform: 'uppercase',
     padding: '5px 9px', cursor: 'pointer',
     border: `1px solid ${BORDER}`,
@@ -79,7 +79,7 @@ function KeywordPicker() {
       {KW_GROUPS.map((group) => (
         <div key={group.label}>
           <div style={{
-            fontFamily: 'Space Mono, monospace', fontSize: '7.5px',
+            fontFamily: FONT_UI, fontSize: '7.5px',
             letterSpacing: '2px', textTransform: 'uppercase',
             color: TEXT_OFF, marginBottom: '7px',
           }}>
@@ -112,7 +112,7 @@ function KeywordPicker() {
                       style={{
                         width: '36px', background: SURFACE,
                         border: `1px solid ${ACCENT}`,
-                        color: TEXT, fontFamily: 'Space Mono, monospace',
+                        color: TEXT, fontFamily: FONT_UI,
                         fontSize: '10px', padding: '4px 6px',
                         outline: 'none', textAlign: 'center',
                       }}
@@ -124,13 +124,13 @@ function KeywordPicker() {
                       <input type="text" value={antiTarget}
                         onChange={(e) => updateAnti('target', e.target.value)}
                         placeholder="INFANTRY"
-                        style={{ width: '78px', background: SURFACE, border: `1px solid ${ACCENT}`, color: TEXT, fontFamily: 'Space Mono, monospace', fontSize: '10px', padding: '4px 6px', outline: 'none' }}
+                        style={{ width: '78px', background: SURFACE, border: `1px solid ${ACCENT}`, color: TEXT, fontFamily: FONT_UI, fontSize: '10px', padding: '4px 6px', outline: 'none' }}
                       />
                       <input type="number" value={antiThreshold} min={2} max={6}
                         onChange={(e) => updateAnti('threshold', e.target.value)}
-                        style={{ width: '36px', background: SURFACE, border: `1px solid ${ACCENT}`, color: TEXT, fontFamily: 'Space Mono, monospace', fontSize: '10px', padding: '4px 6px', outline: 'none', textAlign: 'center' }}
+                        style={{ width: '36px', background: SURFACE, border: `1px solid ${ACCENT}`, color: TEXT, fontFamily: FONT_UI, fontSize: '10px', padding: '4px 6px', outline: 'none', textAlign: 'center' }}
                       />
-                      <span style={{ fontFamily: 'Space Mono, monospace', fontSize: '10px', color: ACCENT_TEXT }}>+</span>
+                      <span style={{ fontFamily: FONT_UI, fontSize: '10px', color: ACCENT_TEXT }}>+</span>
                     </>
                   )}
                 </div>
@@ -208,7 +208,7 @@ function ArmyPicker() {
     return (
       <div style={{
         padding: '20px 0',
-        fontFamily: 'Space Mono, monospace', fontSize: '10px',
+        fontFamily: FONT_UI, fontSize: '10px',
         color: TEXT_WEAK, lineHeight: 1.7,
       }}>
         No saved armies.{' '}
@@ -222,13 +222,13 @@ function ArmyPicker() {
   const selectStyle = {
     width: '100%', background: SURFACE,
     border: `1px solid ${BORDER}`,
-    color: TEXT, fontFamily: 'Space Mono, monospace',
+    color: TEXT, fontFamily: FONT_UI,
     fontSize: '11px', padding: '8px 10px',
     outline: 'none', cursor: 'pointer',
   }
 
   const labelStyle = {
-    fontFamily: 'Space Mono, monospace', fontSize: '8px',
+    fontFamily: FONT_UI, fontSize: '8px',
     letterSpacing: '2px', textTransform: 'uppercase',
     color: TEXT_WEAK, marginBottom: '6px', display: 'block',
   }
@@ -249,7 +249,7 @@ function ArmyPicker() {
         <div>
           <span style={labelStyle}>Squad</span>
           {army.units.length === 0 ? (
-            <div style={{ fontFamily: 'Space Mono, monospace', fontSize: '10px', color: TEXT_WEAK }}>
+            <div style={{ fontFamily: FONT_UI, fontSize: '10px', color: TEXT_WEAK }}>
               No units in this army.
             </div>
           ) : (
@@ -272,10 +272,10 @@ function ArmyPicker() {
                     onMouseEnter={(e) => { if (!active) e.currentTarget.style.background = SURFACE }}
                     onMouseLeave={(e) => { if (!active) e.currentTarget.style.background = 'transparent' }}
                   >
-                    <div style={{ fontFamily: 'Space Mono, monospace', fontSize: '11px', color: active ? ACCENT : TEXT, fontWeight: active ? 700 : 400 }}>
+                    <div style={{ fontFamily: FONT_UI, fontSize: '11px', color: active ? ACCENT : TEXT, fontWeight: active ? 700 : 400 }}>
                       {u.name}
                     </div>
-                    <div style={{ fontFamily: 'Space Mono, monospace', fontSize: '8px', color: TEXT_WEAK, marginTop: '2px' }}>
+                    <div style={{ fontFamily: FONT_UI, fontSize: '8px', color: TEXT_WEAK, marginTop: '2px' }}>
                       {u.models} models · T{u.T} · Sv{u.Sv}+
                     </div>
                   </div>
@@ -307,15 +307,15 @@ function ArmyPicker() {
                   onMouseLeave={(e) => { if (!active) e.currentTarget.style.background = 'transparent' }}
                 >
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
-                    <span style={{ fontFamily: 'Space Mono, monospace', fontSize: '11px', color: active ? ACCENT : TEXT, fontWeight: active ? 700 : 400 }}>
+                    <span style={{ fontFamily: FONT_UI, fontSize: '11px', color: active ? ACCENT : TEXT, fontWeight: active ? 700 : 400 }}>
                       {ref.name}
                     </span>
-                    <span style={{ fontFamily: 'Space Mono, monospace', fontSize: '10px', color: TEXT_WEAK }}>
+                    <span style={{ fontFamily: FONT_UI, fontSize: '10px', color: TEXT_WEAK }}>
                       A{w.A} · S{w.S} · AP{w.AP} · D{w.D}
                     </span>
                   </div>
                   {(w.kw ?? []).filter((k) => k !== '-').length > 0 && (
-                    <div style={{ fontFamily: 'Space Mono, monospace', fontSize: '8px', color: TEXT_WEAK, marginTop: '2px', letterSpacing: '0.5px' }}>
+                    <div style={{ fontFamily: FONT_UI, fontSize: '8px', color: TEXT_WEAK, marginTop: '2px', letterSpacing: '0.5px' }}>
                       {(w.kw ?? []).filter((k) => k !== '-').join(', ')}
                     </div>
                   )}
@@ -338,13 +338,13 @@ function ArmyPicker() {
             style={{
               width: '80px', background: SURFACE,
               border: `1px solid ${BORDER}`,
-              color: TEXT, fontFamily: 'Space Mono, monospace',
+              color: TEXT, fontFamily: FONT_UI,
               fontSize: '13px', padding: '7px 10px',
               outline: 'none', textAlign: 'center',
             }}
           />
           {unit.max_models && (
-            <span style={{ fontFamily: 'Space Mono, monospace', fontSize: '10px', color: TEXT_WEAK, marginLeft: '8px' }}>
+            <span style={{ fontFamily: FONT_UI, fontSize: '10px', color: TEXT_WEAK, marginLeft: '8px' }}>
               / {unit.max_models}
             </span>
           )}
@@ -376,7 +376,7 @@ function ArmyPicker() {
         <div style={{
           padding: '10px 12px', border: `1px solid ${BORDER}`,
           background: 'rgba(47,224,255,0.05)',
-          fontFamily: 'Space Mono, monospace', fontSize: '10px',
+          fontFamily: FONT_UI, fontSize: '10px',
           color: ACCENT_TEXT, letterSpacing: '1px',
         }}>
           ✓ {firing}× {selectedWeapon.name} — click Confirm attack
@@ -389,7 +389,7 @@ function ArmyPicker() {
 // ── Attacker abilities (4 phases) ────────────────────────────────────────────
 
 const PHASE_LABEL = {
-  fontFamily: 'Space Mono, monospace', fontSize: '7.5px',
+  fontFamily: FONT_UI, fontSize: '7.5px',
   letterSpacing: '2px', textTransform: 'uppercase',
   color: TEXT_OFF, marginBottom: '8px',
 }
@@ -402,7 +402,7 @@ function AbilityBtn({ active, onClick, children }) {
         background: active ? 'rgba(47,224,255,0.15)' : SURFACE,
         border: `1px solid ${active ? ACCENT : BORDER}`,
         color: active ? TEXT : TEXT_SEC,
-        fontFamily: 'Space Mono, monospace', fontSize: '8.5px',
+        fontFamily: FONT_UI, fontSize: '8.5px',
         letterSpacing: '1px', textTransform: 'uppercase',
         padding: '5px 10px', cursor: 'pointer',
         transition: 'border-color 80ms, color 80ms, background 80ms',
@@ -459,7 +459,7 @@ function AbilitiesSection({ _buffs, toggleBuff, hasBuff, keywords, setWeapon }) 
             <input type="text" value={activeExtra.value}
               onChange={(e) => { setExtraDraft(e.target.value); updateKwValue('EXTRA_ATTACKS', e.target.value) }}
               onClick={(e) => e.stopPropagation()}
-              style={{ width: '36px', background: SURFACE, border: `1px solid ${ACCENT}`, color: TEXT, fontFamily: 'Space Mono, monospace', fontSize: '10px', padding: '4px 6px', outline: 'none', textAlign: 'center' }}
+              style={{ width: '36px', background: SURFACE, border: `1px solid ${ACCENT}`, color: TEXT, fontFamily: FONT_UI, fontSize: '10px', padding: '4px 6px', outline: 'none', textAlign: 'center' }}
             />
           )}
         </div>
@@ -482,7 +482,7 @@ function AbilitiesSection({ _buffs, toggleBuff, hasBuff, keywords, setWeapon }) 
             <input type="text" value={activeCrit.value}
               onChange={(e) => { setCritDraft(e.target.value); updateKwValue('CRITICAL_HIT_ON', e.target.value) }}
               onClick={(e) => e.stopPropagation()}
-              style={{ width: '36px', background: SURFACE, border: `1px solid ${ACCENT}`, color: TEXT, fontFamily: 'Space Mono, monospace', fontSize: '10px', padding: '4px 6px', outline: 'none', textAlign: 'center' }}
+              style={{ width: '36px', background: SURFACE, border: `1px solid ${ACCENT}`, color: TEXT, fontFamily: FONT_UI, fontSize: '10px', padding: '4px 6px', outline: 'none', textAlign: 'center' }}
             />
           )}
           <AbilityBtn active={activeOverwatch?.value === '6'} onClick={() => setOverwatch('6')}>
@@ -525,7 +525,7 @@ function AbilitiesSection({ _buffs, toggleBuff, hasBuff, keywords, setWeapon }) 
   return (
     <div style={{ marginTop: '24px', paddingTop: '20px', borderTop: `1px solid ${BORDER}` }}>
       <div style={{
-        fontFamily: 'Space Mono, monospace', fontSize: '8px',
+        fontFamily: FONT_UI, fontSize: '8px',
         letterSpacing: '2px', textTransform: 'uppercase', color: TEXT_WEAK,
         marginBottom: '16px',
       }}>
@@ -595,11 +595,11 @@ export function AttackerPanel() {
     <section>
       <div style={{ display: 'flex', alignItems: 'baseline', gap: '10px', marginBottom: '20px' }}>
         <span style={{
-          fontFamily: 'Space Mono, monospace', fontSize: '8px',
+          fontFamily: FONT_UI, fontSize: '8px',
           letterSpacing: '2px', textTransform: 'uppercase', color: TEXT_OFF,
         }}>UNIT.001</span>
         <span style={{
-          fontFamily: 'Space Mono, monospace', fontSize: '11px',
+          fontFamily: FONT_UI, fontSize: '11px',
           fontWeight: 700, letterSpacing: '3px', textTransform: 'uppercase', color: TEXT,
         }}>Attacker</span>
       </div>
@@ -614,7 +614,7 @@ export function AttackerPanel() {
               background: 'none', border: 'none',
               borderBottom: mode === id ? `2px solid ${ACCENT}` : '2px solid transparent',
               color: mode === id ? ACCENT : TEXT_OFF,
-              fontFamily: 'Space Mono, monospace', fontSize: '10px',
+              fontFamily: FONT_UI, fontSize: '10px',
               letterSpacing: '2px', textTransform: 'uppercase',
               cursor: 'pointer', marginBottom: '-1px',
               transition: 'color 100ms',
@@ -640,7 +640,7 @@ export function AttackerPanel() {
           display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '16px',
         }}>
           <div style={{
-            fontFamily: 'Space Mono, monospace', fontSize: '10px',
+            fontFamily: FONT_UI, fontSize: '10px',
             letterSpacing: '1.5px', textTransform: 'uppercase',
             color: TEXT_WEAK, lineHeight: 1.7,
           }}>
@@ -650,9 +650,9 @@ export function AttackerPanel() {
             onClick={() => setDrawerOpen(true)}
             style={{
               background: ACCENT, border: `1px solid ${ACCENT}`,
-              color: TEXT, fontFamily: 'Space Mono, monospace', fontSize: '10px',
+              color: TEXT, fontFamily: FONT_UI, fontSize: '10px',
               fontWeight: 700, letterSpacing: '2px', textTransform: 'uppercase',
-              padding: '12px 28px', cursor: 'pointer', borderRadius: '3px',
+              padding: '12px 28px', cursor: 'pointer', borderRadius: '6px',
               transition: 'opacity 100ms',
             }}
             onMouseEnter={(e) => { e.currentTarget.style.opacity = '0.85' }}
@@ -673,10 +673,10 @@ export function AttackerPanel() {
               display: 'flex', justifyContent: 'space-between', alignItems: 'center',
             }}>
               <div>
-                <div style={{ fontFamily: 'Space Mono, monospace', fontSize: '12px', fontWeight: 700, color: ACCENT_TEXT }}>
+                <div style={{ fontFamily: FONT_UI, fontSize: '12px', fontWeight: 700, color: ACCENT_TEXT }}>
                   {selectedUnit.name}
                 </div>
-                <div style={{ fontFamily: 'Space Mono, monospace', fontSize: '8.5px', color: TEXT_WEAK, marginTop: '3px', letterSpacing: '1px' }}>
+                <div style={{ fontFamily: FONT_UI, fontSize: '8.5px', color: TEXT_WEAK, marginTop: '3px', letterSpacing: '1px' }}>
                   T{selectedUnit.T} · SV{selectedUnit.Sv}+ · W{selectedUnit.W}
                   {selectedUnit.invuln ? ` · ${selectedUnit.invuln}++` : ''}
                 </div>
@@ -685,7 +685,7 @@ export function AttackerPanel() {
                 onClick={() => { setSelectedUnit(null) }}
                 style={{
                   background: 'none', border: 'none', color: ACCENT_TEXT,
-                  fontFamily: 'Space Mono, monospace', fontSize: '8px',
+                  fontFamily: FONT_UI, fontSize: '8px',
                   letterSpacing: '1.5px', textTransform: 'uppercase',
                   cursor: 'pointer', opacity: 0.6, padding: 0,
                 }}
@@ -697,11 +697,11 @@ export function AttackerPanel() {
             </div>
 
             {/* Inline weapon picker */}
-            <div style={{ fontFamily: 'Space Mono, monospace', fontSize: '8px', letterSpacing: '2px', textTransform: 'uppercase', color: TEXT_WEAK, marginBottom: '10px' }}>
+            <div style={{ fontFamily: FONT_UI, fontSize: '8px', letterSpacing: '2px', textTransform: 'uppercase', color: TEXT_WEAK, marginBottom: '10px' }}>
               Choose a weapon
             </div>
             {unitWeapons.length === 0 ? (
-              <div style={{ padding: '16px', border: `1px dashed ${BORDER}`, fontFamily: 'Space Mono, monospace', fontSize: '10px', color: TEXT_OFF, textAlign: 'center' }}>
+              <div style={{ padding: '16px', border: `1px dashed ${BORDER}`, fontFamily: FONT_UI, fontSize: '10px', color: TEXT_OFF, textAlign: 'center' }}>
                 No weapon data — configure manually below
               </div>
             ) : (
@@ -718,15 +718,15 @@ export function AttackerPanel() {
                     onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent' }}
                   >
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
-                      <span style={{ fontFamily: 'Space Mono, monospace', fontSize: '11px', fontWeight: 700, color: ACCENT_TEXT }}>
+                      <span style={{ fontFamily: FONT_UI, fontSize: '11px', fontWeight: 700, color: ACCENT_TEXT }}>
                         {w.name}
                       </span>
-                      <span style={{ fontFamily: 'Space Mono, monospace', fontSize: '10px', color: TEXT_WEAK, whiteSpace: 'nowrap', marginLeft: '12px' }}>
+                      <span style={{ fontFamily: FONT_UI, fontSize: '10px', color: TEXT_WEAK, whiteSpace: 'nowrap', marginLeft: '12px' }}>
                         A{w.A} · BS{w.BS}+ · S{w.S} AP{w.AP} D{w.D}
                       </span>
                     </div>
                     {(w.kw ?? []).filter((k) => k !== '-').length > 0 && (
-                      <div style={{ fontFamily: 'Space Mono, monospace', fontSize: '8px', color: TEXT_OFF, marginTop: '3px', letterSpacing: '0.5px', textTransform: 'uppercase' }}>
+                      <div style={{ fontFamily: FONT_UI, fontSize: '8px', color: TEXT_OFF, marginTop: '3px', letterSpacing: '0.5px', textTransform: 'uppercase' }}>
                         {(w.kw ?? []).filter((k) => k !== '-').join(' · ')}
                       </div>
                     )}
@@ -747,13 +747,13 @@ export function AttackerPanel() {
           }}>
             <div>
               <div style={{
-                fontFamily: 'Space Mono, monospace', fontSize: '12px',
+                fontFamily: FONT_UI, fontSize: '12px',
                 fontWeight: 700, color: ACCENT_TEXT,
               }}>
                 {selectedUnit.name}
               </div>
               <div style={{
-                fontFamily: 'Space Mono, monospace', fontSize: '8.5px',
+                fontFamily: FONT_UI, fontSize: '8.5px',
                 color: TEXT_WEAK, marginTop: '3px', letterSpacing: '1px',
               }}>
                 T{selectedUnit.T} · SV{selectedUnit.Sv}+ · W{selectedUnit.W}
@@ -764,7 +764,7 @@ export function AttackerPanel() {
               onClick={() => setDrawerOpen(true)}
               style={{
                 background: 'none', border: 'none', color: ACCENT_TEXT,
-                fontFamily: 'Space Mono, monospace', fontSize: '8px',
+                fontFamily: FONT_UI, fontSize: '8px',
                 letterSpacing: '1.5px', textTransform: 'uppercase',
                 cursor: 'pointer', opacity: 0.6, padding: 0,
               }}
@@ -784,9 +784,9 @@ export function AttackerPanel() {
               onClick={() => setDrawerOpen(true)}
               style={{
                 background: 'transparent', border: `1px solid ${BORDER}`,
-                color: ACCENT_TEXT, fontFamily: 'Space Mono, monospace', fontSize: '8.5px',
+                color: ACCENT_TEXT, fontFamily: FONT_UI, fontSize: '8.5px',
                 letterSpacing: '2px', textTransform: 'uppercase', padding: '5px 12px',
-                cursor: 'pointer', borderRadius: '3px',
+                cursor: 'pointer', borderRadius: '6px',
                 transition: 'border-color 100ms, background 100ms',
               }}
               onMouseEnter={(e) => { e.currentTarget.style.borderColor = ACCENT; e.currentTarget.style.background = 'rgba(47,224,255,0.07)' }}
@@ -802,13 +802,13 @@ export function AttackerPanel() {
             padding: '10px 14px', border: `1px solid ${BORDER}`, background: SURFACE,
           }}>
             <div style={{
-              fontFamily: 'Space Mono, monospace', fontSize: '12px',
+              fontFamily: FONT_UI, fontSize: '12px',
               fontWeight: 700, color: TEXT, letterSpacing: '0.5px',
             }}>
               {weapon.name}
             </div>
             <div style={{
-              fontFamily: 'Space Mono, monospace', fontSize: '10px',
+              fontFamily: FONT_UI, fontSize: '10px',
               color: TEXT_WEAK, marginTop: '4px', letterSpacing: '0.5px',
             }}>
               A{weapon.attacks} · BS{weapon.skill}+ · S{weapon.strength} · AP{weapon.ap} · D{weapon.damage}
@@ -834,7 +834,7 @@ export function AttackerPanel() {
               placeholder="D3, D6+1…" onChange={(v) => setWeapon({ damage: v })} />
             <div>
               <div style={{
-                fontFamily: 'Space Mono, monospace', fontSize: '8px',
+                fontFamily: FONT_UI, fontSize: '8px',
                 letterSpacing: '2px', textTransform: 'uppercase',
                 color: TEXT_WEAK, marginBottom: '6px',
                 display: 'flex', alignItems: 'baseline', gap: '6px',
@@ -856,7 +856,7 @@ export function AttackerPanel() {
                   width: '100%', boxSizing: 'border-box',
                   background: 'rgba(47,224,255,0.04)',
                   border: `1px solid ${BORDER}`,
-                  color: TEXT, fontFamily: 'Space Mono, monospace',
+                  color: TEXT, fontFamily: FONT_UI,
                   fontSize: '13px', padding: '9px 10px',
                   outline: 'none',
                 }}
@@ -866,7 +866,7 @@ export function AttackerPanel() {
 
           <div>
             <div style={{
-              fontFamily: 'Space Mono, monospace', fontSize: '8px',
+              fontFamily: FONT_UI, fontSize: '8px',
               letterSpacing: '2px', textTransform: 'uppercase', color: TEXT_WEAK,
               marginBottom: '10px',
             }}>

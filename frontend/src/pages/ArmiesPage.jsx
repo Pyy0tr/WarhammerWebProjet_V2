@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { useArmyStore } from '../store/armyStore'
 import { useAuthStore } from '../store/authStore'
 import { useDataStore } from '../store/dataStore'
-import { ACCENT_TEXT, ACCENT, BG, SURFACE, SURFACE_E, BORDER, TEXT, TEXT_SEC, TEXT_WEAK, ERROR, HIGHLIGHT } from '../theme'
+import { ACCENT_TEXT, ACCENT, BG, SURFACE, SURFACE_E, BORDER, TEXT, TEXT_SEC, TEXT_WEAK, ERROR, HIGHLIGHT , FONT_UI} from '../theme'
 
 // ── Small helpers ─────────────────────────────────────────────────────────────
 
@@ -20,7 +20,7 @@ function IconBtn({ children, onClick, danger, title }) {
         background: 'none', border: 'none',
         color: danger ? (hov ? ERROR : 'rgba(255,92,122,0.4)') : (hov ? TEXT : TEXT_WEAK),
         cursor: 'pointer', padding: '2px 6px',
-        fontFamily: 'Space Mono, monospace', fontSize: '13px', lineHeight: 1,
+        fontFamily: FONT_UI, fontSize: '13px', lineHeight: 1,
         transition: 'color 100ms',
       }}
     >
@@ -47,7 +47,7 @@ function SmallBtn({ children, onClick, primary, danger }) {
         background: bgColor,
         border: `1px solid ${borderColor}`,
         color: textColor,
-        fontFamily: 'Space Mono, monospace', fontSize: '8px',
+        fontFamily: FONT_UI, fontSize: '8px',
         letterSpacing: '1.5px', textTransform: 'uppercase',
         padding: '5px 10px', cursor: 'pointer',
         transition: 'all 100ms',
@@ -66,7 +66,7 @@ function ModelStepper({ value, min, max, onChange }) {
   const canInc = max === null || value < max
 
   const btnStyle = (side) => ({
-    fontFamily: 'Space Mono, monospace', fontSize: '13px', lineHeight: 1,
+    fontFamily: FONT_UI, fontSize: '13px', lineHeight: 1,
     background: 'none', border: 'none', cursor: canDec && side === 'dec' || canInc && side === 'inc' ? 'pointer' : 'default',
     color: hov === side
       ? ACCENT
@@ -91,7 +91,7 @@ function ModelStepper({ value, min, max, onChange }) {
         onClick={() => canDec && onChange(value - 1)}
       >−</button>
       <span style={{
-        fontFamily: 'Space Mono, monospace', fontSize: '12px', fontWeight: 700,
+        fontFamily: FONT_UI, fontSize: '12px', fontWeight: 700,
         color: ACCENT_TEXT, minWidth: '28px', textAlign: 'center', padding: '4px 6px',
       }}>
         {value}
@@ -136,7 +136,7 @@ function EditableName({ value, onSave, style }) {
           background: 'rgba(47,224,255,0.05)',
           border: `1px solid ${ACCENT}`,
           outline: 'none', padding: '4px 8px',
-          borderRadius: '2px',
+          borderRadius: '4px',
         }}
       />
     )
@@ -241,7 +241,7 @@ function ArmyUnitCard({ entry, user }) {
         display: 'flex', alignItems: 'center', gap: '12px',
       }}>
         <div style={{
-          fontFamily: 'Space Mono, monospace', fontSize: '12px', fontWeight: 700,
+          fontFamily: FONT_UI, fontSize: '12px', fontWeight: 700,
           color: hov ? ACCENT : TEXT, whiteSpace: 'nowrap', overflow: 'hidden',
           textOverflow: 'ellipsis', transition: 'color 120ms', flex: 1, minWidth: 0,
         }}>
@@ -249,10 +249,10 @@ function ArmyUnitCard({ entry, user }) {
         </div>
         {totalPts !== null && (
           <div style={{ flexShrink: 0, textAlign: 'right', lineHeight: 1 }}>
-            <span style={{ fontFamily: 'Space Mono, monospace', fontSize: '15px', fontWeight: 700, color: ACCENT_TEXT }}>
+            <span style={{ fontFamily: FONT_UI, fontSize: '15px', fontWeight: 700, color: ACCENT_TEXT }}>
               {totalPts}
             </span>
-            <span style={{ fontFamily: 'Space Mono, monospace', fontSize: '8px', color: TEXT_WEAK, marginLeft: '4px', letterSpacing: '1px' }}>
+            <span style={{ fontFamily: FONT_UI, fontSize: '8px', color: TEXT_WEAK, marginLeft: '4px', letterSpacing: '1px' }}>
               pts
             </span>
           </div>
@@ -264,7 +264,7 @@ function ArmyUnitCard({ entry, user }) {
             flexShrink: 0, cursor: 'pointer', background: 'none',
             border: `1px solid ${hov ? ERROR : 'rgba(255,92,122,0.3)'}`,
             color: hov ? ERROR : 'rgba(255,92,122,0.55)',
-            fontFamily: 'Space Mono, monospace', fontSize: '18px', lineHeight: 1,
+            fontFamily: FONT_UI, fontSize: '18px', lineHeight: 1,
             padding: '5px 12px', transition: 'all 120ms',
           }}
         >×</button>
@@ -279,11 +279,11 @@ function ArmyUnitCard({ entry, user }) {
             opacity: s.sim ? 1 : 0.65,
           }}>
             <div style={{
-              fontFamily: 'Space Mono, monospace', fontSize: '18px', fontWeight: 700, lineHeight: 1,
+              fontFamily: FONT_UI, fontSize: '18px', fontWeight: 700, lineHeight: 1,
               color: s.inv ? ACCENT : s.sim ? HIGHLIGHT : TEXT_WEAK,
             }}>{s.value}</div>
             <div style={{
-              fontFamily: 'Space Mono, monospace', fontSize: '7px',
+              fontFamily: FONT_UI, fontSize: '7px',
               letterSpacing: '1px', textTransform: 'uppercase', color: TEXT_WEAK, marginTop: '5px',
             }}>{s.key}</div>
           </div>
@@ -296,7 +296,7 @@ function ArmyUnitCard({ entry, user }) {
         justifyContent: 'space-between', gap: '8px',
       }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-          <span style={{ fontFamily: 'Space Mono, monospace', fontSize: '8px', color: TEXT_WEAK, letterSpacing: '1px' }}>
+          <span style={{ fontFamily: FONT_UI, fontSize: '8px', color: TEXT_WEAK, letterSpacing: '1px' }}>
             Models
           </span>
           <ModelStepper
@@ -304,12 +304,12 @@ function ArmyUnitCard({ entry, user }) {
             onChange={(v) => updateUnit(entry.uid, { models: v }, user)}
           />
           {maxM !== null && (
-            <span style={{ fontFamily: 'Space Mono, monospace', fontSize: '8px', color: TEXT_WEAK }}>/ {maxM}</span>
+            <span style={{ fontFamily: FONT_UI, fontSize: '8px', color: TEXT_WEAK }}>/ {maxM}</span>
           )}
         </div>
         {weaponNames.length > 0 && (
           <div style={{
-            fontFamily: 'Space Mono, monospace', fontSize: '10px', color: TEXT_WEAK,
+            fontFamily: FONT_UI, fontSize: '10px', color: TEXT_WEAK,
             letterSpacing: '0.5px', flex: 1, whiteSpace: 'nowrap',
             overflow: 'hidden', textOverflow: 'ellipsis', textAlign: 'right',
           }}>
@@ -375,7 +375,7 @@ function ArmyEditor({ user, onNewArmy }) {
         alignItems: 'center', justifyContent: 'center', gap: '20px',
       }}>
         <div style={{
-          fontFamily: 'Space Mono, monospace', fontSize: '10px',
+          fontFamily: FONT_UI, fontSize: '10px',
           letterSpacing: '2px', textTransform: 'uppercase', color: TEXT_WEAK,
         }}>
           No army selected
@@ -384,7 +384,7 @@ function ArmyEditor({ user, onNewArmy }) {
           onClick={onNewArmy}
           style={{
             background: ACCENT, border: `1px solid ${ACCENT}`,
-            color: TEXT, fontFamily: 'Space Mono, monospace',
+            color: TEXT, fontFamily: FONT_UI,
             fontSize: '10px', letterSpacing: '3px', textTransform: 'uppercase',
             fontWeight: 700, padding: '12px 28px', cursor: 'pointer',
             transition: 'opacity 100ms',
@@ -407,13 +407,13 @@ function ArmyEditor({ user, onNewArmy }) {
           value={army.name}
           onSave={(n) => rename(army.id, n, user)}
           style={{
-            fontFamily: 'Space Mono, monospace', fontSize: '24px',
+            fontFamily: FONT_UI, fontSize: '24px',
             fontWeight: 700, letterSpacing: '1px', color: TEXT,
           }}
         />
         {confirm ? (
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <span style={{ fontFamily: 'Space Mono, monospace', fontSize: '10px', color: ERROR, letterSpacing: '1px' }}>
+            <span style={{ fontFamily: FONT_UI, fontSize: '10px', color: ERROR, letterSpacing: '1px' }}>
               Confirm deletion?
             </span>
             <SmallBtn onClick={() => { deleteArmy(army.id, user); setConfirm(false) }}>Yes</SmallBtn>
@@ -430,7 +430,7 @@ function ArmyEditor({ user, onNewArmy }) {
       {/* ── Search ── */}
       <div style={{ marginBottom: '28px', position: 'relative' }}>
         <div style={{
-          fontFamily: 'Space Mono, monospace', fontSize: '10px',
+          fontFamily: FONT_UI, fontSize: '10px',
           letterSpacing: '2px', textTransform: 'uppercase', color: TEXT_WEAK,
           marginBottom: '10px',
         }}>
@@ -444,7 +444,7 @@ function ArmyEditor({ user, onNewArmy }) {
           style={{
             width: '100%', boxSizing: 'border-box',
             background: 'rgba(47,224,255,0.04)', border: `1px solid ${query ? ACCENT : BORDER}`,
-            color: TEXT_SEC, fontFamily: 'Space Mono, monospace', fontSize: '12px',
+            color: TEXT_SEC, fontFamily: FONT_UI, fontSize: '12px',
             padding: '10px 14px', outline: 'none', transition: 'border-color 120ms',
           }}
         />
@@ -469,15 +469,15 @@ function ArmyEditor({ user, onNewArmy }) {
                 onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
               >
                 <div>
-                  <div style={{ fontFamily: 'Space Mono, monospace', fontSize: '12px', color: TEXT }}>
+                  <div style={{ fontFamily: FONT_UI, fontSize: '12px', color: TEXT }}>
                     {unit.name}
                   </div>
-                  <div style={{ fontFamily: 'Space Mono, monospace', fontSize: '10px', color: TEXT_WEAK, marginTop: '2px' }}>
+                  <div style={{ fontFamily: FONT_UI, fontSize: '10px', color: TEXT_WEAK, marginTop: '2px' }}>
                     T{unit.T} · SV{unit.Sv}+ · W{unit.W}
                     {unit.invuln ? ` · ${unit.invuln}++` : ''}
                   </div>
                 </div>
-                <span style={{ fontFamily: 'Space Mono, monospace', fontSize: '10px', color: ACCENT_TEXT }}>+ Add</span>
+                <span style={{ fontFamily: FONT_UI, fontSize: '10px', color: ACCENT_TEXT }}>+ Add</span>
               </div>
             ))}
           </div>
@@ -489,7 +489,7 @@ function ArmyEditor({ user, onNewArmy }) {
 
       {/* ── Unit list ── */}
       <div style={{
-        fontFamily: 'Space Mono, monospace', fontSize: '10px',
+        fontFamily: FONT_UI, fontSize: '10px',
         letterSpacing: '3px', textTransform: 'uppercase', color: TEXT_SEC,
         marginBottom: '12px',
         display: 'flex', alignItems: 'center', gap: '10px',
@@ -521,7 +521,7 @@ function ArmyEditor({ user, onNewArmy }) {
           const total = army.units.reduce((sum, e) => sum + resolveUnit(e), 0)
           return total > 0 ? (
             <span style={{
-              fontFamily: 'Space Mono, monospace', fontSize: '13px',
+              fontFamily: FONT_UI, fontSize: '13px',
               fontWeight: 700, color: TEXT, letterSpacing: '0px',
               marginLeft: 'auto',
             }}>
@@ -545,17 +545,17 @@ function ArmyEditor({ user, onNewArmy }) {
             onMouseLeave={(e) => e.currentTarget.style.background = 'rgba(47,224,255,0.03)'}
           >
             <div style={{
-              fontFamily: 'Space Mono, monospace', fontSize: '20px',
+              fontFamily: FONT_UI, fontSize: '20px',
               color: ACCENT_TEXT, marginBottom: '12px', lineHeight: 1,
             }}>⌕</div>
             <div style={{
-              fontFamily: 'Space Mono, monospace', fontSize: '11px',
+              fontFamily: FONT_UI, fontSize: '11px',
               fontWeight: 700, color: TEXT, letterSpacing: '1px', marginBottom: '8px',
             }}>
               Search & add units
             </div>
             <div style={{
-              fontFamily: 'Space Mono, monospace', fontSize: '10px',
+              fontFamily: FONT_UI, fontSize: '10px',
               color: TEXT_WEAK, lineHeight: 1.6, letterSpacing: '0.5px',
             }}>
               Browse all 1,487 units from the BSData database and add them to your army one by one.
@@ -569,18 +569,18 @@ function ArmyEditor({ user, onNewArmy }) {
             background: 'transparent', opacity: 0.5,
           }}>
             <div style={{
-              fontFamily: 'Space Mono, monospace', fontSize: '20px',
+              fontFamily: FONT_UI, fontSize: '20px',
               color: TEXT_WEAK, marginBottom: '12px', lineHeight: 1,
             }}>↑</div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
               <div style={{
-                fontFamily: 'Space Mono, monospace', fontSize: '11px',
+                fontFamily: FONT_UI, fontSize: '11px',
                 fontWeight: 700, color: TEXT_SEC, letterSpacing: '1px',
               }}>
                 Import BattleScribe
               </div>
               <span style={{
-                fontFamily: 'Space Mono, monospace', fontSize: '7px',
+                fontFamily: FONT_UI, fontSize: '7px',
                 letterSpacing: '1.5px', textTransform: 'uppercase',
                 color: ACCENT_TEXT, border: `1px solid ${ACCENT}`, padding: '1px 5px',
               }}>
@@ -588,7 +588,7 @@ function ArmyEditor({ user, onNewArmy }) {
               </span>
             </div>
             <div style={{
-              fontFamily: 'Space Mono, monospace', fontSize: '10px',
+              fontFamily: FONT_UI, fontSize: '10px',
               color: TEXT_WEAK, lineHeight: 1.6, letterSpacing: '0.5px',
             }}>
               Import a .ros or .rosz roster file directly from BattleScribe or New Recruit.
@@ -632,7 +632,7 @@ function ArmySidebarItem({ army, active, onClick, animDelay }) {
       }}
     >
       <div style={{
-        fontFamily: 'Space Mono, monospace', fontSize: '11px',
+        fontFamily: FONT_UI, fontSize: '11px',
         fontWeight: active ? 700 : 400,
         color: active ? TEXT : hov ? TEXT : TEXT_SEC,
         marginBottom: '6px',
@@ -643,12 +643,12 @@ function ArmySidebarItem({ army, active, onClick, animDelay }) {
         {army.name}
       </div>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-        <div style={{ fontFamily: 'Space Mono, monospace', fontSize: '8px', color: TEXT_WEAK }}>
+        <div style={{ fontFamily: FONT_UI, fontSize: '8px', color: TEXT_WEAK }}>
           {army.units.length} unit{army.units.length !== 1 ? 's' : ''}
         </div>
         {pts > 0 && (
           <div style={{
-            fontFamily: 'Space Mono, monospace', fontSize: '8px',
+            fontFamily: FONT_UI, fontSize: '8px',
             color: active ? ACCENT : TEXT_WEAK,
             transition: 'color 160ms',
           }}>
@@ -680,12 +680,12 @@ function ArmySidebar({ user, onNewArmy }) {
         {/* Title row */}
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '4px' }}>
           <span style={{
-            fontFamily: 'Space Mono, monospace', fontSize: '8px',
+            fontFamily: FONT_UI, fontSize: '8px',
             letterSpacing: '4px', textTransform: 'uppercase', color: TEXT_WEAK,
           }}>My Armies</span>
           {armies.length > 0 && (
             <span style={{
-              fontFamily: 'Space Mono, monospace', fontSize: '7px',
+              fontFamily: FONT_UI, fontSize: '7px',
               color: ACCENT_TEXT, border: `1px solid rgba(47,224,255,0.3)`,
               padding: '1px 6px',
             }}>{armies.length}</span>
@@ -706,7 +706,7 @@ function ArmySidebar({ user, onNewArmy }) {
             background: btnHov ? ACCENT : 'transparent',
             border: `1px solid ${ACCENT}`,
             color: btnHov ? BG : ACCENT,
-            fontFamily: 'Space Mono, monospace', fontSize: '10px',
+            fontFamily: FONT_UI, fontSize: '10px',
             letterSpacing: '2px', textTransform: 'uppercase', fontWeight: 700,
             padding: '10px 0', cursor: 'pointer',
             transition: 'background 160ms ease, color 160ms ease',
@@ -724,7 +724,7 @@ function ArmySidebar({ user, onNewArmy }) {
         {armies.length === 0 ? (
           <div style={{
             padding: '28px 16px', textAlign: 'center',
-            fontFamily: 'Space Mono, monospace', fontSize: '10px',
+            fontFamily: FONT_UI, fontSize: '10px',
             color: TEXT_WEAK, lineHeight: 2,
           }}>
             No armies yet.{' '}
@@ -753,7 +753,7 @@ function ArmySidebar({ user, onNewArmy }) {
         <div style={{
           padding: '12px 16px',
           borderTop: `1px solid ${BORDER}`,
-          fontFamily: 'Space Mono, monospace', fontSize: '8px',
+          fontFamily: FONT_UI, fontSize: '8px',
           color: TEXT_WEAK, lineHeight: 1.7,
         }}>
           Sign in to sync your armies across devices.
@@ -825,13 +825,13 @@ function NewArmyModal({ onClose, onCreate }) {
         {/* Title */}
         <div>
           <div style={{
-            fontFamily: 'Space Mono, monospace', fontSize: '10px',
+            fontFamily: FONT_UI, fontSize: '10px',
             letterSpacing: '3px', textTransform: 'uppercase', color: ACCENT_TEXT, marginBottom: '6px',
           }}>
             New Army
           </div>
           <div style={{
-            fontFamily: 'Space Mono, monospace', fontSize: '14px',
+            fontFamily: FONT_UI, fontSize: '14px',
             fontWeight: 700, color: TEXT,
           }}>
             Name your army
@@ -849,7 +849,7 @@ function NewArmyModal({ onClose, onCreate }) {
           style={{
             background: 'rgba(47,224,255,0.05)',
             border: `1px solid ${error ? ERROR : (name ? ACCENT : BORDER)}`,
-            color: TEXT_SEC, fontFamily: 'Space Mono, monospace', fontSize: '13px',
+            color: TEXT_SEC, fontFamily: FONT_UI, fontSize: '13px',
             padding: '12px 14px', outline: 'none', width: '100%', boxSizing: 'border-box',
             transition: 'border-color 120ms',
           }}
@@ -857,7 +857,7 @@ function NewArmyModal({ onClose, onCreate }) {
 
         {error && (
           <div style={{
-            fontFamily: 'Space Mono, monospace', fontSize: '10px',
+            fontFamily: FONT_UI, fontSize: '10px',
             color: ERROR, letterSpacing: '1px', marginTop: '-12px',
           }}>
             {error}
@@ -874,7 +874,7 @@ function NewArmyModal({ onClose, onCreate }) {
               background: busy || !name.trim() ? 'rgba(47,224,255,0.15)' : ACCENT,
               border: 'none',
               color: busy || !name.trim() ? TEXT_WEAK : BG,
-              fontFamily: 'Space Mono, monospace', fontSize: '10px',
+              fontFamily: FONT_UI, fontSize: '10px',
               letterSpacing: '2px', textTransform: 'uppercase', fontWeight: 700,
               padding: '12px', cursor: busy || !name.trim() ? 'default' : 'pointer',
               transition: 'opacity 100ms',
@@ -886,7 +886,7 @@ function NewArmyModal({ onClose, onCreate }) {
             onClick={onClose}
             style={{
               background: 'none', border: `1px solid ${BORDER}`,
-              color: TEXT_WEAK, fontFamily: 'Space Mono, monospace',
+              color: TEXT_WEAK, fontFamily: FONT_UI,
               fontSize: '10px', letterSpacing: '2px', textTransform: 'uppercase',
               padding: '12px 16px', cursor: 'pointer',
             }}

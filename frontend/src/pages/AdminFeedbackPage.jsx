@@ -4,8 +4,7 @@ import { useAuthStore } from '../store/authStore'
 import { api } from '../lib/api'
 import {
   ACCENT_TEXT, ACCENT, BG, BORDER, HIGHLIGHT, SURFACE, SURFACE_E,
-  TEXT, TEXT_SEC, TEXT_WEAK, TEXT_OFF,
-} from '../theme'
+  TEXT, TEXT_SEC, TEXT_WEAK, TEXT_OFF, FONT_UI} from '../theme'
 
 const ADMIN_USERNAME = 'admin'
 
@@ -40,12 +39,12 @@ function FeedbackCard({ fb, onMarkRead }) {
         <div style={{ width: '6px', height: '6px', borderRadius: '50%', background: fb.is_read ? 'transparent' : col, flexShrink: 0, border: fb.is_read ? `1px solid ${BORDER}` : 'none' }} />
 
         {/* Type badge */}
-        <div style={{ fontFamily: 'Space Mono, monospace', fontSize: '8px', letterSpacing: '2px', textTransform: 'uppercase', color: col, border: `1px solid ${col}`, padding: '2px 7px', flexShrink: 0 }}>
+        <div style={{ fontFamily: FONT_UI, fontSize: '8px', letterSpacing: '2px', textTransform: 'uppercase', color: col, border: `1px solid ${col}`, padding: '2px 7px', flexShrink: 0 }}>
           {fb.type}
         </div>
 
         {/* Sender */}
-        <div style={{ fontFamily: 'Space Mono, monospace', fontSize: '10px', color: TEXT_WEAK, flexShrink: 0 }}>
+        <div style={{ fontFamily: FONT_UI, fontSize: '10px', color: TEXT_WEAK, flexShrink: 0 }}>
           {sender}
         </div>
 
@@ -55,12 +54,12 @@ function FeedbackCard({ fb, onMarkRead }) {
         </div>
 
         {/* Date */}
-        <div style={{ fontFamily: 'Space Mono, monospace', fontSize: '10px', color: TEXT_OFF, flexShrink: 0 }}>
+        <div style={{ fontFamily: FONT_UI, fontSize: '10px', color: TEXT_OFF, flexShrink: 0 }}>
           {formatDate(fb.created_at)}
         </div>
 
         {/* Expand arrow */}
-        <div style={{ fontFamily: 'Space Mono, monospace', fontSize: '10px', color: TEXT_OFF, flexShrink: 0 }}>
+        <div style={{ fontFamily: FONT_UI, fontSize: '10px', color: TEXT_OFF, flexShrink: 0 }}>
           {expanded ? '▲' : '▼'}
         </div>
       </div>
@@ -73,7 +72,7 @@ function FeedbackCard({ fb, onMarkRead }) {
           {!fb.is_read && (
             <button
               onClick={(e) => { e.stopPropagation(); onMarkRead(fb.id) }}
-              style={{ background: 'transparent', border: `1px solid ${BORDER}`, color: TEXT_OFF, fontFamily: 'Space Mono, monospace', fontSize: '10px', letterSpacing: '2px', textTransform: 'uppercase', padding: '8px 16px', cursor: 'pointer', alignSelf: 'flex-start', transition: 'border-color 150ms, color 150ms' }}
+              style={{ background: 'transparent', border: `1px solid ${BORDER}`, color: TEXT_OFF, fontFamily: FONT_UI, fontSize: '10px', letterSpacing: '2px', textTransform: 'uppercase', padding: '8px 16px', cursor: 'pointer', alignSelf: 'flex-start', transition: 'border-color 150ms, color 150ms' }}
               onMouseEnter={(e) => { e.currentTarget.style.borderColor = ACCENT; e.currentTarget.style.color = ACCENT }}
               onMouseLeave={(e) => { e.currentTarget.style.borderColor = BORDER; e.currentTarget.style.color = TEXT_OFF }}
             >
@@ -124,7 +123,7 @@ export function AdminFeedbackPage() {
   if (authLoading || loading) {
     return (
       <div style={{ minHeight: 'calc(100vh - 52px)', marginTop: '52px', background: BG, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-        <div style={{ fontFamily: 'Space Mono, monospace', fontSize: '10px', letterSpacing: '2px', color: TEXT_WEAK }}>Chargement...</div>
+        <div style={{ fontFamily: FONT_UI, fontSize: '10px', letterSpacing: '2px', color: TEXT_WEAK }}>Chargement...</div>
       </div>
     )
   }
@@ -134,15 +133,15 @@ export function AdminFeedbackPage() {
 
       {/* Header */}
       <div style={{ display: 'flex', alignItems: 'baseline', gap: '16px', marginBottom: '32px' }}>
-        <h1 style={{ fontFamily: 'Space Mono, monospace', fontSize: '18px', fontWeight: 700, letterSpacing: '3px', textTransform: 'uppercase', color: TEXT, margin: 0 }}>
+        <h1 style={{ fontFamily: FONT_UI, fontSize: '18px', fontWeight: 700, letterSpacing: '3px', textTransform: 'uppercase', color: TEXT, margin: 0 }}>
           Feedback
         </h1>
         {unread > 0 && (
-          <div style={{ fontFamily: 'Space Mono, monospace', fontSize: '11px', fontWeight: 700, color: ACCENT_TEXT, border: `1px solid ${ACCENT}`, padding: '2px 8px' }}>
+          <div style={{ fontFamily: FONT_UI, fontSize: '11px', fontWeight: 700, color: ACCENT_TEXT, border: `1px solid ${ACCENT}`, padding: '2px 8px' }}>
             {unread} non lu{unread > 1 ? 's' : ''}
           </div>
         )}
-        <div style={{ marginLeft: 'auto', fontFamily: 'Space Mono, monospace', fontSize: '10px', color: TEXT_OFF }}>
+        <div style={{ marginLeft: 'auto', fontFamily: FONT_UI, fontSize: '10px', color: TEXT_OFF }}>
           {feedbacks.length} total
         </div>
       </div>
@@ -159,7 +158,7 @@ export function AdminFeedbackPage() {
                 background: active ? SURFACE_E : 'transparent',
                 border: `1px solid ${active ? TEXT_WEAK : BORDER}`,
                 color: active ? TEXT : TEXT_OFF,
-                fontFamily: 'Space Mono, monospace', fontSize: '10px',
+                fontFamily: FONT_UI, fontSize: '10px',
                 letterSpacing: '2px', textTransform: 'uppercase',
                 padding: '6px 14px', cursor: 'pointer',
                 transition: 'all 150ms',
@@ -172,7 +171,7 @@ export function AdminFeedbackPage() {
       </div>
 
       {error && (
-        <div style={{ fontFamily: 'Space Mono, monospace', fontSize: '10px', color: HIGHLIGHT, marginBottom: '20px' }}>{error}</div>
+        <div style={{ fontFamily: FONT_UI, fontSize: '10px', color: HIGHLIGHT, marginBottom: '20px' }}>{error}</div>
       )}
 
       {/* List */}

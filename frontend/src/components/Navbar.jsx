@@ -2,31 +2,30 @@ import { useState } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { useAuthStore } from '../store/authStore'
 import { AuthModal } from './AuthModal'
-import { ACCENT_TEXT, ACCENT, ACCENT_H, BG, BORDER, TEXT, TEXT_SEC, TEXT_WEAK } from '../theme'
+import {
+  ACCENT, ACCENT_H, ACCENT_TEXT, ACCENT_LIGHT,
+  BG, BORDER, SURFACE,
+  TEXT, TEXT_SEC, TEXT_WEAK,
+  FONT_UI, RADIUS, SHADOW_SM,
+} from '../theme'
 
 function NavLink({ to, children, active }) {
+  const [hov, setHov] = useState(false)
   return (
     <Link
       to={to}
+      onMouseEnter={() => setHov(true)}
+      onMouseLeave={() => setHov(false)}
       style={{
         textDecoration: 'none',
-        fontFamily: 'Space Mono, monospace',
-        fontSize: '10px',
-        letterSpacing: '2px',
-        textTransform: 'uppercase',
-        color: active ? TEXT : TEXT_SEC,
-        transition: 'color 100ms, background 100ms',
-        padding: '4px 10px',
-        borderRadius: '3px',
-        background: active ? 'rgba(47,224,255,0.14)' : 'transparent',
-      }}
-      onMouseEnter={(e) => {
-        e.currentTarget.style.color = TEXT
-        if (!active) e.currentTarget.style.background = 'rgba(47,224,255,0.08)'
-      }}
-      onMouseLeave={(e) => {
-        e.currentTarget.style.color = active ? TEXT : TEXT_SEC
-        if (!active) e.currentTarget.style.background = 'transparent'
+        fontFamily: FONT_UI,
+        fontSize: '14px',
+        fontWeight: active ? 600 : 400,
+        color: active ? TEXT : hov ? TEXT : TEXT_SEC,
+        padding: '4px 2px',
+        borderBottom: active ? `2px solid ${ACCENT}` : '2px solid transparent',
+        transition: 'color 120ms, border-color 120ms',
+        lineHeight: 1,
       }}
     >
       {children}
@@ -34,61 +33,51 @@ function NavLink({ to, children, active }) {
   )
 }
 
-function GhostButton({ children, onClick, href }) {
+function OutlineButton({ children, onClick, href }) {
+  const [hov, setHov] = useState(false)
   const style = {
-    background: 'transparent',
-    border: `1px solid ${TEXT_WEAK}`,
-    color: TEXT_SEC,
-    fontFamily: 'Space Mono, monospace',
-    fontSize: '10px',
-    letterSpacing: '2px',
-    textTransform: 'uppercase',
-    padding: '6px 14px',
+    background: hov ? ACCENT_LIGHT : 'transparent',
+    border: `1px solid ${hov ? ACCENT : BORDER}`,
+    color: hov ? ACCENT_TEXT : TEXT_SEC,
+    fontFamily: FONT_UI,
+    fontSize: '13px',
+    fontWeight: 500,
+    padding: '5px 12px',
     cursor: 'pointer',
-    borderRadius: '3px',
+    borderRadius: RADIUS,
     textDecoration: 'none',
     display: 'inline-block',
     lineHeight: 1.4,
-    transition: 'border-color 100ms, background 100ms, color 100ms',
+    transition: 'background 120ms, border-color 120ms, color 120ms',
   }
-
   const handlers = {
-    onMouseEnter: (e) => {
-      e.currentTarget.style.borderColor = ACCENT
-      e.currentTarget.style.color = TEXT
-      e.currentTarget.style.background = 'rgba(47,224,255,0.10)'
-    },
-    onMouseLeave: (e) => {
-      e.currentTarget.style.borderColor = TEXT_WEAK
-      e.currentTarget.style.color = TEXT_SEC
-      e.currentTarget.style.background = 'transparent'
-    },
+    onMouseEnter: () => setHov(true),
+    onMouseLeave: () => setHov(false),
   }
-
   if (href) return <a href={href} style={style} target="_blank" rel="noopener noreferrer" {...handlers}>{children}</a>
   return <button style={style} onClick={onClick} {...handlers}>{children}</button>
 }
 
-function SolidButton({ children, onClick }) {
+function PrimaryButton({ children, onClick }) {
+  const [hov, setHov] = useState(false)
   return (
     <button
       onClick={onClick}
+      onMouseEnter={() => setHov(true)}
+      onMouseLeave={() => setHov(false)}
       style={{
-        background: ACCENT,
-        border: `1px solid ${ACCENT}`,
-        color: TEXT,
-        fontFamily: 'Space Mono, monospace',
-        fontSize: '10px',
-        letterSpacing: '2px',
-        fontWeight: 700,
-        textTransform: 'uppercase',
-        padding: '6px 14px',
+        background: hov ? ACCENT_H : ACCENT,
+        border: `1px solid ${hov ? ACCENT_H : ACCENT}`,
+        color: '#FFFFFF',
+        fontFamily: FONT_UI,
+        fontSize: '13px',
+        fontWeight: 600,
+        padding: '5px 12px',
         cursor: 'pointer',
-        borderRadius: '3px',
-        transition: 'opacity 100ms',
+        borderRadius: RADIUS,
+        transition: 'background 120ms, border-color 120ms',
+        lineHeight: 1.4,
       }}
-      onMouseEnter={(e) => { e.currentTarget.style.opacity = '0.85' }}
-      onMouseLeave={(e) => { e.currentTarget.style.opacity = '1' }}
     >
       {children}
     </button>
@@ -97,14 +86,27 @@ function SolidButton({ children, onClick }) {
 
 function UserChip({ user, onLogout }) {
   const [hov, setHov] = useState(false)
-  const label = user.username || 'User'
   return (
     <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-      <span style={{
-        fontFamily: 'Space Mono, monospace', fontSize: '10px',
-        letterSpacing: '1px', color: TEXT_SEC,
+      <div style={{
+        width: '28px',
+        height: '28px',
+        borderRadius: '50%',
+        background: ACCENT_LIGHT,
+        border: `1px solid ${BORDER}`,
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        fontFamily: FONT_UI,
+        fontSize: '12px',
+        fontWeight: 600,
+        color: ACCENT_TEXT,
+        flexShrink: 0,
       }}>
-        {label}
+        {(user.username || 'U')[0].toUpperCase()}
+      </div>
+      <span style={{ fontFamily: FONT_UI, fontSize: '13px', color: TEXT_SEC }}>
+        {user.username || 'User'}
       </span>
       <button
         onClick={onLogout}
@@ -113,14 +115,14 @@ function UserChip({ user, onLogout }) {
         style={{
           background: 'transparent',
           border: `1px solid ${hov ? ACCENT : BORDER}`,
-          color: ACCENT_TEXT,
-          fontFamily: 'Space Mono, monospace',
-          fontSize: '8px',
-          letterSpacing: '1.5px',
-          textTransform: 'uppercase',
-          padding: '5px 10px',
+          color: hov ? ACCENT_TEXT : TEXT_WEAK,
+          fontFamily: FONT_UI,
+          fontSize: '12px',
+          fontWeight: 400,
+          padding: '4px 10px',
           cursor: 'pointer',
-          transition: 'border-color 100ms',
+          borderRadius: RADIUS,
+          transition: 'border-color 120ms, color 120ms',
         }}
       >
         Sign out
@@ -140,89 +142,57 @@ export function Navbar() {
     <>
       <nav style={{
         position: 'fixed', top: 0, left: 0, right: 0,
-        height: '52px',
-        background: 'rgba(248,250,251,0.95)',
-        backdropFilter: 'blur(14px)',
-        WebkitBackdropFilter: 'blur(14px)',
+        height: '56px',
+        background: SURFACE,
         borderBottom: `1px solid ${BORDER}`,
-        boxShadow: '0 1px 0 rgba(0,0,0,0.06)',
         zIndex: 100,
-        display: 'flex', alignItems: 'center',
-        padding: '0 40px',
+        display: 'flex',
+        alignItems: 'center',
+        padding: '0 24px',
         gap: '0',
       }}>
 
-        <div style={{ display: 'flex', alignItems: 'center', gap: '28px' }}>
-          <Link
-            to="/"
-            style={{
-              textDecoration: 'none',
-              fontFamily: 'Space Mono, monospace',
-              fontSize: '12px',
-              fontWeight: 700,
-              letterSpacing: '3px',
-              textTransform: 'uppercase',
-              color: TEXT,
-            }}
-          >
-            PROB<span style={{ opacity: 0.45 }}>'</span>HAMMER
-          </Link>
+        {/* Logo */}
+        <Link
+          to="/"
+          style={{
+            textDecoration: 'none',
+            fontFamily: FONT_UI,
+            fontSize: '15px',
+            fontWeight: 700,
+            color: TEXT,
+            marginRight: '24px',
+            flexShrink: 0,
+          }}
+        >
+          Prob'Hammer
+        </Link>
 
-          <div style={{
-            width: '1px', height: '16px',
-            background: BORDER,
-          }} />
-
-          <NavLink to="/factions" active={pathname === '/factions'}>
-            Factions
-          </NavLink>
-
-          <NavLink to="/armies" active={pathname === '/armies'}>
-            Armies
-          </NavLink>
-
-          <NavLink to="/simulator" active={pathname === '/simulator'}>
-            Simulator
-          </NavLink>
-
-          <NavLink to="/learn" active={pathname === '/learn' || pathname === '/onboarding'}>
-            Learn
-          </NavLink>
-
-          <NavLink to="/keywords" active={pathname === '/keywords'}>
-            Keywords
-          </NavLink>
-
-          <NavLink to="/detachments" active={pathname === '/detachments'}>
-            Detachments
-          </NavLink>
-
-          <NavLink to="/combos" active={pathname === '/combos'}>
-            Combos
-          </NavLink>
+        {/* Nav links */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '20px', height: '100%' }}>
+          <NavLink to="/factions"    active={pathname === '/factions'}>Factions</NavLink>
+          <NavLink to="/armies"      active={pathname === '/armies'}>Armies</NavLink>
+          <NavLink to="/simulator"   active={pathname === '/simulator'}>Simulator</NavLink>
+          <NavLink to="/learn"       active={pathname === '/learn' || pathname === '/onboarding'}>Learn</NavLink>
+          <NavLink to="/keywords"    active={pathname === '/keywords'}>Keywords</NavLink>
+          <NavLink to="/detachments" active={pathname === '/detachments'}>Detachments</NavLink>
+          <NavLink to="/combos"      active={pathname === '/combos'}>Combos</NavLink>
         </div>
 
-        <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: '10px' }}>
-          <GhostButton onClick={() => navigate('/feedback')}>
-            Feedback
-          </GhostButton>
+        {/* Right side */}
+        <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <OutlineButton onClick={() => navigate('/feedback')}>Feedback</OutlineButton>
 
           {isAdmin && (
-            <GhostButton onClick={() => navigate('/admin/feedback')}>
-              Admin
-            </GhostButton>
+            <OutlineButton onClick={() => navigate('/admin/feedback')}>Admin</OutlineButton>
           )}
 
           {user ? (
             <UserChip user={user} onLogout={logout} />
           ) : (
             <>
-              <GhostButton onClick={() => setModal('login')}>
-                Sign in
-              </GhostButton>
-              <SolidButton onClick={() => setModal('register')}>
-                Create account
-              </SolidButton>
+              <OutlineButton onClick={() => setModal('login')}>Sign in</OutlineButton>
+              <PrimaryButton onClick={() => setModal('register')}>Create account</PrimaryButton>
             </>
           )}
         </div>

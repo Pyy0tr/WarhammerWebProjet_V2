@@ -1,7 +1,7 @@
 import {
   BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell,
 } from 'recharts'
-import { ACCENT_TEXT, ACCENT, BG, BORDER, TEXT, TEXT_SEC, TEXT_WEAK, HIGHLIGHT, SURFACE } from '../theme'
+import { ACCENT_TEXT, ACCENT, BG, BORDER, TEXT, TEXT_SEC, TEXT_WEAK, HIGHLIGHT, SURFACE , FONT_UI} from '../theme'
 
 const StatRow = ({ label, value, highlight = false }) => (
   <div style={{
@@ -10,14 +10,14 @@ const StatRow = ({ label, value, highlight = false }) => (
     borderBottom: `1px solid ${BORDER}`,
   }}>
     <span style={{
-      fontFamily: 'Space Mono, monospace', fontSize: '10px',
+      fontFamily: FONT_UI, fontSize: '10px',
       letterSpacing: '1.5px', textTransform: 'uppercase',
       color: highlight ? TEXT_SEC : TEXT_WEAK,
     }}>
       {label}
     </span>
     <span style={{
-      fontFamily: 'Space Mono, monospace',
+      fontFamily: FONT_UI,
       fontSize: highlight ? '15px' : '13px',
       fontWeight: 700,
       color: highlight ? TEXT : TEXT_SEC,
@@ -32,7 +32,7 @@ const CustomTooltip = ({ active, payload, label }) => {
   return (
     <div style={{
       background: BG, border: `1px solid ${ACCENT}`,
-      padding: '8px 12px', fontFamily: 'Space Mono, monospace',
+      padding: '8px 12px', fontFamily: FONT_UI,
       fontSize: '10px', letterSpacing: '1.5px', color: TEXT,
     }}>
       <div style={{ marginBottom: '3px', color: TEXT_WEAK }}>DAMAGE {label}</div>
@@ -46,14 +46,14 @@ export function ResultsPanel({ result }) {
     return (
       <div style={{ paddingTop: '16px' }}>
         <div style={{
-          fontFamily: 'Space Mono, monospace', fontWeight: 700,
+          fontFamily: FONT_UI, fontWeight: 700,
           fontSize: 'clamp(64px, 8vw, 100px)', lineHeight: 1,
           opacity: 0.08, letterSpacing: '-2px', color: TEXT,
         }}>
           —
         </div>
         <div style={{
-          fontFamily: 'Space Mono, monospace', fontSize: '10px',
+          fontFamily: FONT_UI, fontSize: '10px',
           letterSpacing: '3px', textTransform: 'uppercase',
           color: TEXT_WEAK, marginTop: '12px',
         }}>
@@ -79,14 +79,14 @@ export function ResultsPanel({ result }) {
       {/* Primary result */}
       <div style={{ marginBottom: '8px' }}>
         <div style={{
-          fontFamily: 'Space Mono, monospace', fontWeight: 700,
+          fontFamily: FONT_UI, fontWeight: 700,
           fontSize: 'clamp(64px, 8vw, 100px)', lineHeight: 1,
           letterSpacing: '-2px', color: HIGHLIGHT,
         }}>
           {summary.mean_damage.toFixed(2)}
         </div>
         <div style={{
-          fontFamily: 'Space Mono, monospace', fontSize: '10px',
+          fontFamily: FONT_UI, fontSize: '10px',
           letterSpacing: '3px', textTransform: 'uppercase',
           color: TEXT_WEAK, marginTop: '8px',
         }}>
@@ -107,7 +107,7 @@ export function ResultsPanel({ result }) {
 
       {/* Histogram */}
       <div style={{
-        fontFamily: 'Space Mono, monospace', fontSize: '8px',
+        fontFamily: FONT_UI, fontSize: '8px',
         letterSpacing: '2.5px', textTransform: 'uppercase',
         color: TEXT_WEAK, marginBottom: '14px',
       }}>
@@ -122,13 +122,13 @@ export function ResultsPanel({ result }) {
         >
           <XAxis
             dataKey="damage"
-            tick={{ fill: TEXT_WEAK, fontSize: 8, fontFamily: 'Space Mono, monospace' }}
+            tick={{ fill: TEXT_WEAK, fontSize: 8, fontFamily: FONT_UI }}
             tickLine={{ stroke: BORDER }}
             axisLine={{ stroke: BORDER }}
           />
           <YAxis
             tickFormatter={(v) => `${(v * 100).toFixed(0)}%`}
-            tick={{ fill: TEXT_WEAK, fontSize: 8, fontFamily: 'Space Mono, monospace' }}
+            tick={{ fill: TEXT_WEAK, fontSize: 8, fontFamily: FONT_UI }}
             tickLine={{ stroke: BORDER }}
             axisLine={{ stroke: BORDER }}
           />
@@ -149,7 +149,7 @@ export function ResultsPanel({ result }) {
 
       {/* Kill probabilities */}
       <div style={{
-        fontFamily: 'Space Mono, monospace', fontSize: '8px',
+        fontFamily: FONT_UI, fontSize: '8px',
         letterSpacing: '2.5px', textTransform: 'uppercase',
         color: TEXT_WEAK, marginBottom: '14px',
       }}>
@@ -161,7 +161,7 @@ export function ResultsPanel({ result }) {
           <div key={k} style={{
             border: `1px solid ${BORDER}`,
             padding: '6px 14px',
-            fontFamily: 'Space Mono, monospace',
+            fontFamily: FONT_UI,
           }}>
             <span style={{ fontSize: '8px', letterSpacing: '1px', color: TEXT_WEAK }}>≥{k}  </span>
             <span style={{ fontSize: '13px', fontWeight: 700, color: TEXT }}>{(v * 100).toFixed(1)}%</span>

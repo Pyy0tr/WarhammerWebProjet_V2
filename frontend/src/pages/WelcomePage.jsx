@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { ACCENT_TEXT, ACCENT, BG, SURFACE, BORDER, TEXT, TEXT_SEC, TEXT_WEAK, TEXT_OFF } from '../theme'
+import { ACCENT_TEXT, ACCENT, BG, SURFACE, BORDER, TEXT, TEXT_SEC, TEXT_WEAK, TEXT_OFF , FONT_UI} from '../theme'
 
 const LEVELS = [
   {
@@ -58,7 +58,7 @@ function LevelCard({ level, selected, onClick }) {
       }}
     >
       <div style={{
-        fontFamily: 'Space Mono, monospace',
+        fontFamily: FONT_UI,
         fontSize: '10px',
         letterSpacing: '3px',
         textTransform: 'uppercase',
@@ -69,7 +69,7 @@ function LevelCard({ level, selected, onClick }) {
       </div>
 
       <div style={{
-        fontFamily: 'Space Mono, monospace',
+        fontFamily: FONT_UI,
         fontSize: '18px',
         fontWeight: 700,
         letterSpacing: '3px',
@@ -92,7 +92,7 @@ function LevelCard({ level, selected, onClick }) {
       </p>
 
       <div style={{
-        fontFamily: 'Space Mono, monospace',
+        fontFamily: FONT_UI,
         fontSize: '10px',
         letterSpacing: '2px',
         textTransform: 'uppercase',
@@ -146,7 +146,7 @@ export function WelcomePage() {
 
       {/* Logo */}
       <div style={{
-        fontFamily: 'Space Mono, monospace',
+        fontFamily: FONT_UI,
         fontSize: '13px',
         fontWeight: 700,
         letterSpacing: '4px',
@@ -163,7 +163,7 @@ export function WelcomePage() {
           {/* Header */}
           <div style={{ textAlign: 'center', display: 'flex', flexDirection: 'column', gap: '12px' }}>
             <div style={{
-              fontFamily: 'Space Mono, monospace',
+              fontFamily: FONT_UI,
               fontSize: '10px',
               letterSpacing: '3px',
               textTransform: 'uppercase',
@@ -172,7 +172,7 @@ export function WelcomePage() {
               Welcome — first visit
             </div>
             <h1 style={{
-              fontFamily: 'Space Mono, monospace',
+              fontFamily: FONT_UI,
               fontSize: 'clamp(18px, 2.5vw, 28px)',
               fontWeight: 700,
               letterSpacing: '2px',
@@ -211,7 +211,7 @@ export function WelcomePage() {
             <span
               onClick={handleSkip}
               style={{
-                fontFamily: 'Space Mono, monospace',
+                fontFamily: FONT_UI,
                 fontSize: '10px',
                 letterSpacing: '2px',
                 textTransform: 'uppercase',
@@ -240,7 +240,7 @@ export function WelcomePage() {
           gap: '28px',
         }}>
           <div style={{
-            fontFamily: 'Space Mono, monospace',
+            fontFamily: FONT_UI,
             fontSize: '10px',
             letterSpacing: '3px',
             textTransform: 'uppercase',
@@ -260,7 +260,7 @@ export function WelcomePage() {
           </p>
 
           <div style={{
-            fontFamily: 'Space Mono, monospace',
+            fontFamily: FONT_UI,
             fontSize: '10px',
             letterSpacing: '1.5px',
             color: TEXT_WEAK,
@@ -278,7 +278,7 @@ export function WelcomePage() {
               background: ACCENT,
               border: 'none',
               color: TEXT,
-              fontFamily: 'Space Mono, monospace',
+              fontFamily: FONT_UI,
               fontSize: '11px',
               letterSpacing: '3px',
               textTransform: 'uppercase',

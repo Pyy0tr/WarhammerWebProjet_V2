@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react'
-import { ACCENT_TEXT, ACCENT, ACCENT_H, BG, SURFACE, BORDER, TEXT, TEXT_SEC, TEXT_WEAK, SURFACE_E } from '../theme'
+import { ACCENT_TEXT, ACCENT, ACCENT_H, BG, SURFACE, BORDER, TEXT, TEXT_SEC, TEXT_WEAK, SURFACE_E , FONT_UI} from '../theme'
 
 export function SearchInput({ label, value, placeholder, onSearch, results, onSelect, renderItem }) {
   const [open, setOpen] = useState(false)
@@ -42,7 +42,7 @@ export function SearchInput({ label, value, placeholder, onSearch, results, onSe
     <div ref={ref} style={{ position: 'relative' }}>
       <label style={{
         display: 'block',
-        fontFamily: 'Space Mono, monospace',
+        fontFamily: FONT_UI,
         fontSize: '10px',
         letterSpacing: '2px',
         textTransform: 'uppercase',
@@ -64,9 +64,9 @@ export function SearchInput({ label, value, placeholder, onSearch, results, onSe
             width: '100%',
             background: SURFACE,
             border: `1px solid ${open ? ACCENT : BORDER}`,
-            borderRadius: '2px',
+            borderRadius: '4px',
             color: TEXT,
-            fontFamily: 'Space Mono, monospace',
+            fontFamily: FONT_UI,
             fontSize: '15px',
             fontWeight: 700,
             padding: '10px 36px 10px 12px',
@@ -124,7 +124,7 @@ export function SearchInput({ label, value, placeholder, onSearch, results, onSe
             >
               {renderItem ? renderItem(item) : (
                 <span style={{
-                  fontFamily: 'Space Mono, monospace', fontSize: '12px',
+                  fontFamily: FONT_UI, fontSize: '12px',
                   color: TEXT,
                 }}>
                   {item.name}
