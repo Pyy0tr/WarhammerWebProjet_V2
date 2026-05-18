@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react'
 import { useAuthStore } from '../store/authStore'
-import { ACCENT, BG, SURFACE, BORDER, TEXT, TEXT_SEC, TEXT_OFF, ERROR as ERR_COLOR } from '../theme'
+import { ACCENT_TEXT, ACCENT, BG, SURFACE, BORDER, TEXT, TEXT_SEC, TEXT_OFF, ERROR as ERR_COLOR } from '../theme'
 
 function Input({ type = 'text', placeholder, value, onChange, disabled }) {
   const [focused, setFocused] = useState(false)
@@ -133,7 +133,7 @@ export function AuthModal({ isOpen, onClose, initialTab = 'login' }) {
   return (
     <div onClick={onClose} style={{
       position: 'fixed', inset: 0, zIndex: 200,
-      background: 'rgba(10,22,33,0.8)',
+      background: 'rgba(248,250,251,0.94)',
       backdropFilter: 'blur(8px)',
       display: 'flex', alignItems: 'center', justifyContent: 'center',
       padding: '20px',
@@ -155,7 +155,7 @@ export function AuthModal({ isOpen, onClose, initialTab = 'login' }) {
 
         <div style={{
           fontFamily: 'Space Mono, monospace', fontSize: '15px',
-          fontWeight: 700, letterSpacing: '3px', color: ACCENT,
+          fontWeight: 700, letterSpacing: '3px', color: ACCENT_TEXT,
         }}>
           PROB<span style={{ opacity: 0.4 }}>'</span>HAMMER
         </div>
@@ -192,7 +192,7 @@ export function AuthModal({ isOpen, onClose, initialTab = 'login' }) {
             <PrimaryBtn onClick={handleLogin} disabled={!username || !password} loading={busy}>Sign in</PrimaryBtn>
             <p style={{ fontFamily: 'Space Mono, monospace', fontSize: '10px', color: TEXT_OFF, margin: 0, textAlign: 'center' }}>
               No account yet?{' '}
-              <span onClick={() => setTab('register')} style={{ color: ACCENT, cursor: 'pointer', textDecoration: 'underline' }}>Create account</span>
+              <span onClick={() => setTab('register')} style={{ color: ACCENT_TEXT, cursor: 'pointer', textDecoration: 'underline' }}>Create account</span>
               {' · '}
               <span onClick={() => setTab('forgot')} style={{ color: TEXT_OFF, cursor: 'pointer', textDecoration: 'underline' }}>Forgot password?</span>
             </p>
@@ -206,7 +206,7 @@ export function AuthModal({ isOpen, onClose, initialTab = 'login' }) {
             <PrimaryBtn onClick={handleRegister} disabled={!username || !email || !password || !confirm} loading={busy}>Create account</PrimaryBtn>
             <p style={{ fontFamily: 'Space Mono, monospace', fontSize: '10px', color: TEXT_OFF, margin: 0, textAlign: 'center' }}>
               Already have an account?{' '}
-              <span onClick={() => setTab('login')} style={{ color: ACCENT, cursor: 'pointer', textDecoration: 'underline' }}>Sign in</span>
+              <span onClick={() => setTab('login')} style={{ color: ACCENT_TEXT, cursor: 'pointer', textDecoration: 'underline' }}>Sign in</span>
             </p>
           </>}
 
@@ -215,7 +215,7 @@ export function AuthModal({ isOpen, onClose, initialTab = 'login' }) {
               <Input type="email" placeholder="Ton adresse email" value={email} onChange={(e) => setEmail(e.target.value)} disabled={busy} />
               <PrimaryBtn onClick={handleForgot} disabled={!email} loading={busy}>Envoyer le lien</PrimaryBtn>
             </> : (
-              <p style={{ fontFamily: 'Space Mono, monospace', fontSize: '11px', color: ACCENT, margin: 0, lineHeight: 1.6 }}>{info}</p>
+              <p style={{ fontFamily: 'Space Mono, monospace', fontSize: '11px', color: ACCENT_TEXT, margin: 0, lineHeight: 1.6 }}>{info}</p>
             )}
             <p style={{ fontFamily: 'Space Mono, monospace', fontSize: '10px', color: TEXT_OFF, margin: 0, textAlign: 'center' }}>
               <span onClick={() => setTab('login')} style={{ color: TEXT_OFF, cursor: 'pointer', textDecoration: 'underline' }}>Retour</span>

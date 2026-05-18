@@ -3,7 +3,7 @@ import { useLocation } from 'react-router-dom'
 import { useDataStore }  from '../store/dataStore'
 import { useArmyStore }  from '../store/armyStore'
 import { useAuthStore }  from '../store/authStore'
-import { ACCENT, BG, SURFACE, SURFACE_E, BORDER, TEXT, TEXT_SEC, TEXT_WEAK, TEXT_OFF } from '../theme'
+import { ACCENT_TEXT, ACCENT, BG, SURFACE, SURFACE_E, BORDER, TEXT, TEXT_SEC, TEXT_WEAK, TEXT_OFF } from '../theme'
 import { AbilityText } from '../components/AbilityText'
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
@@ -107,7 +107,7 @@ function BackButton({ onClick, label }) {
     <button
       onClick={onClick}
       style={{
-        background: 'none', border: 'none', color: ACCENT, cursor: 'pointer', padding: 0,
+        background: 'none', border: 'none', color: ACCENT_TEXT, cursor: 'pointer', padding: 0,
         fontFamily: 'Space Mono, monospace', fontSize: '10px',
         letterSpacing: '2px', textTransform: 'uppercase',
         display: 'flex', alignItems: 'center', gap: '6px',
@@ -138,7 +138,7 @@ function Chip({ children, dim }) {
 
 function AlliancePills({ active, onChange }) {
   const pills = [
-    { key: null,       label: 'All',      color: ACCENT },
+    { key: null,       label: 'All',      color: ACCENT_TEXT },
     { key: 'Imperium', label: 'Imperium', color: ALLIANCE_META.Imperium.color },
     { key: 'Chaos',    label: 'Chaos',    color: ALLIANCE_META.Chaos.color },
     { key: 'Xenos',    label: 'Xenos',    color: ALLIANCE_META.Xenos.color },
@@ -737,7 +737,7 @@ function UnitCard({ unit, onClick, showFaction = false }) {
           <div style={{
             fontFamily: 'Space Mono, monospace', fontSize: '8px',
             letterSpacing: '1.5px', textTransform: 'uppercase',
-            color: ACCENT, opacity: 0.7, marginBottom: '6px',
+            color: ACCENT_TEXT, opacity: 0.7, marginBottom: '6px',
           }}>
             {factionLabel}
           </div>
@@ -907,7 +907,7 @@ function ModelOptionsWeapons({ modelOptions, unit }) {
             <div style={{
               fontFamily: 'Space Mono, monospace', fontSize: '10px',
               letterSpacing: '2px', textTransform: 'uppercase',
-              color: ACCENT, marginBottom: '14px',
+              color: ACCENT_TEXT, marginBottom: '14px',
               padding: '8px 12px',
               background: SURFACE_E,
               display: 'flex', justifyContent: 'space-between', alignItems: 'center',
@@ -1108,7 +1108,7 @@ function UnitDetailView({ unit, onBack, factionLabel }) {
               background: 'none', border: 'none', cursor: 'pointer', padding: 0,
               fontFamily: 'Space Mono, monospace', fontSize: '10px',
               letterSpacing: '2px', textTransform: 'uppercase',
-              color: ACCENT, display: 'flex', alignItems: 'center', gap: '8px',
+              color: ACCENT_TEXT, display: 'flex', alignItems: 'center', gap: '8px',
               marginBottom: expandAbilities ? '18px' : '0',
               transition: 'opacity 100ms', opacity: 0.75,
             }}
@@ -1130,7 +1130,7 @@ function UnitDetailView({ unit, onBack, factionLabel }) {
                     {ab.name}
                   </div>
                   {ab.desc && (
-                    <p style={{ fontFamily: 'Georgia, serif', fontSize: '14px', lineHeight: 1.7, color: TEXT_SEC, margin: 0 }}>
+                    <p style={{ fontFamily: 'Inter, -apple-system, system-ui, sans-serif', fontSize: '14px', lineHeight: 1.7, color: TEXT_SEC, margin: 0 }}>
                       <AbilityText text={ab.desc} />
                     </p>
                   )}
@@ -1146,7 +1146,7 @@ function UnitDetailView({ unit, onBack, factionLabel }) {
         {armies.length === 0 ? (
           <div style={{ fontFamily: 'Space Mono, monospace', fontSize: '10px', color: TEXT_WEAK, lineHeight: 1.7 }}>
             No armies yet.{' '}
-            <a href="/armies" style={{ color: ACCENT, textDecoration: 'none' }}>Create one →</a>
+            <a href="/armies" style={{ color: ACCENT_TEXT, textDecoration: 'none' }}>Create one →</a>
           </div>
         ) : (
           <div style={{ display: 'flex', gap: '10px', alignItems: 'center', flexWrap: 'wrap' }}>

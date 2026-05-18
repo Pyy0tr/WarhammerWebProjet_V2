@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
 import { useDataStore } from '../store/dataStore'
-import { ACCENT, BG, SURFACE, SURFACE_E, BORDER, TEXT, TEXT_SEC, TEXT_WEAK, TEXT_OFF } from '../theme'
+import { ACCENT_TEXT, ACCENT, BG, SURFACE, SURFACE_E, BORDER, TEXT, TEXT_SEC, TEXT_WEAK, TEXT_OFF } from '../theme'
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
@@ -56,7 +56,7 @@ function UnitRow({ unit, onClick }) {
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
         <span style={{
           fontFamily: 'Space Mono, monospace', fontSize: '12px',
-          fontWeight: 700, color: ACCENT,
+          fontWeight: 700, color: ACCENT_TEXT,
         }}>
           {unit.name}
         </span>
@@ -90,7 +90,7 @@ function WeaponRow({ weapon, onClick }) {
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
         <span style={{
           fontFamily: 'Space Mono, monospace', fontSize: '12px',
-          fontWeight: 700, color: ACCENT,
+          fontWeight: 700, color: ACCENT_TEXT,
         }}>
           {weapon.name}
         </span>
@@ -146,7 +146,7 @@ function BrowsePanel({ onSelectUnit }) {
             >
               <span style={{
                 fontFamily: 'Space Mono, monospace', fontSize: '11px',
-                fontWeight: 700, color: ACCENT, letterSpacing: '1px',
+                fontWeight: 700, color: ACCENT_TEXT, letterSpacing: '1px',
               }}>
                 {group}
               </span>
@@ -253,7 +253,7 @@ function WeaponStep({ unit, onSelectWeapon, _onBack }) {
       }}>
         <div style={{
           fontFamily: 'Space Mono, monospace', fontSize: '13px',
-          fontWeight: 700, color: ACCENT, marginBottom: '6px',
+          fontWeight: 700, color: ACCENT_TEXT, marginBottom: '6px',
         }}>
           {unit.name}
         </div>
@@ -331,7 +331,7 @@ export function UnitDrawer({ isOpen, onClose, role, onSelect }) {
         onClick={onClose}
         style={{
           position: 'fixed', inset: 0, zIndex: 200,
-          background: 'rgba(10,22,33,0.7)',
+          background: 'rgba(248,250,251,0.92)',
           opacity: isOpen ? 1 : 0,
           pointerEvents: isOpen ? 'auto' : 'none',
           transition: 'opacity 180ms ease',
@@ -362,14 +362,14 @@ export function UnitDrawer({ isOpen, onClose, role, onSelect }) {
             <span style={{
               fontFamily: 'Space Mono, monospace', fontSize: '10px',
               fontWeight: 700, letterSpacing: '3px', textTransform: 'uppercase',
-              color: ACCENT,
+              color: ACCENT_TEXT,
             }}>
               {title}
             </span>
             <button
               onClick={onClose}
               style={{
-                background: 'none', border: 'none', color: ACCENT,
+                background: 'none', border: 'none', color: ACCENT_TEXT,
                 cursor: 'pointer', padding: '4px', opacity: 0.5, lineHeight: 1,
               }}
               onMouseEnter={(e) => { e.currentTarget.style.opacity = '1' }}
@@ -405,7 +405,7 @@ export function UnitDrawer({ isOpen, onClose, role, onSelect }) {
                 style={{
                   position: 'absolute', right: '10px', top: '50%', transform: 'translateY(-50%)',
                   background: 'none', border: 'none', cursor: 'pointer', padding: 0,
-                  color: ACCENT, opacity: 0.5, lineHeight: 1,
+                  color: ACCENT_TEXT, opacity: 0.5, lineHeight: 1,
                 }}
               >
                 <svg width="12" height="12" viewBox="0 0 12 12">

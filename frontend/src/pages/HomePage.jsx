@@ -1,12 +1,12 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { ACCENT, BG, BORDER, SURFACE, SURFACE_E, TEXT, TEXT_SEC, TEXT_WEAK, TEXT_OFF } from '../theme'
+import { ACCENT_TEXT, ACCENT, BG, BORDER, SURFACE, SURFACE_E, TEXT, TEXT_SEC, TEXT_WEAK, TEXT_OFF } from '../theme'
 
 function Separator({ opacity = 0.5 }) {
   return (
     <div style={{
       fontFamily: 'Space Mono, monospace', fontSize: '10px',
-      letterSpacing: '3px', color: ACCENT,
+      letterSpacing: '3px', color: ACCENT_TEXT,
       overflow: 'hidden', whiteSpace: 'nowrap', lineHeight: 1,
       padding: '10px 0', userSelect: 'none', opacity,
     }}>
@@ -68,7 +68,7 @@ function ActionCard({ action, navigate }) {
         padding: '28px 28px 24px',
         cursor: 'pointer',
         transition: 'background 180ms, border-top-color 180ms, box-shadow 180ms',
-        boxShadow: hov ? '0 8px 32px rgba(0,0,0,0.35), inset 0 1px 0 rgba(47,224,255,0.08)' : 'none',
+        boxShadow: hov ? '0 2px 12px rgba(0,0,0,0.08), inset 0 1px 0 rgba(47,224,255,0.15)' : 'none',
         display: 'flex', flexDirection: 'column', justifyContent: 'space-between',
         position: 'relative', overflow: 'hidden',
       }}
@@ -100,7 +100,7 @@ function ActionCard({ action, navigate }) {
           {action.label}
         </div>
         <p style={{
-          fontFamily: 'Georgia, serif', fontSize: '13px',
+          fontFamily: 'Inter, -apple-system, system-ui, sans-serif', fontSize: '13px',
           lineHeight: 1.7, color: TEXT_SEC,
           margin: 0,
         }}>
@@ -130,7 +130,7 @@ function StepCard({ num, title, desc }) {
       <div style={{
         fontFamily: 'Space Mono, monospace', fontSize: '10px',
         letterSpacing: '2px', textTransform: 'uppercase',
-        color: ACCENT, marginBottom: '12px',
+        color: ACCENT_TEXT, marginBottom: '12px',
       }}>
         {num}
       </div>
@@ -142,7 +142,7 @@ function StepCard({ num, title, desc }) {
         {title}
       </div>
       <p style={{
-        fontFamily: 'Georgia, serif', fontSize: '15px',
+        fontFamily: 'Inter, -apple-system, system-ui, sans-serif', fontSize: '15px',
         lineHeight: 1.75, color: TEXT_SEC, margin: 0,
       }}>
         {desc}
@@ -194,7 +194,7 @@ function GuideCard({ guide }) {
         borderRadius: '4px',
         cursor: guide.route ? 'pointer' : 'default',
         transition: 'border-color 120ms, background 120ms, box-shadow 120ms',
-        boxShadow: active ? '0 8px 32px rgba(0,0,0,0.3), 0 0 0 1px rgba(47,224,255,0.1)' : 'none',
+        boxShadow: active ? '0 2px 12px rgba(0,0,0,0.08), 0 0 0 1px rgba(47,224,255,0.3)' : 'none',
         display: 'flex', flexDirection: 'column', gap: '14px',
         opacity: soon ? 0.5 : 1,
       }}
@@ -218,7 +218,7 @@ function GuideCard({ guide }) {
       </div>
 
       <p style={{
-        fontFamily: 'Georgia, serif', fontSize: '14px',
+        fontFamily: 'Inter, -apple-system, system-ui, sans-serif', fontSize: '14px',
         lineHeight: 1.7, color: TEXT_SEC,
         margin: 0, flexGrow: 1,
       }}>
@@ -270,7 +270,7 @@ export function HomePage() {
             <div style={{ width: 6, height: 6, borderRadius: '50%', background: ACCENT, opacity: 0.85 }} />
             <span style={{
               fontFamily: 'Space Mono, monospace', fontSize: '10px',
-              letterSpacing: '2px', textTransform: 'uppercase', color: ACCENT,
+              letterSpacing: '2px', textTransform: 'uppercase', color: ACCENT_TEXT,
             }}>
               Warhammer 40,000 · 10th Edition
             </span>
@@ -284,7 +284,7 @@ export function HomePage() {
             textTransform: 'uppercase', lineHeight: 1,
             color: TEXT, margin: 0,
           }}>
-            Prob<span style={{ color: ACCENT }}>'</span>Hammer
+            Prob<span style={{ color: ACCENT_TEXT }}>'</span>Hammer
           </h1>
 
           {/* Accent underline */}
@@ -292,7 +292,7 @@ export function HomePage() {
 
           {/* Description */}
           <p style={{
-            fontFamily: 'Georgia, serif',
+            fontFamily: 'Inter, -apple-system, system-ui, sans-serif',
             fontSize: 'clamp(15px, 1.3vw, 17px)',
             lineHeight: 1.8, maxWidth: '380px',
             color: TEXT_SEC, margin: '0 0 36px',
@@ -305,7 +305,7 @@ export function HomePage() {
             <button
               onClick={() => navigate('/simulator')}
               style={{
-                border: `1px solid ${ACCENT}`, background: ACCENT, color: BG,
+                border: `1px solid ${ACCENT}`, background: ACCENT, color: TEXT,
                 fontFamily: 'Space Mono, monospace', fontSize: '11px', fontWeight: 700,
                 letterSpacing: '2.5px', textTransform: 'uppercase',
                 padding: '14px 28px', borderRadius: '3px', cursor: 'pointer',
@@ -327,7 +327,7 @@ export function HomePage() {
               <div key={l}>
                 <div style={{
                   fontFamily: 'Space Mono, monospace', fontSize: '22px',
-                  fontWeight: 700, lineHeight: 1, color: ACCENT,
+                  fontWeight: 700, lineHeight: 1, color: ACCENT_TEXT,
                   letterSpacing: '-0.02em',
                 }}>
                   {n}

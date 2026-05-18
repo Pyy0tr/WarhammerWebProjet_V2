@@ -1,4 +1,4 @@
-import { ACCENT, ACCENT_H, SURFACE, BORDER, TEXT, TEXT_WEAK } from '../theme'
+import { ACCENT_TEXT, ACCENT, ACCENT_H, SURFACE, BORDER, TEXT, TEXT_WEAK } from '../theme'
 
 export function StatInput({ label, value, onChange, type = 'number', min, max, step = 1, placeholder }) {
   const isNum = type === 'number'
@@ -66,7 +66,7 @@ export function StatInput({ label, value, onChange, type = 'number', min, max, s
               style={{
                 flex: 1, border: 'none', borderLeft: `1px solid ${BORDER}`,
                 borderBottom: `1px solid ${BORDER}`,
-                background: 'transparent', color: ACCENT, cursor: 'pointer',
+                background: 'transparent', color: ACCENT_TEXT, cursor: 'pointer',
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
                 padding: 0, opacity: 0.5, transition: 'opacity 100ms',
               }}
@@ -83,7 +83,7 @@ export function StatInput({ label, value, onChange, type = 'number', min, max, s
               onClick={() => nudge(-1)}
               style={{
                 flex: 1, border: 'none', borderLeft: `1px solid ${BORDER}`,
-                background: 'transparent', color: ACCENT, cursor: 'pointer',
+                background: 'transparent', color: ACCENT_TEXT, cursor: 'pointer',
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
                 padding: 0, opacity: 0.5, transition: 'opacity 100ms',
               }}

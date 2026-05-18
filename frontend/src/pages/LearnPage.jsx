@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell } from 'recharts'
 import { simulate } from '../engine/simulation.js'
 import {
-  ACCENT, BG, BORDER, HIGHLIGHT, SURFACE, SURFACE_E,
+  ACCENT_TEXT, ACCENT, BG, BORDER, HIGHLIGHT, SURFACE, SURFACE_E,
   TEXT, TEXT_SEC, TEXT_WEAK, TEXT_OFF,
 } from '../theme'
 
@@ -51,7 +51,7 @@ function Tag({ children, color = ACCENT }) {
 }
 
 function Body({ children }) {
-  return <p style={{ fontFamily: 'Georgia, serif', fontSize: '16px', lineHeight: 1.8, color: TEXT_SEC, margin: 0 }}>{children}</p>
+  return <p style={{ fontFamily: 'Inter, -apple-system, system-ui, sans-serif', fontSize: '16px', lineHeight: 1.8, color: TEXT_SEC, margin: 0 }}>{children}</p>
 }
 
 function ContinueBtn({ onClick, label = 'Continue ↓', primary = false }) {
@@ -59,7 +59,7 @@ function ContinueBtn({ onClick, label = 'Continue ↓', primary = false }) {
   return (
     <button
       onClick={onClick}
-      style={{ border: 'none', background: ACCENT, color: BG, fontFamily: 'Space Mono, monospace', fontSize: '10px', letterSpacing: '2px', textTransform: 'uppercase', fontWeight: 700, padding: '12px 24px', cursor: 'pointer', alignSelf: 'flex-start', transition: 'opacity 150ms' }}
+      style={{ border: 'none', background: ACCENT, color: TEXT, fontFamily: 'Space Mono, monospace', fontSize: '10px', letterSpacing: '2px', textTransform: 'uppercase', fontWeight: 700, padding: '12px 24px', cursor: 'pointer', alignSelf: 'flex-start', transition: 'opacity 150ms' }}
       onMouseEnter={(e) => { e.currentTarget.style.opacity = '0.8' }}
       onMouseLeave={(e) => { e.currentTarget.style.opacity = '1' }}
     >
@@ -105,7 +105,7 @@ function WeaponStatCard({ highlight = [], dim = [] }) {
             const isDim       = dim.includes(s.key)
             return (
               <div key={s.key} style={{ padding: '8px 6px', borderRight: i < stats.length - 1 ? `1px solid ${BORDER}` : 'none', textAlign: 'center', opacity: isDim ? 0.3 : 1 }}>
-                <div style={{ fontFamily: 'Georgia, serif', fontSize: '10px', color: isHighlight ? TEXT_SEC : TEXT_OFF, lineHeight: 1.4 }}>{s.label}</div>
+                <div style={{ fontFamily: 'Inter, -apple-system, system-ui, sans-serif', fontSize: '10px', color: isHighlight ? TEXT_SEC : TEXT_OFF, lineHeight: 1.4 }}>{s.label}</div>
               </div>
             )
           })}
@@ -143,7 +143,7 @@ function DefenderStatCard({ highlight = [], dim = [] }) {
         })}
       </div>
       {highlight.length > 0 && (
-        <div style={{ borderTop: `1px solid ${BORDER}`, padding: '8px 14px', fontFamily: 'Georgia, serif', fontSize: '11px', color: TEXT_SEC, lineHeight: 1.5 }}>
+        <div style={{ borderTop: `1px solid ${BORDER}`, padding: '8px 14px', fontFamily: 'Inter, -apple-system, system-ui, sans-serif', fontSize: '11px', color: TEXT_SEC, lineHeight: 1.5 }}>
           {highlight.includes('T')  && <span>T<strong style={{ color: HIGHLIGHT }}>5</strong> — compared against weapon Strength to determine wound threshold. </span>}
           {highlight.includes('SV') && <span>Sv<strong style={{ color: HIGHLIGHT }}>5+</strong> — degraded by AP before the roll. </span>}
           {highlight.includes('W')  && <span>W<strong style={{ color: HIGHLIGHT }}>1</strong> — one unsaved wound kills one model. </span>}
@@ -183,7 +183,7 @@ function StepContent({ step, onNext, onSynergies }) {
         Attacks
       </h2>
       <Body>
-        Each model generates a number of attack dice equal to its <strong style={{ color: ACCENT }}>A</strong> stat. With 5 Intercessors at A2, that's <strong style={{ color: TEXT }}>10 attack dice</strong> entering the combat funnel.
+        Each model generates a number of attack dice equal to its <strong style={{ color: ACCENT_TEXT }}>A</strong> stat. With 5 Intercessors at A2, that's <strong style={{ color: TEXT }}>10 attack dice</strong> entering the combat funnel.
       </Body>
       <WeaponStatCard highlight={['A']} dim={['BS', 'S', 'AP', 'D']} />
       <Body>
@@ -199,7 +199,7 @@ function StepContent({ step, onNext, onSynergies }) {
         Hit Rolls
       </h2>
       <Body>
-        Roll each attack die. You score a hit if you meet or beat the weapon's <strong style={{ color: ACCENT }}>BS</strong>. At BS3+, results 3 through 6 hit — 4 faces out of 6.
+        Roll each attack die. You score a hit if you meet or beat the weapon's <strong style={{ color: ACCENT_TEXT }}>BS</strong>. At BS3+, results 3 through 6 hit — 4 faces out of 6.
       </Body>
       <WeaponStatCard highlight={['BS']} dim={['A', 'S', 'AP', 'D']} />
       <Body>
@@ -215,13 +215,13 @@ function StepContent({ step, onNext, onSynergies }) {
         Wound Rolls
       </h2>
       <Body>
-        Each hit rolls again. The threshold depends on weapon <strong style={{ color: ACCENT }}>S</strong> versus defender <strong style={{ color: HIGHLIGHT }}>T</strong>.
+        Each hit rolls again. The threshold depends on weapon <strong style={{ color: ACCENT_TEXT }}>S</strong> versus defender <strong style={{ color: HIGHLIGHT }}>T</strong>.
       </Body>
       <WeaponStatCard highlight={['S']} dim={['A', 'BS', 'AP', 'D']} />
       <div style={{ textAlign: 'center', fontFamily: 'Space Mono, monospace', fontSize: '10px', color: TEXT_OFF, letterSpacing: '2px' }}>vs</div>
       <DefenderStatCard highlight={['T']} />
       <Body>
-        S4 &lt; T5 → wound on a <strong style={{ color: ACCENT }}>5+</strong> (2 faces out of 6). From 6.67 hits, we expect <strong style={{ color: TEXT }}>≈ 2.22 wounds</strong>.
+        S4 &lt; T5 → wound on a <strong style={{ color: ACCENT_TEXT }}>5+</strong> (2 faces out of 6). From 6.67 hits, we expect <strong style={{ color: TEXT }}>≈ 2.22 wounds</strong>.
       </Body>
       <div style={{ border: `1px solid ${BORDER}`, background: SURFACE }}>
         {[
@@ -247,13 +247,13 @@ function StepContent({ step, onNext, onSynergies }) {
         Save Rolls
       </h2>
       <Body>
-        The defender rolls to negate each wound. The armour save is degraded by the weapon's <strong style={{ color: ACCENT }}>AP</strong>.
+        The defender rolls to negate each wound. The armour save is degraded by the weapon's <strong style={{ color: ACCENT_TEXT }}>AP</strong>.
       </Body>
       <WeaponStatCard highlight={['AP']} dim={['A', 'BS', 'S', 'D']} />
       <div style={{ textAlign: 'center', fontFamily: 'Space Mono, monospace', fontSize: '10px', color: TEXT_OFF, letterSpacing: '2px' }}>vs</div>
       <DefenderStatCard highlight={['SV']} />
       <Body>
-        Sv5+ degraded by AP-1 becomes a <strong style={{ color: ACCENT }}>6+</strong> — only a natural 6 saves. That means 5 out of 6 wounds go through. From 2.22 wounds, we expect <strong style={{ color: TEXT }}>≈ 1.85 unsaved</strong>.
+        Sv5+ degraded by AP-1 becomes a <strong style={{ color: ACCENT_TEXT }}>6+</strong> — only a natural 6 saves. That means 5 out of 6 wounds go through. From 2.22 wounds, we expect <strong style={{ color: TEXT }}>≈ 1.85 unsaved</strong>.
       </Body>
       <ContinueBtn onClick={onNext} />
     </>),
@@ -265,7 +265,7 @@ function StepContent({ step, onNext, onSynergies }) {
         Damage
       </h2>
       <Body>
-        Each unsaved wound deals <strong style={{ color: ACCENT }}>D</strong> points of damage to the target. Compare that to each model's <strong style={{ color: HIGHLIGHT }}>W</strong>.
+        Each unsaved wound deals <strong style={{ color: ACCENT_TEXT }}>D</strong> points of damage to the target. Compare that to each model's <strong style={{ color: HIGHLIGHT }}>W</strong>.
       </Body>
       <WeaponStatCard highlight={['D']} dim={['A', 'BS', 'S', 'AP']} />
       <div style={{ textAlign: 'center', fontFamily: 'Space Mono, monospace', fontSize: '10px', color: TEXT_OFF, letterSpacing: '2px' }}>vs</div>
@@ -283,14 +283,14 @@ function StepContent({ step, onNext, onSynergies }) {
         The full picture
       </h2>
       <Body>
-        The expected value math gives you the average, but dice are random. The simulator runs 2000 trials and shows you the full <strong style={{ color: ACCENT }}>distribution</strong> — how often each kill count occurs.
+        The expected value math gives you the average, but dice are random. The simulator runs 2000 trials and shows you the full <strong style={{ color: ACCENT_TEXT }}>distribution</strong> — how often each kill count occurs.
       </Body>
       <WeaponStatCard highlight={['A', 'BS', 'S', 'AP', 'D']} />
       <div style={{ textAlign: 'center', fontFamily: 'Space Mono, monospace', fontSize: '10px', color: TEXT_OFF, letterSpacing: '2px' }}>vs</div>
       <DefenderStatCard highlight={['T', 'SV', 'W']} />
       <div style={{ padding: '16px', border: `1px solid ${ACCENT}`, background: 'rgba(47,224,255,0.04)' }}>
-        <div style={{ fontFamily: 'Space Mono, monospace', fontSize: '10px', letterSpacing: '2px', textTransform: 'uppercase', color: ACCENT, marginBottom: '8px' }}>Why simulate instead of just calculating?</div>
-        <p style={{ fontFamily: 'Georgia, serif', fontSize: '14px', lineHeight: 1.7, color: TEXT_SEC, margin: 0 }}>
+        <div style={{ fontFamily: 'Space Mono, monospace', fontSize: '10px', letterSpacing: '2px', textTransform: 'uppercase', color: ACCENT_TEXT, marginBottom: '8px' }}>Why simulate instead of just calculating?</div>
+        <p style={{ fontFamily: 'Inter, -apple-system, system-ui, sans-serif', fontSize: '14px', lineHeight: 1.7, color: TEXT_SEC, margin: 0 }}>
           The expected value is the average across infinite games. Real combat involves streaks. A unit with mean ~1.85 kills can easily score zero — or wipe four models. The distribution tells you <em>how reliably</em> your shooting performs.
         </p>
       </div>
@@ -351,10 +351,10 @@ function CombatFunnel({ activePhase }) {
 
       {activePhase >= 0 && activePhase < FUNNEL.length && (
         <div style={{ marginTop: '32px', padding: '20px', border: `1px solid ${ACCENT}`, background: 'rgba(47,224,255,0.04)' }}>
-          <div style={{ fontFamily: 'Space Mono, monospace', fontSize: '10px', letterSpacing: '2px', textTransform: 'uppercase', color: ACCENT, marginBottom: '8px' }}>
+          <div style={{ fontFamily: 'Space Mono, monospace', fontSize: '10px', letterSpacing: '2px', textTransform: 'uppercase', color: ACCENT_TEXT, marginBottom: '8px' }}>
             {FUNNEL[activePhase].phase}
           </div>
-          <div style={{ fontFamily: 'Space Mono, monospace', fontSize: '42px', fontWeight: 700, color: ACCENT, letterSpacing: '-1px', lineHeight: 1 }}>
+          <div style={{ fontFamily: 'Space Mono, monospace', fontSize: '42px', fontWeight: 700, color: ACCENT_TEXT, letterSpacing: '-1px', lineHeight: 1 }}>
             {FUNNEL[activePhase].expected % 1 === 0 ? FUNNEL[activePhase].expected : FUNNEL[activePhase].expected.toFixed(2)}
           </div>
           <div style={{ fontFamily: 'Space Mono, monospace', fontSize: '10px', color: TEXT_WEAK, marginTop: '8px', letterSpacing: '1.5px' }}>
@@ -364,7 +364,7 @@ function CombatFunnel({ activePhase }) {
       )}
 
       {activePhase === -1 && (
-        <div style={{ marginTop: '32px', fontFamily: 'Georgia, serif', fontSize: '14px', color: TEXT_SEC, lineHeight: 1.7 }}>
+        <div style={{ marginTop: '32px', fontFamily: 'Inter, -apple-system, system-ui, sans-serif', fontSize: '14px', color: TEXT_SEC, lineHeight: 1.7 }}>
           Each phase filters the dice pool. We'll build this funnel one step at a time.
         </div>
       )}
@@ -379,7 +379,7 @@ const CustomTooltip = ({ active, payload, label }) => {
   return (
     <div style={{ background: BG, border: `1px solid ${ACCENT}`, padding: '8px 12px', fontFamily: 'Space Mono, monospace', fontSize: '10px', letterSpacing: '1.5px', color: TEXT }}>
       <div style={{ color: TEXT_WEAK, marginBottom: '3px' }}>{label} kills</div>
-      <div style={{ fontWeight: 700, color: ACCENT }}>{(payload[0].value * 100).toFixed(1)}%</div>
+      <div style={{ fontWeight: 700, color: ACCENT_TEXT }}>{(payload[0].value * 100).toFixed(1)}%</div>
     </div>
   )
 }
@@ -404,7 +404,7 @@ function HistoPanel({ result }) {
         </div>
         {result.kill_probabilities?.['1'] != null && (
           <div style={{ paddingBottom: '4px' }}>
-            <div style={{ fontFamily: 'Space Mono, monospace', fontWeight: 700, fontSize: 'clamp(32px, 3.5vw, 52px)', lineHeight: 1, letterSpacing: '-1px', color: ACCENT }}>
+            <div style={{ fontFamily: 'Space Mono, monospace', fontWeight: 700, fontSize: 'clamp(32px, 3.5vw, 52px)', lineHeight: 1, letterSpacing: '-1px', color: ACCENT_TEXT }}>
               {(result.kill_probabilities['1'] * 100).toFixed(0)}%
             </div>
             <div style={{ fontFamily: 'Space Mono, monospace', fontSize: '10px', letterSpacing: '2px', textTransform: 'uppercase', color: TEXT_WEAK, marginTop: '8px' }}>
@@ -517,7 +517,7 @@ export function LearnPage() {
 
       {/* Top bar */}
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 24px', borderBottom: `1px solid ${BORDER}`, height: '52px', flexShrink: 0, position: 'sticky', top: 0, zIndex: 10, background: BG }}>
-        <div style={{ fontFamily: 'Space Mono, monospace', fontSize: '12px', fontWeight: 700, letterSpacing: '3px', color: ACCENT }}>
+        <div style={{ fontFamily: 'Space Mono, monospace', fontSize: '12px', fontWeight: 700, letterSpacing: '3px', color: ACCENT_TEXT }}>
           PROB<span style={{ opacity: 0.4 }}>'</span>HAMMER
         </div>
         <div style={{ fontFamily: 'Space Mono, monospace', fontSize: '10px', letterSpacing: '2px', color: TEXT_WEAK }}>
@@ -560,7 +560,7 @@ export function LearnPage() {
         onClick={() => handleNext(activeStep)}
         onMouseEnter={() => setBtnHov(true)}
         onMouseLeave={() => setBtnHov(false)}
-        style={{ position: 'fixed', bottom: '40px', left: '25vw', transform: 'translateX(-50%)', border: `1px solid ${ACCENT}`, background: btnHov ? 'rgba(47,224,255,0.08)' : 'transparent', color: ACCENT, fontFamily: 'Space Mono, monospace', fontSize: '10px', letterSpacing: '2px', textTransform: 'uppercase', padding: '10px 20px', cursor: 'pointer', zIndex: 20, transition: 'background 150ms', display: 'flex', alignItems: 'center', gap: '8px' }}
+        style={{ position: 'fixed', bottom: '40px', left: '25vw', transform: 'translateX(-50%)', border: `1px solid ${ACCENT}`, background: btnHov ? 'rgba(47,224,255,0.08)' : 'transparent', color: ACCENT_TEXT, fontFamily: 'Space Mono, monospace', fontSize: '10px', letterSpacing: '2px', textTransform: 'uppercase', padding: '10px 20px', cursor: 'pointer', zIndex: 20, transition: 'background 150ms', display: 'flex', alignItems: 'center', gap: '8px' }}
       >
         <span style={{ display: 'inline-block', animation: 'arrowBounce 1.4s ease-in-out infinite', animationPlayState: btnHov ? 'paused' : 'running' }}>↓</span>
         Next

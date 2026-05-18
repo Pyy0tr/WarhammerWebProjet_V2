@@ -4,7 +4,7 @@ import { AttackerPanel } from '../components/AttackerPanel'
 import { DefenderPanel } from '../components/DefenderPanel'
 import { ResultsPanel } from '../components/ResultsPanel'
 import { AbilityText } from '../components/AbilityText'
-import { ACCENT, ACCENT_H, BG, SURFACE, SURFACE_E, BORDER, TEXT, TEXT_SEC, TEXT_WEAK, TEXT_OFF, ERROR } from '../theme'
+import { ACCENT_TEXT, ACCENT, ACCENT_H, BG, SURFACE, SURFACE_E, BORDER, TEXT, TEXT_SEC, TEXT_WEAK, TEXT_OFF, ERROR } from '../theme'
 import { KEYWORD_BY_TYPE } from '../engine/keywords.js'
 
 // ── Step indicator ───────────────────────────────────────────────────────────
@@ -91,7 +91,7 @@ function AttackCard({ attack, idx, onEdit, onRemove }) {
           </span>
           <span style={{
             fontFamily: 'Space Mono, monospace', fontSize: '12px',
-            fontWeight: 700, color: ACCENT,
+            fontWeight: 700, color: ACCENT_TEXT,
           }}>
             {w.name || 'Custom weapon'}
           </span>
@@ -124,7 +124,7 @@ function AttackCard({ attack, idx, onEdit, onRemove }) {
           onClick={() => onEdit(idx)}
           style={{
             background: 'none', border: `1px solid ${BORDER}`,
-            color: ACCENT, fontFamily: 'Space Mono, monospace', fontSize: '8px',
+            color: ACCENT_TEXT, fontFamily: 'Space Mono, monospace', fontSize: '8px',
             letterSpacing: '1px', textTransform: 'uppercase', padding: '4px 8px',
             cursor: 'pointer', transition: 'border-color 100ms',
           }}
@@ -192,7 +192,7 @@ function ReviewStep() {
           style={{
             flex: 1, padding: '12px',
             background: 'transparent', border: `1px solid ${BORDER}`,
-            color: ACCENT, fontFamily: 'Space Mono, monospace', fontSize: '10px',
+            color: ACCENT_TEXT, fontFamily: 'Space Mono, monospace', fontSize: '10px',
             letterSpacing: '1.5px', textTransform: 'uppercase', cursor: 'pointer',
             transition: 'background 100ms',
           }}
@@ -207,7 +207,7 @@ function ReviewStep() {
             style={{
               flex: 1, padding: '12px',
               background: ACCENT, border: `1px solid ${ACCENT}`,
-              color: BG, fontFamily: 'Space Mono, monospace', fontSize: '10px',
+              color: TEXT, fontFamily: 'Space Mono, monospace', fontSize: '10px',
               fontWeight: 700, letterSpacing: '1.5px', textTransform: 'uppercase',
               cursor: 'pointer', transition: 'opacity 100ms',
             }}
@@ -372,7 +372,7 @@ function Separator() {
   return (
     <div style={{
       fontFamily: 'Space Mono, monospace', fontSize: '10px', letterSpacing: '3px',
-      color: ACCENT, overflow: 'hidden', whiteSpace: 'nowrap', lineHeight: 1,
+      color: ACCENT_TEXT, overflow: 'hidden', whiteSpace: 'nowrap', lineHeight: 1,
       padding: '10px 0', userSelect: 'none', opacity: 0.4,
     }}>
       {'≈ '.repeat(300)}
@@ -433,7 +433,7 @@ function KeywordDefinitionPanel() {
             <div style={{
               fontFamily: 'Space Mono, monospace', fontSize: '14px',
               fontWeight: 700, letterSpacing: '1px', textTransform: 'uppercase',
-              color: ACCENT, marginBottom: '16px', lineHeight: 1.2,
+              color: ACCENT_TEXT, marginBottom: '16px', lineHeight: 1.2,
             }}>
               {display.label}
             </div>
@@ -445,7 +445,7 @@ function KeywordDefinitionPanel() {
             }} />
 
             <p style={{
-              fontFamily: 'Georgia, serif', fontSize: '13px',
+              fontFamily: 'Inter, -apple-system, system-ui, sans-serif', fontSize: '13px',
               lineHeight: 1.75, color: TEXT_SEC, margin: '0 0 14px 0',
             }}>
               {display.rule}
@@ -464,7 +464,7 @@ function KeywordDefinitionPanel() {
                 Note
               </div>
               <p style={{
-                fontFamily: 'Georgia, serif', fontSize: '12px',
+                fontFamily: 'Inter, -apple-system, system-ui, sans-serif', fontSize: '12px',
                 lineHeight: 1.7, color: TEXT_WEAK, margin: 0,
                 fontStyle: 'italic',
               }}>
@@ -692,7 +692,7 @@ function ProgressTracker() {
                   }}
                 >
                   {isCompleted && (
-                    <span style={{ fontSize: '10px', color: BG, fontWeight: 900, lineHeight: 1 }}>✓</span>
+                    <span style={{ fontSize: '10px', color: TEXT, fontWeight: 900, lineHeight: 1 }}>✓</span>
                   )}
                   {isActive && (
                     <div style={{
@@ -747,7 +747,7 @@ function ProgressTracker() {
                   <div
                     key={`hint-${node.id}-${circleKey}`}
                     style={{
-                      fontFamily: 'Georgia, serif',
+                      fontFamily: 'Inter, -apple-system, system-ui, sans-serif',
                       fontSize: '12px',
                       color: TEXT_WEAK,
                       lineHeight: 1.65,
@@ -888,7 +888,7 @@ function UnitAbilitiesPanel({ role }) {
               style={{
                 fontFamily: 'Space Mono, monospace', fontSize: '13px',
                 fontWeight: 700, textTransform: 'uppercase',
-                color: ACCENT, marginBottom: '14px', lineHeight: 1.2,
+                color: ACCENT_TEXT, marginBottom: '14px', lineHeight: 1.2,
                 animation: 'headerScan 400ms ease forwards',
               }}
             >
@@ -934,7 +934,7 @@ function UnitAbilitiesPanel({ role }) {
                   </div>
                   {ab.desc && (
                     <p style={{
-                      fontFamily: 'Georgia, serif', fontSize: '11px',
+                      fontFamily: 'Inter, -apple-system, system-ui, sans-serif', fontSize: '11px',
                       lineHeight: 1.65, color: TEXT_SEC, margin: 0,
                     }}>
                       <AbilityText text={ab.desc} />
@@ -996,7 +996,7 @@ function AttackStep() {
           <button
             onClick={() => setStep(2)}
             style={{
-              background: 'none', border: 'none', color: ACCENT,
+              background: 'none', border: 'none', color: ACCENT_TEXT,
               fontFamily: 'Space Mono, monospace', fontSize: '10px',
               cursor: 'pointer', textDecoration: 'underline', padding: 0,
             }}

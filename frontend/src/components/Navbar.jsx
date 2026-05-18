@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { useAuthStore } from '../store/authStore'
 import { AuthModal } from './AuthModal'
-import { ACCENT, ACCENT_H, BG, BORDER, TEXT, TEXT_SEC, TEXT_WEAK } from '../theme'
+import { ACCENT_TEXT, ACCENT, ACCENT_H, BG, BORDER, TEXT, TEXT_SEC, TEXT_WEAK } from '../theme'
 
 function NavLink({ to, children, active }) {
   return (
@@ -14,18 +14,18 @@ function NavLink({ to, children, active }) {
         fontSize: '10px',
         letterSpacing: '2px',
         textTransform: 'uppercase',
-        color: active ? ACCENT : TEXT_SEC,
+        color: active ? TEXT : TEXT_SEC,
         transition: 'color 100ms, background 100ms',
         padding: '4px 10px',
         borderRadius: '3px',
-        background: active ? 'rgba(47,224,255,0.08)' : 'transparent',
+        background: active ? 'rgba(47,224,255,0.14)' : 'transparent',
       }}
       onMouseEnter={(e) => {
-        e.currentTarget.style.color = active ? ACCENT : TEXT
-        if (!active) e.currentTarget.style.background = 'rgba(255,255,255,0.04)'
+        e.currentTarget.style.color = TEXT
+        if (!active) e.currentTarget.style.background = 'rgba(47,224,255,0.08)'
       }}
       onMouseLeave={(e) => {
-        e.currentTarget.style.color = active ? ACCENT : TEXT_SEC
+        e.currentTarget.style.color = active ? TEXT : TEXT_SEC
         if (!active) e.currentTarget.style.background = 'transparent'
       }}
     >
@@ -55,8 +55,8 @@ function GhostButton({ children, onClick, href }) {
   const handlers = {
     onMouseEnter: (e) => {
       e.currentTarget.style.borderColor = ACCENT
-      e.currentTarget.style.color = ACCENT
-      e.currentTarget.style.background = 'rgba(47,224,255,0.07)'
+      e.currentTarget.style.color = TEXT
+      e.currentTarget.style.background = 'rgba(47,224,255,0.10)'
     },
     onMouseLeave: (e) => {
       e.currentTarget.style.borderColor = TEXT_WEAK
@@ -76,7 +76,7 @@ function SolidButton({ children, onClick }) {
       style={{
         background: ACCENT,
         border: `1px solid ${ACCENT}`,
-        color: BG,
+        color: TEXT,
         fontFamily: 'Space Mono, monospace',
         fontSize: '10px',
         letterSpacing: '2px',
@@ -113,7 +113,7 @@ function UserChip({ user, onLogout }) {
         style={{
           background: 'transparent',
           border: `1px solid ${hov ? ACCENT : BORDER}`,
-          color: ACCENT,
+          color: ACCENT_TEXT,
           fontFamily: 'Space Mono, monospace',
           fontSize: '8px',
           letterSpacing: '1.5px',
@@ -141,10 +141,11 @@ export function Navbar() {
       <nav style={{
         position: 'fixed', top: 0, left: 0, right: 0,
         height: '52px',
-        background: 'rgba(10,22,33,0.92)',
+        background: 'rgba(248,250,251,0.95)',
         backdropFilter: 'blur(14px)',
         WebkitBackdropFilter: 'blur(14px)',
         borderBottom: `1px solid ${BORDER}`,
+        boxShadow: '0 1px 0 rgba(0,0,0,0.06)',
         zIndex: 100,
         display: 'flex', alignItems: 'center',
         padding: '0 40px',
@@ -161,7 +162,7 @@ export function Navbar() {
               fontWeight: 700,
               letterSpacing: '3px',
               textTransform: 'uppercase',
-              color: ACCENT,
+              color: TEXT,
             }}
           >
             PROB<span style={{ opacity: 0.45 }}>'</span>HAMMER

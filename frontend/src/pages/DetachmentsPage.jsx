@@ -1,6 +1,6 @@
 import { useEffect, useState, useMemo } from 'react'
 import {
-  ACCENT, BORDER, BG, ERROR, SUCCESS, SURFACE, SURFACE_E, TEXT, TEXT_OFF,
+  ACCENT_TEXT, ACCENT, BORDER, BG, ERROR, SUCCESS, SURFACE, SURFACE_E, TEXT, TEXT_OFF,
   TEXT_SEC, TEXT_WEAK, TYPE, WARNING,
 } from '../theme'
 
@@ -184,7 +184,7 @@ function DetachmentSection({ det }) {
         </div>
         <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
           {det.stratagems.length > 0 && (
-            <span style={{ ...TYPE.label, color: ACCENT, border: `1px solid rgba(47,224,255,0.3)`, padding: '1px 7px', borderRadius: '2px' }}>
+            <span style={{ ...TYPE.label, color: ACCENT_TEXT, border: `1px solid rgba(47,224,255,0.3)`, padding: '1px 7px', borderRadius: '2px' }}>
               {det.stratagems.length} strats
             </span>
           )}
@@ -217,7 +217,7 @@ function DetachmentSection({ det }) {
           {/* Stratagems */}
           {det.stratagems.length > 0 && (
             <div style={det.enhancements.length > 0 ? { borderTop: `1px solid ${BORDER}` } : {}}>
-              <div style={{ ...TYPE.label, color: ACCENT, padding: '12px 16px 0' }}>Stratagems</div>
+              <div style={{ ...TYPE.label, color: ACCENT_TEXT, padding: '12px 16px 0' }}>Stratagems</div>
               {det.stratagems.map((s) => <StratRow key={s.name} strat={s} />)}
             </div>
           )}
@@ -330,7 +330,7 @@ function FactionItem({ faction, selected, onClick }) {
       style={{
         padding: '9px 16px',
         cursor: 'pointer',
-        background: selected ? 'rgba(47,224,255,0.07)' : hov ? 'rgba(255,255,255,0.03)' : 'transparent',
+        background: selected ? 'rgba(47,224,255,0.07)' : hov ? 'rgba(47,224,255,0.06)' : 'transparent',
         borderLeft: `2px solid ${selected ? ACCENT : 'transparent'}`,
         transition: 'background 100ms, border-color 100ms',
         display: 'flex', flexDirection: 'column', gap: '2px',

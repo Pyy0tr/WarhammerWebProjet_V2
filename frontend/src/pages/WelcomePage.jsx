@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { ACCENT, BG, SURFACE, BORDER, TEXT, TEXT_SEC, TEXT_WEAK, TEXT_OFF } from '../theme'
+import { ACCENT_TEXT, ACCENT, BG, SURFACE, BORDER, TEXT, TEXT_SEC, TEXT_WEAK, TEXT_OFF } from '../theme'
 
 const LEVELS = [
   {
@@ -81,7 +81,7 @@ function LevelCard({ level, selected, onClick }) {
       </div>
 
       <p style={{
-        fontFamily: 'Georgia, serif',
+        fontFamily: 'Inter, -apple-system, system-ui, sans-serif',
         fontSize: '14px',
         lineHeight: 1.7,
         color: TEXT_SEC,
@@ -151,7 +151,7 @@ export function WelcomePage() {
         fontWeight: 700,
         letterSpacing: '4px',
         textTransform: 'uppercase',
-        color: ACCENT,
+        color: ACCENT_TEXT,
         marginBottom: '56px',
       }}>
         PROB<span style={{ opacity: 0.4 }}>'</span>HAMMER
@@ -183,7 +183,7 @@ export function WelcomePage() {
               What's your experience level?
             </h1>
             <p style={{
-              fontFamily: 'Georgia, serif',
+              fontFamily: 'Inter, -apple-system, system-ui, sans-serif',
               fontSize: '15px',
               lineHeight: 1.7,
               color: TEXT_SEC,
@@ -244,13 +244,13 @@ export function WelcomePage() {
             fontSize: '10px',
             letterSpacing: '3px',
             textTransform: 'uppercase',
-            color: ACCENT,
+            color: ACCENT_TEXT,
           }}>
             03 — Expert
           </div>
 
           <p style={{
-            fontFamily: 'Georgia, serif',
+            fontFamily: 'Inter, -apple-system, system-ui, sans-serif',
             fontSize: '16px',
             lineHeight: 1.8,
             color: TEXT_SEC,
@@ -277,7 +277,7 @@ export function WelcomePage() {
             style={{
               background: ACCENT,
               border: 'none',
-              color: BG,
+              color: TEXT,
               fontFamily: 'Space Mono, monospace',
               fontSize: '11px',
               letterSpacing: '3px',

@@ -1,4 +1,4 @@
-import { ACCENT, BG, TEXT_SEC, TEXT_WEAK } from '../theme'
+import { ACCENT_TEXT, ACCENT, BG, TEXT_SEC, TEXT_WEAK } from '../theme'
 
 export function Toggle({ label, checked, onChange }) {
   return (
@@ -32,7 +32,7 @@ export function Toggle({ label, checked, onChange }) {
         )}
       </div>
       <span style={{
-        fontFamily: 'Georgia, serif',
+        fontFamily: 'Inter, -apple-system, system-ui, sans-serif',
         fontSize: '13px',
         color: checked ? TEXT_SEC : TEXT_WEAK,
         transition: 'color 100ms',

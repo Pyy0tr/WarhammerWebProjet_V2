@@ -1,7 +1,7 @@
 import {
   BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell,
 } from 'recharts'
-import { ACCENT, BG, BORDER, TEXT, TEXT_SEC, TEXT_WEAK, HIGHLIGHT, SURFACE } from '../theme'
+import { ACCENT_TEXT, ACCENT, BG, BORDER, TEXT, TEXT_SEC, TEXT_WEAK, HIGHLIGHT, SURFACE } from '../theme'
 
 const StatRow = ({ label, value, highlight = false }) => (
   <div style={{
@@ -36,7 +36,7 @@ const CustomTooltip = ({ active, payload, label }) => {
       fontSize: '10px', letterSpacing: '1.5px', color: TEXT,
     }}>
       <div style={{ marginBottom: '3px', color: TEXT_WEAK }}>DAMAGE {label}</div>
-      <div style={{ fontWeight: 700, color: ACCENT }}>{(payload[0].value * 100).toFixed(1)}%</div>
+      <div style={{ fontWeight: 700, color: ACCENT_TEXT }}>{(payload[0].value * 100).toFixed(1)}%</div>
     </div>
   )
 }
@@ -61,7 +61,7 @@ export function ResultsPanel({ result }) {
         </div>
         <div style={{
           marginTop: '40px',
-          fontFamily: 'Georgia, serif', fontSize: '14px',
+          fontFamily: 'Inter, -apple-system, system-ui, sans-serif', fontSize: '14px',
           lineHeight: 1.75, color: TEXT_WEAK, fontStyle: 'italic',
           maxWidth: '320px',
         }}>

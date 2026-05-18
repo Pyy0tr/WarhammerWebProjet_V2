@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { useAuthStore } from '../store/authStore'
 import { api } from '../lib/api'
 import {
-  ACCENT, BG, BORDER, HIGHLIGHT, SURFACE, SURFACE_E,
+  ACCENT_TEXT, ACCENT, BG, BORDER, HIGHLIGHT, SURFACE, SURFACE_E,
   TEXT, TEXT_SEC, TEXT_WEAK, TEXT_OFF,
 } from '../theme'
 
@@ -50,7 +50,7 @@ function FeedbackCard({ fb, onMarkRead }) {
         </div>
 
         {/* Message preview */}
-        <div style={{ fontFamily: 'Georgia, serif', fontSize: '13px', color: TEXT_SEC, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', flex: 1 }}>
+        <div style={{ fontFamily: 'Inter, -apple-system, system-ui, sans-serif', fontSize: '13px', color: TEXT_SEC, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', flex: 1 }}>
           {fb.message}
         </div>
 
@@ -67,7 +67,7 @@ function FeedbackCard({ fb, onMarkRead }) {
 
       {expanded && (
         <div style={{ borderTop: `1px solid ${BORDER}`, padding: '20px 20px 20px 40px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
-          <p style={{ fontFamily: 'Georgia, serif', fontSize: '15px', lineHeight: 1.8, color: TEXT_SEC, margin: 0, whiteSpace: 'pre-wrap' }}>
+          <p style={{ fontFamily: 'Inter, -apple-system, system-ui, sans-serif', fontSize: '15px', lineHeight: 1.8, color: TEXT_SEC, margin: 0, whiteSpace: 'pre-wrap' }}>
             {fb.message}
           </p>
           {!fb.is_read && (
@@ -138,7 +138,7 @@ export function AdminFeedbackPage() {
           Feedback
         </h1>
         {unread > 0 && (
-          <div style={{ fontFamily: 'Space Mono, monospace', fontSize: '11px', fontWeight: 700, color: ACCENT, border: `1px solid ${ACCENT}`, padding: '2px 8px' }}>
+          <div style={{ fontFamily: 'Space Mono, monospace', fontSize: '11px', fontWeight: 700, color: ACCENT_TEXT, border: `1px solid ${ACCENT}`, padding: '2px 8px' }}>
             {unread} non lu{unread > 1 ? 's' : ''}
           </div>
         )}
@@ -178,7 +178,7 @@ export function AdminFeedbackPage() {
       {/* List */}
       <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
         {displayed.length === 0 ? (
-          <div style={{ fontFamily: 'Georgia, serif', fontSize: '14px', color: TEXT_OFF, padding: '40px 0', textAlign: 'center' }}>
+          <div style={{ fontFamily: 'Inter, -apple-system, system-ui, sans-serif', fontSize: '14px', color: TEXT_OFF, padding: '40px 0', textAlign: 'center' }}>
             Aucun feedback dans cette catégorie.
           </div>
         ) : (

@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { useArmyStore } from '../store/armyStore'
 import { useAuthStore } from '../store/authStore'
 import { useDataStore } from '../store/dataStore'
-import { ACCENT, BG, SURFACE, SURFACE_E, BORDER, TEXT, TEXT_SEC, TEXT_WEAK, ERROR, HIGHLIGHT } from '../theme'
+import { ACCENT_TEXT, ACCENT, BG, SURFACE, SURFACE_E, BORDER, TEXT, TEXT_SEC, TEXT_WEAK, ERROR, HIGHLIGHT } from '../theme'
 
 // ── Small helpers ─────────────────────────────────────────────────────────────
 
@@ -92,7 +92,7 @@ function ModelStepper({ value, min, max, onChange }) {
       >−</button>
       <span style={{
         fontFamily: 'Space Mono, monospace', fontSize: '12px', fontWeight: 700,
-        color: ACCENT, minWidth: '28px', textAlign: 'center', padding: '4px 6px',
+        color: ACCENT_TEXT, minWidth: '28px', textAlign: 'center', padding: '4px 6px',
       }}>
         {value}
       </span>
@@ -249,7 +249,7 @@ function ArmyUnitCard({ entry, user }) {
         </div>
         {totalPts !== null && (
           <div style={{ flexShrink: 0, textAlign: 'right', lineHeight: 1 }}>
-            <span style={{ fontFamily: 'Space Mono, monospace', fontSize: '15px', fontWeight: 700, color: ACCENT }}>
+            <span style={{ fontFamily: 'Space Mono, monospace', fontSize: '15px', fontWeight: 700, color: ACCENT_TEXT }}>
               {totalPts}
             </span>
             <span style={{ fontFamily: 'Space Mono, monospace', fontSize: '8px', color: TEXT_WEAK, marginLeft: '4px', letterSpacing: '1px' }}>
@@ -314,7 +314,7 @@ function ArmyUnitCard({ entry, user }) {
             overflow: 'hidden', textOverflow: 'ellipsis', textAlign: 'right',
           }}>
             {weaponNames.slice(0, 5).join(' · ')}
-            {weaponNames.length > 5 && <span style={{ color: ACCENT }}> +{weaponNames.length - 5}</span>}
+            {weaponNames.length > 5 && <span style={{ color: ACCENT_TEXT }}> +{weaponNames.length - 5}</span>}
           </div>
         )}
       </div>
@@ -384,7 +384,7 @@ function ArmyEditor({ user, onNewArmy }) {
           onClick={onNewArmy}
           style={{
             background: ACCENT, border: `1px solid ${ACCENT}`,
-            color: BG, fontFamily: 'Space Mono, monospace',
+            color: TEXT, fontFamily: 'Space Mono, monospace',
             fontSize: '10px', letterSpacing: '3px', textTransform: 'uppercase',
             fontWeight: 700, padding: '12px 28px', cursor: 'pointer',
             transition: 'opacity 100ms',
@@ -477,7 +477,7 @@ function ArmyEditor({ user, onNewArmy }) {
                     {unit.invuln ? ` · ${unit.invuln}++` : ''}
                   </div>
                 </div>
-                <span style={{ fontFamily: 'Space Mono, monospace', fontSize: '10px', color: ACCENT }}>+ Add</span>
+                <span style={{ fontFamily: 'Space Mono, monospace', fontSize: '10px', color: ACCENT_TEXT }}>+ Add</span>
               </div>
             ))}
           </div>
@@ -496,7 +496,7 @@ function ArmyEditor({ user, onNewArmy }) {
       }}>
         Units
         <span style={{
-          color: ACCENT, border: `1px solid rgba(47,224,255,0.3)`,
+          color: ACCENT_TEXT, border: `1px solid rgba(47,224,255,0.3)`,
           padding: '1px 6px', fontSize: '8px',
         }}>
           {army.units.length}
@@ -546,7 +546,7 @@ function ArmyEditor({ user, onNewArmy }) {
           >
             <div style={{
               fontFamily: 'Space Mono, monospace', fontSize: '20px',
-              color: ACCENT, marginBottom: '12px', lineHeight: 1,
+              color: ACCENT_TEXT, marginBottom: '12px', lineHeight: 1,
             }}>⌕</div>
             <div style={{
               fontFamily: 'Space Mono, monospace', fontSize: '11px',
@@ -582,7 +582,7 @@ function ArmyEditor({ user, onNewArmy }) {
               <span style={{
                 fontFamily: 'Space Mono, monospace', fontSize: '7px',
                 letterSpacing: '1.5px', textTransform: 'uppercase',
-                color: ACCENT, border: `1px solid ${ACCENT}`, padding: '1px 5px',
+                color: ACCENT_TEXT, border: `1px solid ${ACCENT}`, padding: '1px 5px',
               }}>
                 Soon
               </span>
@@ -686,7 +686,7 @@ function ArmySidebar({ user, onNewArmy }) {
           {armies.length > 0 && (
             <span style={{
               fontFamily: 'Space Mono, monospace', fontSize: '7px',
-              color: ACCENT, border: `1px solid rgba(47,224,255,0.3)`,
+              color: ACCENT_TEXT, border: `1px solid rgba(47,224,255,0.3)`,
               padding: '1px 6px',
             }}>{armies.length}</span>
           )}
@@ -729,7 +729,7 @@ function ArmySidebar({ user, onNewArmy }) {
           }}>
             No armies yet.{' '}
             <span
-              style={{ color: ACCENT, cursor: 'pointer' }}
+              style={{ color: ACCENT_TEXT, cursor: 'pointer' }}
               onClick={onNewArmy}
             >
               + New Army
@@ -800,7 +800,7 @@ function NewArmyModal({ onClose, onCreate }) {
       onClick={onClose}
       style={{
         position: 'fixed', inset: 0, zIndex: 200,
-        background: 'rgba(10,22,33,0.85)', backdropFilter: 'blur(8px)',
+        background: 'rgba(248,250,251,0.95)', backdropFilter: 'blur(8px)',
         display: 'flex', alignItems: 'center', justifyContent: 'center',
       }}
     >
@@ -826,7 +826,7 @@ function NewArmyModal({ onClose, onCreate }) {
         <div>
           <div style={{
             fontFamily: 'Space Mono, monospace', fontSize: '10px',
-            letterSpacing: '3px', textTransform: 'uppercase', color: ACCENT, marginBottom: '6px',
+            letterSpacing: '3px', textTransform: 'uppercase', color: ACCENT_TEXT, marginBottom: '6px',
           }}>
             New Army
           </div>

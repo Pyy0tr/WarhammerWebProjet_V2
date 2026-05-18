@@ -1,7 +1,7 @@
 import { useState, useCallback } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { useAuthStore } from '../store/authStore'
-import { ACCENT, BG, SURFACE, BORDER, TEXT, TEXT_OFF, ERROR as ERR_COLOR, SUCCESS } from '../theme'
+import { ACCENT_TEXT, ACCENT, BG, SURFACE, BORDER, TEXT, TEXT_OFF, ERROR as ERR_COLOR, SUCCESS } from '../theme'
 
 function Input({ type = 'text', placeholder, value, onChange, disabled }) {
   const [focused, setFocused] = useState(false)
@@ -70,7 +70,7 @@ export function ResetPasswordPage() {
   return (
     <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: BG, padding: '20px' }}>
       <div style={{ width: '100%', maxWidth: '460px', background: SURFACE, border: `1px solid ${BORDER}`, padding: '40px 36px 36px', display: 'flex', flexDirection: 'column', gap: '24px' }}>
-        <div style={{ fontFamily: 'Space Mono, monospace', fontSize: '15px', fontWeight: 700, letterSpacing: '3px', color: ACCENT }}>
+        <div style={{ fontFamily: 'Space Mono, monospace', fontSize: '15px', fontWeight: 700, letterSpacing: '3px', color: ACCENT_TEXT }}>
           PROB<span style={{ opacity: 0.4 }}>'</span>HAMMER
         </div>
         <div style={{ fontFamily: 'Space Mono, monospace', fontSize: '11px', letterSpacing: '2px', color: TEXT_OFF, textTransform: 'uppercase' }}>

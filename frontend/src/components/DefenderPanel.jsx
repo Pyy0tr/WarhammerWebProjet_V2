@@ -6,7 +6,7 @@ import { useAuthStore } from '../store/authStore'
 import { StatInput } from './StatInput'
 import { Toggle } from './Toggle'
 import { UnitDrawer } from './UnitDrawer'
-import { ACCENT, BG, BORDER, SURFACE, SURFACE_E, TEXT, TEXT_SEC, TEXT_WEAK, TEXT_OFF } from '../theme'
+import { ACCENT_TEXT, ACCENT, BG, BORDER, SURFACE, SURFACE_E, TEXT, TEXT_SEC, TEXT_WEAK, TEXT_OFF } from '../theme'
 
 // ── Army Picker (Defender) ───────────────────────────────────────────────────
 
@@ -60,7 +60,7 @@ function DefenderArmyPicker() {
         color: TEXT_WEAK, lineHeight: 1.7,
       }}>
         No saved armies.{' '}
-        <a href="/armies" style={{ color: ACCENT, textDecoration: 'none' }}>
+        <a href="/armies" style={{ color: ACCENT_TEXT, textDecoration: 'none' }}>
           Create one →
         </a>
       </div>
@@ -140,7 +140,7 @@ function DefenderArmyPicker() {
         }}>
           <div style={{
             fontFamily: 'Space Mono, monospace', fontSize: '12px',
-            fontWeight: 700, color: ACCENT,
+            fontWeight: 700, color: ACCENT_TEXT,
           }}>
             {unit.name}
           </div>
@@ -319,7 +319,7 @@ export function DefenderPanel() {
             onClick={() => setDrawerOpen(true)}
             style={{
               background: ACCENT, border: `1px solid ${ACCENT}`,
-              color: BG, fontFamily: 'Space Mono, monospace', fontSize: '10px',
+              color: TEXT, fontFamily: 'Space Mono, monospace', fontSize: '10px',
               fontWeight: 700, letterSpacing: '2px', textTransform: 'uppercase',
               padding: '12px 28px', cursor: 'pointer', borderRadius: '3px',
               transition: 'opacity 100ms',
@@ -340,7 +340,7 @@ export function DefenderPanel() {
           <div>
             <div style={{
               fontFamily: 'Space Mono, monospace', fontSize: '12px',
-              fontWeight: 700, color: ACCENT,
+              fontWeight: 700, color: ACCENT_TEXT,
             }}>
               {selectedUnit.name}
             </div>
@@ -355,7 +355,7 @@ export function DefenderPanel() {
           <button
             onClick={() => setDrawerOpen(true)}
             style={{
-              background: 'none', border: 'none', color: ACCENT,
+              background: 'none', border: 'none', color: ACCENT_TEXT,
               fontFamily: 'Space Mono, monospace', fontSize: '8px',
               letterSpacing: '1.5px', textTransform: 'uppercase',
               cursor: 'pointer', opacity: 0.6, padding: 0,

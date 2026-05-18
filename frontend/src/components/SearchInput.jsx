@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react'
-import { ACCENT, ACCENT_H, BG, SURFACE, BORDER, TEXT, TEXT_SEC, TEXT_WEAK, SURFACE_E } from '../theme'
+import { ACCENT_TEXT, ACCENT, ACCENT_H, BG, SURFACE, BORDER, TEXT, TEXT_SEC, TEXT_WEAK, SURFACE_E } from '../theme'
 
 export function SearchInput({ label, value, placeholder, onSearch, results, onSelect, renderItem }) {
   const [open, setOpen] = useState(false)

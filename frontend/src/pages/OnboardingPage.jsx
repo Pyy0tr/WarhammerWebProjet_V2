@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell } from 'recharts'
 import { simulate } from '../engine/simulation.js'
 import {
-  ACCENT, BG, BORDER, HIGHLIGHT, SURFACE, SURFACE_E,
+  ACCENT_TEXT, ACCENT, BG, BORDER, HIGHLIGHT, SURFACE, SURFACE_E,
   TEXT, TEXT_SEC, TEXT_WEAK, TEXT_OFF,
 } from '../theme'
 
@@ -97,7 +97,7 @@ function Tag({ children, color = ACCENT }) {
 }
 
 function Body({ children }) {
-  return <p style={{ fontFamily: 'Georgia, serif', fontSize: '16px', lineHeight: 1.8, color: TEXT_SEC, margin: 0 }}>{children}</p>
+  return <p style={{ fontFamily: 'Inter, -apple-system, system-ui, sans-serif', fontSize: '16px', lineHeight: 1.8, color: TEXT_SEC, margin: 0 }}>{children}</p>
 }
 
 function ContinueBtn({ onClick, label = 'Continue ↓', primary = false }) {
@@ -143,7 +143,7 @@ function WeaponCard() {
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)' }}>
         {stats.map((s, i) => (
           <div key={s.key} style={{ padding: '14px 8px', borderRight: i < 4 ? `1px solid ${BORDER}` : 'none', textAlign: 'center' }}>
-            <div style={{ fontFamily: 'Space Mono, monospace', fontSize: '20px', fontWeight: 700, color: ACCENT, lineHeight: 1 }}>{s.value}</div>
+            <div style={{ fontFamily: 'Space Mono, monospace', fontSize: '20px', fontWeight: 700, color: ACCENT_TEXT, lineHeight: 1 }}>{s.value}</div>
             <div style={{ fontFamily: 'Space Mono, monospace', fontSize: '8px', letterSpacing: '1px', textTransform: 'uppercase', color: TEXT_WEAK, marginTop: '5px' }}>{s.key}</div>
           </div>
         ))}
@@ -151,7 +151,7 @@ function WeaponCard() {
       <div style={{ borderTop: `1px solid ${BORDER}`, display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)' }}>
         {stats.map((s, i) => (
           <div key={s.key} style={{ padding: '8px', borderRight: i < 4 ? `1px solid ${BORDER}` : 'none', textAlign: 'center' }}>
-            <div style={{ fontFamily: 'Georgia, serif', fontSize: '11px', color: TEXT_SEC, lineHeight: 1.4 }}>{s.desc}</div>
+            <div style={{ fontFamily: 'Inter, -apple-system, system-ui, sans-serif', fontSize: '11px', color: TEXT_SEC, lineHeight: 1.4 }}>{s.desc}</div>
           </div>
         ))}
       </div>
@@ -197,7 +197,7 @@ function DefenderCard({ showInvuln = true }) {
       <div style={{ borderTop: `1px solid ${BORDER}`, display: 'grid', gridTemplateColumns: `repeat(${cols}, 1fr)` }}>
         {stats.map((s, i) => (
           <div key={s.key} style={{ padding: '8px', borderRight: i < cols - 1 ? `1px solid ${BORDER}` : 'none', textAlign: 'center', opacity: s.sim ? 1 : 0.35 }}>
-            <div style={{ fontFamily: 'Georgia, serif', fontSize: '11px', color: TEXT_SEC, lineHeight: 1.4 }}>{s.desc || '—'}</div>
+            <div style={{ fontFamily: 'Inter, -apple-system, system-ui, sans-serif', fontSize: '11px', color: TEXT_SEC, lineHeight: 1.4 }}>{s.desc || '—'}</div>
           </div>
         ))}
       </div>
@@ -246,7 +246,7 @@ function StepContent({ stepKey, onNext, results }) {
         Invulnerable Save
       </h2>
       <Body>
-        The Maleceptor also has a <strong style={{ color: ACCENT }}>4++ invulnerable save</strong> — completely unaffected by AP. Where our AP-2 made its armour a 5+, the invuln is a flat <strong style={{ color: ACCENT }}>4+</strong>. It will always use the better one.
+        The Maleceptor also has a <strong style={{ color: ACCENT_TEXT }}>4++ invulnerable save</strong> — completely unaffected by AP. Where our AP-2 made its armour a 5+, the invuln is a flat <strong style={{ color: ACCENT_TEXT }}>4+</strong>. It will always use the better one.
       </Body>
       <DefenderCard showInvuln={true} />
       <Body>
@@ -275,7 +275,7 @@ function StepContent({ stepKey, onNext, results }) {
         Lethal Hits
       </h2>
       <Body>
-        The Master-crafted Power Weapon has <strong style={{ color: TEXT }}>Lethal Hits</strong>. Any unmodified hit roll of <strong style={{ color: ACCENT }}>6</strong> automatically wounds — no wound roll needed. The target still makes their save normally.
+        The Master-crafted Power Weapon has <strong style={{ color: TEXT }}>Lethal Hits</strong>. Any unmodified hit roll of <strong style={{ color: ACCENT_TEXT }}>6</strong> automatically wounds — no wound roll needed. The target still makes their save normally.
       </Body>
       <Body>
         The aura still penalizes us to <strong style={{ color: HIGHLIGHT }}>3+</strong> to hit. But a natural 6 skips the T11 wound roll entirely — the 4++ save still applies. Watch the damage recover.
@@ -302,7 +302,7 @@ function StepContent({ stepKey, onNext, results }) {
             <span style={{ fontFamily: 'Space Mono, monospace', fontSize: '10px', color: TEXT_WEAK }}>{profile}</span>
           </div>
         ))}
-        <div style={{ padding: '8px 14px', borderTop: `1px solid ${BORDER}`, fontFamily: 'Space Mono, monospace', fontSize: '10px', color: ACCENT, letterSpacing: '1.5px' }}>
+        <div style={{ padding: '8px 14px', borderTop: `1px solid ${BORDER}`, fontFamily: 'Space Mono, monospace', fontSize: '10px', color: ACCENT_TEXT, letterSpacing: '1.5px' }}>
           All carry Lethal Hits · −1 to hit (aura)
         </div>
       </div>
@@ -318,7 +318,7 @@ function StepContent({ stepKey, onNext, results }) {
         A buff that cancels out
       </h2>
       <Body>
-        The ability reads: when <strong style={{ color: TEXT }}>S ≤ T</strong>, add +1 to wound. S5 vs T11 always triggers it — our 6+ would become a <strong style={{ color: ACCENT }}>5+</strong>. One extra wound chance per die.
+        The ability reads: when <strong style={{ color: TEXT }}>S ≤ T</strong>, add +1 to wound. S5 vs T11 always triggers it — our 6+ would become a <strong style={{ color: ACCENT_TEXT }}>5+</strong>. One extra wound chance per die.
       </Body>
       <Body>
         But Encephalic Diffusion has a second clause: while the attacker is <strong style={{ color: HIGHLIGHT }}>below half-strength</strong>, also apply −1 to wound. Our unit qualifies. The two modifiers cancel exactly.
@@ -326,12 +326,12 @@ function StepContent({ stepKey, onNext, results }) {
       <div style={{ border: `1px solid ${BORDER}`, background: SURFACE }}>
         <div style={{ padding: '10px 14px', borderBottom: `1px solid ${BORDER}`, fontFamily: 'Space Mono, monospace', fontSize: '10px', letterSpacing: '2px', textTransform: 'uppercase', color: TEXT_WEAK }}>Wound modifiers — this matchup</div>
         {[
-          { rule: 'Accept Any Challenge', mod: '+1 to wound', color: ACCENT },
+          { rule: 'Accept Any Challenge', mod: '+1 to wound', color: ACCENT_TEXT },
           { rule: 'Encephalic Diffusion (< half-strength)', mod: '−1 to wound', color: HIGHLIGHT },
           { rule: 'Net result', mod: 'still 6+', color: TEXT },
         ].map(({ rule, mod, color }, i, arr) => (
           <div key={rule} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px 14px', borderBottom: i < arr.length - 1 ? `1px solid ${BORDER}` : 'none', gap: '8px' }}>
-            <span style={{ fontFamily: 'Georgia, serif', fontSize: '13px', color: TEXT_SEC }}>{rule}</span>
+            <span style={{ fontFamily: 'Inter, -apple-system, system-ui, sans-serif', fontSize: '13px', color: TEXT_SEC }}>{rule}</span>
             <span style={{ fontFamily: 'Space Mono, monospace', fontSize: '12px', fontWeight: 700, color, flexShrink: 0 }}>{mod}</span>
           </div>
         ))}
@@ -348,7 +348,7 @@ function StepContent({ stepKey, onNext, results }) {
         Marshal bonus attacks
       </h2>
       <Body>
-        The Marshal's weapon gains <strong style={{ color: ACCENT }}>+1 Attack</strong> per enemy unit within 6" (max +3). One enemy unit here: Marshal goes from A7 to <strong style={{ color: TEXT }}>A8</strong>.
+        The Marshal's weapon gains <strong style={{ color: ACCENT_TEXT }}>+1 Attack</strong> per enemy unit within 6" (max +3). One enemy unit here: Marshal goes from A7 to <strong style={{ color: TEXT }}>A8</strong>.
       </Body>
       <Body>
         D2 per hit means that extra attack carries double the weight of a standard swing.
@@ -369,11 +369,11 @@ function StepContent({ stepKey, onNext, results }) {
         {[
           { outcome: 'Miss (1–2, then 1–2 again)', prob: '≈ 11%', note: 'No damage', color: TEXT_WEAK },
           { outcome: 'Normal hit (3–5)', prob: '≈ 67%', note: '6+ wound → 4++ save → 2 dmg', color: TEXT_SEC },
-          { outcome: 'Lethal crit (6)', prob: '≈ 22%', note: 'Auto-wound · 4++ save → 2 dmg', color: ACCENT },
+          { outcome: 'Lethal crit (6)', prob: '≈ 22%', note: 'Auto-wound · 4++ save → 2 dmg', color: ACCENT_TEXT },
         ].map(({ outcome, prob, note, color }, i, arr) => (
           <div key={outcome} style={{ padding: '10px 14px', borderBottom: i < arr.length - 1 ? `1px solid ${BORDER}` : 'none', display: 'flex', justifyContent: 'space-between', gap: '8px', alignItems: 'flex-start' }}>
             <div>
-              <div style={{ fontFamily: 'Georgia, serif', fontSize: '13px', color: TEXT_SEC }}>{outcome}</div>
+              <div style={{ fontFamily: 'Inter, -apple-system, system-ui, sans-serif', fontSize: '13px', color: TEXT_SEC }}>{outcome}</div>
               <div style={{ fontFamily: 'Space Mono, monospace', fontSize: '10px', color: TEXT_WEAK, marginTop: '3px' }}>{note}</div>
             </div>
             <span style={{ fontFamily: 'Space Mono, monospace', fontSize: '12px', fontWeight: 700, color, flexShrink: 0 }}>{prob}</span>
@@ -392,18 +392,18 @@ function StepContent({ stepKey, onNext, results }) {
         Critical Hit on 5+
       </h2>
       <Body>
-        The Marshal extends the Lethal Hits trigger: an unmodified <strong style={{ color: ACCENT }}>5 or 6</strong> scores a Critical Hit — auto-wounding, no wound roll needed. The target still rolls their save.
+        The Marshal extends the Lethal Hits trigger: an unmodified <strong style={{ color: ACCENT_TEXT }}>5 or 6</strong> scores a Critical Hit — auto-wounding, no wound roll needed. The target still rolls their save.
       </Body>
       <div style={{ border: `1px solid ${BORDER}`, background: SURFACE }}>
         <div style={{ padding: '10px 14px', borderBottom: `1px solid ${BORDER}`, fontFamily: 'Space Mono, monospace', fontSize: '10px', letterSpacing: '2px', textTransform: 'uppercase', color: TEXT_WEAK }}>Per attack — WS3+ effective · crit 5+ · re-rolls active</div>
         {[
           { outcome: 'Miss (1–2, then 1–2 again)', prob: '≈ 11%', note: 'No damage', color: TEXT_WEAK },
           { outcome: 'Normal hit (3–4)', prob: '≈ 44%', note: '6+ wound → 4++ save → 2 dmg', color: TEXT_SEC },
-          { outcome: 'Lethal crit (5 or 6)', prob: '≈ 44%', note: 'Auto-wound · 4++ save → 2 dmg', color: ACCENT },
+          { outcome: 'Lethal crit (5 or 6)', prob: '≈ 44%', note: 'Auto-wound · 4++ save → 2 dmg', color: ACCENT_TEXT },
         ].map(({ outcome, prob, note, color }, i, arr) => (
           <div key={outcome} style={{ padding: '10px 14px', borderBottom: i < arr.length - 1 ? `1px solid ${BORDER}` : 'none', display: 'flex', justifyContent: 'space-between', gap: '8px', alignItems: 'flex-start' }}>
             <div>
-              <div style={{ fontFamily: 'Georgia, serif', fontSize: '13px', color: TEXT_SEC }}>{outcome}</div>
+              <div style={{ fontFamily: 'Inter, -apple-system, system-ui, sans-serif', fontSize: '13px', color: TEXT_SEC }}>{outcome}</div>
               <div style={{ fontFamily: 'Space Mono, monospace', fontSize: '10px', color: TEXT_WEAK, marginTop: '3px' }}>{note}</div>
             </div>
             <span style={{ fontFamily: 'Space Mono, monospace', fontSize: '12px', fontWeight: 700, color, flexShrink: 0 }}>{prob}</span>
@@ -429,11 +429,11 @@ function StepContent({ stepKey, onNext, results }) {
         </div>
       </div>
       <div style={{ padding: '16px', border: `1px solid ${ACCENT}`, background: 'rgba(47,224,255,0.04)' }}>
-        <div style={{ fontFamily: 'Space Mono, monospace', fontSize: '10px', letterSpacing: '2px', textTransform: 'uppercase', color: ACCENT, marginBottom: '8px' }}>Full synergy — per attack die</div>
-        <p style={{ fontFamily: 'Georgia, serif', fontSize: '14px', lineHeight: 1.7, color: TEXT_SEC, margin: 0 }}>
+        <div style={{ fontFamily: 'Space Mono, monospace', fontSize: '10px', letterSpacing: '2px', textTransform: 'uppercase', color: ACCENT_TEXT, marginBottom: '8px' }}>Full synergy — per attack die</div>
+        <p style={{ fontFamily: 'Inter, -apple-system, system-ui, sans-serif', fontSize: '14px', lineHeight: 1.7, color: TEXT_SEC, margin: 0 }}>
           1 attack die with no rules: <strong style={{ color: TEXT }}>{results?.single_base?.summary.mean_damage.toFixed(2)}</strong> mean damage.{' '}
           Same die with all five rules: <strong style={{ color: HIGHLIGHT }}>{results?.single_full?.summary.mean_damage.toFixed(2)}</strong> — a{' '}
-          <strong style={{ color: ACCENT }}>
+          <strong style={{ color: ACCENT_TEXT }}>
             +{results?.single_base && results?.single_full ? (((results.single_full.summary.mean_damage / results.single_base.summary.mean_damage) - 1) * 100).toFixed(0) : '?'}%
           </strong> increase per die.
         </p>
@@ -460,7 +460,7 @@ function StepContent({ stepKey, onNext, results }) {
               <span style={{ fontFamily: 'Space Mono, monospace', fontSize: '10px', fontWeight: 700, color: TEXT }}>{unit}</span>
               <span style={{ fontFamily: 'Space Mono, monospace', fontSize: '10px', color: TEXT_WEAK }}>{profile}</span>
             </div>
-            <div style={{ fontFamily: 'Space Mono, monospace', fontSize: '10px', color: ACCENT, marginTop: '3px' }}>{kw}</div>
+            <div style={{ fontFamily: 'Space Mono, monospace', fontSize: '10px', color: ACCENT_TEXT, marginTop: '3px' }}>{kw}</div>
           </div>
         ))}
       </div>
@@ -502,7 +502,7 @@ function StepContent({ stepKey, onNext, results }) {
         Unmodified 5+ triggers Lethal Hits. With re-rolls: roughly 44% of all attack dice proc it. Full synergy:{' '}
         <strong style={{ color: TEXT }}>{results?.base?.summary.mean_damage.toFixed(2)}</strong> →{' '}
         <strong style={{ color: HIGHLIGHT }}>{results?.full3?.summary.mean_damage.toFixed(2)}</strong> mean damage{' '}
-        (<strong style={{ color: ACCENT }}>+{results?.base && results?.full3 ? (((results.full3.summary.mean_damage / results.base.summary.mean_damage) - 1) * 100).toFixed(0) : '?'}%</strong>).
+        (<strong style={{ color: ACCENT_TEXT }}>+{results?.base && results?.full3 ? (((results.full3.summary.mean_damage / results.base.summary.mean_damage) - 1) * 100).toFixed(0) : '?'}%</strong>).
       </Body>
       <ContinueBtn onClick={onNext} label="Open simulator →" primary />
     </>),
@@ -547,7 +547,7 @@ const CustomTooltip = ({ active, payload, label }) => {
   return (
     <div style={{ background: BG, border: `1px solid ${ACCENT}`, padding: '8px 12px', fontFamily: 'Space Mono, monospace', fontSize: '10px', letterSpacing: '1.5px', color: TEXT }}>
       <div style={{ color: TEXT_WEAK, marginBottom: '3px' }}>DMG {label}</div>
-      <div style={{ fontWeight: 700, color: ACCENT }}>{(payload[0].value * 100).toFixed(1)}%</div>
+      <div style={{ fontWeight: 700, color: ACCENT_TEXT }}>{(payload[0].value * 100).toFixed(1)}%</div>
     </div>
   )
 }
@@ -572,7 +572,7 @@ function FullDamagePanel({ result, label }) {
         </div>
         {result.kill_probabilities?.['1'] != null && (
           <div style={{ paddingBottom: '4px' }}>
-            <div style={{ fontFamily: 'Space Mono, monospace', fontWeight: 700, fontSize: 'clamp(32px, 3.5vw, 52px)', lineHeight: 1, letterSpacing: '-1px', color: ACCENT }}>
+            <div style={{ fontFamily: 'Space Mono, monospace', fontWeight: 700, fontSize: 'clamp(32px, 3.5vw, 52px)', lineHeight: 1, letterSpacing: '-1px', color: ACCENT_TEXT }}>
               {(result.kill_probabilities['1'] * 100).toFixed(0)}%
             </div>
             <div style={{ fontFamily: 'Space Mono, monospace', fontSize: '10px', letterSpacing: '2px', textTransform: 'uppercase', color: TEXT_WEAK, marginTop: '8px' }}>
@@ -706,7 +706,7 @@ export function OnboardingPage() {
 
       {/* Top bar */}
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 24px', borderBottom: `1px solid ${BORDER}`, height: '52px', flexShrink: 0, position: 'sticky', top: 0, zIndex: 10, background: BG }}>
-        <div style={{ fontFamily: 'Space Mono, monospace', fontSize: '12px', fontWeight: 700, letterSpacing: '3px', color: ACCENT }}>
+        <div style={{ fontFamily: 'Space Mono, monospace', fontSize: '12px', fontWeight: 700, letterSpacing: '3px', color: ACCENT_TEXT }}>
           PROB<span style={{ opacity: 0.4 }}>'</span>HAMMER
         </div>
         <div style={{ fontFamily: 'Space Mono, monospace', fontSize: '10px', letterSpacing: '2px', color: TEXT_WEAK }}>
@@ -753,7 +753,7 @@ export function OnboardingPage() {
         onClick={() => handleNext(activeStep)}
         onMouseEnter={() => setBtnHov(true)}
         onMouseLeave={() => setBtnHov(false)}
-        style={{ position: 'fixed', bottom: '40px', left: '25vw', transform: 'translateX(-50%)', border: `1px solid ${ACCENT}`, background: btnHov ? 'rgba(47,224,255,0.08)' : 'transparent', color: ACCENT, fontFamily: 'Space Mono, monospace', fontSize: '10px', letterSpacing: '2px', textTransform: 'uppercase', padding: '10px 20px', cursor: 'pointer', zIndex: 20, transition: 'background 150ms', display: 'flex', alignItems: 'center', gap: '8px' }}
+        style={{ position: 'fixed', bottom: '40px', left: '25vw', transform: 'translateX(-50%)', border: `1px solid ${ACCENT}`, background: btnHov ? 'rgba(47,224,255,0.08)' : 'transparent', color: ACCENT_TEXT, fontFamily: 'Space Mono, monospace', fontSize: '10px', letterSpacing: '2px', textTransform: 'uppercase', padding: '10px 20px', cursor: 'pointer', zIndex: 20, transition: 'background 150ms', display: 'flex', alignItems: 'center', gap: '8px' }}
       >
         <span style={{ display: 'inline-block', animation: 'arrowBounce 1.4s ease-in-out infinite', animationPlayState: btnHov ? 'paused' : 'running' }}>↓</span>
         Next

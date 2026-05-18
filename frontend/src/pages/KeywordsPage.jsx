@@ -2,7 +2,7 @@ import { useEffect, useState, useMemo } from 'react'
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts'
 import { KEYWORD_REGISTRY } from '../engine/keywords'
 import { simulate } from '../engine/simulation'
-import { ACCENT, BORDER, SURFACE, TEXT, TEXT_OFF, TEXT_SEC, TEXT_WEAK, SUCCESS, WARNING, TYPE } from '../theme'
+import { ACCENT_TEXT, ACCENT, BORDER, SURFACE, TEXT, TEXT_OFF, TEXT_SEC, TEXT_WEAK, SUCCESS, WARNING, TYPE } from '../theme'
 
 const N_TRIALS = 1200
 
@@ -318,7 +318,7 @@ function BlastTierTable() {
           Blast<br/>bonus
         </div>
         {tiers.map(({ n, bonus }) => (
-          <div key={n} style={{ background: '#0A1621', padding: '10px 6px', textAlign: 'center', ...TYPE.statMd, color: ACCENT, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <div key={n} style={{ background: '#0A1621', padding: '10px 6px', textAlign: 'center', ...TYPE.statMd, color: ACCENT_TEXT, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
             +{bonus}
           </div>
         ))}
@@ -341,7 +341,7 @@ function BlastTierTable() {
           const diff = (killsBlast - killsBase).toFixed(1)
           return (
             <div key={n} style={{ background: '#0A1621', padding: '10px 6px', textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '3px' }}>
-              <span style={{ ...TYPE.statMd, color: ACCENT }}>{killsBlast}</span>
+              <span style={{ ...TYPE.statMd, color: ACCENT_TEXT }}>{killsBlast}</span>
               <span style={{ ...TYPE.label, color: SUCCESS }}>+{diff}</span>
             </div>
           )
@@ -432,7 +432,7 @@ function ComparisonPanel({ kwType }) {
           <div style={{ background: '#0F2230', padding: '8px 16px', borderLeft: `2px solid ${ACCENT}` }}>
             <span style={{
               fontFamily: 'Space Mono, monospace', fontSize: '10px',
-              letterSpacing: '2px', textTransform: 'uppercase', color: ACCENT,
+              letterSpacing: '2px', textTransform: 'uppercase', color: ACCENT_TEXT,
             }}>
               With keyword
             </span>
@@ -446,7 +446,7 @@ function ComparisonPanel({ kwType }) {
           <div style={{ background: '#0A1621', padding: '16px 16px 12px', borderLeft: `2px solid ${ACCENT}` }}>
             <div style={{ fontFamily: 'Space Mono, monospace', fontSize: '10px', ...TYPE.label, marginBottom: '6px' }}>Mean dmg</div>
             <div style={{ display: 'flex', alignItems: 'baseline', gap: '10px' }}>
-              <div style={{ fontFamily: 'Space Mono, monospace', fontSize: '22px', fontWeight: 700, color: ACCENT }}>{r1.summary.mean_damage}</div>
+              <div style={{ fontFamily: 'Space Mono, monospace', fontSize: '22px', fontWeight: 700, color: ACCENT_TEXT }}>{r1.summary.mean_damage}</div>
               <div style={{ fontFamily: 'Space Mono, monospace', fontSize: '11px', fontWeight: 700, color: diffColor }}>{diffSign}{meanDiff.toFixed(2)}</div>
             </div>
           </div>
@@ -459,7 +459,7 @@ function ComparisonPanel({ kwType }) {
           <div style={{ background: '#0A1621', padding: '12px 16px 16px', borderLeft: `2px solid ${ACCENT}` }}>
             <div style={{ fontFamily: 'Space Mono, monospace', fontSize: '10px', ...TYPE.label, marginBottom: '6px' }}>P90 (best 10%)</div>
             <div style={{ display: 'flex', alignItems: 'baseline', gap: '10px' }}>
-              <div style={{ fontFamily: 'Space Mono, monospace', fontSize: '22px', fontWeight: 700, color: ACCENT }}>{r1.summary.p90}</div>
+              <div style={{ fontFamily: 'Space Mono, monospace', fontSize: '22px', fontWeight: 700, color: ACCENT_TEXT }}>{r1.summary.p90}</div>
               {r1.summary.p90 !== r0.summary.p90 && (
                 <div style={{ fontFamily: 'Space Mono, monospace', fontSize: '11px', fontWeight: 700, color: diffColor }}>
                   {r1.summary.p90 > r0.summary.p90 ? '+' : ''}{r1.summary.p90 - r0.summary.p90}
@@ -506,7 +506,7 @@ function ComparisonPanel({ kwType }) {
               tickLine={false}
               width={34}
             />
-            <Tooltip content={<ChartTooltip />} cursor={{ fill: 'rgba(255,255,255,0.03)' }} />
+            <Tooltip content={<ChartTooltip />} cursor={{ fill: 'rgba(47,224,255,0.06)' }} />
             <Bar dataKey="without" name="Without" fill="#4A6A7A" radius={0} />
             <Bar dataKey="with"    name="With"    fill={ACCENT}   radius={0} opacity={0.85} />
           </BarChart>
@@ -618,17 +618,17 @@ function DetailPanel({ kw }) {
           <div style={{ fontFamily: 'Space Mono, monospace', fontSize: '10px', letterSpacing: '2px', textTransform: 'uppercase', color: TEXT_WEAK, marginBottom: '10px' }}>
             Official Rule
           </div>
-          <div style={{ background: SURFACE, border: `1px solid ${BORDER}`, padding: '14px 18px', fontFamily: 'Georgia, serif', fontSize: '14px', lineHeight: 1.75, color: TEXT_SEC }}>
+          <div style={{ background: SURFACE, border: `1px solid ${BORDER}`, padding: '14px 18px', fontFamily: 'Inter, -apple-system, system-ui, sans-serif', fontSize: '14px', lineHeight: 1.75, color: TEXT_SEC }}>
             {kw.rule}
           </div>
         </div>
 
         {/* When to use */}
         <div>
-          <div style={{ fontFamily: 'Space Mono, monospace', fontSize: '10px', letterSpacing: '2px', textTransform: 'uppercase', color: ACCENT, marginBottom: '10px', opacity: 0.8 }}>
+          <div style={{ fontFamily: 'Space Mono, monospace', fontSize: '10px', letterSpacing: '2px', textTransform: 'uppercase', color: ACCENT_TEXT, marginBottom: '10px', opacity: 0.8 }}>
             When to use
           </div>
-          <p style={{ fontFamily: 'Georgia, serif', fontSize: '14px', lineHeight: 1.8, color: TEXT_SEC, margin: 0 }}>
+          <p style={{ fontFamily: 'Inter, -apple-system, system-ui, sans-serif', fontSize: '14px', lineHeight: 1.8, color: TEXT_SEC, margin: 0 }}>
             {kw.when}
           </p>
         </div>

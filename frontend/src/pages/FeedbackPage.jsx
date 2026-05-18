@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { useAuthStore } from '../store/authStore'
 import { api } from '../lib/api'
 import {
-  ACCENT, BG, BORDER, HIGHLIGHT, SURFACE, SURFACE_E,
+  ACCENT_TEXT, ACCENT, BG, BORDER, HIGHLIGHT, SURFACE, SURFACE_E,
   TEXT, TEXT_SEC, TEXT_WEAK, TEXT_OFF,
 } from '../theme'
 
@@ -51,11 +51,11 @@ export function FeedbackPage() {
     return (
       <div style={{ minHeight: 'calc(100vh - 52px)', marginTop: '52px', background: BG, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '40px 24px' }}>
         <div style={{ maxWidth: '480px', width: '100%', display: 'flex', flexDirection: 'column', gap: '24px', border: `1px solid ${ACCENT}`, background: SURFACE, padding: '48px 44px' }}>
-          <div style={{ fontFamily: 'Space Mono, monospace', fontSize: '10px', letterSpacing: '3px', textTransform: 'uppercase', color: ACCENT }}>Envoyé</div>
+          <div style={{ fontFamily: 'Space Mono, monospace', fontSize: '10px', letterSpacing: '3px', textTransform: 'uppercase', color: ACCENT_TEXT }}>Envoyé</div>
           <h1 style={{ fontFamily: 'Space Mono, monospace', fontSize: '20px', fontWeight: 700, letterSpacing: '2px', textTransform: 'uppercase', color: TEXT, margin: 0 }}>
             Merci pour ton feedback
           </h1>
-          <p style={{ fontFamily: 'Georgia, serif', fontSize: '15px', lineHeight: 1.7, color: TEXT_SEC, margin: 0 }}>
+          <p style={{ fontFamily: 'Inter, -apple-system, system-ui, sans-serif', fontSize: '15px', lineHeight: 1.7, color: TEXT_SEC, margin: 0 }}>
             Ton message a bien été reçu. Je lis chaque feedback attentivement.
           </p>
           <button
@@ -83,7 +83,7 @@ export function FeedbackPage() {
           <h1 style={{ fontFamily: 'Space Mono, monospace', fontSize: 'clamp(18px, 2.5vw, 26px)', fontWeight: 700, letterSpacing: '2px', textTransform: 'uppercase', color: TEXT, margin: 0 }}>
             Envoie un feedback
           </h1>
-          <p style={{ fontFamily: 'Georgia, serif', fontSize: '15px', lineHeight: 1.7, color: TEXT_SEC, margin: 0 }}>
+          <p style={{ fontFamily: 'Inter, -apple-system, system-ui, sans-serif', fontSize: '15px', lineHeight: 1.7, color: TEXT_SEC, margin: 0 }}>
             Bug, suggestion, question — tout est bienvenu. Je lis chaque message.
           </p>
         </div>
@@ -117,7 +117,7 @@ export function FeedbackPage() {
                     onMouseLeave={(e) => { if (!selected) e.currentTarget.style.borderColor = BORDER }}
                   >
                     <div style={{ fontFamily: 'Space Mono, monospace', fontSize: '10px', fontWeight: 700, letterSpacing: '1.5px', textTransform: 'uppercase', color: selected ? col : TEXT }}>{t.label}</div>
-                    <div style={{ fontFamily: 'Georgia, serif', fontSize: '11px', color: TEXT_WEAK, marginTop: '4px', lineHeight: 1.4 }}>{t.desc}</div>
+                    <div style={{ fontFamily: 'Inter, -apple-system, system-ui, sans-serif', fontSize: '11px', color: TEXT_WEAK, marginTop: '4px', lineHeight: 1.4 }}>{t.desc}</div>
                   </button>
                 )
               })}
@@ -138,7 +138,7 @@ export function FeedbackPage() {
               rows={6}
               style={{
                 background: SURFACE, border: `1px solid ${BORDER}`, color: TEXT,
-                fontFamily: 'Georgia, serif', fontSize: '14px', lineHeight: 1.7,
+                fontFamily: 'Inter, -apple-system, system-ui, sans-serif', fontSize: '14px', lineHeight: 1.7,
                 padding: '14px 16px', resize: 'vertical', outline: 'none',
                 transition: 'border-color 150ms',
               }}
@@ -186,7 +186,7 @@ export function FeedbackPage() {
             type="submit"
             disabled={loading}
             style={{
-              background: ACCENT, border: 'none', color: BG,
+              background: ACCENT, border: 'none', color: TEXT,
               fontFamily: 'Space Mono, monospace', fontSize: '10px',
               letterSpacing: '2px', textTransform: 'uppercase', fontWeight: 700,
               padding: '14px 28px', cursor: loading ? 'wait' : 'pointer',
