@@ -237,7 +237,7 @@ console.log('── Weapon keywords ──────────────�
   const ATTACKS   = 3,  SKILL = 3,  MODELS = 1
   const S = 5,  AP = -2,  D_BASE = '1'
   const MELTA_VAL = 'D3'              // ← e.g. 'D3', 'D6', '2'
-  const T = 4,  SV = 4,  W = 5,  DEF_MODELS = 1  // W=5 avoids overkill (D1+D3 max=4)
+  const T = 4,  SV = 4,  W = 20, DEF_MODELS = 1  // W large enough to absorb all attacks (3×max4=12)
   // ────────────────────────────────
   const pHit    = pGe(SKILL)
   const pW      = pGe(woundOn(S, T))
