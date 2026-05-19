@@ -45,7 +45,7 @@ function StepBar({ current, onStep }) {
               background: active ? ACCENT : completed ? SURFACE_E : 'transparent',
               border: `1px solid ${active || completed ? ACCENT : BORDER}`,
               fontFamily: FONT_UI, fontSize: '10px', fontWeight: 700,
-              color: active ? BG : completed ? ACCENT : TEXT_OFF,
+              color: active ? BG : completed ? ACCENT : TEXT_WEAK,
               transition: 'all 150ms',
             }}>
               {completed ? '\u2713' : s.n}
@@ -53,7 +53,7 @@ function StepBar({ current, onStep }) {
             <span style={{
               fontFamily: FONT_UI, fontSize: '10px',
               letterSpacing: '1.5px', textTransform: 'uppercase',
-              color: active ? ACCENT : completed ? TEXT_SEC : TEXT_OFF,
+              color: active ? ACCENT : completed ? TEXT_SEC : TEXT_WEAK,
               fontWeight: active ? 700 : 400,
               transition: 'color 150ms',
             }}>
@@ -728,7 +728,7 @@ function ProgressTracker() {
                     fontSize: '10px',
                     letterSpacing: '1.5px',
                     textTransform: 'uppercase',
-                    color: isActive ? ACCENT : isCompleted ? TEXT_SEC : TEXT_OFF,
+                    color: isActive ? ACCENT : isCompleted ? TEXT_SEC : TEXT_WEAK,
                     fontWeight: isActive ? 700 : 400,
                     lineHeight: 1,
                     marginBottom: (isActive || isCompleted) ? '8px' : 0,
@@ -969,17 +969,16 @@ function AttackStep() {
           disabled={!hasWeapon}
           style={{
             flex: 1, padding: '14px',
-            background: hasWeapon ? ACCENT : 'transparent',
+            background: hasWeapon ? ACCENT : SURFACE_E,
             border: `1px solid ${hasWeapon ? ACCENT : BORDER}`,
-            color: hasWeapon ? BG : TEXT_OFF,
-            fontFamily: FONT_UI, fontSize: '10px',
-            fontWeight: 700, letterSpacing: '2px', textTransform: 'uppercase',
+            color: hasWeapon ? '#FFFFFF' : TEXT_WEAK,
+            fontFamily: FONT_UI, fontSize: '13px',
+            fontWeight: 600, borderRadius: RADIUS,
             cursor: hasWeapon ? 'pointer' : 'default',
-            opacity: hasWeapon ? 1 : 0.4,
-            transition: 'opacity 120ms',
+            transition: 'background 120ms, border-color 120ms',
           }}
-          onMouseEnter={(e) => { if (hasWeapon) e.currentTarget.style.opacity = '0.85' }}
-          onMouseLeave={(e) => { e.currentTarget.style.opacity = hasWeapon ? '1' : '0.4' }}
+          onMouseEnter={(e) => { if (hasWeapon) { e.currentTarget.style.background = ACCENT_H; e.currentTarget.style.borderColor = ACCENT_H } }}
+          onMouseLeave={(e) => { if (hasWeapon) { e.currentTarget.style.background = ACCENT; e.currentTarget.style.borderColor = ACCENT } }}
         >
           {editingIdx !== null ? 'Save changes →' : 'Confirm attack →'}
         </button>

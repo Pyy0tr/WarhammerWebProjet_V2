@@ -100,7 +100,7 @@ function StepBar({ current, onStep }) {
               background: active ? ACCENT : completed ? SURFACE_E : 'transparent',
               border: `1px solid ${active || completed ? ACCENT : BORDER}`,
               fontFamily: FONT_UI, fontSize: '10px', fontWeight: 700,
-              color: active ? BG : completed ? ACCENT : TEXT_OFF,
+              color: active ? BG : completed ? ACCENT : TEXT_WEAK,
               transition: 'all 150ms',
             }}>
               {completed ? '✓' : s.n}
@@ -108,7 +108,7 @@ function StepBar({ current, onStep }) {
             <span style={{
               fontFamily: FONT_UI, fontSize: '10px',
               letterSpacing: '1.5px', textTransform: 'uppercase',
-              color: active ? ACCENT : completed ? TEXT_SEC : TEXT_OFF,
+              color: active ? ACCENT : completed ? TEXT_SEC : TEXT_WEAK,
               fontWeight: active ? 700 : 400, transition: 'color 150ms',
             }}>
               {s.label}
