@@ -4,7 +4,7 @@ import { AttackerPanel } from '../components/AttackerPanel'
 import { DefenderPanel } from '../components/DefenderPanel'
 import { ResultsPanel } from '../components/ResultsPanel'
 import { AbilityText } from '../components/AbilityText'
-import { ACCENT_TEXT, ACCENT, ACCENT_H, BG, SURFACE, SURFACE_E, BORDER, TEXT, TEXT_SEC, TEXT_WEAK, TEXT_OFF, ERROR , FONT_UI} from '../theme'
+import { ACCENT_TEXT, ACCENT, ACCENT_H, BG, SURFACE, SURFACE_E, BORDER, TEXT, TEXT_SEC, TEXT_WEAK, TEXT_OFF, ERROR, FONT_UI, SHADOW_SM, SHADOW_MD, RADIUS } from '../theme'
 import { KEYWORD_BY_TYPE } from '../engine/keywords.js'
 
 // ── Step indicator ───────────────────────────────────────────────────────────
@@ -632,7 +632,11 @@ function ProgressTracker() {
       opacity: hoveredKeyword ? 0.12 : 1,
       transition: 'opacity 150ms ease',
       pointerEvents: hoveredKeyword ? 'none' : 'auto',
-      padding: '4px 8px 4px 20px',
+      padding: '16px 8px 16px 20px',
+      background: SURFACE,
+      border: `1px solid ${BORDER}`,
+      borderRadius: '6px',
+      boxShadow: SHADOW_SM,
     }}>
       {/* Header */}
       <div style={{
@@ -865,6 +869,8 @@ function UnitAbilitiesPanel({ role }) {
               padding: '18px',
               maxHeight: 'calc(100vh - 160px)',
               overflowY: 'auto',
+              borderRadius: RADIUS,
+              boxShadow: SHADOW_MD,
             }}
           >
             {/* Header */}

@@ -14,7 +14,7 @@
 export const BG        = '#F7F9F5'   // blanc vert très léger
 export const SURFACE   = '#FFFFFF'   // surface card
 export const SURFACE_E = '#F0F4ED'   // hover / elevated
-export const BORDER    = '#D5DDD0'   // bordures douces
+export const BORDER    = '#C0CABC'   // bordures douces
 
 // 2. Typographie
 export const TEXT      = '#141A12'   // quasi-noir (warm)
@@ -46,8 +46,8 @@ export const FONT_SERIF = FONT_UI
 
 // ── Constantes de layout ──────────────────────────────────────────────────────
 export const RADIUS = '6px'
-export const SHADOW_SM = '0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.04)'
-export const SHADOW_MD = '0 4px 12px rgba(0,0,0,0.10), 0 2px 4px rgba(0,0,0,0.06)'
+export const SHADOW_SM = '0 1px 4px rgba(0,0,0,0.10), 0 1px 2px rgba(0,0,0,0.06)'
+export const SHADOW_MD = '0 4px 16px rgba(0,0,0,0.13), 0 2px 6px rgba(0,0,0,0.08)'
 
 // ── Échelle typographique ─────────────────────────────────────────────────────
 // Spread dans les inline styles : style={{ ...TYPE.heading }}

@@ -335,6 +335,7 @@ export function DefenderPanel() {
           marginBottom: '20px', padding: '10px 14px',
           border: `1px solid ${BORDER}`,
           background: SURFACE,
+          borderRadius: '6px', boxShadow: '0 1px 4px rgba(0,0,0,0.10), 0 1px 2px rgba(0,0,0,0.06)',
           display: 'flex', justifyContent: 'space-between', alignItems: 'center',
         }}>
           <div>

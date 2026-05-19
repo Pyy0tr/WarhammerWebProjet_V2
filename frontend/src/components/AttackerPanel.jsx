@@ -5,7 +5,7 @@ import { useArmyStore }      from '../store/armyStore'
 import { useAuthStore }      from '../store/authStore'
 import { StatInput }  from './StatInput'
 import { UnitDrawer } from './UnitDrawer'
-import { ACCENT_TEXT, ACCENT, ACCENT_H, BG, SURFACE, SURFACE_E, BORDER, TEXT, TEXT_SEC, TEXT_WEAK, TEXT_OFF , FONT_UI} from '../theme'
+import { ACCENT_TEXT, ACCENT, ACCENT_H, BG, SURFACE, SURFACE_E, BORDER, TEXT, TEXT_SEC, TEXT_WEAK, TEXT_OFF, FONT_UI, SHADOW_SM, RADIUS } from '../theme'
 import { KW_GROUPS, SIMPLE_KW_TYPES } from '../engine/keywords.js'
 
 // ── KeywordPicker ─────────────────────────────────────────────────────────────
@@ -670,6 +670,7 @@ export function AttackerPanel() {
             <div style={{
               marginBottom: '20px', padding: '10px 14px',
               border: `1px solid ${BORDER}`, background: SURFACE,
+              borderRadius: RADIUS, boxShadow: SHADOW_SM,
               display: 'flex', justifyContent: 'space-between', alignItems: 'center',
             }}>
               <div>
@@ -705,7 +706,7 @@ export function AttackerPanel() {
                 No weapon data — configure manually below
               </div>
             ) : (
-              <div style={{ border: `1px solid ${BORDER}` }}>
+              <div style={{ border: `1px solid ${BORDER}`, borderRadius: RADIUS, boxShadow: SHADOW_SM, overflow: 'hidden' }}>
                 {unitWeapons.map((w) => (
                   <div
                     key={w.id}
@@ -743,6 +744,7 @@ export function AttackerPanel() {
             marginBottom: '20px', padding: '10px 14px',
             border: `1px solid ${BORDER}`,
             background: SURFACE,
+            borderRadius: RADIUS, boxShadow: SHADOW_SM,
             display: 'flex', justifyContent: 'space-between', alignItems: 'center',
           }}>
             <div>

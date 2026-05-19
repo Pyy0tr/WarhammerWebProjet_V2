@@ -145,6 +145,7 @@ export function Navbar() {
         height: '56px',
         background: SURFACE,
         borderBottom: `1px solid ${BORDER}`,
+        boxShadow: '0 1px 4px rgba(0,0,0,0.08)',
         zIndex: 100,
         display: 'flex',
         alignItems: 'center',
