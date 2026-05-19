@@ -6,7 +6,7 @@ import { useAuthStore } from '../store/authStore'
 import { StatInput } from './StatInput'
 import { Toggle } from './Toggle'
 import { UnitDrawer } from './UnitDrawer'
-import { ACCENT_TEXT, ACCENT, BG, BORDER, SURFACE, SURFACE_E, TEXT, TEXT_SEC, TEXT_WEAK, TEXT_OFF , FONT_UI} from '../theme'
+import { ACCENT_TEXT, ACCENT, BG, BORDER, SURFACE, SURFACE_E, TEXT, TEXT_SEC, TEXT_WEAK, TEXT_OFF , FONT_UI, ACCENT_LIGHT} from '../theme'
 
 // ── Army Picker (Defender) ───────────────────────────────────────────────────
 
@@ -76,7 +76,7 @@ function DefenderArmyPicker() {
   }
 
   const labelStyle = {
-    fontFamily: FONT_UI, fontSize: '8px',
+    fontFamily: FONT_UI, fontSize: '11px',
     letterSpacing: '2px', textTransform: 'uppercase',
     color: TEXT_WEAK, marginBottom: '6px', display: 'block',
   }
@@ -122,7 +122,7 @@ function DefenderArmyPicker() {
                     <div style={{ fontFamily: FONT_UI, fontSize: '11px', color: active ? ACCENT : TEXT, fontWeight: active ? 700 : 400 }}>
                       {u.name}
                     </div>
-                    <div style={{ fontFamily: FONT_UI, fontSize: '8px', color: TEXT_WEAK, marginTop: '2px' }}>
+                    <div style={{ fontFamily: FONT_UI, fontSize: '11px', color: TEXT_WEAK, marginTop: '2px' }}>
                       {u.models} models · T{u.T} · Sv{u.Sv}+ · W{u.W}
                       {u.invuln ? ` · ${u.invuln}++` : ''}
                     </div>
@@ -177,7 +177,7 @@ function ProfileSelector({ unit, setDefender, defender }) {
   }
 
   const labelStyle = {
-    fontFamily: FONT_UI, fontSize: '8px',
+    fontFamily: FONT_UI, fontSize: '11px',
     letterSpacing: '2px', textTransform: 'uppercase',
     color: TEXT_WEAK, marginBottom: '8px', display: 'block',
   }
@@ -215,7 +215,7 @@ function ProfileSelector({ unit, setDefender, defender }) {
                 {p.name}
               </span>
               <span style={{
-                fontFamily: FONT_UI, fontSize: '8px', color: TEXT_WEAK,
+                fontFamily: FONT_UI, fontSize: '11px', color: TEXT_WEAK,
               }}>
                 T{p.T} · {p.Sv}+ · W{p.W}
               </span>
@@ -266,7 +266,7 @@ export function DefenderPanel() {
     <section>
       <div style={{ display: 'flex', alignItems: 'baseline', gap: '10px', marginBottom: '20px' }}>
         <span style={{
-          fontFamily: FONT_UI, fontSize: '8px',
+          fontFamily: FONT_UI, fontSize: '11px',
           letterSpacing: '2px', textTransform: 'uppercase', color: TEXT_OFF,
         }}>UNIT.002</span>
         <span style={{
@@ -346,7 +346,7 @@ export function DefenderPanel() {
               {selectedUnit.name}
             </div>
             <div style={{
-              fontFamily: FONT_UI, fontSize: '8.5px',
+              fontFamily: FONT_UI, fontSize: '12px',
               color: TEXT_WEAK, marginTop: '3px', letterSpacing: '1px',
             }}>
               T{defender.toughness} · SV{defender.save}+ · W{defender.wounds}
@@ -357,7 +357,7 @@ export function DefenderPanel() {
             onClick={() => setDrawerOpen(true)}
             style={{
               background: 'none', border: 'none', color: ACCENT_TEXT,
-              fontFamily: FONT_UI, fontSize: '8px',
+              fontFamily: FONT_UI, fontSize: '11px',
               letterSpacing: '1.5px', textTransform: 'uppercase',
               cursor: 'pointer', opacity: 0.6, padding: 0,
             }}
@@ -388,14 +388,14 @@ export function DefenderPanel() {
             min={1} max={24} onChange={(v) => setDefender({ wounds: v })} />
           <div>
             <div style={{
-              fontFamily: FONT_UI, fontSize: '8px',
+              fontFamily: FONT_UI, fontSize: '11px',
               letterSpacing: '2px', textTransform: 'uppercase',
               color: TEXT_WEAK, marginBottom: '6px',
               display: 'flex', alignItems: 'baseline', gap: '6px',
             }}>
               <span>Number of models</span>
               {selectedUnit && (selectedUnit.min_models || selectedUnit.max_models) && (
-                <span style={{ fontSize: '7px', color: TEXT_OFF }}>
+                <span style={{ fontSize: '11px', color: TEXT_OFF }}>
                   ({selectedUnit.min_models ?? 1}–{selectedUnit.max_models ?? '?'})
                 </span>
               )}
@@ -408,7 +408,7 @@ export function DefenderPanel() {
               onChange={(e) => setDefender({ models: Math.max(1, parseInt(e.target.value) || 1) })}
               style={{
                 width: '100%', boxSizing: 'border-box',
-                background: 'rgba(47,224,255,0.04)',
+                background: ACCENT_LIGHT,
                 border: `1px solid ${BORDER}`,
                 color: TEXT, fontFamily: FONT_UI,
                 fontSize: '13px', padding: '9px 10px',

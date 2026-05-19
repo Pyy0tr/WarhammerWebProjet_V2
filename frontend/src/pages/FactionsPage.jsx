@@ -3,7 +3,7 @@ import { useLocation } from 'react-router-dom'
 import { useDataStore }  from '../store/dataStore'
 import { useArmyStore }  from '../store/armyStore'
 import { useAuthStore }  from '../store/authStore'
-import { ACCENT_TEXT, ACCENT, BG, SURFACE, SURFACE_E, BORDER, TEXT, TEXT_SEC, TEXT_WEAK, TEXT_OFF , FONT_UI} from '../theme'
+import { ACCENT_TEXT, ACCENT, BG, SURFACE, SURFACE_E, BORDER, TEXT, TEXT_SEC, TEXT_WEAK, TEXT_OFF , FONT_UI, ACCENT_LIGHT} from '../theme'
 import { AbilityText } from '../components/AbilityText'
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
@@ -73,7 +73,7 @@ function SearchBar({ value, onChange, placeholder }) {
         onBlur={() => setFocused(false)}
         style={{
           width: '100%', boxSizing: 'border-box',
-          background: 'rgba(47,224,255,0.04)',
+          background: ACCENT_LIGHT,
           border: `1px solid ${focused || value ? ACCENT : BORDER}`,
           borderRadius: '4px', color: TEXT,
           fontFamily: FONT_UI, fontSize: '13px',
@@ -231,7 +231,7 @@ function FactionsView({ onSelectFaction }) {
                 onClick={() => setDense((v) => !v)}
                 title={dense ? 'Expanded view' : 'Compact view'}
                 style={{
-                  background: dense ? 'rgba(47,224,255,0.08)' : 'transparent',
+                  background: dense ? SURFACE_E : 'transparent',
                   border: `1px solid ${dense ? ACCENT : BORDER}`,
                   color: dense ? ACCENT : TEXT_WEAK,
                   fontFamily: FONT_UI, fontSize: '10px',
@@ -637,7 +637,7 @@ function UnitsView({ faction, initialUnit, _onSelectUnit, onBack }) {
             value={sort}
             onChange={(e) => setSort(e.target.value)}
             style={{
-              background: 'rgba(47,224,255,0.04)',
+              background: ACCENT_LIGHT,
               border: `1px solid ${BORDER}`,
               color: TEXT_SEC, borderRadius: '4px',
               fontFamily: FONT_UI, fontSize: '10px',
@@ -710,13 +710,13 @@ function UnitCard({ unit, onClick, showFaction = false }) {
     >
       <div style={{
         padding: '14px 16px',
-        background: hover ? 'rgba(47,224,255,0.04)' : 'transparent',
+        background: hover ? ACCENT_LIGHT : 'transparent',
         transition: 'background 100ms',
       }}>
         {unit.is_legends && (
           <div style={{
             display: 'inline-block', marginBottom: '6px',
-            fontFamily: FONT_UI, fontSize: '8px',
+            fontFamily: FONT_UI, fontSize: '11px',
             letterSpacing: '1px', textTransform: 'uppercase',
             color: TEXT_WEAK, border: `1px solid ${BORDER}`,
             padding: '2px 6px',
@@ -735,7 +735,7 @@ function UnitCard({ unit, onClick, showFaction = false }) {
 
         {factionLabel && (
           <div style={{
-            fontFamily: FONT_UI, fontSize: '8px',
+            fontFamily: FONT_UI, fontSize: '11px',
             letterSpacing: '1.5px', textTransform: 'uppercase',
             color: ACCENT_TEXT, opacity: 0.7, marginBottom: '6px',
           }}>
@@ -778,7 +778,7 @@ function StatCell({ label, value }) {
       border: `1px solid ${BORDER}`, padding: '14px 22px',
       marginRight: '-1px', marginBottom: '-1px', textAlign: 'center', minWidth: '64px',
     }}>
-      <div style={{ fontFamily: FONT_UI, fontSize: '8px', letterSpacing: '1.5px', textTransform: 'uppercase', color: TEXT_WEAK, marginBottom: '8px' }}>
+      <div style={{ fontFamily: FONT_UI, fontSize: '11px', letterSpacing: '1.5px', textTransform: 'uppercase', color: TEXT_WEAK, marginBottom: '8px' }}>
         {label}
       </div>
       <div style={{ fontFamily: FONT_UI, fontSize: '18px', fontWeight: 700, color: TEXT }}>
@@ -920,7 +920,7 @@ function ModelOptionsWeapons({ modelOptions, unit }) {
                   </span>
                 ))}
                 {mo.max != null && (
-                  <span style={{ color: TEXT_WEAK, fontSize: '8px' }}>
+                  <span style={{ color: TEXT_WEAK, fontSize: '11px' }}>
                     ×{mo.min != null && mo.min !== mo.max ? `${mo.min}–${mo.max}` : mo.max}
                   </span>
                 )}
@@ -933,7 +933,7 @@ function ModelOptionsWeapons({ modelOptions, unit }) {
                 <div key={gi} style={{ marginBottom: '20px' }}>
                   {g.group && (
                     <div style={{
-                      fontFamily: FONT_UI, fontSize: '8px',
+                      fontFamily: FONT_UI, fontSize: '11px',
                       letterSpacing: '1.5px', textTransform: 'uppercase',
                       color: TEXT_WEAK, marginBottom: '8px',
                       display: 'flex', alignItems: 'center', gap: '8px',

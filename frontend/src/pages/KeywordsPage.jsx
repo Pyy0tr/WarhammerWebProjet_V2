@@ -2,7 +2,7 @@ import { useEffect, useState, useMemo } from 'react'
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts'
 import { KEYWORD_REGISTRY } from '../engine/keywords'
 import { simulate } from '../engine/simulation'
-import { ACCENT_TEXT, ACCENT, BORDER, SURFACE, TEXT, TEXT_OFF, TEXT_SEC, TEXT_WEAK, SUCCESS, WARNING, TYPE , FONT_UI} from '../theme'
+import { ACCENT_TEXT, ACCENT, BORDER, SURFACE, TEXT, TEXT_OFF, TEXT_SEC, TEXT_WEAK, SUCCESS, WARNING, TYPE , FONT_UI, ACCENT_LIGHT} from '../theme'
 
 const N_TRIALS = 1200
 
@@ -528,7 +528,7 @@ function KeywordRow({ kw, selected, onClick }) {
       style={{
         padding: '10px 16px',
         borderLeft: `2px solid ${selected ? ACCENT : 'transparent'}`,
-        background: selected ? 'rgba(47,224,255,0.06)' : hov ? 'rgba(47,224,255,0.03)' : 'transparent',
+        background: selected ? 'rgba(47,224,255,0.06)' : hov ? ACCENT_LIGHT : 'transparent',
         cursor: 'pointer',
         transition: 'background 100ms, border-color 100ms',
         display: 'flex', alignItems: 'center', justifyContent: 'space-between',
@@ -546,7 +546,7 @@ function KeywordRow({ kw, selected, onClick }) {
       </span>
       {kw.notSimulated && (
         <span style={{
-          fontFamily: FONT_UI, fontSize: '8px',
+          fontFamily: FONT_UI, fontSize: '11px',
           letterSpacing: '1px', textTransform: 'uppercase',
           color: TEXT_OFF, padding: '2px 6px',
           border: `1px solid #1E3A4C`, flexShrink: 0,
@@ -604,7 +604,7 @@ function DetailPanel({ kw }) {
           }}>
             <div style={{ width: 6, height: 6, borderRadius: '50%', background: kw.notSimulated ? TEXT_OFF : SUCCESS }} />
             <span style={{
-              fontFamily: FONT_UI, fontSize: '8px',
+              fontFamily: FONT_UI, fontSize: '11px',
               letterSpacing: '1.5px', textTransform: 'uppercase',
               color: kw.notSimulated ? TEXT_OFF : SUCCESS,
             }}>
@@ -724,7 +724,7 @@ export function KeywordsPage() {
               <div key={group} style={{ marginBottom: '8px' }}>
                 <div style={{
                   padding: '12px 16px 6px',
-                  fontFamily: FONT_UI, fontSize: '8px',
+                  fontFamily: FONT_UI, fontSize: '11px',
                   letterSpacing: '2.5px', textTransform: 'uppercase', color: TEXT_OFF,
                 }}>
                   {label}

@@ -7,7 +7,7 @@ import { simulate } from '../engine/simulation'
 import { KEYWORD_BY_TYPE } from '../engine/keywords.js'
 import {
   ACCENT_TEXT, ACCENT, BG, BORDER, ERROR, SURFACE, SURFACE_E,
-  TEXT, TEXT_OFF, TEXT_SEC, TEXT_WEAK, SUCCESS, TYPE, FONT_UI} from '../theme'
+  TEXT, TEXT_OFF, TEXT_SEC, TEXT_WEAK, SUCCESS, TYPE, FONT_UI, ACCENT_LIGHT} from '../theme'
 
 const N_TRIALS = 2000
 
@@ -139,28 +139,28 @@ function AttackCard({ attack, idx, onEdit, onRemove }) {
     <div style={{ border: `1px solid ${BORDER}`, padding: '14px 16px', background: SURFACE, display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
       <div style={{ flex: 1 }}>
         <div style={{ display: 'flex', alignItems: 'baseline', gap: '8px', marginBottom: '4px' }}>
-          <span style={{ fontFamily: FONT_UI, fontSize: '8px', letterSpacing: '1.5px', color: TEXT_OFF }}>#{idx + 1}</span>
+          <span style={{ fontFamily: FONT_UI, fontSize: '11px', letterSpacing: '1.5px', color: TEXT_OFF }}>#{idx + 1}</span>
           <span style={{ fontFamily: FONT_UI, fontSize: '12px', fontWeight: 700, color: ACCENT_TEXT }}>{w.name || 'Custom weapon'}</span>
         </div>
         <div style={{ fontFamily: FONT_UI, fontSize: '10px', color: TEXT_SEC, letterSpacing: '0.5px' }}>
           {attack.models}× · A{w.attacks} · BS{w.skill}+ · S{w.strength} · AP{w.ap} · D{w.damage}
         </div>
         {kwList.length > 0 && (
-          <div style={{ fontFamily: FONT_UI, fontSize: '8px', color: TEXT_WEAK, marginTop: '4px', letterSpacing: '0.5px', textTransform: 'uppercase' }}>
+          <div style={{ fontFamily: FONT_UI, fontSize: '11px', color: TEXT_WEAK, marginTop: '4px', letterSpacing: '0.5px', textTransform: 'uppercase' }}>
             {kwList.join(' · ')}
           </div>
         )}
         {attack.buffs?.length > 0 && (
-          <div style={{ fontFamily: FONT_UI, fontSize: '8px', color: 'rgba(194,143,133,0.7)', marginTop: '3px', letterSpacing: '0.5px', textTransform: 'uppercase' }}>
+          <div style={{ fontFamily: FONT_UI, fontSize: '11px', color: 'rgba(194,143,133,0.7)', marginTop: '3px', letterSpacing: '0.5px', textTransform: 'uppercase' }}>
             {attack.buffs.map((b) => `${b.type.replace(/_/g, ' ')} (${b.value})`).join(' · ')}
           </div>
         )}
       </div>
       <div style={{ display: 'flex', gap: '6px', marginLeft: '12px', flexShrink: 0 }}>
-        <button onClick={() => onEdit(idx)} style={{ background: 'none', border: `1px solid ${BORDER}`, color: ACCENT_TEXT, fontFamily: FONT_UI, fontSize: '8px', letterSpacing: '1px', textTransform: 'uppercase', padding: '4px 8px', cursor: 'pointer' }}
+        <button onClick={() => onEdit(idx)} style={{ background: 'none', border: `1px solid ${BORDER}`, color: ACCENT_TEXT, fontFamily: FONT_UI, fontSize: '11px', letterSpacing: '1px', textTransform: 'uppercase', padding: '4px 8px', cursor: 'pointer' }}
           onMouseEnter={e => { e.currentTarget.style.borderColor = ACCENT }}
           onMouseLeave={e => { e.currentTarget.style.borderColor = BORDER }}>Edit</button>
-        <button onClick={() => onRemove(idx)} style={{ background: 'none', border: `1px solid rgba(255,92,122,0.3)`, color: ERROR, fontFamily: FONT_UI, fontSize: '8px', letterSpacing: '1px', textTransform: 'uppercase', padding: '4px 8px', cursor: 'pointer' }}
+        <button onClick={() => onRemove(idx)} style={{ background: 'none', border: `1px solid rgba(255,92,122,0.3)`, color: ERROR, fontFamily: FONT_UI, fontSize: '11px', letterSpacing: '1px', textTransform: 'uppercase', padding: '4px 8px', cursor: 'pointer' }}
           onMouseEnter={e => { e.currentTarget.style.borderColor = ERROR }}
           onMouseLeave={e => { e.currentTarget.style.borderColor = 'rgba(255,92,122,0.3)' }}>×</button>
       </div>
@@ -219,7 +219,7 @@ function ReviewStep() {
 
   return (
     <div style={{ maxWidth: '640px', margin: '0 auto' }}>
-      <div style={{ fontFamily: FONT_UI, fontSize: '8px', letterSpacing: '2px', textTransform: 'uppercase', color: TEXT_WEAK, marginBottom: '16px' }}>
+      <div style={{ fontFamily: FONT_UI, fontSize: '11px', letterSpacing: '2px', textTransform: 'uppercase', color: TEXT_WEAK, marginBottom: '16px' }}>
         Attacks configured ({attacks.length})
       </div>
       {attacks.length === 0 && (
@@ -238,7 +238,7 @@ function ReviewStep() {
           color: ACCENT_TEXT, fontFamily: FONT_UI, fontSize: '10px',
           letterSpacing: '1.5px', textTransform: 'uppercase', cursor: 'pointer', transition: 'background 100ms',
         }}
-          onMouseEnter={e => { e.currentTarget.style.background = 'rgba(47,224,255,0.07)' }}
+          onMouseEnter={e => { e.currentTarget.style.background = SURFACE_E }}
           onMouseLeave={e => { e.currentTarget.style.background = 'transparent' }}>
           + Add another attack
         </button>
@@ -311,7 +311,7 @@ function MatrixStep({ matrix, onBack }) {
       {/* Summary chips */}
       {attacks.length > 0 && (
         <div style={{ marginBottom: '24px' }}>
-          <div style={{ fontFamily: FONT_UI, fontSize: '8px', letterSpacing: '2px', textTransform: 'uppercase', color: TEXT_WEAK, marginBottom: '10px' }}>
+          <div style={{ fontFamily: FONT_UI, fontSize: '11px', letterSpacing: '2px', textTransform: 'uppercase', color: TEXT_WEAK, marginBottom: '10px' }}>
             Attacks ({attacks.length}) · {N_TRIALS.toLocaleString()} trials per cell
           </div>
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
@@ -339,7 +339,7 @@ function MatrixStep({ matrix, onBack }) {
               {DEFENDERS.map(def => (
                 <th key={def.id} style={{ padding: '0 8px 16px', textAlign: 'center', verticalAlign: 'bottom', borderBottom: `1px solid ${BORDER}` }}>
                   <div style={{ ...TYPE.heading, color: TEXT, marginBottom: '4px' }}>{def.label}</div>
-                  <div style={{ fontFamily: "'Space Mono', monospace", fontSize: '8px', letterSpacing: '1px', textTransform: 'uppercase', color: TEXT_WEAK, lineHeight: 1.4 }}>{def.sub}</div>
+                  <div style={{ fontFamily: "'Space Mono', monospace", fontSize: '11px', letterSpacing: '1px', textTransform: 'uppercase', color: TEXT_WEAK, lineHeight: 1.4 }}>{def.sub}</div>
                 </th>
               ))}
             </tr>
@@ -369,7 +369,7 @@ function MatrixStep({ matrix, onBack }) {
                           {val.toFixed(1)}
                         </div>
                         {!isBase && pct !== null && (
-                          <div style={{ fontFamily: FONT_UI, fontSize: '9px', color: pct > 0.5 ? SUCCESS : TEXT_OFF, marginTop: '4px', lineHeight: 1 }}>
+                          <div style={{ fontFamily: FONT_UI, fontSize: '11px', color: pct > 0.5 ? SUCCESS : TEXT_OFF, marginTop: '4px', lineHeight: 1 }}>
                             {pct > 0.5 ? `+${pct.toFixed(0)}%` : '—'}
                           </div>
                         )}
@@ -442,12 +442,12 @@ function KeywordDefinitionPanel() {
       <div style={{ width: '100%', maxWidth: '300px', opacity: def ? 1 : 0, transform: def ? 'translateX(0)' : 'translateX(-12px)', transition: 'opacity 200ms ease, transform 200ms ease' }}>
         {(visible || def) && display && (
           <div style={{ border: `1px solid ${def ? ACCENT + '44' : BORDER}`, background: SURFACE, padding: '22px', transition: 'border-color 200ms ease' }}>
-            <div style={{ fontFamily: FONT_UI, fontSize: '7px', letterSpacing: '2.5px', textTransform: 'uppercase', color: TEXT_OFF, marginBottom: '10px' }}>{display.phase}</div>
+            <div style={{ fontFamily: FONT_UI, fontSize: '11px', letterSpacing: '2.5px', textTransform: 'uppercase', color: TEXT_OFF, marginBottom: '10px' }}>{display.phase}</div>
             <div style={{ fontFamily: FONT_UI, fontSize: '14px', fontWeight: 700, letterSpacing: '1px', textTransform: 'uppercase', color: ACCENT_TEXT, marginBottom: '16px', lineHeight: 1.2 }}>{display.label}</div>
             <div style={{ height: '1px', background: `linear-gradient(to right, ${ACCENT}44, ${BORDER})`, marginBottom: '16px' }} />
             <p style={{ fontFamily: 'Inter, -apple-system, system-ui, sans-serif', fontSize: '13px', lineHeight: 1.75, color: TEXT_SEC, margin: '0 0 14px 0' }}>{display.rule}</p>
-            <div style={{ padding: '10px 12px', background: 'rgba(47,224,255,0.04)', borderLeft: `2px solid ${ACCENT}55` }}>
-              <div style={{ fontFamily: FONT_UI, fontSize: '7px', letterSpacing: '2px', textTransform: 'uppercase', color: TEXT_WEAK, marginBottom: '6px' }}>Note</div>
+            <div style={{ padding: '10px 12px', background: ACCENT_LIGHT, borderLeft: `2px solid ${ACCENT}55` }}>
+              <div style={{ fontFamily: FONT_UI, fontSize: '11px', letterSpacing: '2px', textTransform: 'uppercase', color: TEXT_WEAK, marginBottom: '6px' }}>Note</div>
               <p style={{ fontFamily: 'Inter, -apple-system, system-ui, sans-serif', fontSize: '12px', lineHeight: 1.7, color: TEXT_WEAK, margin: 0, fontStyle: 'italic' }}>{display.note}</p>
             </div>
           </div>
@@ -492,10 +492,10 @@ function UnitAbilitiesPanel({ role }) {
   return (
     <div style={{ position: 'fixed', left: 'calc(50% + 280px + 24px)', right: '48px', top: '50%', transform: 'translateY(-50%)', zIndex: 10 }}>
       <div style={{ border: `1px solid ${BORDER}`, background: SURFACE, padding: '18px', maxHeight: 'calc(100vh - 160px)', overflowY: 'auto' }} className="combo-abilities-scroll">
-        <div style={{ fontFamily: FONT_UI, fontSize: '7px', letterSpacing: '2.5px', textTransform: 'uppercase', color: TEXT_OFF, marginBottom: '6px' }}>{role} unit</div>
+        <div style={{ fontFamily: FONT_UI, fontSize: '11px', letterSpacing: '2.5px', textTransform: 'uppercase', color: TEXT_OFF, marginBottom: '6px' }}>{role} unit</div>
         <div key={`name-${animKey}`} style={{ fontFamily: FONT_UI, fontSize: '13px', fontWeight: 700, textTransform: 'uppercase', color: ACCENT_TEXT, marginBottom: '14px', lineHeight: 1.2, animation: 'comboHeaderScan 400ms ease forwards' }}>{unit.name}</div>
         <div key={`divider-${animKey}`} style={{ height: '1px', background: `linear-gradient(to right, ${ACCENT}44, ${BORDER})`, marginBottom: '14px', animation: 'comboDividerGrow 350ms ease forwards' }} />
-        <div style={{ fontFamily: FONT_UI, fontSize: '7px', letterSpacing: '2px', textTransform: 'uppercase', color: TEXT_WEAK, marginBottom: '12px' }}>{abilities.length} abilit{abilities.length !== 1 ? 'ies' : 'y'}</div>
+        <div style={{ fontFamily: FONT_UI, fontSize: '11px', letterSpacing: '2px', textTransform: 'uppercase', color: TEXT_WEAK, marginBottom: '12px' }}>{abilities.length} abilit{abilities.length !== 1 ? 'ies' : 'y'}</div>
         <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
           {abilities.map((ab, i) => (
             <div key={`${animKey}-${i}`} className="combo-ability-card" style={{ animation: 'comboAbilityIn 280ms ease forwards', animationDelay: `${i * 40}ms`, opacity: 0 }}>

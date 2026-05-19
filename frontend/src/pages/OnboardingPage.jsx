@@ -4,7 +4,7 @@ import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell } from 
 import { simulate } from '../engine/simulation.js'
 import {
   ACCENT_TEXT, ACCENT, BG, BORDER, HIGHLIGHT, SURFACE, SURFACE_E,
-  TEXT, TEXT_SEC, TEXT_WEAK, TEXT_OFF, FONT_UI} from '../theme'
+  TEXT, TEXT_SEC, TEXT_WEAK, TEXT_OFF, FONT_UI, ACCENT_LIGHT} from '../theme'
 
 // ── Simulation configs ────────────────────────────────────────────────────────
 
@@ -143,7 +143,7 @@ function WeaponCard() {
         {stats.map((s, i) => (
           <div key={s.key} style={{ padding: '14px 8px', borderRight: i < 4 ? `1px solid ${BORDER}` : 'none', textAlign: 'center' }}>
             <div style={{ fontFamily: FONT_UI, fontSize: '20px', fontWeight: 700, color: ACCENT_TEXT, lineHeight: 1 }}>{s.value}</div>
-            <div style={{ fontFamily: FONT_UI, fontSize: '8px', letterSpacing: '1px', textTransform: 'uppercase', color: TEXT_WEAK, marginTop: '5px' }}>{s.key}</div>
+            <div style={{ fontFamily: FONT_UI, fontSize: '11px', letterSpacing: '1px', textTransform: 'uppercase', color: TEXT_WEAK, marginTop: '5px' }}>{s.key}</div>
           </div>
         ))}
       </div>
@@ -189,7 +189,7 @@ function DefenderCard({ showInvuln = true }) {
         {stats.map((s, i) => (
           <div key={s.key} style={{ padding: '14px 8px', borderRight: i < cols - 1 ? `1px solid ${BORDER}` : 'none', textAlign: 'center', opacity: s.sim ? 1 : 0.35 }}>
             <div style={{ fontFamily: FONT_UI, fontSize: '18px', fontWeight: 700, color: valueColor(s), lineHeight: 1 }}>{s.value}</div>
-            <div style={{ fontFamily: FONT_UI, fontSize: '8px', letterSpacing: '1px', textTransform: 'uppercase', color: TEXT_WEAK, marginTop: '5px' }}>{s.key}</div>
+            <div style={{ fontFamily: FONT_UI, fontSize: '11px', letterSpacing: '1px', textTransform: 'uppercase', color: TEXT_WEAK, marginTop: '5px' }}>{s.key}</div>
           </div>
         ))}
       </div>
@@ -427,7 +427,7 @@ function StepContent({ stepKey, onNext, results }) {
           Crits skip the wound roll — the 4++ save still applies.
         </div>
       </div>
-      <div style={{ padding: '16px', border: `1px solid ${ACCENT}`, background: 'rgba(47,224,255,0.04)' }}>
+      <div style={{ padding: '16px', border: `1px solid ${ACCENT}`, background: ACCENT_LIGHT }}>
         <div style={{ fontFamily: FONT_UI, fontSize: '10px', letterSpacing: '2px', textTransform: 'uppercase', color: ACCENT_TEXT, marginBottom: '8px' }}>Full synergy — per attack die</div>
         <p style={{ fontFamily: 'Inter, -apple-system, system-ui, sans-serif', fontSize: '14px', lineHeight: 1.7, color: TEXT_SEC, margin: 0 }}>
           1 attack die with no rules: <strong style={{ color: TEXT }}>{results?.single_base?.summary.mean_damage.toFixed(2)}</strong> mean damage.{' '}
@@ -592,7 +592,7 @@ function FullDamagePanel({ result, label }) {
         </div>
       ))}
       <div style={{ borderTop: `1px solid ${BORDER}`, margin: '14px 0 10px' }} />
-      <div style={{ fontFamily: FONT_UI, fontSize: '8px', letterSpacing: '2.5px', textTransform: 'uppercase', color: TEXT_WEAK, marginBottom: '10px' }}>
+      <div style={{ fontFamily: FONT_UI, fontSize: '11px', letterSpacing: '2.5px', textTransform: 'uppercase', color: TEXT_WEAK, marginBottom: '10px' }}>
         Damage distribution
       </div>
       <ResponsiveContainer width="100%" height={140}>
@@ -752,7 +752,7 @@ export function OnboardingPage() {
         onClick={() => handleNext(activeStep)}
         onMouseEnter={() => setBtnHov(true)}
         onMouseLeave={() => setBtnHov(false)}
-        style={{ position: 'fixed', bottom: '40px', left: '25vw', transform: 'translateX(-50%)', border: `1px solid ${ACCENT}`, background: btnHov ? 'rgba(47,224,255,0.08)' : 'transparent', color: ACCENT_TEXT, fontFamily: FONT_UI, fontSize: '10px', letterSpacing: '2px', textTransform: 'uppercase', padding: '10px 20px', cursor: 'pointer', zIndex: 20, transition: 'background 150ms', display: 'flex', alignItems: 'center', gap: '8px' }}
+        style={{ position: 'fixed', bottom: '40px', left: '25vw', transform: 'translateX(-50%)', border: `1px solid ${ACCENT}`, background: btnHov ? SURFACE_E : 'transparent', color: ACCENT_TEXT, fontFamily: FONT_UI, fontSize: '10px', letterSpacing: '2px', textTransform: 'uppercase', padding: '10px 20px', cursor: 'pointer', zIndex: 20, transition: 'background 150ms', display: 'flex', alignItems: 'center', gap: '8px' }}
       >
         <span style={{ display: 'inline-block', animation: 'arrowBounce 1.4s ease-in-out infinite', animationPlayState: btnHov ? 'paused' : 'running' }}>↓</span>
         Next

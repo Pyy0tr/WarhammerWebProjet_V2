@@ -107,7 +107,7 @@ export function ResultsPanel({ result }) {
 
       {/* Histogram */}
       <div style={{
-        fontFamily: FONT_UI, fontSize: '8px',
+        fontFamily: FONT_UI, fontSize: '11px',
         letterSpacing: '2.5px', textTransform: 'uppercase',
         color: TEXT_WEAK, marginBottom: '14px',
       }}>
@@ -149,7 +149,7 @@ export function ResultsPanel({ result }) {
 
       {/* Kill probabilities */}
       <div style={{
-        fontFamily: FONT_UI, fontSize: '8px',
+        fontFamily: FONT_UI, fontSize: '11px',
         letterSpacing: '2.5px', textTransform: 'uppercase',
         color: TEXT_WEAK, marginBottom: '14px',
       }}>
@@ -163,7 +163,7 @@ export function ResultsPanel({ result }) {
             padding: '6px 14px',
             fontFamily: FONT_UI,
           }}>
-            <span style={{ fontSize: '8px', letterSpacing: '1px', color: TEXT_WEAK }}>≥{k}  </span>
+            <span style={{ fontSize: '11px', letterSpacing: '1px', color: TEXT_WEAK }}>≥{k}  </span>
             <span style={{ fontSize: '13px', fontWeight: 700, color: TEXT }}>{(v * 100).toFixed(1)}%</span>
           </div>
         ))}

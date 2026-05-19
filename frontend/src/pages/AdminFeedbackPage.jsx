@@ -39,7 +39,7 @@ function FeedbackCard({ fb, onMarkRead }) {
         <div style={{ width: '6px', height: '6px', borderRadius: '50%', background: fb.is_read ? 'transparent' : col, flexShrink: 0, border: fb.is_read ? `1px solid ${BORDER}` : 'none' }} />
 
         {/* Type badge */}
-        <div style={{ fontFamily: FONT_UI, fontSize: '8px', letterSpacing: '2px', textTransform: 'uppercase', color: col, border: `1px solid ${col}`, padding: '2px 7px', flexShrink: 0 }}>
+        <div style={{ fontFamily: FONT_UI, fontSize: '11px', letterSpacing: '2px', textTransform: 'uppercase', color: col, border: `1px solid ${col}`, padding: '2px 7px', flexShrink: 0 }}>
           {fb.type}
         </div>
 

@@ -14,7 +14,7 @@ import { KeywordsPage } from './pages/KeywordsPage'
 import { DetachmentsPage } from './pages/DetachmentsPage'
 import { ComboPage } from './pages/ComboPage'
 import { Navbar } from './components/Navbar'
-import { ACCENT_TEXT, ACCENT, BG, BORDER, SURFACE, TEXT, TEXT_SEC, TEXT_WEAK, TYPE } from './theme'
+import { ACCENT_TEXT, ACCENT, BG, BORDER, SURFACE, TEXT, TEXT_SEC, TEXT_WEAK, TYPE , SURFACE_E} from './theme'
 import { useDataStore } from './store/dataStore'
 import { useAuthStore } from './store/authStore'
 import { useArmyStore } from './store/armyStore'
@@ -70,7 +70,7 @@ function MobileNotice() {
         <button
           onClick={dismiss}
           style={{ ...TYPE.ui, background: 'transparent', border: `1px solid ${ACCENT}`, color: ACCENT_TEXT, padding: '10px 0', cursor: 'pointer', width: '100%', transition: 'background 150ms' }}
-          onMouseEnter={(e) => { e.currentTarget.style.background = 'rgba(47,224,255,0.08)' }}
+          onMouseEnter={(e) => { e.currentTarget.style.background = SURFACE_E }}
           onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent' }}
         >
           Got it — continue anyway

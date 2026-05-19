@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { useArmyStore } from '../store/armyStore'
 import { useAuthStore } from '../store/authStore'
 import { useDataStore } from '../store/dataStore'
-import { ACCENT_TEXT, ACCENT, BG, SURFACE, SURFACE_E, BORDER, TEXT, TEXT_SEC, TEXT_WEAK, ERROR, HIGHLIGHT , FONT_UI} from '../theme'
+import { ACCENT_TEXT, ACCENT, BG, SURFACE, SURFACE_E, BORDER, TEXT, TEXT_SEC, TEXT_WEAK, ERROR, HIGHLIGHT , FONT_UI, ACCENT_LIGHT} from '../theme'
 
 // ── Small helpers ─────────────────────────────────────────────────────────────
 
@@ -35,7 +35,7 @@ function SmallBtn({ children, onClick, primary, danger }) {
     ? (hov ? 'rgba(47,224,255,0.85)' : ACCENT)
     : danger
       ? (hov ? 'rgba(255,92,122,0.12)' : 'none')
-      : (hov ? 'rgba(47,224,255,0.08)' : 'none')
+      : (hov ? SURFACE_E : 'none')
   const borderColor = primary ? ACCENT : danger ? (hov ? ERROR : 'rgba(255,92,122,0.4)') : (hov ? ACCENT : BORDER)
   const textColor = primary ? BG : danger ? (hov ? ERROR : 'rgba(255,92,122,0.6)') : (hov ? ACCENT : TEXT_WEAK)
   return (
@@ -47,7 +47,7 @@ function SmallBtn({ children, onClick, primary, danger }) {
         background: bgColor,
         border: `1px solid ${borderColor}`,
         color: textColor,
-        fontFamily: FONT_UI, fontSize: '8px',
+        fontFamily: FONT_UI, fontSize: '11px',
         letterSpacing: '1.5px', textTransform: 'uppercase',
         padding: '5px 10px', cursor: 'pointer',
         transition: 'all 100ms',
@@ -81,7 +81,7 @@ function ModelStepper({ value, min, max, onChange }) {
     <div
       style={{
         display: 'inline-flex', alignItems: 'center',
-        border: `1px solid ${BORDER}`, background: 'rgba(47,224,255,0.04)',
+        border: `1px solid ${BORDER}`, background: ACCENT_LIGHT,
       }}
       onClick={(e) => e.stopPropagation()}
     >
@@ -230,9 +230,11 @@ function ArmyUnitCard({ entry, user }) {
       style={{
         border: `1px solid ${hov ? ACCENT : BORDER}`,
         borderLeft: `3px solid ${hov ? ACCENT : 'transparent'}`,
-        background: SURFACE,
+        background: hov ? SURFACE_E : SURFACE,
         cursor: 'pointer',
-        transition: 'border-color 120ms',
+        transition: 'border-color 120ms, background 120ms',
+        borderRadius: '6px',
+        boxShadow: hov ? '0 2px 8px rgba(0,0,0,0.10)' : '0 1px 3px rgba(0,0,0,0.06)',
       }}
     >
       {/* Header: name + pts + delete */}
@@ -252,7 +254,7 @@ function ArmyUnitCard({ entry, user }) {
             <span style={{ fontFamily: FONT_UI, fontSize: '15px', fontWeight: 700, color: ACCENT_TEXT }}>
               {totalPts}
             </span>
-            <span style={{ fontFamily: FONT_UI, fontSize: '8px', color: TEXT_WEAK, marginLeft: '4px', letterSpacing: '1px' }}>
+            <span style={{ fontFamily: FONT_UI, fontSize: '11px', color: TEXT_WEAK, marginLeft: '4px', letterSpacing: '1px' }}>
               pts
             </span>
           </div>
@@ -283,7 +285,7 @@ function ArmyUnitCard({ entry, user }) {
               color: s.inv ? ACCENT : s.sim ? HIGHLIGHT : TEXT_WEAK,
             }}>{s.value}</div>
             <div style={{
-              fontFamily: FONT_UI, fontSize: '7px',
+              fontFamily: FONT_UI, fontSize: '11px',
               letterSpacing: '1px', textTransform: 'uppercase', color: TEXT_WEAK, marginTop: '5px',
             }}>{s.key}</div>
           </div>
@@ -296,7 +298,7 @@ function ArmyUnitCard({ entry, user }) {
         justifyContent: 'space-between', gap: '8px',
       }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-          <span style={{ fontFamily: FONT_UI, fontSize: '8px', color: TEXT_WEAK, letterSpacing: '1px' }}>
+          <span style={{ fontFamily: FONT_UI, fontSize: '11px', color: TEXT_WEAK, letterSpacing: '1px' }}>
             Models
           </span>
           <ModelStepper
@@ -304,7 +306,7 @@ function ArmyUnitCard({ entry, user }) {
             onChange={(v) => updateUnit(entry.uid, { models: v }, user)}
           />
           {maxM !== null && (
-            <span style={{ fontFamily: FONT_UI, fontSize: '8px', color: TEXT_WEAK }}>/ {maxM}</span>
+            <span style={{ fontFamily: FONT_UI, fontSize: '11px', color: TEXT_WEAK }}>/ {maxM}</span>
           )}
         </div>
         {weaponNames.length > 0 && (
@@ -443,7 +445,7 @@ function ArmyEditor({ user, onNewArmy }) {
           placeholder="Search (e.g. Intercessors, Orks…)"
           style={{
             width: '100%', boxSizing: 'border-box',
-            background: 'rgba(47,224,255,0.04)', border: `1px solid ${query ? ACCENT : BORDER}`,
+            background: ACCENT_LIGHT, border: `1px solid ${query ? ACCENT : BORDER}`,
             color: TEXT_SEC, fontFamily: FONT_UI, fontSize: '12px',
             padding: '10px 14px', outline: 'none', transition: 'border-color 120ms',
           }}
@@ -465,7 +467,7 @@ function ArmyEditor({ user, onNewArmy }) {
                   display: 'flex', alignItems: 'center', justifyContent: 'space-between',
                   transition: 'background 80ms',
                 }}
-                onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(47,224,255,0.07)'}
+                onMouseEnter={(e) => e.currentTarget.style.background = SURFACE_E}
                 onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
               >
                 <div>
@@ -497,7 +499,7 @@ function ArmyEditor({ user, onNewArmy }) {
         Units
         <span style={{
           color: ACCENT_TEXT, border: `1px solid rgba(47,224,255,0.3)`,
-          padding: '1px 6px', fontSize: '8px',
+          padding: '1px 6px', fontSize: '11px',
         }}>
           {army.units.length}
         </span>
@@ -539,10 +541,10 @@ function ArmyEditor({ user, onNewArmy }) {
             style={{
               flex: 1, minWidth: '200px', padding: '24px',
               border: `1px solid ${BORDER}`, cursor: 'pointer',
-              background: 'rgba(47,224,255,0.03)', transition: 'background 120ms',
+              background: ACCENT_LIGHT, transition: 'background 120ms',
             }}
-            onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(47,224,255,0.07)'}
-            onMouseLeave={(e) => e.currentTarget.style.background = 'rgba(47,224,255,0.03)'}
+            onMouseEnter={(e) => e.currentTarget.style.background = SURFACE_E}
+            onMouseLeave={(e) => e.currentTarget.style.background = ACCENT_LIGHT}
           >
             <div style={{
               fontFamily: FONT_UI, fontSize: '20px',
@@ -580,7 +582,7 @@ function ArmyEditor({ user, onNewArmy }) {
                 Import BattleScribe
               </div>
               <span style={{
-                fontFamily: FONT_UI, fontSize: '7px',
+                fontFamily: FONT_UI, fontSize: '11px',
                 letterSpacing: '1.5px', textTransform: 'uppercase',
                 color: ACCENT_TEXT, border: `1px solid ${ACCENT}`, padding: '1px 5px',
               }}>
@@ -624,8 +626,8 @@ function ArmySidebarItem({ army, active, onClick, animDelay }) {
         borderBottom: `1px solid ${BORDER}`,
         borderLeft: `3px solid ${active ? ACCENT : hov ? 'rgba(47,224,255,0.25)' : 'transparent'}`,
         background: active
-          ? 'rgba(47,224,255,0.07)'
-          : hov ? 'rgba(47,224,255,0.03)' : 'transparent',
+          ? SURFACE_E
+          : hov ? ACCENT_LIGHT : 'transparent',
         boxShadow: active ? 'inset 0 0 20px rgba(47,224,255,0.04)' : 'none',
         transition: 'background 160ms ease, border-left-color 160ms ease, box-shadow 160ms ease',
         animationDelay: `${animDelay}ms`,
@@ -643,12 +645,12 @@ function ArmySidebarItem({ army, active, onClick, animDelay }) {
         {army.name}
       </div>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-        <div style={{ fontFamily: FONT_UI, fontSize: '8px', color: TEXT_WEAK }}>
+        <div style={{ fontFamily: FONT_UI, fontSize: '11px', color: TEXT_WEAK }}>
           {army.units.length} unit{army.units.length !== 1 ? 's' : ''}
         </div>
         {pts > 0 && (
           <div style={{
-            fontFamily: FONT_UI, fontSize: '8px',
+            fontFamily: FONT_UI, fontSize: '11px',
             color: active ? ACCENT : TEXT_WEAK,
             transition: 'color 160ms',
           }}>
@@ -680,12 +682,12 @@ function ArmySidebar({ user, onNewArmy }) {
         {/* Title row */}
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '4px' }}>
           <span style={{
-            fontFamily: FONT_UI, fontSize: '8px',
+            fontFamily: FONT_UI, fontSize: '11px',
             letterSpacing: '4px', textTransform: 'uppercase', color: TEXT_WEAK,
           }}>My Armies</span>
           {armies.length > 0 && (
             <span style={{
-              fontFamily: FONT_UI, fontSize: '7px',
+              fontFamily: FONT_UI, fontSize: '11px',
               color: ACCENT_TEXT, border: `1px solid rgba(47,224,255,0.3)`,
               padding: '1px 6px',
             }}>{armies.length}</span>
@@ -753,7 +755,7 @@ function ArmySidebar({ user, onNewArmy }) {
         <div style={{
           padding: '12px 16px',
           borderTop: `1px solid ${BORDER}`,
-          fontFamily: FONT_UI, fontSize: '8px',
+          fontFamily: FONT_UI, fontSize: '11px',
           color: TEXT_WEAK, lineHeight: 1.7,
         }}>
           Sign in to sync your armies across devices.

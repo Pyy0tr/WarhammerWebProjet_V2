@@ -18,9 +18,9 @@ export const BORDER    = '#C0CABC'   // bordures douces
 
 // 2. Typographie
 export const TEXT      = '#141A12'   // quasi-noir (warm)
-export const TEXT_SEC  = '#404A3D'   // secondaire
-export const TEXT_WEAK = '#6B7A67'   // atténué
-export const TEXT_OFF  = '#8FA88A'   // désactivé
+export const TEXT_SEC  = '#2E3B2B'   // secondaire — renforcé
+export const TEXT_WEAK = '#4A5E47'   // atténué — renforcé
+export const TEXT_OFF  = '#7A9076'   // désactivé
 
 // 3. Accent olive
 export const ACCENT       = '#5A7A45'   // olive — fills, active borders, button bg

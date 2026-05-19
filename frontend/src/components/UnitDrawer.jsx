@@ -29,7 +29,7 @@ function fmtWeaponLine(w) {
 function SectionLabel({ children }) {
   return (
     <div style={{
-      fontFamily: FONT_UI, fontSize: '8px',
+      fontFamily: FONT_UI, fontSize: '11px',
       letterSpacing: '2.5px', textTransform: 'uppercase',
       color: TEXT_WEAK, padding: '16px 20px 8px',
     }}>
@@ -104,7 +104,7 @@ function WeaponRow({ weapon, onClick }) {
       {weapon.kw?.length > 0 && (
         <div style={{
           marginTop: '3px',
-          fontFamily: FONT_UI, fontSize: '8px',
+          fontFamily: FONT_UI, fontSize: '11px',
           letterSpacing: '1px', color: TEXT_OFF, textTransform: 'uppercase',
         }}>
           {weapon.kw.slice(0, 4).join(' · ')}
@@ -183,7 +183,7 @@ function BrowsePanel({ onSelectUnit }) {
                       {label}
                     </span>
                     <span style={{
-                      fontFamily: FONT_UI, fontSize: '8px', color: TEXT_OFF,
+                      fontFamily: FONT_UI, fontSize: '11px', color: TEXT_OFF,
                     }}>
                       {isFactionOpen ? '▲' : `${units.length}`}
                     </span>
@@ -440,7 +440,7 @@ export function UnitDrawer({ isOpen, onClose, role, onSelect }) {
           padding: '12px 20px',
           borderTop: `1px solid ${BORDER}`,
           flexShrink: 0,
-          fontFamily: FONT_UI, fontSize: '8px',
+          fontFamily: FONT_UI, fontSize: '11px',
           letterSpacing: '2px', color: TEXT_OFF, textTransform: 'uppercase',
         }}>
           {loaded ? `${useDataStore.getState().units.length} units · ${useDataStore.getState().factions.length} factions` : 'Loading…'}

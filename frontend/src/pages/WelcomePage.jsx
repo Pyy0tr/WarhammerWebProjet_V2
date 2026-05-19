@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { ACCENT_TEXT, ACCENT, BG, SURFACE, BORDER, TEXT, TEXT_SEC, TEXT_WEAK, TEXT_OFF , FONT_UI} from '../theme'
+import { ACCENT_TEXT, ACCENT, BG, SURFACE, BORDER, TEXT, TEXT_SEC, TEXT_WEAK, TEXT_OFF , FONT_UI, ACCENT_LIGHT} from '../theme'
 
 const LEVELS = [
   {
@@ -47,7 +47,7 @@ function LevelCard({ level, selected, onClick }) {
       style={{
         flex: 1,
         border: `1px solid ${active ? ACCENT : BORDER}`,
-        background: active ? 'rgba(47,224,255,0.04)' : SURFACE,
+        background: active ? ACCENT_LIGHT : SURFACE,
         padding: '36px 32px',
         cursor: 'pointer',
         transition: 'border-color 120ms, background 120ms',

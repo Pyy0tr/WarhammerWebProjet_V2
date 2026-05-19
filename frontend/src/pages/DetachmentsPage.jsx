@@ -1,7 +1,7 @@
 import { useEffect, useState, useMemo } from 'react'
 import {
   ACCENT_TEXT, ACCENT, BORDER, BG, ERROR, SUCCESS, SURFACE, SURFACE_E, TEXT, TEXT_OFF,
-  TEXT_SEC, TEXT_WEAK, TYPE, WARNING, FONT_UI} from '../theme'
+  TEXT_SEC, TEXT_WEAK, TYPE, WARNING, FONT_UI, ACCENT_LIGHT} from '../theme'
 
 // ── Phase colors ─────────────────────────────────────────────────────────────
 
@@ -69,7 +69,7 @@ function StratRow({ strat }) {
         borderBottom: `1px solid ${BORDER}`,
         cursor: 'pointer',
         transition: 'background 120ms',
-        background: open ? 'rgba(47,224,255,0.03)' : 'transparent',
+        background: open ? ACCENT_LIGHT : 'transparent',
       }}
       onClick={() => setOpen(v => !v)}
     >
@@ -329,7 +329,7 @@ function FactionItem({ faction, selected, onClick }) {
       style={{
         padding: '9px 16px',
         cursor: 'pointer',
-        background: selected ? 'rgba(47,224,255,0.07)' : hov ? 'rgba(47,224,255,0.06)' : 'transparent',
+        background: selected ? SURFACE_E : hov ? 'rgba(47,224,255,0.06)' : 'transparent',
         borderLeft: `2px solid ${selected ? ACCENT : 'transparent'}`,
         transition: 'background 100ms, border-color 100ms',
         display: 'flex', flexDirection: 'column', gap: '2px',
@@ -339,7 +339,7 @@ function FactionItem({ faction, selected, onClick }) {
         {faction.name}
       </div>
       {faction.is_subfaction && (
-        <div style={{ ...TYPE.label, color: TEXT_OFF, fontSize: '9px' }}>
+        <div style={{ ...TYPE.label, color: TEXT_OFF, fontSize: '11px' }}>
           {faction.parent_name}
         </div>
       )}
@@ -412,7 +412,7 @@ export function DetachmentsPage() {
             placeholder="Search faction…"
             style={{
               width: '100%', boxSizing: 'border-box',
-              background: 'rgba(47,224,255,0.04)',
+              background: ACCENT_LIGHT,
               border: `1px solid ${BORDER}`,
               borderRadius: '4px',
               color: TEXT,

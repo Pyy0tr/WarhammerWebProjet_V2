@@ -4,7 +4,7 @@ import { AttackerPanel } from '../components/AttackerPanel'
 import { DefenderPanel } from '../components/DefenderPanel'
 import { ResultsPanel } from '../components/ResultsPanel'
 import { AbilityText } from '../components/AbilityText'
-import { ACCENT_TEXT, ACCENT, ACCENT_H, BG, SURFACE, SURFACE_E, BORDER, TEXT, TEXT_SEC, TEXT_WEAK, TEXT_OFF, ERROR, FONT_UI, SHADOW_SM, SHADOW_MD, RADIUS } from '../theme'
+import { ACCENT_TEXT, ACCENT, ACCENT_H, BG, SURFACE, SURFACE_E, BORDER, TEXT, TEXT_SEC, TEXT_WEAK, TEXT_OFF, ERROR, FONT_UI, SHADOW_SM, SHADOW_MD, RADIUS , ACCENT_LIGHT} from '../theme'
 import { KEYWORD_BY_TYPE } from '../engine/keywords.js'
 
 // ── Step indicator ───────────────────────────────────────────────────────────
@@ -84,7 +84,7 @@ function AttackCard({ attack, idx, onEdit, onRemove }) {
       <div style={{ flex: 1 }}>
         <div style={{ display: 'flex', alignItems: 'baseline', gap: '8px', marginBottom: '4px' }}>
           <span style={{
-            fontFamily: FONT_UI, fontSize: '8px',
+            fontFamily: FONT_UI, fontSize: '11px',
             letterSpacing: '1.5px', color: TEXT_OFF,
           }}>
             #{idx + 1}
@@ -104,7 +104,7 @@ function AttackCard({ attack, idx, onEdit, onRemove }) {
         </div>
         {kwList.length > 0 && (
           <div style={{
-            fontFamily: FONT_UI, fontSize: '8px',
+            fontFamily: FONT_UI, fontSize: '11px',
             color: TEXT_WEAK, marginTop: '4px', letterSpacing: '0.5px', textTransform: 'uppercase',
           }}>
             {kwList.join(' \u00b7 ')}
@@ -112,7 +112,7 @@ function AttackCard({ attack, idx, onEdit, onRemove }) {
         )}
         {attack.buffs?.length > 0 && (
           <div style={{
-            fontFamily: FONT_UI, fontSize: '8px',
+            fontFamily: FONT_UI, fontSize: '11px',
             color: 'rgba(194,143,133,0.7)', marginTop: '3px', letterSpacing: '0.5px', textTransform: 'uppercase',
           }}>
             {attack.buffs.map((b) => `${b.type.replace(/_/g, ' ')} (${b.value})`).join(' \u00b7 ')}
@@ -124,7 +124,7 @@ function AttackCard({ attack, idx, onEdit, onRemove }) {
           onClick={() => onEdit(idx)}
           style={{
             background: 'none', border: `1px solid ${BORDER}`,
-            color: ACCENT_TEXT, fontFamily: FONT_UI, fontSize: '8px',
+            color: ACCENT_TEXT, fontFamily: FONT_UI, fontSize: '11px',
             letterSpacing: '1px', textTransform: 'uppercase', padding: '4px 8px',
             cursor: 'pointer', transition: 'border-color 100ms',
           }}
@@ -137,7 +137,7 @@ function AttackCard({ attack, idx, onEdit, onRemove }) {
           onClick={() => onRemove(idx)}
           style={{
             background: 'none', border: `1px solid rgba(255,92,122,0.3)`,
-            color: ERROR, fontFamily: FONT_UI, fontSize: '8px',
+            color: ERROR, fontFamily: FONT_UI, fontSize: '11px',
             letterSpacing: '1px', textTransform: 'uppercase', padding: '4px 8px',
             cursor: 'pointer', transition: 'border-color 100ms',
           }}
@@ -163,7 +163,7 @@ function ReviewStep() {
   return (
     <div style={{ maxWidth: '640px', margin: '0 auto' }}>
       <div style={{
-        fontFamily: FONT_UI, fontSize: '8px',
+        fontFamily: FONT_UI, fontSize: '11px',
         letterSpacing: '2px', textTransform: 'uppercase', color: TEXT_WEAK,
         marginBottom: '16px',
       }}>
@@ -196,7 +196,7 @@ function ReviewStep() {
             letterSpacing: '1.5px', textTransform: 'uppercase', cursor: 'pointer',
             transition: 'background 100ms',
           }}
-          onMouseEnter={(e) => { e.currentTarget.style.background = 'rgba(47,224,255,0.07)' }}
+          onMouseEnter={(e) => { e.currentTarget.style.background = SURFACE_E }}
           onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent' }}
         >
           + Add another attack
@@ -297,7 +297,7 @@ function ResultsStep() {
       {attacks.length > 0 && (
         <div style={{ marginBottom: '28px' }}>
           <div style={{
-            fontFamily: FONT_UI, fontSize: '8px',
+            fontFamily: FONT_UI, fontSize: '11px',
             letterSpacing: '2px', textTransform: 'uppercase', color: TEXT_WEAK,
             marginBottom: '10px',
           }}>
@@ -415,7 +415,7 @@ function KeywordDefinitionPanel() {
             transition: 'border-color 200ms ease',
           }}>
             <div style={{
-              fontFamily: FONT_UI, fontSize: '7px',
+              fontFamily: FONT_UI, fontSize: '11px',
               letterSpacing: '2.5px', textTransform: 'uppercase',
               color: TEXT_OFF, marginBottom: '10px',
             }}>
@@ -445,11 +445,11 @@ function KeywordDefinitionPanel() {
 
             <div style={{
               padding: '10px 12px',
-              background: 'rgba(47,224,255,0.04)',
+              background: ACCENT_LIGHT,
               borderLeft: `2px solid ${ACCENT}55`,
             }}>
               <div style={{
-                fontFamily: FONT_UI, fontSize: '7px',
+                fontFamily: FONT_UI, fontSize: '11px',
                 letterSpacing: '2px', textTransform: 'uppercase',
                 color: TEXT_WEAK, marginBottom: '6px',
               }}>
@@ -640,7 +640,7 @@ function ProgressTracker() {
     }}>
       {/* Header */}
       <div style={{
-        fontFamily: FONT_UI, fontSize: '8px',
+        fontFamily: FONT_UI, fontSize: '11px',
         letterSpacing: '3px', textTransform: 'uppercase',
         color: TEXT_OFF, marginBottom: '24px',
       }}>
@@ -875,7 +875,7 @@ function UnitAbilitiesPanel({ role }) {
           >
             {/* Header */}
             <div style={{
-              fontFamily: FONT_UI, fontSize: '7px',
+              fontFamily: FONT_UI, fontSize: '11px',
               letterSpacing: '2.5px', textTransform: 'uppercase',
               color: TEXT_OFF, marginBottom: '6px',
             }}>
@@ -904,7 +904,7 @@ function UnitAbilitiesPanel({ role }) {
 
             {/* Abilities count */}
             <div style={{
-              fontFamily: FONT_UI, fontSize: '7px',
+              fontFamily: FONT_UI, fontSize: '11px',
               letterSpacing: '2px', textTransform: 'uppercase',
               color: TEXT_WEAK, marginBottom: '12px',
             }}>
