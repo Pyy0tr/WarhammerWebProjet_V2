@@ -1,6 +1,6 @@
 {
-  "sha": "b9932fb8257e7baeb2ddeac2110d74b6f090f9af",
-  "sha_short": "b9932fb8",
-  "committed_at": "2026-05-15T11:58:23Z",
-  "message": "Fixes #7281"
+  "sha": "984259514be9c9d9a7f9f5eed802e18fb4d309a7",
+  "sha_short": "98425951",
+  "committed_at": "2026-05-20T08:58:45Z",
+  "message": "Remove outdated readme"
 }
