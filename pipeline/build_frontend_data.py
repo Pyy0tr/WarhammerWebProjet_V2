@@ -180,20 +180,36 @@ def slim_unit(u: dict, id_aliases: dict[str, str]) -> dict:
                 min_models = total
                 max_models = total
         else:
-            fixed_sum = sum(
-                mx for mn, mx in zip(role_mins, role_maxes)
-                if mn is not None and mx is not None and mn == mx
+            cur_max = max_models or 0
+            max_variable = max(
+                (mx for mn, mx in zip(role_mins, role_maxes)
+                 if mx is not None
+                 and not (mn is not None and mx is not None and mn == mx)),
+                default=0,
             )
+            # If exactly one fixed role has max == cur_max AND all variable roles are small
+            # (max_variable ≤ cur_max), that single fixed role is the main body already
+            # counted in BSData constraints. Exclude it so we only add truly extra leaders.
+            # Example: Pathfinder Team — Pathfinders×9 (max=9=constraint) is the main body;
+            # Shas'ui×1 is the extra leader not counted. Goremongers same pattern.
+            # When multiple fixed roles share max == cur_max the identity is ambiguous → old path.
+            main_body_count = sum(
+                1 for mn, mx in zip(role_mins, role_maxes)
+                if mn is not None and mx is not None and mn == mx and mx == cur_max
+            )
+            if max_variable <= cur_max and main_body_count == 1:
+                fixed_sum = sum(
+                    mx for mn, mx in zip(role_mins, role_maxes)
+                    if mn is not None and mx is not None and mn == mx and mx != cur_max
+                )
+            else:
+                fixed_sum = sum(
+                    mx for mn, mx in zip(role_mins, role_maxes)
+                    if mn is not None and mx is not None and mn == mx
+                )
             if fixed_sum > 0:
                 # If max_variable + fixed_sum == unit max, BSData already counted the fixed models.
                 # Only add when the unit constraint reflects variable models alone (Boyz pattern).
-                max_variable = max(
-                    (mx for mn, mx in zip(role_mins, role_maxes)
-                     if mx is not None
-                     and not (mn is not None and mx is not None and mn == mx)),
-                    default=0,
-                )
-                cur_max = max_models or 0
                 if max_variable + fixed_sum != cur_max:
                     if min_models is not None:
                         min_models += fixed_sum
