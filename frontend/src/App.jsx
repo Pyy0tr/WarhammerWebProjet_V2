@@ -13,6 +13,7 @@ import { AdminFeedbackPage } from './pages/AdminFeedbackPage'
 import { KeywordsPage } from './pages/KeywordsPage'
 import { DetachmentsPage } from './pages/DetachmentsPage'
 import { ComboPage } from './pages/ComboPage'
+import { DeployTestPage } from './pages/DeployTestPage'
 import { Navbar } from './components/Navbar'
 import { ACCENT_TEXT, ACCENT, BG, BORDER, SURFACE, TEXT, TEXT_SEC, TEXT_WEAK, TYPE , SURFACE_E} from './theme'
 import { useDataStore } from './store/dataStore'
@@ -122,6 +123,7 @@ export default function App() {
         <Route path="/combos"         element={<OnboardingGuard><ComboPage /></OnboardingGuard>} />
         <Route path="/feedback"       element={<FeedbackPage />} />
         <Route path="/admin/feedback" element={<AdminFeedbackPage />} />
+        <Route path="/deploy-test"    element={<DeployTestPage />} />
         <Route path="*"               element={<Navigate to="/" replace />} />
       </Routes>
     </BrowserRouter>
