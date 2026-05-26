@@ -51,7 +51,8 @@ function Tag({ children, color = ACCENT }) {
 }
 
 function Body({ children }) {
-  return <p style={{ fontFamily: 'Inter, -apple-system, system-ui, sans-serif', fontSize: '16px', lineHeight: 1.8, color: TEXT_SEC, margin: 0 }}>{children}</p>
+  const isMobile = useIsMobile()
+  return <p style={{ fontFamily: 'Inter, -apple-system, system-ui, sans-serif', fontSize: isMobile ? '13px' : '16px', lineHeight: isMobile ? 1.6 : 1.8, color: TEXT_SEC, margin: 0 }}>{children}</p>
 }
 
 function ContinueBtn({ onClick, label = 'Continue ↓', primary = false }) {
@@ -73,6 +74,7 @@ function ContinueBtn({ onClick, label = 'Continue ↓', primary = false }) {
 // highlight: array of stat keys to highlight in ACCENT
 // dim:       array of stat keys to dim (non-sim stats)
 function WeaponStatCard({ highlight = [], dim = [] }) {
+  const isMobile = useIsMobile()
   const stats = [
     { key: 'A',  value: '2',   label: 'Attacks' },
     { key: 'BS', value: '3+',  label: 'Ballistic Skill' },
@@ -82,23 +84,23 @@ function WeaponStatCard({ highlight = [], dim = [] }) {
   ]
   return (
     <div style={{ border: `1px solid ${BORDER}`, background: SURFACE }}>
-      <div style={{ padding: '10px 16px', borderBottom: `1px solid ${BORDER}` }}>
+      <div style={{ padding: isMobile ? '7px 12px' : '10px 16px', borderBottom: `1px solid ${BORDER}` }}>
         <div style={{ fontFamily: FONT_UI, fontSize: '11px', fontWeight: 700, letterSpacing: '2px', textTransform: 'uppercase', color: TEXT }}>Bolt Rifle</div>
-        <div style={{ fontFamily: FONT_UI, fontSize: '10px', color: TEXT_WEAK, marginTop: '3px' }}>Intercessors · Ranged</div>
+        {!isMobile && <div style={{ fontFamily: FONT_UI, fontSize: '10px', color: TEXT_WEAK, marginTop: '3px' }}>Intercessors · Ranged</div>}
       </div>
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)' }}>
         {stats.map((s, i) => {
           const isHighlight = highlight.includes(s.key)
           const isDim       = dim.includes(s.key)
           return (
-            <div key={s.key} style={{ padding: '14px 6px', borderRight: i < stats.length - 1 ? `1px solid ${BORDER}` : 'none', textAlign: 'center', transition: 'background 300ms', background: isHighlight ? SURFACE_E : 'transparent', opacity: isDim ? 0.3 : 1 }}>
-              <div style={{ fontFamily: FONT_UI, fontSize: '20px', fontWeight: 700, color: isHighlight ? ACCENT : TEXT_SEC, lineHeight: 1, transition: 'color 300ms' }}>{s.value}</div>
-              <div style={{ fontFamily: FONT_UI, fontSize: '11px', letterSpacing: '1px', textTransform: 'uppercase', color: isHighlight ? ACCENT : TEXT_WEAK, marginTop: '5px', transition: 'color 300ms' }}>{s.key}</div>
+            <div key={s.key} style={{ padding: isMobile ? '8px 4px' : '14px 6px', borderRight: i < stats.length - 1 ? `1px solid ${BORDER}` : 'none', textAlign: 'center', transition: 'background 300ms', background: isHighlight ? SURFACE_E : 'transparent', opacity: isDim ? 0.3 : 1 }}>
+              <div style={{ fontFamily: FONT_UI, fontSize: isMobile ? '15px' : '20px', fontWeight: 700, color: isHighlight ? ACCENT : TEXT_SEC, lineHeight: 1, transition: 'color 300ms' }}>{s.value}</div>
+              <div style={{ fontFamily: FONT_UI, fontSize: '10px', letterSpacing: '1px', textTransform: 'uppercase', color: isHighlight ? ACCENT : TEXT_WEAK, marginTop: '4px', transition: 'color 300ms' }}>{s.key}</div>
             </div>
           )
         })}
       </div>
-      {highlight.length > 0 && (
+      {highlight.length > 0 && !isMobile && (
         <div style={{ borderTop: `1px solid ${BORDER}`, display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)' }}>
           {stats.map((s, i) => {
             const isHighlight = highlight.includes(s.key)
@@ -116,6 +118,7 @@ function WeaponStatCard({ highlight = [], dim = [] }) {
 }
 
 function DefenderStatCard({ highlight = [], dim = [] }) {
+  const isMobile = useIsMobile()
   const stats = [
     { key: 'M',  value: '6"',  sim: false },
     { key: 'T',  value: '5',   sim: true  },
@@ -126,24 +129,24 @@ function DefenderStatCard({ highlight = [], dim = [] }) {
   ]
   return (
     <div style={{ border: `1px solid ${BORDER}`, background: SURFACE }}>
-      <div style={{ padding: '10px 16px', borderBottom: `1px solid ${BORDER}` }}>
+      <div style={{ padding: isMobile ? '7px 12px' : '10px 16px', borderBottom: `1px solid ${BORDER}` }}>
         <div style={{ fontFamily: FONT_UI, fontSize: '11px', fontWeight: 700, letterSpacing: '2px', textTransform: 'uppercase', color: TEXT }}>Ork Boyz</div>
-        <div style={{ fontFamily: FONT_UI, fontSize: '10px', color: TEXT_WEAK, marginTop: '3px' }}>Orks · Target unit · 10 models</div>
+        {!isMobile && <div style={{ fontFamily: FONT_UI, fontSize: '10px', color: TEXT_WEAK, marginTop: '3px' }}>Orks · Target unit · 10 models</div>}
       </div>
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(6, 1fr)' }}>
         {stats.map((s, i) => {
           const isHighlight = highlight.includes(s.key)
           const isDim       = dim.includes(s.key) || !s.sim
           return (
-            <div key={s.key} style={{ padding: '14px 4px', borderRight: i < stats.length - 1 ? `1px solid ${BORDER}` : 'none', textAlign: 'center', transition: 'background 300ms', background: isHighlight ? 'rgba(194,143,133,0.08)' : 'transparent', opacity: isDim && !isHighlight ? 0.25 : 1 }}>
-              <div style={{ fontFamily: FONT_UI, fontSize: '18px', fontWeight: 700, color: isHighlight ? HIGHLIGHT : s.sim ? TEXT_SEC : TEXT_WEAK, lineHeight: 1, transition: 'color 300ms' }}>{s.value}</div>
-              <div style={{ fontFamily: FONT_UI, fontSize: '11px', letterSpacing: '1px', textTransform: 'uppercase', color: isHighlight ? HIGHLIGHT : TEXT_WEAK, marginTop: '5px', transition: 'color 300ms' }}>{s.key}</div>
+            <div key={s.key} style={{ padding: isMobile ? '8px 2px' : '14px 4px', borderRight: i < stats.length - 1 ? `1px solid ${BORDER}` : 'none', textAlign: 'center', transition: 'background 300ms', background: isHighlight ? 'rgba(194,143,133,0.08)' : 'transparent', opacity: isDim && !isHighlight ? 0.25 : 1 }}>
+              <div style={{ fontFamily: FONT_UI, fontSize: isMobile ? '14px' : '18px', fontWeight: 700, color: isHighlight ? HIGHLIGHT : s.sim ? TEXT_SEC : TEXT_WEAK, lineHeight: 1, transition: 'color 300ms' }}>{s.value}</div>
+              <div style={{ fontFamily: FONT_UI, fontSize: '10px', letterSpacing: '1px', textTransform: 'uppercase', color: isHighlight ? HIGHLIGHT : TEXT_WEAK, marginTop: '4px', transition: 'color 300ms' }}>{s.key}</div>
             </div>
           )
         })}
       </div>
       {highlight.length > 0 && (
-        <div style={{ borderTop: `1px solid ${BORDER}`, padding: '8px 14px', fontFamily: 'Inter, -apple-system, system-ui, sans-serif', fontSize: '11px', color: TEXT_SEC, lineHeight: 1.5 }}>
+        <div style={{ borderTop: `1px solid ${BORDER}`, padding: isMobile ? '6px 10px' : '8px 14px', fontFamily: 'Inter, -apple-system, system-ui, sans-serif', fontSize: isMobile ? '10px' : '11px', color: TEXT_SEC, lineHeight: 1.5 }}>
           {highlight.includes('T')  && <span>T<strong style={{ color: HIGHLIGHT }}>5</strong> — compared against weapon Strength to determine wound threshold. </span>}
           {highlight.includes('SV') && <span>Sv<strong style={{ color: HIGHLIGHT }}>5+</strong> — degraded by AP before the roll. </span>}
           {highlight.includes('W')  && <span>W<strong style={{ color: HIGHLIGHT }}>1</strong> — one unsaved wound kills one model. </span>}
@@ -312,17 +315,20 @@ function StepContent({ step, onNext, onSynergies }) {
 // ── Combat funnel (right panel) ───────────────────────────────────────────────
 
 function CombatFunnel({ activePhase }) {
+  const isMobile = useIsMobile()
   const maxVal = FUNNEL[0].expected
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '0' }}>
-      <div style={{ fontFamily: FONT_UI, fontSize: '10px', letterSpacing: '2px', textTransform: 'uppercase', color: TEXT_WEAK, marginBottom: '24px' }}>
-        5× Intercessors · Bolt Rifle · vs 10× Boyz
-      </div>
-      <div style={{ fontFamily: FONT_UI, fontSize: '10px', letterSpacing: '2px', textTransform: 'uppercase', color: TEXT_WEAK, marginBottom: '16px' }}>
+      {!isMobile && (
+        <div style={{ fontFamily: FONT_UI, fontSize: '10px', letterSpacing: '2px', textTransform: 'uppercase', color: TEXT_WEAK, marginBottom: '24px' }}>
+          5× Intercessors · Bolt Rifle · vs 10× Boyz
+        </div>
+      )}
+      <div style={{ fontFamily: FONT_UI, fontSize: '10px', letterSpacing: '2px', textTransform: 'uppercase', color: TEXT_WEAK, marginBottom: isMobile ? '10px' : '16px' }}>
         Combat funnel — expected values
       </div>
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: isMobile ? '8px' : '12px' }}>
         {FUNNEL.map(({ phase, expected, note, phaseIdx }) => {
           const isActive = activePhase === phaseIdx
           const isPast   = activePhase > phaseIdx
@@ -332,16 +338,16 @@ function CombatFunnel({ activePhase }) {
 
           return (
             <div key={phase}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: '5px' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: '4px' }}>
                 <span style={{ fontFamily: FONT_UI, fontSize: '10px', letterSpacing: '1.5px', textTransform: 'uppercase', color: txtColor, transition: 'color 300ms' }}>{phase}</span>
-                <div style={{ display: 'flex', alignItems: 'baseline', gap: '10px' }}>
-                  <span style={{ fontFamily: FONT_UI, fontSize: '10px', color: isActive || isPast ? TEXT_WEAK : TEXT_OFF }}>{note}</span>
-                  <span style={{ fontFamily: FONT_UI, fontSize: '16px', fontWeight: 700, color: isActive ? ACCENT : isPast ? TEXT_SEC : TEXT_OFF, transition: 'color 300ms' }}>
+                <div style={{ display: 'flex', alignItems: 'baseline', gap: '8px' }}>
+                  {!isMobile && <span style={{ fontFamily: FONT_UI, fontSize: '10px', color: isActive || isPast ? TEXT_WEAK : TEXT_OFF }}>{note}</span>}
+                  <span style={{ fontFamily: FONT_UI, fontSize: isMobile ? '13px' : '16px', fontWeight: 700, color: isActive ? ACCENT : isPast ? TEXT_SEC : TEXT_OFF, transition: 'color 300ms' }}>
                     {expected % 1 === 0 ? expected : expected.toFixed(2)}
                   </span>
                 </div>
               </div>
-              <div style={{ height: '6px', background: SURFACE_E, borderRadius: '1px', overflow: 'hidden' }}>
+              <div style={{ height: '5px', background: SURFACE_E, borderRadius: '1px', overflow: 'hidden' }}>
                 <div style={{ height: '100%', width: isActive || isPast ? barWidth : '0%', background: color, transition: 'width 400ms ease, background 300ms' }} />
               </div>
             </div>
@@ -350,21 +356,23 @@ function CombatFunnel({ activePhase }) {
       </div>
 
       {activePhase >= 0 && activePhase < FUNNEL.length && (
-        <div style={{ marginTop: '32px', padding: '20px', border: `1px solid ${ACCENT}`, background: ACCENT_LIGHT }}>
-          <div style={{ fontFamily: FONT_UI, fontSize: '10px', letterSpacing: '2px', textTransform: 'uppercase', color: ACCENT_TEXT, marginBottom: '8px' }}>
-            {FUNNEL[activePhase].phase}
+        <div style={{ marginTop: isMobile ? '14px' : '32px', padding: isMobile ? '10px 14px' : '20px', border: `1px solid ${ACCENT}`, background: ACCENT_LIGHT, display: 'flex', alignItems: 'center', gap: '16px' }}>
+          <div>
+            <div style={{ fontFamily: FONT_UI, fontSize: '10px', letterSpacing: '2px', textTransform: 'uppercase', color: ACCENT_TEXT, marginBottom: '4px' }}>
+              {FUNNEL[activePhase].phase}
+            </div>
+            <div style={{ fontFamily: FONT_UI, fontSize: isMobile ? '28px' : '42px', fontWeight: 700, color: ACCENT_TEXT, letterSpacing: '-1px', lineHeight: 1 }}>
+              {FUNNEL[activePhase].expected % 1 === 0 ? FUNNEL[activePhase].expected : FUNNEL[activePhase].expected.toFixed(2)}
+            </div>
           </div>
-          <div style={{ fontFamily: FONT_UI, fontSize: '42px', fontWeight: 700, color: ACCENT_TEXT, letterSpacing: '-1px', lineHeight: 1 }}>
-            {FUNNEL[activePhase].expected % 1 === 0 ? FUNNEL[activePhase].expected : FUNNEL[activePhase].expected.toFixed(2)}
-          </div>
-          <div style={{ fontFamily: FONT_UI, fontSize: '10px', color: TEXT_WEAK, marginTop: '8px', letterSpacing: '1.5px' }}>
+          <div style={{ fontFamily: FONT_UI, fontSize: '10px', color: TEXT_WEAK, letterSpacing: '1.5px' }}>
             {FUNNEL[activePhase].note}
           </div>
         </div>
       )}
 
       {activePhase === -1 && (
-        <div style={{ marginTop: '32px', fontFamily: 'Inter, -apple-system, system-ui, sans-serif', fontSize: '14px', color: TEXT_SEC, lineHeight: 1.7 }}>
+        <div style={{ marginTop: isMobile ? '14px' : '32px', fontFamily: 'Inter, -apple-system, system-ui, sans-serif', fontSize: isMobile ? '12px' : '14px', color: TEXT_SEC, lineHeight: 1.7 }}>
           Each phase filters the dice pool. We'll build this funnel one step at a time.
         </div>
       )}
@@ -385,36 +393,39 @@ const CustomTooltip = ({ active, payload, label }) => {
 }
 
 function HistoPanel({ result }) {
+  const isMobile = useIsMobile()
   if (!result) return null
   const { summary, damage_histogram } = result
   const maxProb = Math.max(...damage_histogram.map((b) => b.probability))
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '0' }}>
-      <div style={{ fontFamily: FONT_UI, fontSize: '10px', letterSpacing: '2px', textTransform: 'uppercase', color: TEXT_WEAK, marginBottom: '20px' }}>
-        5× Intercessors · Bolt Rifle · vs 10× Boyz
-      </div>
-      <div style={{ marginBottom: '16px', display: 'flex', alignItems: 'flex-end', gap: '24px' }}>
+      {!isMobile && (
+        <div style={{ fontFamily: FONT_UI, fontSize: '10px', letterSpacing: '2px', textTransform: 'uppercase', color: TEXT_WEAK, marginBottom: '20px' }}>
+          5× Intercessors · Bolt Rifle · vs 10× Boyz
+        </div>
+      )}
+      <div style={{ marginBottom: isMobile ? '10px' : '16px', display: 'flex', alignItems: 'flex-end', gap: isMobile ? '16px' : '24px' }}>
         <div>
-          <div style={{ fontFamily: FONT_UI, fontWeight: 700, fontSize: 'clamp(48px, 5vw, 72px)', lineHeight: 1, letterSpacing: '-2px', color: HIGHLIGHT }}>
+          <div style={{ fontFamily: FONT_UI, fontWeight: 700, fontSize: isMobile ? '36px' : 'clamp(48px, 5vw, 72px)', lineHeight: 1, letterSpacing: '-2px', color: HIGHLIGHT }}>
             {summary.mean_damage.toFixed(2)}
           </div>
-          <div style={{ fontFamily: FONT_UI, fontSize: '10px', letterSpacing: '2px', textTransform: 'uppercase', color: TEXT_WEAK, marginTop: '8px' }}>
+          <div style={{ fontFamily: FONT_UI, fontSize: '10px', letterSpacing: '2px', textTransform: 'uppercase', color: TEXT_WEAK, marginTop: '6px' }}>
             Mean kills
           </div>
         </div>
         {result.kill_probabilities?.['1'] != null && (
           <div style={{ paddingBottom: '4px' }}>
-            <div style={{ fontFamily: FONT_UI, fontWeight: 700, fontSize: 'clamp(32px, 3.5vw, 52px)', lineHeight: 1, letterSpacing: '-1px', color: ACCENT_TEXT }}>
+            <div style={{ fontFamily: FONT_UI, fontWeight: 700, fontSize: isMobile ? '24px' : 'clamp(32px, 3.5vw, 52px)', lineHeight: 1, letterSpacing: '-1px', color: ACCENT_TEXT }}>
               {(result.kill_probabilities['1'] * 100).toFixed(0)}%
             </div>
-            <div style={{ fontFamily: FONT_UI, fontSize: '10px', letterSpacing: '2px', textTransform: 'uppercase', color: TEXT_WEAK, marginTop: '8px' }}>
+            <div style={{ fontFamily: FONT_UI, fontSize: '10px', letterSpacing: '2px', textTransform: 'uppercase', color: TEXT_WEAK, marginTop: '6px' }}>
               At least 1 kill
             </div>
           </div>
         )}
       </div>
-      <div style={{ borderTop: `1px solid ${BORDER}`, marginBottom: '12px' }} />
-      {[
+      <div style={{ borderTop: `1px solid ${BORDER}`, marginBottom: isMobile ? '8px' : '12px' }} />
+      {!isMobile && [
         ['Median',  summary.median_damage],
         ['Std dev', summary.std_dev.toFixed(2)],
         ['P10—P90', `${summary.p10} — ${summary.p90}`],
@@ -424,11 +435,11 @@ function HistoPanel({ result }) {
           <span style={{ fontFamily: FONT_UI, fontSize: '12px', fontWeight: 700, color: TEXT_SEC }}>{v}</span>
         </div>
       ))}
-      <div style={{ borderTop: `1px solid ${BORDER}`, margin: '14px 0 10px' }} />
+      {!isMobile && <div style={{ borderTop: `1px solid ${BORDER}`, margin: '14px 0 10px' }} />}
       <div style={{ fontFamily: FONT_UI, fontSize: '11px', letterSpacing: '2.5px', textTransform: 'uppercase', color: TEXT_WEAK, marginBottom: '10px' }}>
         Kill distribution (2000 trials)
       </div>
-      <ResponsiveContainer width="100%" height={140}>
+      <ResponsiveContainer width="100%" height={isMobile ? 110 : 140}>
         <BarChart data={damage_histogram} margin={{ top: 0, right: 0, bottom: 0, left: -20 }} barCategoryGap="18%">
           <XAxis dataKey="damage" tick={{ fill: TEXT_WEAK, fontSize: 8, fontFamily: FONT_UI }} tickLine={{ stroke: BORDER }} axisLine={{ stroke: BORDER }} />
           <YAxis tickFormatter={(v) => `${(v * 100).toFixed(0)}%`} tick={{ fill: TEXT_WEAK, fontSize: 8, fontFamily: FONT_UI }} tickLine={{ stroke: BORDER }} axisLine={{ stroke: BORDER }} />
@@ -541,9 +552,10 @@ export function LearnPage() {
               key={i}
               ref={(el) => { sectionRefs.current[i] = el }}
               style={{
-                minHeight: 'calc(100vh - 55px)',
-                padding: isMobile ? '40px 20px' : '56px 48px',
-                display: 'flex', flexDirection: 'column', gap: '20px', justifyContent: 'center',
+                minHeight: isMobile ? 'auto' : 'calc(100vh - 55px)',
+                padding: isMobile ? '28px 16px 32px' : '56px 48px',
+                display: 'flex', flexDirection: 'column', gap: isMobile ? '12px' : '20px',
+                justifyContent: isMobile ? 'flex-start' : 'center',
                 borderBottom: i < STEPS.length - 1 ? `1px solid ${BORDER}` : 'none',
               }}
             >
