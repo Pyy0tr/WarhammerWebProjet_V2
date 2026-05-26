@@ -2,6 +2,7 @@ import { useMemo, useState, useRef, useEffect, useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell } from 'recharts'
 import { simulate } from '../engine/simulation.js'
+import { useIsMobile } from '../hooks/useIsMobile'
 import {
   ACCENT_TEXT, ACCENT, BG, BORDER, HIGHLIGHT, SURFACE, SURFACE_E,
   TEXT, TEXT_SEC, TEXT_WEAK, TEXT_OFF, FONT_UI, ACCENT_LIGHT} from '../theme'
@@ -459,6 +460,7 @@ function ProgressBar({ total, active }) {
 
 export function LearnPage() {
   const navigate = useNavigate()
+  const isMobile = useIsMobile()
 
   const [activeStep, setActiveStep] = useState(0)
   const [btnHov, setBtnHov] = useState(false)
@@ -529,29 +531,46 @@ export function LearnPage() {
 
       <ProgressBar total={STEPS.length} active={activeStep} />
 
-      {/* Two-column layout */}
-      <div style={{ flex: 1, display: 'grid', gridTemplateColumns: '1fr 1fr', alignItems: 'start' }}>
+      {/* Layout — two columns on desktop, single column on mobile */}
+      <div style={{ flex: 1, display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', alignItems: 'start' }}>
 
-        {/* Left — scrollable sections */}
-        <div style={{ borderRight: `1px solid ${BORDER}` }}>
-          {STEPS.map((_, i) => (
+        {/* Left / main — scrollable sections */}
+        <div style={{ borderRight: isMobile ? 'none' : `1px solid ${BORDER}` }}>
+          {STEPS.map((s, i) => (
             <section
               key={i}
               ref={(el) => { sectionRefs.current[i] = el }}
-              style={{ minHeight: 'calc(100vh - 55px)', padding: '56px 48px', display: 'flex', flexDirection: 'column', gap: '20px', justifyContent: 'center', borderBottom: i < STEPS.length - 1 ? `1px solid ${BORDER}` : 'none' }}
+              style={{
+                minHeight: 'calc(100vh - 55px)',
+                padding: isMobile ? '40px 20px' : '56px 48px',
+                display: 'flex', flexDirection: 'column', gap: '20px', justifyContent: 'center',
+                borderBottom: i < STEPS.length - 1 ? `1px solid ${BORDER}` : 'none',
+              }}
             >
               <StepContent step={i} onNext={() => handleNext(i)} onSynergies={handleSynergies} />
+
+              {/* Graph inline under text on mobile */}
+              {isMobile && (
+                <div style={{ marginTop: '8px', paddingTop: '24px', borderTop: `1px solid ${BORDER}` }}>
+                  {s.showHisto
+                    ? <HistoPanel result={result} />
+                    : <CombatFunnel activePhase={s.funnelHighlight} />
+                  }
+                </div>
+              )}
             </section>
           ))}
         </div>
 
-        {/* Right — sticky panel */}
-        <div style={{ position: 'sticky', top: '55px', height: 'calc(100vh - 55px)', padding: '40px', overflowY: 'auto' }}>
-          {currentStep.showHisto
-            ? <HistoPanel result={result} />
-            : <CombatFunnel activePhase={currentStep.funnelHighlight} />
-          }
-        </div>
+        {/* Right — sticky panel (desktop only) */}
+        {!isMobile && (
+          <div style={{ position: 'sticky', top: '55px', height: 'calc(100vh - 55px)', padding: '40px', overflowY: 'auto' }}>
+            {currentStep.showHisto
+              ? <HistoPanel result={result} />
+              : <CombatFunnel activePhase={currentStep.funnelHighlight} />
+            }
+          </div>
+        )}
       </div>
 
       {/* Fixed scroll button */}
@@ -559,7 +578,7 @@ export function LearnPage() {
         onClick={() => handleNext(activeStep)}
         onMouseEnter={() => setBtnHov(true)}
         onMouseLeave={() => setBtnHov(false)}
-        style={{ position: 'fixed', bottom: '40px', left: '25vw', transform: 'translateX(-50%)', border: `1px solid ${ACCENT}`, background: btnHov ? SURFACE_E : 'transparent', color: ACCENT_TEXT, fontFamily: FONT_UI, fontSize: '10px', letterSpacing: '2px', textTransform: 'uppercase', padding: '10px 20px', cursor: 'pointer', zIndex: 20, transition: 'background 150ms', display: 'flex', alignItems: 'center', gap: '8px' }}
+        style={{ position: 'fixed', bottom: '40px', left: isMobile ? '50%' : '25vw', transform: 'translateX(-50%)', border: `1px solid ${ACCENT}`, background: btnHov ? SURFACE_E : 'transparent', color: ACCENT_TEXT, fontFamily: FONT_UI, fontSize: '10px', letterSpacing: '2px', textTransform: 'uppercase', padding: '10px 20px', cursor: 'pointer', zIndex: 20, transition: 'background 150ms', display: 'flex', alignItems: 'center', gap: '8px' }}
       >
         <span style={{ display: 'inline-block', animation: 'arrowBounce 1.4s ease-in-out infinite', animationPlayState: btnHov ? 'paused' : 'running' }}>↓</span>
         Next
