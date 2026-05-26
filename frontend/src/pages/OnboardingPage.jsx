@@ -2,6 +2,7 @@ import { useMemo, useState, useRef, useEffect, useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell } from 'recharts'
 import { simulate } from '../engine/simulation.js'
+import { useIsMobile } from '../hooks/useIsMobile'
 import {
   ACCENT_TEXT, ACCENT, BG, BORDER, HIGHLIGHT, SURFACE, SURFACE_E,
   TEXT, TEXT_SEC, TEXT_WEAK, TEXT_OFF, FONT_UI, ACCENT_LIGHT} from '../theme'
@@ -96,7 +97,8 @@ function Tag({ children, color = ACCENT }) {
 }
 
 function Body({ children }) {
-  return <p style={{ fontFamily: 'Inter, -apple-system, system-ui, sans-serif', fontSize: '16px', lineHeight: 1.8, color: TEXT_SEC, margin: 0 }}>{children}</p>
+  const isMobile = useIsMobile()
+  return <p style={{ fontFamily: 'Inter, -apple-system, system-ui, sans-serif', fontSize: isMobile ? '13px' : '16px', lineHeight: isMobile ? 1.6 : 1.8, color: TEXT_SEC, margin: 0 }}>{children}</p>
 }
 
 function ContinueBtn({ onClick, label = 'Continue ↓', primary = false }) {
@@ -126,6 +128,7 @@ function ContinueBtn({ onClick, label = 'Continue ↓', primary = false }) {
 // ── Weapon stat card ──────────────────────────────────────────────────────────
 
 function WeaponCard() {
+  const isMobile = useIsMobile()
   const stats = [
     { key: 'A',  value: '3',   label: 'Attacks',      desc: 'Roll 3 dice to attack' },
     { key: 'WS', value: '2+',  label: 'Weapon Skill', desc: 'Need 2+ to score a hit' },
@@ -135,25 +138,27 @@ function WeaponCard() {
   ]
   return (
     <div style={{ border: `1px solid ${BORDER}`, background: SURFACE }}>
-      <div style={{ padding: '12px 16px', borderBottom: `1px solid ${BORDER}` }}>
+      <div style={{ padding: isMobile ? '7px 12px' : '12px 16px', borderBottom: `1px solid ${BORDER}` }}>
         <div style={{ fontFamily: FONT_UI, fontSize: '11px', fontWeight: 700, letterSpacing: '2px', textTransform: 'uppercase', color: TEXT }}>Master-crafted Power Weapon</div>
-        <div style={{ fontFamily: FONT_UI, fontSize: '10px', color: TEXT_WEAK, marginTop: '3px' }}>Sword Brethren · melee</div>
+        {!isMobile && <div style={{ fontFamily: FONT_UI, fontSize: '10px', color: TEXT_WEAK, marginTop: '3px' }}>Sword Brethren · melee</div>}
       </div>
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)' }}>
         {stats.map((s, i) => (
-          <div key={s.key} style={{ padding: '14px 8px', borderRight: i < 4 ? `1px solid ${BORDER}` : 'none', textAlign: 'center' }}>
-            <div style={{ fontFamily: FONT_UI, fontSize: '20px', fontWeight: 700, color: ACCENT_TEXT, lineHeight: 1 }}>{s.value}</div>
-            <div style={{ fontFamily: FONT_UI, fontSize: '11px', letterSpacing: '1px', textTransform: 'uppercase', color: TEXT_WEAK, marginTop: '5px' }}>{s.key}</div>
+          <div key={s.key} style={{ padding: isMobile ? '8px 4px' : '14px 8px', borderRight: i < 4 ? `1px solid ${BORDER}` : 'none', textAlign: 'center' }}>
+            <div style={{ fontFamily: FONT_UI, fontSize: isMobile ? '15px' : '20px', fontWeight: 700, color: ACCENT_TEXT, lineHeight: 1 }}>{s.value}</div>
+            <div style={{ fontFamily: FONT_UI, fontSize: '10px', letterSpacing: '1px', textTransform: 'uppercase', color: TEXT_WEAK, marginTop: '4px' }}>{s.key}</div>
           </div>
         ))}
       </div>
-      <div style={{ borderTop: `1px solid ${BORDER}`, display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)' }}>
-        {stats.map((s, i) => (
-          <div key={s.key} style={{ padding: '8px', borderRight: i < 4 ? `1px solid ${BORDER}` : 'none', textAlign: 'center' }}>
-            <div style={{ fontFamily: 'Inter, -apple-system, system-ui, sans-serif', fontSize: '11px', color: TEXT_SEC, lineHeight: 1.4 }}>{s.desc}</div>
-          </div>
-        ))}
-      </div>
+      {!isMobile && (
+        <div style={{ borderTop: `1px solid ${BORDER}`, display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)' }}>
+          {stats.map((s, i) => (
+            <div key={s.key} style={{ padding: '8px', borderRight: i < 4 ? `1px solid ${BORDER}` : 'none', textAlign: 'center' }}>
+              <div style={{ fontFamily: 'Inter, -apple-system, system-ui, sans-serif', fontSize: '11px', color: TEXT_SEC, lineHeight: 1.4 }}>{s.desc}</div>
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   )
 }
@@ -161,6 +166,7 @@ function WeaponCard() {
 // ── Defender stat card ────────────────────────────────────────────────────────
 
 function DefenderCard({ showInvuln = true }) {
+  const isMobile = useIsMobile()
   const allStats = [
     { key: 'M',   value: '8"',  sim: false, desc: '' },
     { key: 'T',   value: '11',  sim: true,  desc: 'Harder to wound' },
@@ -181,25 +187,27 @@ function DefenderCard({ showInvuln = true }) {
 
   return (
     <div style={{ border: `1px solid ${BORDER}`, background: SURFACE }}>
-      <div style={{ padding: '12px 16px', borderBottom: `1px solid ${BORDER}` }}>
+      <div style={{ padding: isMobile ? '7px 12px' : '12px 16px', borderBottom: `1px solid ${BORDER}` }}>
         <div style={{ fontFamily: FONT_UI, fontSize: '11px', fontWeight: 700, letterSpacing: '2px', textTransform: 'uppercase', color: TEXT }}>Maleceptor</div>
-        <div style={{ fontFamily: FONT_UI, fontSize: '10px', color: TEXT_WEAK, marginTop: '3px' }}>Target — Tyranids</div>
+        {!isMobile && <div style={{ fontFamily: FONT_UI, fontSize: '10px', color: TEXT_WEAK, marginTop: '3px' }}>Target — Tyranids</div>}
       </div>
       <div style={{ display: 'grid', gridTemplateColumns: `repeat(${cols}, 1fr)` }}>
         {stats.map((s, i) => (
-          <div key={s.key} style={{ padding: '14px 8px', borderRight: i < cols - 1 ? `1px solid ${BORDER}` : 'none', textAlign: 'center', opacity: s.sim ? 1 : 0.35 }}>
-            <div style={{ fontFamily: FONT_UI, fontSize: '18px', fontWeight: 700, color: valueColor(s), lineHeight: 1 }}>{s.value}</div>
-            <div style={{ fontFamily: FONT_UI, fontSize: '11px', letterSpacing: '1px', textTransform: 'uppercase', color: TEXT_WEAK, marginTop: '5px' }}>{s.key}</div>
+          <div key={s.key} style={{ padding: isMobile ? '8px 2px' : '14px 8px', borderRight: i < cols - 1 ? `1px solid ${BORDER}` : 'none', textAlign: 'center', opacity: s.sim ? 1 : 0.35 }}>
+            <div style={{ fontFamily: FONT_UI, fontSize: isMobile ? '13px' : '18px', fontWeight: 700, color: valueColor(s), lineHeight: 1 }}>{s.value}</div>
+            <div style={{ fontFamily: FONT_UI, fontSize: '10px', letterSpacing: '1px', textTransform: 'uppercase', color: TEXT_WEAK, marginTop: '4px' }}>{s.key}</div>
           </div>
         ))}
       </div>
-      <div style={{ borderTop: `1px solid ${BORDER}`, display: 'grid', gridTemplateColumns: `repeat(${cols}, 1fr)` }}>
-        {stats.map((s, i) => (
-          <div key={s.key} style={{ padding: '8px', borderRight: i < cols - 1 ? `1px solid ${BORDER}` : 'none', textAlign: 'center', opacity: s.sim ? 1 : 0.35 }}>
-            <div style={{ fontFamily: 'Inter, -apple-system, system-ui, sans-serif', fontSize: '11px', color: TEXT_SEC, lineHeight: 1.4 }}>{s.desc || '—'}</div>
-          </div>
-        ))}
-      </div>
+      {!isMobile && (
+        <div style={{ borderTop: `1px solid ${BORDER}`, display: 'grid', gridTemplateColumns: `repeat(${cols}, 1fr)` }}>
+          {stats.map((s, i) => (
+            <div key={s.key} style={{ padding: '8px', borderRight: i < cols - 1 ? `1px solid ${BORDER}` : 'none', textAlign: 'center', opacity: s.sim ? 1 : 0.35 }}>
+              <div style={{ fontFamily: 'Inter, -apple-system, system-ui, sans-serif', fontSize: '11px', color: TEXT_SEC, lineHeight: 1.4 }}>{s.desc || '—'}</div>
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   )
 }
@@ -512,29 +520,32 @@ function StepContent({ stepKey, onNext, results }) {
 // ── Right panels ──────────────────────────────────────────────────────────────
 
 function SimpleDamagePanel({ result, label = '1× Sword Brethren · Power Sword · vs Abaddon' }) {
+  const isMobile = useIsMobile()
   if (!result) return null
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-      <div style={{ fontFamily: FONT_UI, fontSize: '10px', letterSpacing: '2px', textTransform: 'uppercase', color: TEXT_WEAK }}>
-        {label}
-      </div>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: isMobile ? '12px' : '20px' }}>
+      {!isMobile && (
+        <div style={{ fontFamily: FONT_UI, fontSize: '10px', letterSpacing: '2px', textTransform: 'uppercase', color: TEXT_WEAK }}>
+          {label}
+        </div>
+      )}
       <div>
-        <div style={{ fontFamily: FONT_UI, fontWeight: 700, fontSize: 'clamp(64px, 8vw, 100px)', lineHeight: 1, letterSpacing: '-3px', color: HIGHLIGHT }}>
+        <div style={{ fontFamily: FONT_UI, fontWeight: 700, fontSize: isMobile ? '48px' : 'clamp(64px, 8vw, 100px)', lineHeight: 1, letterSpacing: '-3px', color: HIGHLIGHT }}>
           {result.summary.mean_damage.toFixed(2)}
         </div>
-        <div style={{ fontFamily: FONT_UI, fontSize: '10px', letterSpacing: '2px', textTransform: 'uppercase', color: TEXT_WEAK, marginTop: '10px' }}>
+        <div style={{ fontFamily: FONT_UI, fontSize: '10px', letterSpacing: '2px', textTransform: 'uppercase', color: TEXT_WEAK, marginTop: '8px' }}>
           Mean damage output
         </div>
       </div>
       <div style={{ borderTop: `1px solid ${BORDER}` }} />
       {[
-        ['Median damage',  result.summary.median_damage],
-        ['P10 — P90',      `${result.summary.p10} — ${result.summary.p90}`],
-        ['Std deviation',  result.summary.std_dev.toFixed(2)],
-      ].map(([label, value]) => (
-        <div key={label} style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 0', borderBottom: `1px solid ${BORDER}` }}>
-          <span style={{ fontFamily: FONT_UI, fontSize: '10px', letterSpacing: '1.5px', textTransform: 'uppercase', color: TEXT_WEAK }}>{label}</span>
-          <span style={{ fontFamily: FONT_UI, fontSize: '12px', fontWeight: 700, color: TEXT_SEC }}>{value}</span>
+        ['Median',  result.summary.median_damage],
+        ['P10—P90', `${result.summary.p10} — ${result.summary.p90}`],
+        ['Std dev', result.summary.std_dev.toFixed(2)],
+      ].map(([l, v]) => (
+        <div key={l} style={{ display: 'flex', justifyContent: 'space-between', padding: '7px 0', borderBottom: `1px solid ${BORDER}` }}>
+          <span style={{ fontFamily: FONT_UI, fontSize: '10px', letterSpacing: '1.5px', textTransform: 'uppercase', color: TEXT_WEAK }}>{l}</span>
+          <span style={{ fontFamily: FONT_UI, fontSize: '12px', fontWeight: 700, color: TEXT_SEC }}>{v}</span>
         </div>
       ))}
     </div>
@@ -552,36 +563,39 @@ const CustomTooltip = ({ active, payload, label }) => {
 }
 
 function FullDamagePanel({ result, label }) {
+  const isMobile = useIsMobile()
   if (!result) return null
   const { summary, damage_histogram } = result
   const maxProb = Math.max(...damage_histogram.map((b) => b.probability))
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '0' }}>
-      <div style={{ fontFamily: FONT_UI, fontSize: '10px', letterSpacing: '2px', textTransform: 'uppercase', color: TEXT_WEAK, marginBottom: '20px' }}>
-        {label}
-      </div>
-      <div style={{ marginBottom: '16px', display: 'flex', alignItems: 'flex-end', gap: '24px' }}>
+      {!isMobile && (
+        <div style={{ fontFamily: FONT_UI, fontSize: '10px', letterSpacing: '2px', textTransform: 'uppercase', color: TEXT_WEAK, marginBottom: '20px' }}>
+          {label}
+        </div>
+      )}
+      <div style={{ marginBottom: isMobile ? '10px' : '16px', display: 'flex', alignItems: 'flex-end', gap: isMobile ? '16px' : '24px' }}>
         <div>
-          <div style={{ fontFamily: FONT_UI, fontWeight: 700, fontSize: 'clamp(48px, 5vw, 72px)', lineHeight: 1, letterSpacing: '-2px', color: HIGHLIGHT }}>
+          <div style={{ fontFamily: FONT_UI, fontWeight: 700, fontSize: isMobile ? '36px' : 'clamp(48px, 5vw, 72px)', lineHeight: 1, letterSpacing: '-2px', color: HIGHLIGHT }}>
             {summary.mean_damage.toFixed(2)}
           </div>
-          <div style={{ fontFamily: FONT_UI, fontSize: '10px', letterSpacing: '2px', textTransform: 'uppercase', color: TEXT_WEAK, marginTop: '8px' }}>
+          <div style={{ fontFamily: FONT_UI, fontSize: '10px', letterSpacing: '2px', textTransform: 'uppercase', color: TEXT_WEAK, marginTop: '6px' }}>
             Mean damage
           </div>
         </div>
         {result.kill_probabilities?.['1'] != null && (
           <div style={{ paddingBottom: '4px' }}>
-            <div style={{ fontFamily: FONT_UI, fontWeight: 700, fontSize: 'clamp(32px, 3.5vw, 52px)', lineHeight: 1, letterSpacing: '-1px', color: ACCENT_TEXT }}>
+            <div style={{ fontFamily: FONT_UI, fontWeight: 700, fontSize: isMobile ? '24px' : 'clamp(32px, 3.5vw, 52px)', lineHeight: 1, letterSpacing: '-1px', color: ACCENT_TEXT }}>
               {(result.kill_probabilities['1'] * 100).toFixed(0)}%
             </div>
-            <div style={{ fontFamily: FONT_UI, fontSize: '10px', letterSpacing: '2px', textTransform: 'uppercase', color: TEXT_WEAK, marginTop: '8px' }}>
+            <div style={{ fontFamily: FONT_UI, fontSize: '10px', letterSpacing: '2px', textTransform: 'uppercase', color: TEXT_WEAK, marginTop: '6px' }}>
               Kill chance
             </div>
           </div>
         )}
       </div>
-      <div style={{ borderTop: `1px solid ${BORDER}`, marginBottom: '12px' }} />
-      {[
+      <div style={{ borderTop: `1px solid ${BORDER}`, marginBottom: isMobile ? '8px' : '12px' }} />
+      {!isMobile && [
         ['Median',   summary.median_damage],
         ['Std dev',  summary.std_dev.toFixed(2)],
         ['P10—P90',  `${summary.p10} — ${summary.p90}`],
@@ -591,11 +605,11 @@ function FullDamagePanel({ result, label }) {
           <span style={{ fontFamily: FONT_UI, fontSize: '12px', fontWeight: 700, color: TEXT_SEC }}>{v}</span>
         </div>
       ))}
-      <div style={{ borderTop: `1px solid ${BORDER}`, margin: '14px 0 10px' }} />
+      {!isMobile && <div style={{ borderTop: `1px solid ${BORDER}`, margin: '14px 0 10px' }} />}
       <div style={{ fontFamily: FONT_UI, fontSize: '11px', letterSpacing: '2.5px', textTransform: 'uppercase', color: TEXT_WEAK, marginBottom: '10px' }}>
         Damage distribution
       </div>
-      <ResponsiveContainer width="100%" height={140}>
+      <ResponsiveContainer width="100%" height={isMobile ? 110 : 140}>
         <BarChart data={damage_histogram} margin={{ top: 0, right: 0, bottom: 0, left: -20 }} barCategoryGap="18%">
           <XAxis dataKey="damage" tick={{ fill: TEXT_WEAK, fontSize: 8, fontFamily: FONT_UI }} tickLine={{ stroke: BORDER }} axisLine={{ stroke: BORDER }} />
           <YAxis tickFormatter={(v) => `${(v * 100).toFixed(0)}%`} tick={{ fill: TEXT_WEAK, fontSize: 8, fontFamily: FONT_UI }} tickLine={{ stroke: BORDER }} axisLine={{ stroke: BORDER }} />
@@ -642,6 +656,7 @@ const PANEL_LABELS = {
 
 export function OnboardingPage() {
   const navigate = useNavigate()
+  const isMobile = useIsMobile()
   const level    = localStorage.getItem('ph_level') ?? 'beginner'
   const steps    = level === 'intermediate' ? INTERMEDIATE_STEPS : BEGINNER_STEPS
   const prefix   = level === 'intermediate' ? 'intermediate' : 'beginner'
@@ -718,33 +733,51 @@ export function OnboardingPage() {
 
       <ProgressBar total={steps.length} active={activeStep} />
 
-      {/* Two-column layout */}
-      <div style={{ flex: 1, display: 'grid', gridTemplateColumns: '1fr 1fr', alignItems: 'start' }}>
+      {/* Layout — two columns on desktop, single column on mobile */}
+      <div style={{ flex: 1, display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', alignItems: 'start' }}>
 
-        {/* Left — scrollable sections */}
-        <div style={{ borderRight: `1px solid ${BORDER}` }}>
+        {/* Left / main — scrollable sections */}
+        <div style={{ borderRight: isMobile ? 'none' : `1px solid ${BORDER}` }}>
           {steps.map((step, i) => (
             <section
               key={i}
               ref={(el) => { sectionRefs.current[i] = el }}
-              style={{ minHeight: 'calc(100vh - 55px)', padding: '56px 48px', display: 'flex', flexDirection: 'column', gap: '24px', justifyContent: 'center', borderBottom: i < steps.length - 1 ? `1px solid ${BORDER}` : 'none' }}
+              style={{
+                minHeight: isMobile ? 'auto' : 'calc(100vh - 55px)',
+                padding: isMobile ? '28px 16px 32px' : '56px 48px',
+                display: 'flex', flexDirection: 'column', gap: isMobile ? '12px' : '24px',
+                justifyContent: isMobile ? 'flex-start' : 'center',
+                borderBottom: i < steps.length - 1 ? `1px solid ${BORDER}` : 'none',
+              }}
             >
               <StepContent
                 stepKey={`${prefix}-${i}`}
                 onNext={() => handleNext(i)}
                 results={results}
               />
+
+              {/* Graph inline under text on mobile */}
+              {isMobile && (
+                <div style={{ marginTop: '8px', paddingTop: '24px', borderTop: `1px solid ${BORDER}` }}>
+                  {step.panelType === 'simple'
+                    ? <SimpleDamagePanel result={results[step.resultKey]} label={PANEL_LABELS[step.resultKey] ?? ''} />
+                    : <FullDamagePanel result={results[step.resultKey]} label={PANEL_LABELS[step.resultKey] ?? ''} />
+                  }
+                </div>
+              )}
             </section>
           ))}
         </div>
 
-        {/* Right — sticky panel */}
-        <div style={{ position: 'sticky', top: '55px', height: 'calc(100vh - 55px)', padding: '40px', overflowY: 'auto' }}>
-          {currentStep?.panelType === 'simple'
-            ? <SimpleDamagePanel result={activeResult} label={PANEL_LABELS[currentStep?.resultKey] ?? ''} />
-            : <FullDamagePanel result={activeResult} label={PANEL_LABELS[currentStep?.resultKey] ?? ''} />
-          }
-        </div>
+        {/* Right — sticky panel (desktop only) */}
+        {!isMobile && (
+          <div style={{ position: 'sticky', top: '55px', height: 'calc(100vh - 55px)', padding: '40px', overflowY: 'auto' }}>
+            {currentStep?.panelType === 'simple'
+              ? <SimpleDamagePanel result={activeResult} label={PANEL_LABELS[currentStep?.resultKey] ?? ''} />
+              : <FullDamagePanel result={activeResult} label={PANEL_LABELS[currentStep?.resultKey] ?? ''} />
+            }
+          </div>
+        )}
       </div>
 
       {/* Fixed scroll button */}
@@ -752,7 +785,7 @@ export function OnboardingPage() {
         onClick={() => handleNext(activeStep)}
         onMouseEnter={() => setBtnHov(true)}
         onMouseLeave={() => setBtnHov(false)}
-        style={{ position: 'fixed', bottom: '40px', left: '25vw', transform: 'translateX(-50%)', border: `1px solid ${ACCENT}`, background: btnHov ? SURFACE_E : 'transparent', color: ACCENT_TEXT, fontFamily: FONT_UI, fontSize: '10px', letterSpacing: '2px', textTransform: 'uppercase', padding: '10px 20px', cursor: 'pointer', zIndex: 20, transition: 'background 150ms', display: 'flex', alignItems: 'center', gap: '8px' }}
+        style={{ position: 'fixed', bottom: '40px', left: isMobile ? '50%' : '25vw', transform: 'translateX(-50%)', border: `1px solid ${ACCENT}`, background: btnHov ? SURFACE_E : 'transparent', color: ACCENT_TEXT, fontFamily: FONT_UI, fontSize: '10px', letterSpacing: '2px', textTransform: 'uppercase', padding: '10px 20px', cursor: 'pointer', zIndex: 20, transition: 'background 150ms', display: 'flex', alignItems: 'center', gap: '8px' }}
       >
         <span style={{ display: 'inline-block', animation: 'arrowBounce 1.4s ease-in-out infinite', animationPlayState: btnHov ? 'paused' : 'running' }}>↓</span>
         Next
