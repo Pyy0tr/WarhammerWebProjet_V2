@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from 'react'
+import { useIsMobile } from '../hooks/useIsMobile'
 import { useSimulatorStore } from '../store/simulatorStore'
 import { AttackerPanel } from '../components/AttackerPanel'
 import { DefenderPanel } from '../components/DefenderPanel'
@@ -948,6 +949,52 @@ function UnitAbilitiesPanel({ role }) {
   )
 }
 
+// ── Mobile drawer ────────────────────────────────────────────────────────────
+
+function MobileDrawer({ title, open, onClose, children }) {
+  if (!open) return null
+  return (
+    <>
+      <div
+        onClick={onClose}
+        style={{
+          position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)',
+          zIndex: 200,
+        }}
+      />
+      <div style={{
+        position: 'fixed', bottom: 0, left: 0, right: 0,
+        background: SURFACE,
+        borderTop: `1px solid ${BORDER}`,
+        borderRadius: '12px 12px 0 0',
+        zIndex: 201,
+        maxHeight: '80vh',
+        display: 'flex', flexDirection: 'column',
+      }}>
+        <div style={{
+          display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+          padding: '16px 20px',
+          borderBottom: `1px solid ${BORDER}`,
+          flexShrink: 0,
+        }}>
+          <span style={{ fontFamily: FONT_UI, fontSize: '12px', fontWeight: 600, letterSpacing: '2px', textTransform: 'uppercase', color: TEXT_WEAK }}>
+            {title}
+          </span>
+          <button
+            onClick={onClose}
+            style={{ background: 'none', border: 'none', cursor: 'pointer', color: TEXT_WEAK, fontSize: '20px', lineHeight: 1, padding: '0 4px' }}
+          >
+            ×
+          </button>
+        </div>
+        <div style={{ overflowY: 'auto', padding: '16px 20px', flex: 1 }}>
+          {children}
+        </div>
+      </div>
+    </>
+  )
+}
+
 // ── Step 1: Attack wrapper ───────────────────────────────────────────────────
 
 function AttackStep() {
@@ -1012,62 +1059,89 @@ export function SimulatorPage() {
   const step     = useSimulatorStore((s) => s.step)
   const setStep  = useSimulatorStore((s) => s.setStep)
   const resetAll = useSimulatorStore((s) => s.resetAll)
+  const isMobile = useIsMobile()
+
+  const [resetHover, setResetHover]         = useState(false)
+  const [progressOpen, setProgressOpen]     = useState(false)
+  const [abilitiesOpen, setAbilitiesOpen]   = useState(false)
 
   useEffect(() => {
     document.title = "Combat Simulator — Warhammer 40K Probability | Prob'Hammer"
   }, [])
-
-  const [resetHover, setResetHover] = useState(false)
 
   const contentRef = useRef(null)
   useEffect(() => {
     contentRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
   }, [step])
 
+  const hPad = isMobile ? '0 16px' : '0 48px'
+  const sPad = isMobile ? '24px 16px 80px' : '36px 48px 80px'
+
   return (
     <div style={{ color: TEXT_SEC, minHeight: '100vh', paddingTop: '52px' }}>
 
-      <div style={{ padding: '0 48px' }}>
+      <div style={{ padding: hPad }}>
         <Separator />
         <div style={{ padding: '18px 0 14px' }}>
-          <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', gap: '16px' }}>
-            <div style={{ display: 'flex', alignItems: 'baseline', gap: '16px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '12px', flexWrap: 'wrap' }}>
+            <div style={{ display: 'flex', alignItems: 'baseline', gap: '12px' }}>
               <h1 style={{
                 fontFamily: FONT_UI, fontWeight: 700,
-                fontSize: 'clamp(18px, 2vw, 26px)', letterSpacing: '0.05em',
+                fontSize: isMobile ? '16px' : 'clamp(18px, 2vw, 26px)', letterSpacing: '0.05em',
                 textTransform: 'uppercase', lineHeight: 1, color: TEXT,
               }}>
                 Probability Simulator
               </h1>
-              <span style={{
-                fontFamily: FONT_UI, fontSize: '10px',
-                letterSpacing: '2px', textTransform: 'uppercase', color: TEXT_WEAK,
-              }}>
-                Monte Carlo &middot; WH40K 10e
-              </span>
+              {!isMobile && (
+                <span style={{
+                  fontFamily: FONT_UI, fontSize: '10px',
+                  letterSpacing: '2px', textTransform: 'uppercase', color: TEXT_WEAK,
+                }}>
+                  Monte Carlo &middot; WH40K 10e
+                </span>
+              )}
             </div>
-            <button
-              onClick={resetAll}
-              onMouseEnter={() => setResetHover(true)}
-              onMouseLeave={() => setResetHover(false)}
-              title="Reset all — start a new simulation from scratch"
-              style={{
-                background: resetHover ? ERROR : `${ERROR}22`,
-                border: `1px solid ${ERROR}`,
-                color: resetHover ? BG : ERROR,
-                fontFamily: FONT_UI, fontSize: '10px',
-                fontWeight: 700, letterSpacing: '2px', textTransform: 'uppercase',
-                padding: '9px 20px', cursor: 'pointer',
-                display: 'flex', alignItems: 'center', gap: '8px',
-                transition: 'background 120ms, color 120ms',
-              }}
-            >
-              <svg width="13" height="13" viewBox="0 0 13 13" fill="none" style={{ flexShrink: 0 }}>
-                <path d="M11 2.5A5.5 5.5 0 1 0 11.5 6.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
-                <polyline points="9,0.5 11,2.5 9,4.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-              </svg>
-              Reset
-            </button>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              {isMobile && step !== 4 && (
+                <button
+                  onClick={() => setProgressOpen(true)}
+                  style={{
+                    background: 'transparent', border: `1px solid ${BORDER}`,
+                    color: TEXT_WEAK, fontFamily: FONT_UI, fontSize: '10px',
+                    letterSpacing: '1.5px', textTransform: 'uppercase',
+                    padding: '7px 12px', cursor: 'pointer',
+                    display: 'flex', alignItems: 'center', gap: '6px',
+                  }}
+                >
+                  <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+                    <circle cx="6" cy="6" r="5" stroke={ACCENT} strokeWidth="1.2"/>
+                    <circle cx="6" cy="6" r="2" fill={ACCENT}/>
+                  </svg>
+                  Progress
+                </button>
+              )}
+              <button
+                onClick={resetAll}
+                onMouseEnter={() => setResetHover(true)}
+                onMouseLeave={() => setResetHover(false)}
+                style={{
+                  background: resetHover ? ERROR : `${ERROR}22`,
+                  border: `1px solid ${ERROR}`,
+                  color: resetHover ? BG : ERROR,
+                  fontFamily: FONT_UI, fontSize: '10px',
+                  fontWeight: 700, letterSpacing: '2px', textTransform: 'uppercase',
+                  padding: isMobile ? '7px 14px' : '9px 20px', cursor: 'pointer',
+                  display: 'flex', alignItems: 'center', gap: '6px',
+                  transition: 'background 120ms, color 120ms',
+                }}
+              >
+                <svg width="13" height="13" viewBox="0 0 13 13" fill="none" style={{ flexShrink: 0 }}>
+                  <path d="M11 2.5A5.5 5.5 0 1 0 11.5 6.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+                  <polyline points="9,0.5 11,2.5 9,4.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
+                Reset
+              </button>
+            </div>
           </div>
         </div>
         <Separator />
@@ -1075,27 +1149,64 @@ export function SimulatorPage() {
 
       <StepBar current={step} onStep={setStep} />
 
-      <section ref={contentRef} style={{ padding: '36px 48px 80px', minHeight: 'calc(100vh - 200px)', position: 'relative' }}>
-        {step !== 4 && <ProgressTracker />}
-        {step === 1 && <KeywordDefinitionPanel />}
-        {step === 1 && <UnitAbilitiesPanel role="attacker" />}
+      <section ref={contentRef} style={{ padding: sPad, minHeight: 'calc(100vh - 200px)', position: 'relative' }}>
+        {/* Desktop panels — hidden on mobile */}
+        {!isMobile && step !== 4 && <ProgressTracker />}
+        {!isMobile && step === 1 && <KeywordDefinitionPanel />}
+        {!isMobile && step === 1 && <UnitAbilitiesPanel role="attacker" />}
+        {!isMobile && step === 3 && <UnitAbilitiesPanel role="defender" />}
+
+        {/* Mobile abilities button */}
+        {isMobile && (step === 1 || step === 3) && (
+          <div style={{ marginBottom: '16px', display: 'flex', justifyContent: 'flex-end' }}>
+            <button
+              onClick={() => setAbilitiesOpen(true)}
+              style={{
+                background: 'transparent', border: `1px solid ${ACCENT}55`,
+                color: ACCENT_TEXT, fontFamily: FONT_UI, fontSize: '10px',
+                letterSpacing: '1.5px', textTransform: 'uppercase',
+                padding: '7px 12px', cursor: 'pointer',
+              }}
+            >
+              Unit abilities →
+            </button>
+          </div>
+        )}
+
         {step === 1 && <AttackStep />}
         {step === 2 && <ReviewStep />}
-        {step === 3 && <UnitAbilitiesPanel role="defender" />}
         {step === 3 && <DefenderStep />}
         {step === 4 && <ResultsStep />}
       </section>
 
-      <div style={{ padding: '0 48px 24px' }}>
+      {/* Mobile drawers */}
+      {isMobile && (
+        <>
+          <MobileDrawer title="Progress" open={progressOpen} onClose={() => setProgressOpen(false)}>
+            <ProgressTracker />
+          </MobileDrawer>
+          <MobileDrawer
+            title={step === 1 ? 'Attacker abilities' : 'Defender abilities'}
+            open={abilitiesOpen}
+            onClose={() => setAbilitiesOpen(false)}
+          >
+            <UnitAbilitiesPanel role={step === 1 ? 'attacker' : 'defender'} />
+          </MobileDrawer>
+        </>
+      )}
+
+      <div style={{ padding: isMobile ? '0 16px 24px' : '0 48px 24px' }}>
         <Separator />
-        <div style={{
-          display: 'flex', justifyContent: 'space-between', paddingTop: '12px',
-          fontFamily: FONT_UI, fontSize: '10px',
-          letterSpacing: '2px', textTransform: 'uppercase', color: TEXT_OFF,
-        }}>
-          <span>WH40K PROBABILITY ENGINE — V2</span>
-          <span>SIMULATION RUNS IN BROWSER — ZERO LATENCY</span>
-        </div>
+        {!isMobile && (
+          <div style={{
+            display: 'flex', justifyContent: 'space-between', paddingTop: '12px',
+            fontFamily: FONT_UI, fontSize: '10px',
+            letterSpacing: '2px', textTransform: 'uppercase', color: TEXT_OFF,
+          }}>
+            <span>WH40K PROBABILITY ENGINE — V2</span>
+            <span>SIMULATION RUNS IN BROWSER — ZERO LATENCY</span>
+          </div>
+        )}
       </div>
     </div>
   )

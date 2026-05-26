@@ -1,5 +1,6 @@
 import { useState, useMemo, useEffect } from 'react'
 import { useLocation } from 'react-router-dom'
+import { useIsMobile } from '../hooks/useIsMobile'
 import { useDataStore }  from '../store/dataStore'
 import { useArmyStore }  from '../store/armyStore'
 import { useAuthStore }  from '../store/authStore'
@@ -1196,6 +1197,7 @@ export function FactionsPage() {
   const loaded      = useDataStore((s) => s.loaded)
   const unitsById   = useDataStore((s) => s.unitsById)
   const location    = useLocation()
+  const isMobile    = useIsMobile()
 
   useEffect(() => {
     document.title = "Factions & Units — 46 Factions, 1487 Units | Prob'Hammer WH40K"
@@ -1245,7 +1247,7 @@ export function FactionsPage() {
 
   return (
     <div style={{ color: TEXT_SEC, minHeight: '100vh', paddingTop: '52px' }}>
-      <div style={{ padding: '40px 56px 80px', maxWidth: '1400px', margin: '0 auto' }}>
+      <div style={{ padding: isMobile ? '20px 16px 60px' : '40px 56px 80px', maxWidth: '1400px', margin: '0 auto' }}>
         {view === 'factions' ? (
           <FactionsView onSelectFaction={handleSelectFaction} />
         ) : (

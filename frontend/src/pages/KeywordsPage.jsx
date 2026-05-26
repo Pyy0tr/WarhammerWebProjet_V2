@@ -1,4 +1,5 @@
 import { useEffect, useState, useMemo } from 'react'
+import { useIsMobile } from '../hooks/useIsMobile'
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts'
 import { KEYWORD_REGISTRY } from '../engine/keywords'
 import { simulate } from '../engine/simulation'
@@ -677,74 +678,89 @@ function DetailPanel({ kw }) {
 
 export function KeywordsPage() {
   const [selected, setSelected] = useState(KEYWORD_REGISTRY[0])
+  const isMobile = useIsMobile()
 
   useEffect(() => {
     document.title = "Keywords — Prob'Hammer"
   }, [])
+
+  const listEl = (
+    <div style={{
+      width: isMobile ? '100%' : '220px', flexShrink: 0,
+      borderRight: isMobile ? 'none' : `1px solid ${BORDER}`,
+      overflowY: 'auto',
+      paddingTop: '8px', paddingBottom: '24px',
+    }}>
+      {SECTIONS.map(({ label, group }) => {
+        const keys = KEYWORD_REGISTRY.filter((k) => k.group === group)
+        if (!keys.length) return null
+        return (
+          <div key={group} style={{ marginBottom: '8px' }}>
+            <div style={{
+              padding: '12px 16px 6px',
+              fontFamily: FONT_UI, fontSize: '11px',
+              letterSpacing: '2.5px', textTransform: 'uppercase', color: TEXT_OFF,
+            }}>
+              {label}
+            </div>
+            {keys.map((kw) => (
+              <KeywordRow
+                key={kw.type}
+                kw={kw}
+                selected={selected?.type === kw.type}
+                onClick={() => setSelected(kw)}
+              />
+            ))}
+          </div>
+        )
+      })}
+    </div>
+  )
 
   return (
     <div style={{ paddingTop: '52px', height: '100vh', display: 'flex', flexDirection: 'column', color: TEXT_SEC }}>
 
       {/* Header */}
       <div style={{
-        padding: '20px 40px',
+        padding: isMobile ? '14px 16px' : '20px 40px',
         borderBottom: `1px solid ${BORDER}`,
-        display: 'flex', alignItems: 'baseline', gap: '24px',
+        display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '16px',
         flexShrink: 0,
       }}>
-        <h1 style={{
-          fontFamily: FONT_UI, fontSize: '13px',
-          fontWeight: 700, letterSpacing: '3px', textTransform: 'uppercase',
-          color: TEXT, margin: 0,
-        }}>
-          Keyword Reference
-        </h1>
-        <span style={{
-          fontFamily: FONT_UI, fontSize: '10px',
-          letterSpacing: '2px', textTransform: 'uppercase', color: TEXT_WEAK,
-        }}>
-          {KEYWORD_REGISTRY.length} keywords · 10th Edition
-        </span>
+        <div style={{ display: 'flex', alignItems: 'baseline', gap: '16px' }}>
+          <h1 style={{
+            fontFamily: FONT_UI, fontSize: '13px',
+            fontWeight: 700, letterSpacing: '3px', textTransform: 'uppercase',
+            color: TEXT, margin: 0,
+          }}>
+            {isMobile && selected ? selected.label : 'Keyword Reference'}
+          </h1>
+          {!isMobile && (
+            <span style={{ fontFamily: FONT_UI, fontSize: '10px', letterSpacing: '2px', textTransform: 'uppercase', color: TEXT_WEAK }}>
+              {KEYWORD_REGISTRY.length} keywords · 10th Edition
+            </span>
+          )}
+        </div>
+        {isMobile && selected && (
+          <button
+            onClick={() => setSelected(null)}
+            style={{ background: 'none', border: 'none', cursor: 'pointer', color: ACCENT_TEXT, fontFamily: FONT_UI, fontSize: '12px', padding: 0 }}
+          >
+            ← All
+          </button>
+        )}
       </div>
 
-      {/* Split layout */}
+      {/* Body */}
       <div style={{ flex: 1, display: 'flex', overflow: 'hidden', minHeight: 0 }}>
-
-        {/* Left — list */}
-        <div style={{
-          width: '220px', flexShrink: 0,
-          borderRight: `1px solid ${BORDER}`,
-          overflowY: 'auto',
-          paddingTop: '8px', paddingBottom: '24px',
-        }}>
-          {SECTIONS.map(({ label, group }) => {
-            const keys = KEYWORD_REGISTRY.filter((k) => k.group === group)
-            if (!keys.length) return null
-            return (
-              <div key={group} style={{ marginBottom: '8px' }}>
-                <div style={{
-                  padding: '12px 16px 6px',
-                  fontFamily: FONT_UI, fontSize: '11px',
-                  letterSpacing: '2.5px', textTransform: 'uppercase', color: TEXT_OFF,
-                }}>
-                  {label}
-                </div>
-                {keys.map((kw) => (
-                  <KeywordRow
-                    key={kw.type}
-                    kw={kw}
-                    selected={selected?.type === kw.type}
-                    onClick={() => setSelected(kw)}
-                  />
-                ))}
-              </div>
-            )
-          })}
-        </div>
-
-        {/* Right — detail */}
-        <DetailPanel kw={selected} />
-
+        {isMobile ? (
+          selected ? <DetailPanel kw={selected} /> : listEl
+        ) : (
+          <>
+            {listEl}
+            <DetailPanel kw={selected} />
+          </>
+        )}
       </div>
     </div>
   )

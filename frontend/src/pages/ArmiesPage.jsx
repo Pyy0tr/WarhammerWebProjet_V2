@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { useArmyStore } from '../store/armyStore'
 import { useAuthStore } from '../store/authStore'
 import { useDataStore } from '../store/dataStore'
+import { useIsMobile } from '../hooks/useIsMobile'
 import { ACCENT_TEXT, ACCENT, BG, SURFACE, SURFACE_E, BORDER, TEXT, TEXT_SEC, TEXT_WEAK, ERROR, HIGHLIGHT , FONT_UI, ACCENT_LIGHT} from '../theme'
 
 // ── Small helpers ─────────────────────────────────────────────────────────────
@@ -904,9 +905,12 @@ function NewArmyModal({ onClose, onCreate }) {
 // ── Page ──────────────────────────────────────────────────────────────────────
 
 export function ArmiesPage() {
-  const user   = useAuthStore((s) => s.user)
-  const init   = useArmyStore((s) => s.init)
-  const create = useArmyStore((s) => s.create)
+  const user     = useAuthStore((s) => s.user)
+  const init     = useArmyStore((s) => s.init)
+  const create   = useArmyStore((s) => s.create)
+  const activeId = useArmyStore((s) => s.activeId)
+  const setActive = useArmyStore((s) => s.setActive)
+  const isMobile = useIsMobile()
 
   useEffect(() => {
     document.title = "Army Builder — Save & Compare Lists | Prob'Hammer WH40K"
@@ -920,13 +924,41 @@ export function ArmiesPage() {
     await create(user, name)
   }
 
+  const showEditor = !isMobile || (isMobile && activeId)
+
   return (
     <div style={{
       display: 'flex', height: '100vh', paddingTop: '52px',
       background: BG, color: TEXT_SEC,
+      flexDirection: 'column',
     }}>
-      <ArmySidebar user={user} onNewArmy={() => setShowModal(true)} />
-      <ArmyEditor  user={user} onNewArmy={() => setShowModal(true)} />
+      {/* Mobile back bar */}
+      {isMobile && activeId && (
+        <div style={{
+          position: 'fixed', top: '56px', left: 0, right: 0, zIndex: 10,
+          background: SURFACE, borderBottom: `1px solid ${BORDER}`,
+          padding: '10px 16px', display: 'flex', alignItems: 'center', gap: '12px',
+        }}>
+          <button
+            onClick={() => setActive(null)}
+            style={{ background: 'none', border: 'none', cursor: 'pointer', color: ACCENT_TEXT, fontFamily: FONT_UI, fontSize: '12px', padding: 0 }}
+          >
+            ← Armies
+          </button>
+        </div>
+      )}
+
+      <div style={{
+        display: 'flex', flex: 1, overflow: 'hidden',
+        paddingTop: isMobile && activeId ? '44px' : 0,
+      }}>
+        {(!isMobile || !activeId) && (
+          <ArmySidebar user={user} onNewArmy={() => setShowModal(true)} />
+        )}
+        {showEditor && (
+          <ArmyEditor user={user} onNewArmy={() => setShowModal(true)} />
+        )}
+      </div>
 
       {showModal && (
         <NewArmyModal

@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { useIsMobile } from '../hooks/useIsMobile'
 import {
   ACCENT, ACCENT_H, ACCENT_TEXT, ACCENT_LIGHT,
   BORDER, SURFACE, SURFACE_E,
@@ -89,14 +90,14 @@ function ActionCard({ action, navigate }) {
   )
 }
 
-function ActionPanel() {
+function ActionPanel({ isMobile }) {
   const navigate = useNavigate()
   return (
     <div style={{
       flex: 1, minWidth: 0,
       display: 'grid',
-      gridTemplateColumns: '1fr 1fr',
-      gridTemplateRows: '1fr 1fr',
+      gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr',
+      gridTemplateRows: isMobile ? 'auto' : '1fr 1fr',
       alignContent: 'stretch',
     }}>
       {ACTIONS.map((a) => <ActionCard key={a.num} action={a} navigate={navigate} />)}
@@ -212,7 +213,7 @@ function GuideCard({ guide }) {
 
 export function HomePage() {
   const navigate = useNavigate()
-
+  const isMobile = useIsMobile()
   useEffect(() => {
     document.title = "Prob'Hammer — Warhammer 40K Probability & Dice Calculator"
   }, [])
@@ -221,15 +222,17 @@ export function HomePage() {
     <div style={{ color: TEXT_SEC, paddingTop: '56px' }}>
 
       <section style={{
-        height: 'calc(100vh - 56px)',
+        minHeight: isMobile ? 'auto' : 'calc(100vh - 56px)',
         display: 'flex',
+        flexDirection: isMobile ? 'column' : 'row',
       }}>
         {/* Left */}
         <div style={{
           flex: 1, minWidth: 0,
-          padding: '0 56px',
+          padding: isMobile ? '32px 16px 24px' : '0 56px',
           display: 'flex', flexDirection: 'column', justifyContent: 'center',
-          borderRight: `1px solid ${BORDER}`,
+          borderRight: isMobile ? 'none' : `1px solid ${BORDER}`,
+          borderBottom: isMobile ? `1px solid ${BORDER}` : 'none',
           gap: '0',
         }}>
 
@@ -315,10 +318,10 @@ export function HomePage() {
         </div>
 
         {/* Right — action panel */}
-        <ActionPanel />
+        <ActionPanel isMobile={isMobile} />
       </section>
 
-      <section style={{ padding: '64px 56px 72px', borderTop: `1px solid ${BORDER}` }}>
+      <section style={{ padding: isMobile ? '40px 16px 48px' : '64px 56px 72px', borderTop: `1px solid ${BORDER}` }}>
         <div style={{
           fontFamily: FONT_UI, fontSize: '12px', fontWeight: 600,
           color: TEXT_WEAK, textTransform: 'uppercase', letterSpacing: '0.5px',
@@ -346,7 +349,7 @@ export function HomePage() {
         </div>
       </section>
 
-      <section style={{ padding: '64px 56px 72px', borderTop: `1px solid ${BORDER}` }}>
+      <section style={{ padding: isMobile ? '40px 16px 48px' : '64px 56px 72px', borderTop: `1px solid ${BORDER}` }}>
         <div style={{
           fontFamily: FONT_UI, fontSize: '12px', fontWeight: 600,
           color: TEXT_WEAK, textTransform: 'uppercase', letterSpacing: '0.5px',
@@ -362,7 +365,7 @@ export function HomePage() {
 
       <div style={{
         borderTop: `1px solid ${BORDER}`,
-        padding: '16px 56px',
+        padding: isMobile ? '16px' : '16px 56px',
         display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap', gap: '8px',
         fontFamily: FONT_UI, fontSize: '12px', color: TEXT_WEAK,
       }}>

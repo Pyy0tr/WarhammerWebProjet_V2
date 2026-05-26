@@ -1,19 +1,31 @@
 import { useState } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { useAuthStore } from '../store/authStore'
+import { useIsMobile } from '../hooks/useIsMobile'
 import { AuthModal } from './AuthModal'
 import {
   ACCENT, ACCENT_H, ACCENT_TEXT, ACCENT_LIGHT,
-  BG, BORDER, SURFACE,
+  BG, BORDER, SURFACE, SURFACE_E,
   TEXT, TEXT_SEC, TEXT_WEAK,
-  FONT_UI, RADIUS, SHADOW_SM,
+  FONT_UI, RADIUS, SHADOW_SM, SHADOW_MD,
 } from '../theme'
 
-function NavLink({ to, children, active }) {
+const NAV_LINKS = [
+  { to: '/factions',    label: 'Factions' },
+  { to: '/armies',      label: 'Armies' },
+  { to: '/simulator',   label: 'Simulator' },
+  { to: '/learn',       label: 'Learn' },
+  { to: '/keywords',    label: 'Keywords' },
+  { to: '/detachments', label: 'Detachments' },
+  { to: '/combos',      label: 'Combos' },
+]
+
+function NavLink({ to, children, active, onClick }) {
   const [hov, setHov] = useState(false)
   return (
     <Link
       to={to}
+      onClick={onClick}
       onMouseEnter={() => setHov(true)}
       onMouseLeave={() => setHov(false)}
       style={{
@@ -26,6 +38,30 @@ function NavLink({ to, children, active }) {
         borderBottom: active ? `2px solid ${ACCENT}` : '2px solid transparent',
         transition: 'color 120ms, border-color 120ms',
         lineHeight: 1,
+      }}
+    >
+      {children}
+    </Link>
+  )
+}
+
+function MobileNavLink({ to, children, active, onClick }) {
+  return (
+    <Link
+      to={to}
+      onClick={onClick}
+      style={{
+        display: 'block',
+        textDecoration: 'none',
+        fontFamily: FONT_UI,
+        fontSize: '16px',
+        fontWeight: active ? 600 : 400,
+        color: active ? ACCENT_TEXT : TEXT_SEC,
+        padding: '14px 24px',
+        borderBottom: `1px solid ${BORDER}`,
+        borderLeft: active ? `3px solid ${ACCENT}` : '3px solid transparent',
+        background: active ? ACCENT_LIGHT : 'transparent',
+        transition: 'background 100ms',
       }}
     >
       {children}
@@ -131,12 +167,35 @@ function UserChip({ user, onLogout }) {
   )
 }
 
+function HamburgerIcon({ open }) {
+  return (
+    <svg width="22" height="18" viewBox="0 0 22 18" fill="none">
+      {open ? (
+        <>
+          <line x1="2" y1="2"  x2="20" y2="16" stroke={TEXT_SEC} strokeWidth="1.8" strokeLinecap="round"/>
+          <line x1="20" y1="2" x2="2"  y2="16" stroke={TEXT_SEC} strokeWidth="1.8" strokeLinecap="round"/>
+        </>
+      ) : (
+        <>
+          <line x1="2" y1="3"  x2="20" y2="3"  stroke={TEXT_SEC} strokeWidth="1.8" strokeLinecap="round"/>
+          <line x1="2" y1="9"  x2="20" y2="9"  stroke={TEXT_SEC} strokeWidth="1.8" strokeLinecap="round"/>
+          <line x1="2" y1="15" x2="20" y2="15" stroke={TEXT_SEC} strokeWidth="1.8" strokeLinecap="round"/>
+        </>
+      )}
+    </svg>
+  )
+}
+
 export function Navbar() {
   const { pathname } = useLocation()
   const navigate = useNavigate()
   const { user, logout } = useAuthStore()
+  const isMobile = useIsMobile()
   const [modal, setModal] = useState(null)
+  const [menuOpen, setMenuOpen] = useState(false)
   const isAdmin = user?.username === 'admin'
+
+  function closeMenu() { setMenuOpen(false) }
 
   return (
     <>
@@ -145,7 +204,7 @@ export function Navbar() {
         height: '56px',
         background: SURFACE,
         borderBottom: `1px solid ${BORDER}`,
-        boxShadow: '0 1px 4px rgba(0,0,0,0.08)',
+        boxShadow: SHADOW_SM,
         zIndex: 100,
         display: 'flex',
         alignItems: 'center',
@@ -156,6 +215,7 @@ export function Navbar() {
         {/* Logo */}
         <Link
           to="/"
+          onClick={closeMenu}
           style={{
             textDecoration: 'none',
             fontFamily: FONT_UI,
@@ -169,35 +229,143 @@ export function Navbar() {
           Prob'Hammer
         </Link>
 
-        {/* Nav links */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '20px', height: '100%' }}>
-          <NavLink to="/factions"    active={pathname === '/factions'}>Factions</NavLink>
-          <NavLink to="/armies"      active={pathname === '/armies'}>Armies</NavLink>
-          <NavLink to="/simulator"   active={pathname === '/simulator'}>Simulator</NavLink>
-          <NavLink to="/learn"       active={pathname === '/learn' || pathname === '/onboarding'}>Learn</NavLink>
-          <NavLink to="/keywords"    active={pathname === '/keywords'}>Keywords</NavLink>
-          <NavLink to="/detachments" active={pathname === '/detachments'}>Detachments</NavLink>
-          <NavLink to="/combos"      active={pathname === '/combos'}>Combos</NavLink>
-        </div>
+        {isMobile ? (
+          /* ── Mobile: hamburger ── */
+          <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: '12px' }}>
+            {user && (
+              <div style={{
+                width: '28px', height: '28px', borderRadius: '50%',
+                background: ACCENT_LIGHT, border: `1px solid ${BORDER}`,
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                fontFamily: FONT_UI, fontSize: '12px', fontWeight: 600, color: ACCENT_TEXT,
+              }}>
+                {(user.username || 'U')[0].toUpperCase()}
+              </div>
+            )}
+            <button
+              onClick={() => setMenuOpen((v) => !v)}
+              style={{
+                background: 'none', border: 'none', cursor: 'pointer',
+                padding: '4px', display: 'flex', alignItems: 'center',
+              }}
+              aria-label={menuOpen ? 'Close menu' : 'Open menu'}
+            >
+              <HamburgerIcon open={menuOpen} />
+            </button>
+          </div>
+        ) : (
+          /* ── Desktop: horizontal links ── */
+          <>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '20px', height: '100%' }}>
+              {NAV_LINKS.map(({ to, label }) => (
+                <NavLink key={to} to={to} active={pathname === to}>{label}</NavLink>
+              ))}
+            </div>
 
-        {/* Right side */}
-        <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: '8px' }}>
-          <OutlineButton onClick={() => navigate('/feedback')}>Feedback</OutlineButton>
-
-          {isAdmin && (
-            <OutlineButton onClick={() => navigate('/admin/feedback')}>Admin</OutlineButton>
-          )}
-
-          {user ? (
-            <UserChip user={user} onLogout={logout} />
-          ) : (
-            <>
-              <OutlineButton onClick={() => setModal('login')}>Sign in</OutlineButton>
-              <PrimaryButton onClick={() => setModal('register')}>Create account</PrimaryButton>
-            </>
-          )}
-        </div>
+            <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <OutlineButton onClick={() => navigate('/feedback')}>Feedback</OutlineButton>
+              {isAdmin && (
+                <OutlineButton onClick={() => navigate('/admin/feedback')}>Admin</OutlineButton>
+              )}
+              {user ? (
+                <UserChip user={user} onLogout={logout} />
+              ) : (
+                <>
+                  <OutlineButton onClick={() => setModal('login')}>Sign in</OutlineButton>
+                  <PrimaryButton onClick={() => setModal('register')}>Create account</PrimaryButton>
+                </>
+              )}
+            </div>
+          </>
+        )}
       </nav>
+
+      {/* ── Mobile dropdown menu ── */}
+      {isMobile && menuOpen && (
+        <>
+          {/* Backdrop */}
+          <div
+            onClick={closeMenu}
+            style={{
+              position: 'fixed', inset: 0, top: '56px',
+              background: 'rgba(0,0,0,0.35)',
+              zIndex: 98,
+            }}
+          />
+          {/* Menu panel */}
+          <div style={{
+            position: 'fixed', top: '56px', left: 0, right: 0,
+            background: SURFACE,
+            borderBottom: `1px solid ${BORDER}`,
+            boxShadow: SHADOW_MD,
+            zIndex: 99,
+            overflowY: 'auto',
+            maxHeight: 'calc(100vh - 56px)',
+          }}>
+            {NAV_LINKS.map(({ to, label }) => (
+              <MobileNavLink key={to} to={to} active={pathname === to} onClick={closeMenu}>
+                {label}
+              </MobileNavLink>
+            ))}
+
+            <div style={{ padding: '16px 24px', borderTop: `1px solid ${BORDER}`, display: 'flex', flexDirection: 'column', gap: '10px' }}>
+              <button
+                onClick={() => { navigate('/feedback'); closeMenu() }}
+                style={{
+                  background: 'transparent', border: `1px solid ${BORDER}`,
+                  color: TEXT_SEC, fontFamily: FONT_UI, fontSize: '14px',
+                  fontWeight: 500, padding: '12px 16px', cursor: 'pointer',
+                  borderRadius: RADIUS, textAlign: 'left',
+                  transition: 'border-color 100ms',
+                }}
+              >
+                Feedback
+              </button>
+
+              {user ? (
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '8px 0' }}>
+                  <span style={{ fontFamily: FONT_UI, fontSize: '14px', color: TEXT_SEC }}>
+                    {user.username}
+                  </span>
+                  <button
+                    onClick={() => { logout(); closeMenu() }}
+                    style={{
+                      background: 'transparent', border: `1px solid ${BORDER}`,
+                      color: TEXT_WEAK, fontFamily: FONT_UI, fontSize: '13px',
+                      padding: '8px 14px', cursor: 'pointer', borderRadius: RADIUS,
+                    }}
+                  >
+                    Sign out
+                  </button>
+                </div>
+              ) : (
+                <div style={{ display: 'flex', gap: '10px' }}>
+                  <button
+                    onClick={() => { setModal('login'); closeMenu() }}
+                    style={{
+                      flex: 1, background: 'transparent', border: `1px solid ${BORDER}`,
+                      color: TEXT_SEC, fontFamily: FONT_UI, fontSize: '14px',
+                      fontWeight: 500, padding: '12px', cursor: 'pointer', borderRadius: RADIUS,
+                    }}
+                  >
+                    Sign in
+                  </button>
+                  <button
+                    onClick={() => { setModal('register'); closeMenu() }}
+                    style={{
+                      flex: 1, background: ACCENT, border: `1px solid ${ACCENT}`,
+                      color: '#FFFFFF', fontFamily: FONT_UI, fontSize: '14px',
+                      fontWeight: 600, padding: '12px', cursor: 'pointer', borderRadius: RADIUS,
+                    }}
+                  >
+                    Create account
+                  </button>
+                </div>
+              )}
+            </div>
+          </div>
+        </>
+      )}
 
       <AuthModal
         isOpen={modal !== null}

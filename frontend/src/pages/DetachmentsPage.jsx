@@ -1,4 +1,5 @@
 import { useEffect, useState, useMemo } from 'react'
+import { useIsMobile } from '../hooks/useIsMobile'
 import {
   ACCENT_TEXT, ACCENT, BORDER, BG, ERROR, SUCCESS, SURFACE, SURFACE_E, TEXT, TEXT_OFF,
   TEXT_SEC, TEXT_WEAK, TYPE, WARNING, FONT_UI, ACCENT_LIGHT} from '../theme'
@@ -355,6 +356,7 @@ export function DetachmentsPage() {
   const [error, setError] = useState(null)
   const [query, setQuery] = useState('')
   const [selected, setSelected] = useState('core')
+  const isMobile = useIsMobile()
 
   useEffect(() => {
     document.title = "Detachments — Prob'Hammer"
@@ -393,13 +395,16 @@ export function DetachmentsPage() {
     </div>
   )
 
+  const showDetail = isMobile && selected
+
   return (
     <div style={{ paddingTop: '52px', display: 'flex', height: 'calc(100vh - 52px)', overflow: 'hidden' }}>
 
       {/* ── Left sidebar ───────────────────────────────────────────────────── */}
+      {(!isMobile || !showDetail) && (
       <div style={{
-        width: '220px', flexShrink: 0,
-        borderRight: `1px solid ${BORDER}`,
+        width: isMobile ? '100%' : '220px', flexShrink: 0,
+        borderRight: isMobile ? 'none' : `1px solid ${BORDER}`,
         display: 'flex', flexDirection: 'column',
         background: SURFACE,
         overflow: 'hidden',
@@ -481,16 +486,33 @@ export function DetachmentsPage() {
           )}
         </div>
       </div>
+      )}
 
       {/* ── Right panel ────────────────────────────────────────────────────── */}
-      {selected === 'core' && data ? (
-        <CorePanel stratagems={data.core_stratagems} />
-      ) : selectedFaction ? (
-        <FactionPanel faction={selectedFaction} />
-      ) : (
-        <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', color: TEXT_WEAK, ...TYPE.ui }}>
-          Select a faction
-        </div>
+      {(!isMobile || showDetail) && (
+        <>
+          {isMobile && (
+            <div style={{ position: 'absolute', top: '52px', left: 0, right: 0, zIndex: 10, background: SURFACE, borderBottom: `1px solid ${BORDER}`, padding: '10px 16px' }}>
+              <button
+                onClick={() => setSelected(null)}
+                style={{ background: 'none', border: 'none', cursor: 'pointer', color: ACCENT_TEXT, fontFamily: FONT_UI, fontSize: '12px', padding: 0, display: 'flex', alignItems: 'center', gap: '6px' }}
+              >
+                ← Back
+              </button>
+            </div>
+          )}
+          <div style={{ flex: 1, overflow: 'hidden', display: 'flex', flexDirection: 'column', paddingTop: isMobile ? '44px' : 0 }}>
+            {selected === 'core' && data ? (
+              <CorePanel stratagems={data.core_stratagems} />
+            ) : selectedFaction ? (
+              <FactionPanel faction={selectedFaction} />
+            ) : (
+              <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', color: TEXT_WEAK, ...TYPE.ui }}>
+                Select a faction
+              </div>
+            )}
+          </div>
+        </>
       )}
     </div>
   )
