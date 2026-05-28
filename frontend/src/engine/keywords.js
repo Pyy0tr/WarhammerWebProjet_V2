@@ -148,6 +148,36 @@ export const KEYWORD_REGISTRY = [
     implemented: true,
   },
 
+  // ── Save / Defender phase ─────────────────────────────────────────────────
+
+  {
+    type: 'INVULNERABLE_SAVE', label: 'Invulnerable Save', group: 'save',
+    tip: 'Ignore AP — fixed save unaffected by armour penetration',
+    phase: 'Saving Throw',
+    rule: "Some models have an invulnerable saving throw (e.g. 4++). Each time an attack is allocated to such a model, the saving throw can use this value instead of the model's normal armour save. Invulnerable saves are never modified by a weapon's AP characteristic.",
+    note: "Configured via the DefenderPanel 'Invuln' input. The engine always picks the most favourable save — the lower of the AP-modified armour save and the invulnerable save.",
+    when: "Most impactful when the weapon's AP is high enough to strip the armour save. AP-3 vs a 3+ save degrades armour to 6+, but a 4++ stays at 4+ regardless. Always set the invuln value in the DefenderPanel when the target unit has one — the difference can be huge against dedicated anti-tank or elite-busting weapons.",
+    implemented: true,
+  },
+  {
+    type: 'FEEL_NO_PAIN', label: 'Feel No Pain', group: 'save',
+    tip: 'After a failed save, roll X+ per damage point to ignore it',
+    phase: 'After Saving Throw',
+    rule: "Some models have a Feel No Pain characteristic (e.g. 5+). Each time an attack is allocated to such a model and a saving throw is failed, roll one D6 per point of damage suffered: on a result equal to or greater than the Feel No Pain value, that damage point is ignored.",
+    note: "Configured via the DefenderPanel 'FNP' input. The engine rolls one FNP die per damage point, independently of saves. FNP also applies to mortal wounds — Devastating Wounds crits still go through FNP.",
+    when: "Most effective against high-damage-per-hit weapons (D2, D3+). Each successful FNP roll negates one damage point, so FNP effectively adds virtual wounds. A 5+ FNP saves roughly 33% of all damage on average — a W3 model with FNP 5+ has an effective HP of ~4.5. Always factor it in when estimating whether a target survives a volley.",
+    implemented: true,
+  },
+  {
+    type: 'DAMAGE_REDUCTION', label: 'Damage Reduction', group: 'save',
+    tip: '−1 to each unsaved wound\'s damage (min 1)',
+    phase: 'Damage',
+    rule: "Some abilities (e.g. Armour of Contempt, Transhuman Physiology) reduce the Damage characteristic of attacks targeting the model by 1, to a minimum of 1. This applies after all saving throws, to each unsaved wound individually.",
+    note: "Configured via the DefenderPanel 'Dmg −1' toggle. The reduction applies per unsaved wound before any FNP roll. No effect on D1 weapons — minimum 1 means no reduction. Against variable damage (D3, D6+), it cuts both average and variance.",
+    when: "Most impactful against D2 weapons — damage reduction halves output exactly since every hit deals 1 instead of 2. Against D1 weapons it has zero mathematical effect. Enable the toggle whenever the target has an ability that reduces incoming damage — Armour of Contempt on Space Marines is the most common example in competitive play.",
+    implemented: true,
+  },
+
   // ── Other ──────────────────────────────────────────────────────────────────
 
   {
@@ -253,6 +283,7 @@ export const KW_GROUPS = [
 ]
 
 // Non-valued, non-special keyword types — used by mapKeywords() to parse BSData keyword strings
+// Excludes 'save' group: those are defender mechanics, not weapon keywords
 export const SIMPLE_KW_TYPES = KEYWORD_REGISTRY
-  .filter((k) => !k.valued && !k.special)
+  .filter((k) => !k.valued && !k.special && k.group !== 'save')
   .map((k) => k.type)

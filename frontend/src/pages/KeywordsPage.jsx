@@ -165,6 +165,48 @@ const SCENARIOS = {
       context: { cover: false, half_range: false, attacker_moved: false, attacker_charged: false, target_visible: true },
     },
   },
+  INVULNERABLE_SAVE: {
+    label: '6 attacks · S6 AP-3 D2 · vs T5 Sv3+ — without invuln vs 4++ invuln',
+    note: 'AP-3 strips a 3+ armour save down to 6+. A 4++ invulnerable save stays fixed at 4+ regardless of AP.',
+    without: {
+      attacks: [{ models: 1, weapon: { name: '', attacks: '6', skill: 3, strength: 6, ap: -3, damage: '2', keywords: [] }, buffs: [] }],
+      defender: { toughness: 5, save: 3, invuln: null, wounds: 4, models: 3, fnp: null, keywords: [] },
+      context: { cover: false, half_range: false, attacker_moved: false, attacker_charged: false, target_visible: true },
+    },
+    with: {
+      attacks: [{ models: 1, weapon: { name: '', attacks: '6', skill: 3, strength: 6, ap: -3, damage: '2', keywords: [] }, buffs: [] }],
+      defender: { toughness: 5, save: 3, invuln: 4, wounds: 4, models: 3, fnp: null, keywords: [] },
+      context: { cover: false, half_range: false, attacker_moved: false, attacker_charged: false, target_visible: true },
+    },
+  },
+  FEEL_NO_PAIN: {
+    label: '6 attacks · S5 AP-2 D2 · vs T4 Sv4+ W2 — no FNP vs FNP 5+',
+    note: 'FNP 5+ saves ~33% of each damage point. Against D2 weapons every passed die eliminates half an attack\'s output.',
+    without: {
+      attacks: [{ models: 1, weapon: { name: '', attacks: '6', skill: 3, strength: 5, ap: -2, damage: '2', keywords: [] }, buffs: [] }],
+      defender: { toughness: 4, save: 4, invuln: null, wounds: 2, models: 5, fnp: null, keywords: [] },
+      context: { cover: false, half_range: false, attacker_moved: false, attacker_charged: false, target_visible: true },
+    },
+    with: {
+      attacks: [{ models: 1, weapon: { name: '', attacks: '6', skill: 3, strength: 5, ap: -2, damage: '2', keywords: [] }, buffs: [] }],
+      defender: { toughness: 4, save: 4, invuln: null, wounds: 2, models: 5, fnp: 5, keywords: [] },
+      context: { cover: false, half_range: false, attacker_moved: false, attacker_charged: false, target_visible: true },
+    },
+  },
+  DAMAGE_REDUCTION: {
+    label: '6 attacks · S6 AP-2 D2 · vs T5 Sv3+ W4 — no reduction vs −1 damage',
+    note: 'Against D2 weapons, damage reduction halves output exactly — every unsaved wound deals 1 instead of 2.',
+    without: {
+      attacks: [{ models: 1, weapon: { name: '', attacks: '6', skill: 3, strength: 6, ap: -2, damage: '2', keywords: [] }, buffs: [] }],
+      defender: { toughness: 5, save: 3, invuln: null, wounds: 4, models: 3, fnp: null, keywords: [] },
+      context: { cover: false, half_range: false, attacker_moved: false, attacker_charged: false, target_visible: true },
+    },
+    with: {
+      attacks: [{ models: 1, weapon: { name: '', attacks: '6', skill: 3, strength: 6, ap: -2, damage: '2', keywords: [] }, buffs: [] }],
+      defender: { toughness: 5, save: 3, invuln: null, wounds: 4, models: 3, fnp: null, dmg_reduction: true, keywords: [] },
+      context: { cover: false, half_range: false, attacker_moved: false, attacker_charged: false, target_visible: true },
+    },
+  },
   BLAST: {
     label: '1× Redemptor Dreadnought · Macro Plasma Incinerator (D6+1, BS3+, S8, AP-3, D2) · vs 20 Boyz',
     note: 'Against 20 Boyz, Blast adds +4 to the dice roll — the weapon goes from D6+1 to D6+5 attacks before rolling.',
@@ -228,6 +270,7 @@ const SCENARIOS = {
 const SECTIONS = [
   { label: 'Hit Phase',   group: 'hit' },
   { label: 'Wound Phase', group: 'wound' },
+  { label: 'Save Phase',  group: 'save' },
   { label: 'Other',       group: 'other' },
   { label: 'Abilities',   group: 'ability' },
 ]
@@ -654,7 +697,7 @@ function DetailPanel({ kw }) {
               color: TEXT_WEAK, marginBottom: '14px',
               display: 'flex', alignItems: 'center', gap: '10px',
             }}>
-              <span>Live comparison · vs 20 Boyz</span>
+              <span>Live comparison</span>
               <div style={{ flex: 1, height: '1px', background: BORDER }} />
             </div>
             <ComparisonPanel kwType={kw.type} />
