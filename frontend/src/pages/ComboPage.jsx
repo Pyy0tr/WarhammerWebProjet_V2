@@ -2,7 +2,6 @@ import { useState, useEffect, useCallback, useMemo, useRef } from 'react'
 import { useIsMobile } from '../hooks/useIsMobile'
 import { useSimulatorStore } from '../store/simulatorStore'
 import { AttackerPanel } from '../components/AttackerPanel'
-import { AbilityText } from '../components/AbilityText'
 import { UnitDrawer } from '../components/UnitDrawer'
 import { simulate } from '../engine/simulation'
 import {
@@ -631,48 +630,6 @@ function MatrixTable({ matrix, activeCols, defenders, onEditDef, onEditCol, isMo
   )
 }
 
-// ── Unit abilities panel ──────────────────────────────────────────────────────
-
-const ABS_STYLE_ID = 'combo-abilities-keyframes'
-
-function injectAbilitiesStyles() {
-  if (document.getElementById(ABS_STYLE_ID)) return
-  const s = document.createElement('style')
-  s.id = ABS_STYLE_ID
-  s.textContent = `
-    @keyframes comboAbilityIn { from { opacity:0; transform:translateX(10px); } to { opacity:1; transform:translateX(0); } }
-    .combo-abilities-scroll::-webkit-scrollbar { width:4px; }
-    .combo-abilities-scroll::-webkit-scrollbar-thumb { background:${ACCENT}33; border-radius:2px; }
-    .combo-ability-card { padding:10px 12px; background:rgba(47,224,255,0.03); border-left:2px solid ${ACCENT}44; transition:background 150ms, border-left-color 150ms; }
-    .combo-ability-card:hover { background:rgba(47,224,255,0.07); border-left-color:${ACCENT}99; }
-  `
-  document.head.appendChild(s)
-}
-
-function UnitAbilitiesPanel() {
-  const unit      = useSimulatorStore((s) => s.attackerUnit)
-  const abilities = unit?.abilities ?? []
-  useEffect(() => { injectAbilitiesStyles() }, [])
-  if (!unit || !abilities.length) return null
-  return (
-    <div style={{ position: 'fixed', right: '24px', top: '50%', transform: 'translateY(-50%)', width: '220px', zIndex: 10, pointerEvents: 'none' }}>
-      <div style={{ border: `1px solid ${BORDER}`, background: SURFACE, padding: '16px', maxHeight: 'calc(100vh - 160px)', overflowY: 'auto' }} className="combo-abilities-scroll">
-        <div style={{ fontFamily: FONT_UI, fontSize: '10px', letterSpacing: '2px', textTransform: 'uppercase', color: TEXT_OFF, marginBottom: '4px' }}>Attacker unit</div>
-        <div style={{ fontFamily: FONT_UI, fontSize: '12px', fontWeight: 700, textTransform: 'uppercase', color: ACCENT_TEXT, marginBottom: '12px', lineHeight: 1.2 }}>{unit.name}</div>
-        <div style={{ height: '1px', background: `linear-gradient(to right, ${ACCENT}44, ${BORDER})`, marginBottom: '12px' }} />
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-          {abilities.map((ab, i) => (
-            <div key={i} className="combo-ability-card" style={{ animation: 'comboAbilityIn 280ms ease forwards', animationDelay: `${i * 40}ms`, opacity: 0 }}>
-              <div style={{ fontFamily: FONT_UI, fontSize: '10px', fontWeight: 700, letterSpacing: '0.5px', textTransform: 'uppercase', color: TEXT, marginBottom: '4px' }}>{ab.name}</div>
-              {ab.desc && <p style={{ fontFamily: 'Inter, -apple-system, system-ui, sans-serif', fontSize: '11px', lineHeight: 1.6, color: TEXT_SEC, margin: 0 }}><AbilityText text={ab.desc} /></p>}
-            </div>
-          ))}
-        </div>
-      </div>
-    </div>
-  )
-}
-
 // ── Main page ─────────────────────────────────────────────────────────────────
 
 export function ComboPage() {
@@ -811,8 +768,6 @@ export function ComboPage() {
       </div>
 
       <section style={{ padding: sPad }}>
-        {!isMobile && hasAttacks && <UnitAbilitiesPanel />}
-
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '12px', flexWrap: 'wrap' }}>
           <button
             onClick={() => setSquadOpen(true)}
