@@ -1,93 +1,40 @@
-import { useState, useEffect, useCallback, useMemo } from 'react'
+import { useState, useEffect, useCallback, useMemo, useRef } from 'react'
 import { useIsMobile } from '../hooks/useIsMobile'
 import { useSimulatorStore } from '../store/simulatorStore'
 import { AttackerPanel } from '../components/AttackerPanel'
 import { AbilityText } from '../components/AbilityText'
 import { UnitDrawer } from '../components/UnitDrawer'
 import { simulate } from '../engine/simulation'
-import { KEYWORD_BY_TYPE } from '../engine/keywords.js'
 import {
-  ACCENT_TEXT, ACCENT, BG, BORDER, ERROR, SURFACE, SURFACE_E,
-  TEXT, TEXT_OFF, TEXT_SEC, TEXT_WEAK, SUCCESS, TYPE, FONT_UI, ACCENT_LIGHT,
+  ACCENT_TEXT, ACCENT, BG, BORDER, ERROR, SURFACE,
+  TEXT, TEXT_OFF, TEXT_SEC, TEXT_WEAK, SUCCESS, FONT_UI,
 } from '../theme'
 
 const N_TRIALS = 2000
 
-// ── Synergy columns ───────────────────────────────────────────────────────────
+// ── Synergy presets ───────────────────────────────────────────────────────────
 
 const SYNERGY_PRESETS = [
-  {
-    id: 'base',
-    label: 'Baseline',
-    desc: 'No additional synergies',
-    keywords: [],
-    buffs: [],
-  },
-  {
-    id: 'rr1s',
-    label: 'Re-roll 1s',
-    desc: 'Re-roll hit rolls of 1',
-    keywords: [],
-    buffs: [{ type: 'REROLL_HITS', value: 'ones' }],
-  },
-  {
-    id: 'lethal',
-    label: 'Lethal Hits',
-    desc: 'Critical hits wound automatically',
-    keywords: [{ type: 'LETHAL_HITS' }],
-    buffs: [],
-  },
-  {
-    id: 'extra_ap',
-    label: 'Extra AP',
-    desc: 'AP improves by 1 (e.g. AP0 → AP−1)',
-    keywords: [],
-    buffs: [{ type: 'AP_MODIFIER', value: -1 }],
-  },
-  {
-    id: 'helbrecht',
-    label: 'Helbrecht',
-    desc: '+1 Attack and +1 Strength to all weapons',
-    keywords: [],
-    buffs: [{ type: 'ATTACKS_MODIFIER', value: 1 }, { type: 'STRENGTH_MODIFIER', value: 1 }],
-  },
-  {
-    id: 'rr_hits',
-    label: 'Re-roll Hits',
-    desc: 'Re-roll all failed hit rolls',
-    keywords: [],
-    buffs: [{ type: 'REROLL_HITS', value: 'all' }],
-  },
-  {
-    id: 'helb_cast',
-    label: 'Helb. & Cast.',
-    desc: '+1A +1S and Lethal Hits (two leaders)',
-    keywords: [{ type: 'LETHAL_HITS' }],
-    buffs: [{ type: 'ATTACKS_MODIFIER', value: 1 }, { type: 'STRENGTH_MODIFIER', value: 1 }],
-  },
-  {
-    id: 'grimaldus',
-    label: 'Grimaldus',
-    desc: 'Re-roll wound rolls of 1',
-    keywords: [],
-    buffs: [{ type: 'REROLL_WOUNDS', value: 'ones' }],
-  },
+  { id: 'base',      label: 'Baseline',          keywords: [],                                         buffs: [] },
+  { id: 'lethal',    label: 'Lethal Hits',        keywords: [{ type: 'LETHAL_HITS' }],                buffs: [] },
+  { id: 'sust1',     label: 'Sustained 1',        keywords: [{ type: 'SUSTAINED_HITS', value: '1' }], buffs: [] },
+  { id: 'dev',       label: 'Dev. Wounds',        keywords: [{ type: 'DEVASTATING_WOUNDS' }],         buffs: [] },
+  { id: 'crit5_let', label: 'Crit 5+ + Lethal',  keywords: [{ type: 'LETHAL_HITS' }],                buffs: [{ type: 'CRITICAL_HIT_ON', value: 5 }] },
+  { id: 'crit5_sus', label: 'Crit 5+ + Sust.1',  keywords: [{ type: 'SUSTAINED_HITS', value: '1' }], buffs: [{ type: 'CRITICAL_HIT_ON', value: 5 }] },
+  { id: 'rr_hits',   label: 'Re-roll Hits',       keywords: [],                                        buffs: [{ type: 'REROLL_HITS',   value: 'all' }] },
+  { id: 'rr_wounds', label: 'Re-roll Wounds',     keywords: [],                                        buffs: [{ type: 'REROLL_WOUNDS', value: 'all' }] },
 ]
-
-const SYNERGY_BY_ID = Object.fromEntries(SYNERGY_PRESETS.map((s) => [s.id, s]))
 
 // ── Defender presets ──────────────────────────────────────────────────────────
 
 const DEFENDERS = [
-  { id: 'meq',     label: 'MEQ',           sub: 'T4 Sv3+ W2 ×5',       toughness: 4,  save: 3, invuln: null, wounds: 2,  models: 5,  fnp: null, dmg_reduction: false, debuff_hit_roll: false, keywords: [] },
-  { id: 't5_3p',   label: 'T5 3+',         sub: 'T5 Sv3+ W2 ×5',       toughness: 5,  save: 3, invuln: null, wounds: 2,  models: 5,  fnp: null, dmg_reduction: false, debuff_hit_roll: false, keywords: [] },
-  { id: 'rhino',   label: 'Rhino/Armiger', sub: 'T9 Sv3+ W8 ×1',       toughness: 9,  save: 3, invuln: null, wounds: 8,  models: 1,  fnp: null, dmg_reduction: false, debuff_hit_roll: false, keywords: [] },
-  { id: 't10_3p',  label: 'T10 3+',        sub: 'T10 Sv3+ W12 ×1',     toughness: 10, save: 3, invuln: null, wounds: 12, models: 1,  fnp: null, dmg_reduction: false, debuff_hit_roll: false, keywords: [] },
-  { id: 't12_2p',  label: 'T12 2+',        sub: 'T12 Sv2+ W18 ×1',     toughness: 12, save: 2, invuln: null, wounds: 18, models: 1,  fnp: null, dmg_reduction: false, debuff_hit_roll: false, keywords: [] },
-  { id: 'knight',  label: 'Big Knight',    sub: 'T12 Sv2+ 4++ W24 ×1', toughness: 12, save: 2, invuln: 4,    wounds: 24, models: 1,  fnp: null, dmg_reduction: false, debuff_hit_roll: false, keywords: [] },
+  { id: 'meq',    label: 'MEQ',           sub: 'T4 Sv3+ W2 ×5',       toughness: 4,  save: 3, invuln: null, wounds: 2,  models: 5,  fnp: null, dmg_reduction: false, debuff_hit_roll: false, keywords: [] },
+  { id: 't5_3p',  label: 'T5 3+',         sub: 'T5 Sv3+ W2 ×5',       toughness: 5,  save: 3, invuln: null, wounds: 2,  models: 5,  fnp: null, dmg_reduction: false, debuff_hit_roll: false, keywords: [] },
+  { id: 'rhino',  label: 'Rhino/Armiger', sub: 'T9 Sv3+ W8 ×1',       toughness: 9,  save: 3, invuln: null, wounds: 8,  models: 1,  fnp: null, dmg_reduction: false, debuff_hit_roll: false, keywords: [] },
+  { id: 't10_3p', label: 'T10 3+',        sub: 'T10 Sv3+ W12 ×1',     toughness: 10, save: 3, invuln: null, wounds: 12, models: 1,  fnp: null, dmg_reduction: false, debuff_hit_roll: false, keywords: [] },
+  { id: 't12_2p', label: 'T12 2+',        sub: 'T12 Sv2+ W18 ×1',     toughness: 12, save: 2, invuln: null, wounds: 18, models: 1,  fnp: null, dmg_reduction: false, debuff_hit_roll: false, keywords: [] },
+  { id: 'knight', label: 'Big Knight',    sub: 'T12 Sv2+ 4++ W24 ×1', toughness: 12, save: 2, invuln: 4,    wounds: 24, models: 1,  fnp: null, dmg_reduction: false, debuff_hit_roll: false, keywords: [] },
 ]
-
-// ── Defender helpers ──────────────────────────────────────────────────────────
 
 function generateSub(d) {
   const pts = [`T${d.toughness}`, `Sv${d.save}+`]
@@ -105,29 +52,22 @@ const UNIT_KEYWORDS = ['INFANTRY', 'CAVALRY', 'FLY', 'BEAST', 'SWARM', 'MONSTER'
 function buildAttacksForColumn(baseAttacks, col) {
   return baseAttacks.map(({ models, weapon, buffs }) => {
     const baseKws = weapon.keywords ?? []
-    let newKws = [...baseKws]
+    const newKws  = [...baseKws]
     for (const kw of (col.keywords ?? [])) {
       if (!newKws.some((k) => k.type === kw.type)) newKws.push(kw)
     }
-    return {
-      models,
-      weapon: { ...weapon, keywords: newKws },
-      buffs: [...(buffs ?? []), ...(col.buffs ?? [])],
-    }
+    return { models, weapon: { ...weapon, keywords: newKws }, buffs: [...(buffs ?? []), ...(col.buffs ?? [])] }
   })
 }
 
-function computeMatrix(baseAttacks, colIds, defenders, context) {
+function computeMatrix(baseAttacks, colObjects, defenders, context) {
   const result = {}
-  for (const id of colIds) {
-    const col = SYNERGY_BY_ID[id]
-    if (!col) continue
-    result[id] = {}
+  for (const col of colObjects) {
+    result[col.id] = {}
     const attacks = buildAttacksForColumn(baseAttacks, col)
     for (const def of defenders) {
       const { id: _i, label: _l, sub: _s, ...defStats } = def
-      const res = simulate({ attacks, defender: defStats, context, n_trials: N_TRIALS })
-      result[id][def.id] = res.summary.mean_damage
+      result[col.id][def.id] = simulate({ attacks, defender: defStats, context, n_trials: N_TRIALS }).summary.mean_damage
     }
   }
   return result
@@ -137,10 +77,208 @@ function cellBg(ratio) {
   return `rgba(61,220,151,${(0.05 + ratio * 0.40).toFixed(2)})`
 }
 
-// ── Separator ─────────────────────────────────────────────────────────────────
+// ── Synergy form helpers ──────────────────────────────────────────────────────
+
+function synergyToForm(s) {
+  return {
+    label:       s.label,
+    lethal:      s.keywords.some((k) => k.type === 'LETHAL_HITS'),
+    sustained:   s.keywords.find((k) => k.type === 'SUSTAINED_HITS')?.value ?? null,
+    dev:         s.keywords.some((k) => k.type === 'DEVASTATING_WOUNDS'),
+    twin:        s.keywords.some((k) => k.type === 'TWIN_LINKED'),
+    critHitOn:   s.buffs.find((b) => b.type === 'CRITICAL_HIT_ON')?.value   ?? 6,
+    critWoundOn: s.buffs.find((b) => b.type === 'CRITICAL_WOUND_ON')?.value ?? 6,
+    rrHits:      s.buffs.find((b) => b.type === 'REROLL_HITS')?.value   ?? null,
+    rrWounds:    s.buffs.find((b) => b.type === 'REROLL_WOUNDS')?.value ?? null,
+    atkMod:      s.buffs.find((b) => b.type === 'ATTACKS_MODIFIER')?.value  ?? 0,
+    strMod:      s.buffs.find((b) => b.type === 'STRENGTH_MODIFIER')?.value ?? 0,
+    apMod:       s.buffs.find((b) => b.type === 'AP_MODIFIER')?.value       ?? 0,
+    dmgMod:      s.buffs.find((b) => b.type === 'DAMAGE_MODIFIER')?.value   ?? 0,
+  }
+}
+
+function formToSynergy(id, form) {
+  const keywords = []
+  if (form.lethal)    keywords.push({ type: 'LETHAL_HITS' })
+  if (form.sustained) keywords.push({ type: 'SUSTAINED_HITS', value: form.sustained })
+  if (form.dev)       keywords.push({ type: 'DEVASTATING_WOUNDS' })
+  if (form.twin)      keywords.push({ type: 'TWIN_LINKED' })
+  const buffs = []
+  if (form.critHitOn < 6)   buffs.push({ type: 'CRITICAL_HIT_ON',   value: form.critHitOn })
+  if (form.critWoundOn < 6) buffs.push({ type: 'CRITICAL_WOUND_ON', value: form.critWoundOn })
+  if (form.rrHits)          buffs.push({ type: 'REROLL_HITS',        value: form.rrHits })
+  if (form.rrWounds)        buffs.push({ type: 'REROLL_WOUNDS',      value: form.rrWounds })
+  if (form.atkMod !== 0)    buffs.push({ type: 'ATTACKS_MODIFIER',   value: form.atkMod })
+  if (form.strMod !== 0)    buffs.push({ type: 'STRENGTH_MODIFIER',  value: form.strMod })
+  if (form.apMod !== 0)     buffs.push({ type: 'AP_MODIFIER',        value: form.apMod })
+  if (form.dmgMod !== 0)    buffs.push({ type: 'DAMAGE_MODIFIER',    value: form.dmgMod })
+  return { id, label: form.label, keywords, buffs }
+}
+
+// ── Shared UI primitives ──────────────────────────────────────────────────────
+
+const SAVE_OPTS = [{ v: null, l: 'None' }, { v: 4, l: '4+' }, { v: 5, l: '5+' }, { v: 6, l: '6+' }]
+const FNP_OPTS  = [{ v: null, l: 'None' }, { v: 4, l: '4+' }, { v: 5, l: '5+' }, { v: 6, l: '6+' }]
 
 function Separator() {
   return <div style={{ height: '1px', background: BORDER }} />
+}
+
+function OptChips({ value, opts, onChange }) {
+  return (
+    <div style={{ display: 'flex', gap: '4px', flexWrap: 'wrap' }}>
+      {opts.map((o) => {
+        const sel = value === o.v
+        return (
+          <button key={o.l} onClick={() => onChange(o.v)}
+            style={{ padding: '4px 9px', background: sel ? `${ACCENT}22` : 'transparent', border: `1px solid ${sel ? ACCENT : BORDER}`, color: sel ? ACCENT_TEXT : TEXT_WEAK, fontFamily: "'Space Mono', monospace", fontSize: '11px', cursor: 'pointer', transition: 'all 80ms' }}>
+            {o.l}
+          </button>
+        )
+      })}
+    </div>
+  )
+}
+
+function NumIn({ value, onChange, min = 1, max = 20 }) {
+  return (
+    <input type="number" value={value} min={min} max={max}
+      onChange={(e) => onChange(Math.max(min, Math.min(max, Number(e.target.value))))}
+      style={{ width: '52px', padding: '5px 8px', background: SURFACE, border: `1px solid ${BORDER}`, color: TEXT, fontFamily: "'Space Mono', monospace", fontSize: '13px', textAlign: 'center', outline: 'none' }} />
+  )
+}
+
+function ModIn({ value, onChange, min = -5, max = 5 }) {
+  return (
+    <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+      <button onClick={() => onChange(Math.max(min, value - 1))}
+        style={{ width: '26px', height: '26px', background: 'transparent', border: `1px solid ${BORDER}`, color: TEXT_WEAK, fontFamily: FONT_UI, fontSize: '15px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+        −
+      </button>
+      <span style={{ fontFamily: "'Space Mono', monospace", fontSize: '12px', color: value !== 0 ? ACCENT_TEXT : TEXT_WEAK, width: '32px', textAlign: 'center', flexShrink: 0 }}>
+        {value > 0 ? `+${value}` : value}
+      </span>
+      <button onClick={() => onChange(Math.min(max, value + 1))}
+        style={{ width: '26px', height: '26px', background: 'transparent', border: `1px solid ${BORDER}`, color: TEXT_WEAK, fontFamily: FONT_UI, fontSize: '15px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+        +
+      </button>
+    </div>
+  )
+}
+
+function ToggleBtn({ active, onClick, label }) {
+  return (
+    <button onClick={onClick}
+      style={{ padding: '5px 11px', background: active ? `${ACCENT}22` : 'transparent', border: `1px solid ${active ? ACCENT : BORDER}`, color: active ? ACCENT_TEXT : TEXT_WEAK, fontFamily: FONT_UI, fontSize: '10px', letterSpacing: '1px', textTransform: 'uppercase', cursor: 'pointer', transition: 'all 80ms' }}>
+      {label}
+    </button>
+  )
+}
+
+function FieldRow({ label, children }) {
+  return (
+    <div style={{ display: 'flex', alignItems: 'center', gap: '14px', flexWrap: 'wrap', marginBottom: '14px' }}>
+      <div style={{ fontFamily: FONT_UI, fontSize: '10px', letterSpacing: '1.5px', textTransform: 'uppercase', color: TEXT_OFF, width: '76px', flexShrink: 0 }}>{label}</div>
+      {children}
+    </div>
+  )
+}
+
+// ── Synergy edit modal ────────────────────────────────────────────────────────
+
+function SynergyEditModal({ synergy, isNew, onApply, onRemove, onClose }) {
+  const [form, setForm] = useState(() => synergyToForm(synergy))
+  const f = (key) => (val) => setForm((p) => ({ ...p, [key]: val }))
+  const isBase = synergy.id === 'base'
+
+  function handleApply() {
+    onApply(formToSynergy(synergy.id, form))
+  }
+
+  return (
+    <>
+      <div onClick={onClose} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.6)', zIndex: 300 }} />
+      <div style={{
+        position: 'fixed', top: '50%', left: '50%', transform: 'translate(-50%,-50%)',
+        width: 'min(480px, calc(100vw - 32px))', maxHeight: 'calc(100vh - 64px)', overflowY: 'auto',
+        background: BG, border: `1px solid ${BORDER}`, zIndex: 301, padding: '24px 28px 28px',
+      }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '20px' }}>
+          <div style={{ fontFamily: FONT_UI, fontSize: '12px', fontWeight: 700, letterSpacing: '2.5px', textTransform: 'uppercase', color: TEXT }}>
+            {isNew ? 'Add Synergy' : 'Edit Synergy'}
+          </div>
+          <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+            {!isBase && !isNew && (
+              <button onClick={onRemove}
+                style={{ padding: '7px 14px', background: 'transparent', border: `1px solid ${ERROR}55`, color: ERROR, fontFamily: FONT_UI, fontSize: '10px', letterSpacing: '1.5px', textTransform: 'uppercase', cursor: 'pointer', transition: 'all 80ms' }}
+                onMouseEnter={(e) => { e.currentTarget.style.background = `${ERROR}22` }}
+                onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent' }}>
+                Remove
+              </button>
+            )}
+            <button onClick={handleApply}
+              style={{ padding: '8px 18px', background: ACCENT, border: `1px solid ${ACCENT}`, color: BG, fontFamily: FONT_UI, fontSize: '10px', fontWeight: 700, letterSpacing: '2px', textTransform: 'uppercase', cursor: 'pointer', transition: 'opacity 80ms' }}
+              onMouseEnter={(e) => { e.currentTarget.style.opacity = '0.85' }}
+              onMouseLeave={(e) => { e.currentTarget.style.opacity = '1' }}>
+              {isNew ? 'Add →' : 'Apply →'}
+            </button>
+            <button onClick={onClose}
+              style={{ background: 'none', border: `1px solid ${BORDER}`, color: TEXT_WEAK, fontFamily: FONT_UI, fontSize: '16px', lineHeight: 1, padding: '6px 10px', cursor: 'pointer' }}>
+              ×
+            </button>
+          </div>
+        </div>
+
+        <div style={{ fontFamily: FONT_UI, fontSize: '10px', letterSpacing: '2px', textTransform: 'uppercase', color: TEXT_OFF, marginBottom: '8px' }}>Quick preset</div>
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', marginBottom: '20px' }}>
+          {SYNERGY_PRESETS.filter((p) => p.id !== 'base').map((p) => (
+            <button key={p.id} onClick={() => setForm(synergyToForm(p))}
+              style={{ padding: '5px 10px', background: 'transparent', border: `1px solid ${BORDER}`, color: TEXT_WEAK, fontFamily: FONT_UI, fontSize: '10px', letterSpacing: '1px', textTransform: 'uppercase', cursor: 'pointer', transition: 'all 80ms' }}
+              onMouseEnter={(e) => { e.currentTarget.style.borderColor = ACCENT; e.currentTarget.style.color = ACCENT_TEXT }}
+              onMouseLeave={(e) => { e.currentTarget.style.borderColor = BORDER;  e.currentTarget.style.color = TEXT_WEAK }}>
+              {p.label}
+            </button>
+          ))}
+        </div>
+
+        <div style={{ height: '1px', background: BORDER, marginBottom: '20px' }} />
+
+        <FieldRow label="Label">
+          <input value={form.label} onChange={(e) => f('label')(e.target.value)}
+            style={{ flex: 1, padding: '5px 10px', background: SURFACE, border: `1px solid ${BORDER}`, color: TEXT, fontFamily: FONT_UI, fontSize: '12px', outline: 'none' }} />
+        </FieldRow>
+
+        <FieldRow label="Keywords">
+          <div style={{ display: 'flex', gap: '4px', flexWrap: 'wrap' }}>
+            <ToggleBtn active={form.lethal}           onClick={() => f('lethal')(!form.lethal)}                              label="Lethal Hits" />
+            <ToggleBtn active={form.sustained === '1'} onClick={() => f('sustained')(form.sustained === '1' ? null : '1')}  label="Sustained 1" />
+            <ToggleBtn active={form.sustained === '2'} onClick={() => f('sustained')(form.sustained === '2' ? null : '2')}  label="Sustained 2" />
+            <ToggleBtn active={form.dev}              onClick={() => f('dev')(!form.dev)}                                    label="Dev. Wounds" />
+            <ToggleBtn active={form.twin}             onClick={() => f('twin')(!form.twin)}                                  label="Twin-Linked" />
+          </div>
+        </FieldRow>
+
+        <FieldRow label="Crit Hit On">
+          <OptChips value={form.critHitOn}   opts={[{ v: 6, l: '6' }, { v: 5, l: '5+' }, { v: 4, l: '4+' }]} onChange={f('critHitOn')} />
+        </FieldRow>
+        <FieldRow label="Crit Wnd On">
+          <OptChips value={form.critWoundOn} opts={[{ v: 6, l: '6' }, { v: 5, l: '5+' }, { v: 4, l: '4+' }]} onChange={f('critWoundOn')} />
+        </FieldRow>
+
+        <FieldRow label="Reroll Hits">
+          <OptChips value={form.rrHits}   opts={[{ v: null, l: 'None' }, { v: 'ones', l: '1s' }, { v: 'all', l: 'All' }]} onChange={f('rrHits')} />
+        </FieldRow>
+        <FieldRow label="Reroll Wnd">
+          <OptChips value={form.rrWounds} opts={[{ v: null, l: 'None' }, { v: 'ones', l: '1s' }, { v: 'all', l: 'All' }]} onChange={f('rrWounds')} />
+        </FieldRow>
+
+        <FieldRow label="Attacks">  <ModIn value={form.atkMod} onChange={f('atkMod')} /></FieldRow>
+        <FieldRow label="Strength"> <ModIn value={form.strMod} onChange={f('strMod')} /></FieldRow>
+        <FieldRow label="AP">       <ModIn value={form.apMod}  onChange={f('apMod')}  /></FieldRow>
+        <FieldRow label="Damage">   <ModIn value={form.dmgMod} onChange={f('dmgMod')} /></FieldRow>
+      </div>
+    </>
+  )
 }
 
 // ── Attack card ───────────────────────────────────────────────────────────────
@@ -165,11 +303,6 @@ function AttackCard({ attack, idx, onEdit, onRemove }) {
         {kwList.length > 0 && (
           <div style={{ fontFamily: FONT_UI, fontSize: '10px', color: TEXT_WEAK, marginTop: '3px', letterSpacing: '0.5px', textTransform: 'uppercase' }}>
             {kwList.join(' · ')}
-          </div>
-        )}
-        {attack.buffs?.length > 0 && (
-          <div style={{ fontFamily: FONT_UI, fontSize: '10px', color: 'rgba(194,143,133,0.7)', marginTop: '2px', letterSpacing: '0.5px', textTransform: 'uppercase' }}>
-            {attack.buffs.map((b) => `${b.type.replace(/_/g, ' ')} (${b.value})`).join(' · ')}
           </div>
         )}
       </div>
@@ -222,10 +355,8 @@ function SquadDrawer({ open, onClose }) {
         </div>
         <Separator />
       </div>
-
       <div style={{ maxWidth: '560px', margin: '0 auto', padding: '32px 32px 80px' }}>
         <AttackerPanel />
-
         <div style={{ display: 'flex', gap: '12px', marginTop: '24px' }}>
           <button onClick={addAttack} disabled={!hasWeapon}
             style={{ flex: 1, padding: '13px', background: hasWeapon ? ACCENT : 'transparent', border: `1px solid ${hasWeapon ? ACCENT : BORDER}`, color: hasWeapon ? BG : TEXT_OFF, fontFamily: FONT_UI, fontSize: '10px', fontWeight: 700, letterSpacing: '2px', textTransform: 'uppercase', cursor: hasWeapon ? 'pointer' : 'default', opacity: hasWeapon ? 1 : 0.4, transition: 'opacity 120ms' }}
@@ -234,7 +365,6 @@ function SquadDrawer({ open, onClose }) {
             {editingIdx !== null ? 'Save changes →' : 'Add to squad →'}
           </button>
         </div>
-
         {attacks.length > 0 && (
           <div style={{ marginTop: '32px' }}>
             <div style={{ fontFamily: FONT_UI, fontSize: '11px', letterSpacing: '2px', textTransform: 'uppercase', color: TEXT_WEAK, marginBottom: '12px' }}>
@@ -242,12 +372,10 @@ function SquadDrawer({ open, onClose }) {
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
               {attacks.map((atk, i) => (
-                <AttackCard key={atk._id} attack={atk} idx={i}
-                  onEdit={(idx) => { editAttack(idx) }}
-                  onRemove={removeAttack} />
+                <AttackCard key={atk._id} attack={atk} idx={i} onEdit={editAttack} onRemove={removeAttack} />
               ))}
             </div>
-            <button onClick={() => { resetAttacker() }}
+            <button onClick={resetAttacker}
               style={{ marginTop: '12px', background: 'none', border: `1px solid ${BORDER}`, color: TEXT_WEAK, fontFamily: FONT_UI, fontSize: '10px', letterSpacing: '1.5px', textTransform: 'uppercase', padding: '9px 16px', cursor: 'pointer', transition: 'color 100ms' }}
               onMouseEnter={(e) => { e.currentTarget.style.color = ACCENT }}
               onMouseLeave={(e) => { e.currentTarget.style.color = TEXT_WEAK }}>
@@ -262,73 +390,24 @@ function SquadDrawer({ open, onClose }) {
 
 // ── Defender edit modal ───────────────────────────────────────────────────────
 
-const SAVE_OPTS   = [{ v: null, l: 'None' }, { v: 4, l: '4+' }, { v: 5, l: '5+' }, { v: 6, l: '6+' }]
-const FNP_OPTS    = [{ v: null, l: 'None' }, { v: 4, l: '4+' }, { v: 5, l: '5+' }, { v: 6, l: '6+' }]
-
-function OptChips({ value, opts, onChange }) {
-  return (
-    <div style={{ display: 'flex', gap: '4px', flexWrap: 'wrap' }}>
-      {opts.map((o) => {
-        const sel = value === o.v
-        return (
-          <button key={o.l} onClick={() => onChange(o.v)}
-            style={{ padding: '4px 9px', background: sel ? `${ACCENT}22` : 'transparent', border: `1px solid ${sel ? ACCENT : BORDER}`, color: sel ? ACCENT_TEXT : TEXT_WEAK, fontFamily: "'Space Mono', monospace", fontSize: '11px', cursor: 'pointer', transition: 'all 80ms' }}>
-            {o.l}
-          </button>
-        )
-      })}
-    </div>
-  )
-}
-
-function NumIn({ value, onChange, min = 1, max = 20 }) {
-  return (
-    <input type="number" value={value} min={min} max={max}
-      onChange={(e) => onChange(Math.max(min, Math.min(max, Number(e.target.value))))}
-      style={{ width: '52px', padding: '5px 8px', background: SURFACE, border: `1px solid ${BORDER}`, color: TEXT, fontFamily: "'Space Mono', monospace", fontSize: '13px', textAlign: 'center', outline: 'none' }} />
-  )
-}
-
-function ToggleBtn({ active, onClick, label }) {
-  return (
-    <button onClick={onClick}
-      style={{ padding: '5px 11px', background: active ? `${ACCENT}22` : 'transparent', border: `1px solid ${active ? ACCENT : BORDER}`, color: active ? ACCENT_TEXT : TEXT_WEAK, fontFamily: FONT_UI, fontSize: '10px', letterSpacing: '1px', textTransform: 'uppercase', cursor: 'pointer', transition: 'all 80ms' }}>
-      {label}
-    </button>
-  )
-}
-
-function FieldRow({ label, children }) {
-  return (
-    <div style={{ display: 'flex', alignItems: 'center', gap: '14px', flexWrap: 'wrap', marginBottom: '14px' }}>
-      <div style={{ fontFamily: FONT_UI, fontSize: '10px', letterSpacing: '1.5px', textTransform: 'uppercase', color: TEXT_OFF, width: '72px', flexShrink: 0 }}>{label}</div>
-      {children}
-    </div>
-  )
-}
-
 function DefenderEditModal({ defender, onApply, onClose }) {
-  const [form,        setForm]        = useState({ ...defender })
+  const [form,           setForm]           = useState({ ...defender })
   const [unitDrawerOpen, setUnitDrawerOpen] = useState(false)
   const f = (key) => (val) => setForm((p) => ({ ...p, [key]: val }))
-
-  function applyPreset(p) {
-    setForm((prev) => ({ ...p, id: prev.id }))
-  }
 
   function handleUnitSelect(u) {
     setForm((prev) => ({
       ...prev,
-      label:          u.name,
-      toughness:      u.T,
-      save:           u.Sv,
-      wounds:         u.W,
-      invuln:         u.invuln ?? null,
-      models:         u.min_models ?? u.max_models ?? prev.models,
-      fnp:            null,
-      dmg_reduction:  false,
+      label:           u.name,
+      toughness:       u.T,
+      save:            u.Sv,
+      wounds:          u.W,
+      invuln:          u.invuln ?? null,
+      models:          u.min_models ?? u.max_models ?? prev.models,
+      fnp:             null,
+      dmg_reduction:   false,
       debuff_hit_roll: false,
-      keywords:       (u.kw ?? []).map((k) => k.toUpperCase()).filter((k) => UNIT_KEYWORDS.includes(k)),
+      keywords:        (u.kw ?? []).map((k) => k.toUpperCase()).filter((k) => UNIT_KEYWORDS.includes(k)),
     }))
   }
 
@@ -339,28 +418,22 @@ function DefenderEditModal({ defender, onApply, onClose }) {
     }))
   }
 
-  function handleApply() {
-    onApply({ ...form, sub: generateSub(form) })
-    onClose()
-  }
-
   const SAVE_NB_OPTS = [2, 3, 4, 5, 6].map((n) => ({ v: n, l: `${n}+` }))
 
   return (
     <>
       <div onClick={onClose} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.6)', zIndex: 300 }} />
       <div style={{
-        position: 'fixed', top: '50%', left: '50%', transform: 'translate(-50%, -50%)',
+        position: 'fixed', top: '50%', left: '50%', transform: 'translate(-50%,-50%)',
         width: 'min(520px, calc(100vw - 32px))', maxHeight: 'calc(100vh - 64px)', overflowY: 'auto',
         background: BG, border: `1px solid ${BORDER}`, zIndex: 301, padding: '24px 28px 28px',
       }}>
-        {/* Header */}
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '20px' }}>
           <div style={{ fontFamily: FONT_UI, fontSize: '12px', fontWeight: 700, letterSpacing: '2.5px', textTransform: 'uppercase', color: TEXT }}>
             Edit Defender
           </div>
           <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-            <button onClick={handleApply}
+            <button onClick={() => { onApply({ ...form, sub: generateSub(form) }); onClose() }}
               style={{ padding: '8px 18px', background: ACCENT, border: `1px solid ${ACCENT}`, color: BG, fontFamily: FONT_UI, fontSize: '10px', fontWeight: 700, letterSpacing: '2px', textTransform: 'uppercase', cursor: 'pointer', transition: 'opacity 80ms' }}
               onMouseEnter={(e) => { e.currentTarget.style.opacity = '0.85' }}
               onMouseLeave={(e) => { e.currentTarget.style.opacity = '1' }}>
@@ -373,24 +446,21 @@ function DefenderEditModal({ defender, onApply, onClose }) {
           </div>
         </div>
 
-        {/* Unit browser + quick presets */}
         <div style={{ fontFamily: FONT_UI, fontSize: '10px', letterSpacing: '2px', textTransform: 'uppercase', color: TEXT_OFF, marginBottom: '8px' }}>From database</div>
-        <button
-          onClick={() => setUnitDrawerOpen(true)}
+        <button onClick={() => setUnitDrawerOpen(true)}
           style={{ width: '100%', padding: '10px', marginBottom: '16px', background: `${ACCENT}14`, border: `1px solid ${ACCENT}55`, color: ACCENT_TEXT, fontFamily: FONT_UI, fontSize: '10px', fontWeight: 700, letterSpacing: '2px', textTransform: 'uppercase', cursor: 'pointer', transition: 'all 80ms' }}
           onMouseEnter={(e) => { e.currentTarget.style.background = `${ACCENT}24` }}
-          onMouseLeave={(e) => { e.currentTarget.style.background = `${ACCENT}14` }}
-        >
+          onMouseLeave={(e) => { e.currentTarget.style.background = `${ACCENT}14` }}>
           Browse units →
         </button>
 
         <div style={{ fontFamily: FONT_UI, fontSize: '10px', letterSpacing: '2px', textTransform: 'uppercase', color: TEXT_OFF, marginBottom: '8px' }}>Quick preset</div>
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', marginBottom: '20px' }}>
           {DEFENDERS.map((p) => (
-            <button key={p.id} onClick={() => applyPreset(p)}
+            <button key={p.id} onClick={() => setForm((prev) => ({ ...p, id: prev.id }))}
               style={{ padding: '5px 10px', background: 'transparent', border: `1px solid ${BORDER}`, color: TEXT_WEAK, fontFamily: FONT_UI, fontSize: '10px', letterSpacing: '1px', textTransform: 'uppercase', cursor: 'pointer', transition: 'all 80ms' }}
               onMouseEnter={(e) => { e.currentTarget.style.borderColor = ACCENT; e.currentTarget.style.color = ACCENT_TEXT }}
-              onMouseLeave={(e) => { e.currentTarget.style.borderColor = BORDER; e.currentTarget.style.color = TEXT_WEAK }}>
+              onMouseLeave={(e) => { e.currentTarget.style.borderColor = BORDER;  e.currentTarget.style.color = TEXT_WEAK }}>
               {p.label}
             </button>
           ))}
@@ -398,39 +468,20 @@ function DefenderEditModal({ defender, onApply, onClose }) {
 
         <div style={{ height: '1px', background: BORDER, marginBottom: '20px' }} />
 
-        {/* Label */}
         <FieldRow label="Label">
           <input value={form.label} onChange={(e) => f('label')(e.target.value)}
             style={{ flex: 1, padding: '5px 10px', background: SURFACE, border: `1px solid ${BORDER}`, color: TEXT, fontFamily: FONT_UI, fontSize: '12px', outline: 'none' }} />
         </FieldRow>
-
-        {/* Core stats */}
-        <FieldRow label="Toughness">
-          <NumIn value={form.toughness} onChange={f('toughness')} min={1} max={14} />
-        </FieldRow>
-        <FieldRow label="Save">
-          <OptChips value={form.save} opts={SAVE_NB_OPTS} onChange={f('save')} />
-        </FieldRow>
-        <FieldRow label="Wounds">
-          <NumIn value={form.wounds} onChange={f('wounds')} min={1} max={40} />
-        </FieldRow>
-        <FieldRow label="Models">
-          <NumIn value={form.models} onChange={f('models')} min={1} max={20} />
-        </FieldRow>
-
-        {/* Defensive options */}
-        <FieldRow label="Invuln">
-          <OptChips value={form.invuln} opts={SAVE_OPTS} onChange={f('invuln')} />
-        </FieldRow>
-        <FieldRow label="Feel No Pain">
-          <OptChips value={form.fnp} opts={FNP_OPTS} onChange={f('fnp')} />
-        </FieldRow>
+        <FieldRow label="Toughness"><NumIn value={form.toughness} onChange={f('toughness')} min={1} max={14} /></FieldRow>
+        <FieldRow label="Save">     <OptChips value={form.save}   opts={SAVE_NB_OPTS} onChange={f('save')} /></FieldRow>
+        <FieldRow label="Wounds">   <NumIn value={form.wounds}    onChange={f('wounds')}    min={1} max={40} /></FieldRow>
+        <FieldRow label="Models">   <NumIn value={form.models}    onChange={f('models')}    min={1} max={20} /></FieldRow>
+        <FieldRow label="Invuln">   <OptChips value={form.invuln} opts={SAVE_OPTS} onChange={f('invuln')} /></FieldRow>
+        <FieldRow label="Feel No Pain"><OptChips value={form.fnp} opts={FNP_OPTS}  onChange={f('fnp')} /></FieldRow>
         <FieldRow label="Options">
-          <ToggleBtn active={form.dmg_reduction}    onClick={() => f('dmg_reduction')(!form.dmg_reduction)} label="Dmg −1" />
-          <ToggleBtn active={form.debuff_hit_roll}  onClick={() => f('debuff_hit_roll')(!form.debuff_hit_roll)} label="−1 to hit" />
+          <ToggleBtn active={form.dmg_reduction}   onClick={() => f('dmg_reduction')(!form.dmg_reduction)}    label="Dmg −1" />
+          <ToggleBtn active={form.debuff_hit_roll} onClick={() => f('debuff_hit_roll')(!form.debuff_hit_roll)} label="−1 to hit" />
         </FieldRow>
-
-        {/* Keywords (Anti- targeting) */}
         <FieldRow label="Keywords">
           <div style={{ display: 'flex', gap: '4px', flexWrap: 'wrap' }}>
             {UNIT_KEYWORDS.map((kw) => {
@@ -456,48 +507,36 @@ function DefenderEditModal({ defender, onApply, onClose }) {
   )
 }
 
-// ── Column toggle chips ────────────────────────────────────────────────────────
+// ── Synergy toolbar ───────────────────────────────────────────────────────────
 
-function ColToggleRow({ activeCols, onToggle }) {
+function SynergyToolbar({ onAdd }) {
+  const [hover, setHover] = useState(false)
   return (
-    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', padding: '12px 0' }}>
-      {SYNERGY_PRESETS.map((col) => {
-        const active  = activeCols.includes(col.id)
-        const isBase  = col.id === 'base'
-        return (
-          <button
-            key={col.id}
-            onClick={() => !isBase && onToggle(col.id)}
-            title={col.desc}
-            style={{
-              padding: '5px 10px',
-              background: active ? `${ACCENT}22` : 'transparent',
-              border: `1px solid ${active ? ACCENT : BORDER}`,
-              color: active ? ACCENT_TEXT : TEXT_WEAK,
-              fontFamily: FONT_UI, fontSize: '10px',
-              letterSpacing: '1px', textTransform: 'uppercase',
-              cursor: isBase ? 'default' : 'pointer',
-              transition: 'all 100ms',
-              opacity: isBase ? 0.6 : 1,
-            }}
-          >
-            {col.label}
-          </button>
-        )
-      })}
+    <div style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '8px 0 14px', flexWrap: 'wrap' }}>
+      <button
+        onClick={onAdd}
+        onMouseEnter={() => setHover(true)}
+        onMouseLeave={() => setHover(false)}
+        style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '6px 12px', background: hover ? `${ACCENT}18` : 'transparent', border: `1px solid ${hover ? ACCENT : `${ACCENT}55`}`, color: ACCENT_TEXT, fontFamily: FONT_UI, fontSize: '10px', letterSpacing: '1.5px', textTransform: 'uppercase', cursor: 'pointer', transition: 'all 100ms' }}
+      >
+        <span style={{ fontSize: '14px', lineHeight: 1 }}>+</span> Add synergy
+      </button>
+      <span style={{ fontFamily: FONT_UI, fontSize: '10px', letterSpacing: '1.5px', textTransform: 'uppercase', color: TEXT_OFF }}>
+        Click a column header to edit
+      </span>
     </div>
   )
 }
 
 // ── Matrix table ──────────────────────────────────────────────────────────────
 
-function MatrixTable({ matrix, activeCols, defenders, onEditDef, isMobile }) {
+function MatrixTable({ matrix, activeCols, defenders, onEditDef, onEditCol, isMobile }) {
   const [hoveredDefId, setHoveredDefId] = useState(null)
-  const cols    = activeCols.map((id) => SYNERGY_BY_ID[id]).filter(Boolean)
+  const [hoveredColId, setHoveredColId] = useState(null)
+  const cols    = activeCols
   const baseId  = 'base'
   const baseDmg = matrix[baseId] ?? {}
 
-  // Per-row colour range: compare synergies for the same defender row
   const rowStats = {}
   for (const def of defenders) {
     const vals = cols.map((col) => matrix[col.id]?.[def.id] ?? 0)
@@ -513,17 +552,31 @@ function MatrixTable({ matrix, activeCols, defenders, onEditDef, isMobile }) {
         </colgroup>
         <thead>
           <tr>
-            {/* top-left corner label */}
             <th style={{ padding: '0 0 14px', textAlign: 'left', verticalAlign: 'bottom', borderBottom: `1px solid ${BORDER}` }}>
               <div style={{ fontFamily: FONT_UI, fontSize: '10px', letterSpacing: '2px', textTransform: 'uppercase', color: TEXT_OFF }}>Target</div>
             </th>
-            {cols.map((col) => (
-              <th key={col.id} style={{ padding: '0 8px 14px', textAlign: 'center', verticalAlign: 'bottom', borderBottom: `1px solid ${BORDER}` }}>
-                <div style={{ fontFamily: FONT_UI, fontSize: '11px', fontWeight: 700, letterSpacing: '1px', textTransform: 'uppercase', color: col.id === baseId ? TEXT_SEC : TEXT, lineHeight: 1.2 }}>
-                  {col.label}
-                </div>
-              </th>
-            ))}
+            {cols.map((col) => {
+              const isBase   = col.id === baseId
+              const colHover = hoveredColId === col.id
+              return (
+                <th key={col.id}
+                  onMouseEnter={() => setHoveredColId(col.id)}
+                  onMouseLeave={() => setHoveredColId(null)}
+                  onClick={() => onEditCol(col.id)}
+                  style={{ padding: '0 8px 14px', textAlign: 'center', verticalAlign: 'bottom', borderBottom: `1px solid ${colHover ? ACCENT : BORDER}`, cursor: 'pointer', userSelect: 'none', transition: 'border-color 120ms' }}>
+                  <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '3px' }}>
+                    <div style={{ fontFamily: FONT_UI, fontSize: '11px', fontWeight: 700, letterSpacing: '1px', textTransform: 'uppercase', color: colHover ? ACCENT_TEXT : (isBase ? TEXT_SEC : TEXT), lineHeight: 1.2, transition: 'color 120ms' }}>
+                      {col.label}
+                    </div>
+                    {colHover && (
+                      <div style={{ fontFamily: FONT_UI, fontSize: '9px', letterSpacing: '1.5px', color: ACCENT, textTransform: 'uppercase' }}>
+                        ✎ edit
+                      </div>
+                    )}
+                  </div>
+                </th>
+              )
+            })}
           </tr>
         </thead>
         <tbody>
@@ -532,7 +585,6 @@ function MatrixTable({ matrix, activeCols, defenders, onEditDef, isMobile }) {
             const stats   = rowStats[def.id]
             return (
               <tr key={def.id} style={{ borderTop: di > 0 ? `1px solid ${BORDER}` : 'none' }}>
-                {/* Row header — hover/click to edit this defender */}
                 <td
                   onMouseEnter={() => setHoveredDefId(def.id)}
                   onMouseLeave={() => setHoveredDefId(null)}
@@ -540,12 +592,8 @@ function MatrixTable({ matrix, activeCols, defenders, onEditDef, isMobile }) {
                   style={{ padding: '12px 8px 12px 0', verticalAlign: 'middle', cursor: 'pointer', userSelect: 'none', borderRight: `1px solid ${hovered ? ACCENT : BORDER}`, transition: 'border-color 120ms' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
                     <div>
-                      <div style={{ fontFamily: FONT_UI, fontSize: '12px', fontWeight: 700, letterSpacing: '0.5px', color: hovered ? ACCENT_TEXT : TEXT, lineHeight: 1.2, transition: 'color 120ms' }}>
-                        {def.label}
-                      </div>
-                      <div style={{ fontFamily: "'Space Mono', monospace", fontSize: '10px', color: hovered ? ACCENT : TEXT_WEAK, letterSpacing: '0.5px', marginTop: '2px', lineHeight: 1.3, transition: 'color 120ms' }}>
-                        {def.sub}
-                      </div>
+                      <div style={{ fontFamily: FONT_UI, fontSize: '12px', fontWeight: 700, letterSpacing: '0.5px', color: hovered ? ACCENT_TEXT : TEXT, lineHeight: 1.2, transition: 'color 120ms' }}>{def.label}</div>
+                      <div style={{ fontFamily: "'Space Mono', monospace", fontSize: '10px', color: hovered ? ACCENT : TEXT_WEAK, letterSpacing: '0.5px', marginTop: '2px', lineHeight: 1.3, transition: 'color 120ms' }}>{def.sub}</div>
                     </div>
                     {hovered && (
                       <svg width="10" height="10" viewBox="0 0 10 10" fill="none" style={{ flexShrink: 0, marginLeft: 'auto', opacity: 0.7 }}>
@@ -561,7 +609,6 @@ function MatrixTable({ matrix, activeCols, defenders, onEditDef, isMobile }) {
                   const ratio  = range < 0.001 ? 0 : (val - stats.min) / range
                   const base   = baseDmg[def.id] ?? 0
                   const pct    = isBase ? null : ((val - base) / Math.max(base, 0.01)) * 100
-
                   return (
                     <td key={col.id} style={{ padding: '10px 8px', textAlign: 'center', verticalAlign: 'middle', background: cellBg(ratio) }}>
                       <div style={{ fontFamily: FONT_UI, fontSize: '15px', fontWeight: 700, color: ratio > 0.6 ? SUCCESS : TEXT, lineHeight: 1 }}>
@@ -605,9 +652,7 @@ function injectAbilitiesStyles() {
 function UnitAbilitiesPanel() {
   const unit      = useSimulatorStore((s) => s.attackerUnit)
   const abilities = unit?.abilities ?? []
-
   useEffect(() => { injectAbilitiesStyles() }, [])
-
   if (!unit || !abilities.length) return null
   return (
     <div style={{ position: 'fixed', right: '24px', top: '50%', transform: 'translateY(-50%)', width: '220px', zIndex: 10, pointerEvents: 'none' }}>
@@ -637,10 +682,13 @@ export function ComboPage() {
   const _resetAll = useSimulatorStore((s) => s.resetAll)
   const unitName  = useSimulatorStore((s) => s.attackerUnit?.name ?? null)
 
+  const colCounter = useRef(100)
+
   const [squadOpen,     setSquadOpen]     = useState(attacks.length === 0)
-  const [activeCols,    setActiveCols]    = useState(SYNERGY_PRESETS.map((c) => c.id))
+  const [activeCols,    setActiveCols]    = useState(() => SYNERGY_PRESETS.map((c) => ({ ...c })))
   const [defRows,       setDefRows]       = useState(DEFENDERS.map((d) => ({ ...d })))
   const [editingDefIdx, setEditingDefIdx] = useState(null)
+  const [editColState,  setEditColState]  = useState(null)
   const [matrix,        setMatrix]        = useState(null)
   const [running,       setRunning]       = useState(false)
   const [resetHover,    setResetHover]    = useState(false)
@@ -650,22 +698,38 @@ export function ComboPage() {
   const hPad = isMobile ? '0 16px' : '0 48px'
   const sPad = isMobile ? '20px 16px 80px' : '28px 48px 80px'
 
-  function toggleCol(id) {
-    setActiveCols((prev) => {
-      if (prev.includes(id)) return prev.length > 1 ? prev.filter((c) => c !== id) : prev
-      return [...prev, id]
-    })
-  }
-
   function handleApplyDefender(idx, updated) {
     setDefRows((prev) => prev.map((d, i) => (i === idx ? updated : d)))
   }
 
-  // Reorder: baseline always first
-  const orderedCols = useMemo(
-    () => ['base', ...activeCols.filter((id) => id !== 'base')],
-    [activeCols],
-  )
+  function handleAddCol() {
+    setEditColState({ idx: null, col: { id: '', label: 'Custom', keywords: [], buffs: [] } })
+  }
+
+  function handleEditCol(colId) {
+    const idx = activeCols.findIndex((c) => c.id === colId)
+    if (idx >= 0) setEditColState({ idx, col: activeCols[idx] })
+  }
+
+  function handleApplySynergy(updatedCol) {
+    if (editColState.idx === null) {
+      setActiveCols((prev) => [...prev, { ...updatedCol, id: `custom_${colCounter.current++}` }])
+    } else {
+      setActiveCols((prev) => prev.map((c, i) => (i === editColState.idx ? updatedCol : c)))
+    }
+    setEditColState(null)
+  }
+
+  function handleRemoveCol() {
+    setActiveCols((prev) => prev.filter((_, i) => i !== editColState.idx))
+    setEditColState(null)
+  }
+
+  const orderedCols = useMemo(() => {
+    const base = activeCols.find((c) => c.id === 'base')
+    const rest = activeCols.filter((c) => c.id !== 'base')
+    return base ? [base, ...rest] : [...activeCols]
+  }, [activeCols])
 
   const handleRunMatrix = useCallback(() => {
     if (!attacks.length) return
@@ -679,7 +743,6 @@ export function ComboPage() {
     }, 0)
   }, [attacks, orderedCols, defRows, context])
 
-  // Auto-run whenever attacks, columns or defenders change
   useEffect(() => {
     if (attacks.length > 0) {
       handleRunMatrix()
@@ -689,8 +752,6 @@ export function ComboPage() {
   }, [attacks, activeCols, defRows]) // eslint-disable-line
 
   const hasAttacks = attacks.length > 0
-
-  // Squad profile label
   const squadLabel = unitName
     ? `${unitName} · ${attacks.length} weapon${attacks.length !== 1 ? 's' : ''}`
     : attacks.length > 0
@@ -700,11 +761,22 @@ export function ComboPage() {
   return (
     <div style={{ color: TEXT_SEC, minHeight: '100vh', paddingTop: '52px' }}>
       <SquadDrawer open={squadOpen} onClose={() => setSquadOpen(false)} />
+
       {editingDefIdx !== null && (
         <DefenderEditModal
           defender={defRows[editingDefIdx]}
           onApply={(updated) => handleApplyDefender(editingDefIdx, updated)}
           onClose={() => setEditingDefIdx(null)}
+        />
+      )}
+
+      {editColState !== null && (
+        <SynergyEditModal
+          synergy={editColState.col}
+          isNew={editColState.idx === null}
+          onApply={handleApplySynergy}
+          onRemove={handleRemoveCol}
+          onClose={() => setEditColState(null)}
         />
       )}
 
@@ -741,21 +813,10 @@ export function ComboPage() {
       <section style={{ padding: sPad }}>
         {!isMobile && hasAttacks && <UnitAbilitiesPanel />}
 
-        {/* Squad + controls row */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '12px', flexWrap: 'wrap' }}>
-          {/* Squad profile chip */}
           <button
             onClick={() => setSquadOpen(true)}
-            style={{
-              display: 'flex', alignItems: 'center', gap: '8px',
-              padding: '8px 14px',
-              background: hasAttacks ? `${ACCENT}18` : 'transparent',
-              border: `1px solid ${hasAttacks ? ACCENT : BORDER}`,
-              color: hasAttacks ? ACCENT_TEXT : TEXT_OFF,
-              fontFamily: FONT_UI, fontSize: '11px',
-              letterSpacing: '1px', textTransform: 'uppercase',
-              cursor: 'pointer', transition: 'all 100ms',
-            }}
+            style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '8px 14px', background: hasAttacks ? `${ACCENT}18` : 'transparent', border: `1px solid ${hasAttacks ? ACCENT : BORDER}`, color: hasAttacks ? ACCENT_TEXT : TEXT_OFF, fontFamily: FONT_UI, fontSize: '11px', letterSpacing: '1px', textTransform: 'uppercase', cursor: 'pointer', transition: 'all 100ms' }}
             onMouseEnter={(e) => { e.currentTarget.style.background = `${ACCENT}28` }}
             onMouseLeave={(e) => { e.currentTarget.style.background = hasAttacks ? `${ACCENT}18` : 'transparent' }}
           >
@@ -766,38 +827,35 @@ export function ComboPage() {
             {squadLabel ?? 'Select squad'}
             <span style={{ opacity: 0.5 }}>▾</span>
           </button>
-
-          {/* Run button (shown when stale or no matrix yet) */}
           {hasAttacks && running && (
-            <span style={{ fontFamily: FONT_UI, fontSize: '10px', letterSpacing: '1.5px', textTransform: 'uppercase', color: TEXT_WEAK }}>
-              Computing…
-            </span>
+            <span style={{ fontFamily: FONT_UI, fontSize: '10px', letterSpacing: '1.5px', textTransform: 'uppercase', color: TEXT_WEAK }}>Computing…</span>
           )}
         </div>
 
-        {/* Column toggles */}
-        <ColToggleRow activeCols={activeCols} onToggle={toggleCol} />
+        <SynergyToolbar onAdd={handleAddCol} />
 
-        {/* Matrix or placeholder */}
         {!hasAttacks ? (
           <div style={{ marginTop: '32px', padding: '48px 32px', border: `1px dashed ${BORDER}`, textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '20px' }}>
             <div style={{ fontFamily: FONT_UI, fontSize: '11px', letterSpacing: '2px', textTransform: 'uppercase', color: TEXT_WEAK, lineHeight: 1.8, maxWidth: '320px' }}>
               Configure a squad to compare synergies across target profiles
             </div>
-            <button
-              onClick={() => setSquadOpen(true)}
+            <button onClick={() => setSquadOpen(true)}
               style={{ background: ACCENT, border: `1px solid ${ACCENT}`, color: BG, fontFamily: FONT_UI, fontSize: '10px', fontWeight: 700, letterSpacing: '2px', textTransform: 'uppercase', padding: '13px 28px', cursor: 'pointer', transition: 'opacity 100ms' }}
               onMouseEnter={(e) => { e.currentTarget.style.opacity = '0.85' }}
-              onMouseLeave={(e) => { e.currentTarget.style.opacity = '1' }}
-            >
+              onMouseLeave={(e) => { e.currentTarget.style.opacity = '1' }}>
               Configure squad →
             </button>
           </div>
         ) : matrix ? (
           <div style={{ marginTop: '20px' }}>
-            <MatrixTable matrix={matrix} activeCols={orderedCols} defenders={defRows} onEditDef={setEditingDefIdx} isMobile={isMobile} />
-
-            {/* Legend */}
+            <MatrixTable
+              matrix={matrix}
+              activeCols={orderedCols}
+              defenders={defRows}
+              onEditDef={setEditingDefIdx}
+              onEditCol={handleEditCol}
+              isMobile={isMobile}
+            />
             <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginTop: '14px', flexWrap: 'wrap' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
                 <div style={{ width: '28px', height: '7px', background: cellBg(0),   border: `1px solid ${BORDER}` }} />
@@ -813,7 +871,6 @@ export function ComboPage() {
         ) : null}
       </section>
 
-      {/* Footer */}
       <div style={{ padding: isMobile ? '0 16px 24px' : '0 48px 24px' }}>
         <Separator />
         {!isMobile && (
