@@ -449,6 +449,7 @@ function DefenderEditModal({ defender, onApply, onClose }) {
         isOpen={unitDrawerOpen}
         onClose={() => setUnitDrawerOpen(false)}
         role="defender"
+        zIndex={400}
         onSelect={(u) => { handleUnitSelect(u); setUnitDrawerOpen(false) }}
       />
     </>

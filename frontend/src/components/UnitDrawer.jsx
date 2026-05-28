@@ -287,7 +287,7 @@ function WeaponStep({ unit, onSelectWeapon, _onBack }) {
 
 // ── Main drawer ───────────────────────────────────────────────────────────────
 
-export function UnitDrawer({ isOpen, onClose, role, onSelect }) {
+export function UnitDrawer({ isOpen, onClose, role, onSelect, zIndex = 200 }) {
   const searchUnits = useDataStore((s) => s.searchUnits)
   const load        = useDataStore((s) => s.load)
   const loaded      = useDataStore((s) => s.loaded)
@@ -330,7 +330,7 @@ export function UnitDrawer({ isOpen, onClose, role, onSelect }) {
       <div
         onClick={onClose}
         style={{
-          position: 'fixed', inset: 0, zIndex: 200,
+          position: 'fixed', inset: 0, zIndex: zIndex,
           background: 'rgba(248,250,251,0.92)',
           opacity: isOpen ? 1 : 0,
           pointerEvents: isOpen ? 'auto' : 'none',
@@ -344,7 +344,7 @@ export function UnitDrawer({ isOpen, onClose, role, onSelect }) {
           width: 'clamp(340px, 38vw, 520px)',
           background: BG,
           borderLeft: `1px solid ${BORDER}`,
-          zIndex: 201,
+          zIndex: zIndex + 1,
           display: 'flex', flexDirection: 'column',
           transform: isOpen ? 'translateX(0)' : 'translateX(100%)',
           transition: 'transform 200ms cubic-bezier(0.4,0,0.2,1)',
