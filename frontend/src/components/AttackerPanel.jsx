@@ -586,6 +586,7 @@ export function AttackerPanel() {
     setSelectedUnit(unit)
     const m = unit.min_models ?? unit.max_models ?? 1
     setAttacker({ models: m })
+    setWeapon({ name: '', attacks: '2', skill: 3, strength: 4, ap: 0, damage: '1', keywords: [] })
   }
 
   const hasWeapon = Boolean(weapon.name)
@@ -802,19 +803,35 @@ export function AttackerPanel() {
         <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
           <div style={{
             padding: '10px 14px', border: `1px solid ${BORDER}`, background: SURFACE,
+            display: 'flex', justifyContent: 'space-between', alignItems: 'center',
           }}>
-            <div style={{
-              fontFamily: FONT_UI, fontSize: '12px',
-              fontWeight: 700, color: TEXT, letterSpacing: '0.5px',
-            }}>
-              {weapon.name}
+            <div>
+              <div style={{
+                fontFamily: FONT_UI, fontSize: '12px',
+                fontWeight: 700, color: TEXT, letterSpacing: '0.5px',
+              }}>
+                {weapon.name}
+              </div>
+              <div style={{
+                fontFamily: FONT_UI, fontSize: '10px',
+                color: TEXT_WEAK, marginTop: '4px', letterSpacing: '0.5px',
+              }}>
+                A{weapon.attacks} · BS{weapon.skill}+ · S{weapon.strength} · AP{weapon.ap} · D{weapon.damage}
+              </div>
             </div>
-            <div style={{
-              fontFamily: FONT_UI, fontSize: '10px',
-              color: TEXT_WEAK, marginTop: '4px', letterSpacing: '0.5px',
-            }}>
-              A{weapon.attacks} · BS{weapon.skill}+ · S{weapon.strength} · AP{weapon.ap} · D{weapon.damage}
-            </div>
+            <button
+              onClick={() => setWeapon({ name: '', attacks: '2', skill: 3, strength: 4, ap: 0, damage: '1', keywords: [] })}
+              style={{
+                background: 'none', border: 'none', color: ACCENT_TEXT,
+                fontFamily: FONT_UI, fontSize: '11px',
+                letterSpacing: '1.5px', textTransform: 'uppercase',
+                cursor: 'pointer', opacity: 0.6, padding: 0, flexShrink: 0,
+              }}
+              onMouseEnter={(e) => { e.currentTarget.style.opacity = '1' }}
+              onMouseLeave={(e) => { e.currentTarget.style.opacity = '0.6' }}
+            >
+              Change
+            </button>
           </div>
 
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
