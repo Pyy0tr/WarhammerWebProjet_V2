@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useMemo } from 'react'
 import { useIsMobile } from '../hooks/useIsMobile'
 import { useSimulatorStore } from '../store/simulatorStore'
 import { AttackerPanel } from '../components/AttackerPanel'
@@ -600,16 +600,17 @@ export function ComboPage() {
   const attacks   = useSimulatorStore((s) => s.attacks)
   const context   = useSimulatorStore((s) => s.context)
   const _resetAll = useSimulatorStore((s) => s.resetAll)
-  const resetAll  = useCallback(() => { _resetAll(); setSquadOpen(true) }, [_resetAll])
   const unitName  = useSimulatorStore((s) => s.attackerUnit?.name ?? null)
 
-  const [squadOpen,    setSquadOpen]    = useState(attacks.length === 0)
-  const [activeCols,   setActiveCols]   = useState(SYNERGY_PRESETS.map((c) => c.id))
-  const [defRows,      setDefRows]      = useState(DEFENDERS.map((d) => ({ ...d })))
+  const [squadOpen,     setSquadOpen]     = useState(attacks.length === 0)
+  const [activeCols,    setActiveCols]    = useState(SYNERGY_PRESETS.map((c) => c.id))
+  const [defRows,       setDefRows]       = useState(DEFENDERS.map((d) => ({ ...d })))
   const [editingDefIdx, setEditingDefIdx] = useState(null)
-  const [matrix,       setMatrix]       = useState(null)
-  const [running,      setRunning]      = useState(false)
-  const [resetHover,   setResetHover]   = useState(false)
+  const [matrix,        setMatrix]        = useState(null)
+  const [running,       setRunning]       = useState(false)
+  const [resetHover,    setResetHover]    = useState(false)
+
+  const resetAll = useCallback(() => { _resetAll(); setSquadOpen(true) }, [_resetAll])
 
   const hPad = isMobile ? '0 16px' : '0 48px'
   const sPad = isMobile ? '20px 16px 80px' : '28px 48px 80px'
@@ -626,7 +627,10 @@ export function ComboPage() {
   }
 
   // Reorder: baseline always first
-  const orderedCols = ['base', ...activeCols.filter((id) => id !== 'base')]
+  const orderedCols = useMemo(
+    () => ['base', ...activeCols.filter((id) => id !== 'base')],
+    [activeCols],
+  )
 
   const handleRunMatrix = useCallback(() => {
     if (!attacks.length) return
