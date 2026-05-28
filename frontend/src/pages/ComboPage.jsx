@@ -66,7 +66,13 @@ function computeMatrix(baseAttacks, colObjects, defenders, context) {
     const attacks = buildAttacksForColumn(baseAttacks, col)
     for (const def of defenders) {
       const { id: _i, label: _l, sub: _s, ...defStats } = def
-      result[col.id][def.id] = simulate({ attacks, defender: defStats, context, n_trials: N_TRIALS }).summary.mean_damage
+      const res = simulate({ attacks, defender: defStats, context, n_trials: N_TRIALS })
+      result[col.id][def.id] = {
+        mean:      res.summary.mean_damage,
+        summary:   res.summary,
+        histogram: res.damage_histogram,
+        killProbs: res.kill_probabilities,
+      }
     }
   }
   return result
@@ -506,6 +512,183 @@ function DefenderEditModal({ defender, onApply, onClose }) {
   )
 }
 
+// ── Damage distribution chart ─────────────────────────────────────────────────
+
+function DamageHistogram({ histogram, summary }) {
+  if (!histogram?.length) return null
+  const VW = 480, VH = 170
+  const PAD = { top: 16, right: 12, bottom: 26, left: 32 }
+  const PW  = VW - PAD.left - PAD.right
+  const PH  = VH - PAD.top  - PAD.bottom
+  const n       = histogram.length
+  const maxProb = Math.max(...histogram.map((h) => h.probability), 0.001)
+  const barW    = PW / Math.max(n, 1)
+
+  const toX = (dmg) => dmg * barW
+
+  const meanX = toX(summary.mean_damage)
+  const p25X  = toX(summary.p25)
+  const p75X  = toX(summary.p75)
+
+  const tickInterval = Math.max(1, Math.ceil(n / 9))
+
+  return (
+    <svg viewBox={`0 0 ${VW} ${VH}`} width="100%" style={{ display: 'block' }}>
+      <g transform={`translate(${PAD.left},${PAD.top})`}>
+        {/* IQR band */}
+        <rect x={p25X} y={0} width={Math.max(0, p75X - p25X)} height={PH} fill={`${ACCENT}10`} />
+
+        {/* Bars */}
+        {histogram.map((h, i) => {
+          const bh = Math.max(1, (h.probability / maxProb) * PH)
+          const atMean = h.damage === Math.round(summary.mean_damage)
+          return (
+            <rect key={h.damage}
+              x={i * barW + 0.5} y={PH - bh}
+              width={Math.max(1, barW - 1)} height={bh}
+              fill={atMean ? ACCENT : `${ACCENT}55`} rx={1} />
+          )
+        })}
+
+        {/* Mean vertical line */}
+        <line x1={meanX} y1={0} x2={meanX} y2={PH}
+          stroke={ACCENT} strokeWidth={1.5} />
+
+        {/* Mean label */}
+        <text x={meanX + 3} y={3} textAnchor="start" dominantBaseline="hanging"
+          fill={ACCENT} fontSize={9} fontFamily="monospace">
+          μ {summary.mean_damage}
+        </text>
+
+        {/* X axis */}
+        <line x1={0} y1={PH} x2={PW} y2={PH} stroke={BORDER} strokeWidth={1} />
+
+        {/* X labels */}
+        {histogram.filter((_, i) => i % tickInterval === 0).map((h) => (
+          <text key={h.damage} x={(h.damage + 0.5) * barW} y={PH + 13}
+            textAnchor="middle" fill={TEXT_WEAK} fontSize={9} fontFamily="monospace">
+            {h.damage}
+          </text>
+        ))}
+
+        {/* Y max label */}
+        <text x={-4} y={0} textAnchor="end" dominantBaseline="hanging"
+          fill={TEXT_OFF} fontSize={8} fontFamily="monospace">
+          {Math.round(maxProb * 100)}%
+        </text>
+      </g>
+    </svg>
+  )
+}
+
+// ── Cell detail modal ─────────────────────────────────────────────────────────
+
+function CellDetailModal({ cell, onClose }) {
+  const { colLabel, defLabel, defSub, data } = cell
+  const { summary, histogram, killProbs } = data
+  const killEntries = Object.entries(killProbs ?? {})
+    .map(([k, p]) => [Number(k), p])
+    .sort((a, b) => a[0] - b[0])
+
+  return (
+    <>
+      <div onClick={onClose} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.65)', zIndex: 400 }} />
+      <div style={{
+        position: 'fixed', top: '50%', left: '50%', transform: 'translate(-50%,-50%)',
+        width: 'min(560px, calc(100vw - 32px))', maxHeight: 'calc(100vh - 48px)', overflowY: 'auto',
+        background: BG, border: `1px solid ${BORDER}`, zIndex: 401, padding: '22px 26px 28px',
+      }}>
+        {/* Header */}
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '18px' }}>
+          <div>
+            <div style={{ fontFamily: FONT_UI, fontSize: '10px', letterSpacing: '2px', textTransform: 'uppercase', color: TEXT_OFF, marginBottom: '5px' }}>
+              Damage Distribution
+            </div>
+            <div style={{ fontFamily: FONT_UI, fontSize: '13px', fontWeight: 700, color: ACCENT_TEXT, letterSpacing: '0.5px' }}>
+              {colLabel}
+            </div>
+            <div style={{ fontFamily: FONT_UI, fontSize: '11px', color: TEXT_SEC, marginTop: '3px' }}>
+              vs <span style={{ color: TEXT }}>{defLabel}</span>
+              <span style={{ color: TEXT_WEAK, marginLeft: '8px', fontFamily: "'Space Mono', monospace", fontSize: '10px' }}>{defSub}</span>
+            </div>
+          </div>
+          <button onClick={onClose}
+            style={{ background: 'none', border: `1px solid ${BORDER}`, color: TEXT_WEAK, fontFamily: FONT_UI, fontSize: '16px', lineHeight: 1, padding: '6px 10px', cursor: 'pointer', flexShrink: 0 }}>
+            ×
+          </button>
+        </div>
+
+        {/* Chart */}
+        <div style={{ background: SURFACE, border: `1px solid ${BORDER}`, padding: '14px 6px 8px' }}>
+          <DamageHistogram histogram={histogram} summary={summary} />
+        </div>
+
+        {/* Legend */}
+        <div style={{ display: 'flex', gap: '16px', marginTop: '8px', marginBottom: '20px', flexWrap: 'wrap' }}>
+          {[
+            { color: ACCENT,         label: 'Mean (μ)' },
+            { color: `${ACCENT}55`,  label: 'Other values' },
+            { color: `${ACCENT}10`,  label: 'IQR P25–P75', border: `1px solid ${ACCENT}40` },
+          ].map(({ color, label, border }) => (
+            <div key={label} style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
+              <div style={{ width: '12px', height: '10px', background: color, borderRadius: '1px', border: border ?? 'none', flexShrink: 0 }} />
+              <span style={{ fontFamily: FONT_UI, fontSize: '9px', letterSpacing: '1px', textTransform: 'uppercase', color: TEXT_OFF }}>{label}</span>
+            </div>
+          ))}
+        </div>
+
+        {/* Stats */}
+        <div style={{ height: '1px', background: BORDER, marginBottom: '14px' }} />
+        <div style={{ fontFamily: FONT_UI, fontSize: '10px', letterSpacing: '2px', textTransform: 'uppercase', color: TEXT_OFF, marginBottom: '10px' }}>Statistics</div>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(100px, 1fr))', gap: '8px', marginBottom: '20px' }}>
+          {[
+            { l: 'Mean',    v: summary.mean_damage },
+            { l: 'Median',  v: summary.median_damage },
+            { l: 'Std Dev', v: summary.std_dev },
+            { l: 'P10',     v: summary.p10 },
+            { l: 'P25',     v: summary.p25 },
+            { l: 'P75',     v: summary.p75 },
+            { l: 'P90',     v: summary.p90 },
+          ].map(({ l, v }) => (
+            <div key={l} style={{ background: SURFACE, border: `1px solid ${BORDER}`, padding: '8px 10px' }}>
+              <div style={{ fontFamily: FONT_UI, fontSize: '9px', letterSpacing: '1.5px', textTransform: 'uppercase', color: TEXT_OFF, marginBottom: '4px' }}>{l}</div>
+              <div style={{ fontFamily: "'Space Mono', monospace", fontSize: '14px', fontWeight: 700, color: ACCENT_TEXT }}>{v}</div>
+            </div>
+          ))}
+        </div>
+
+        {/* Kill probabilities */}
+        {killEntries.length > 0 && (
+          <>
+            <div style={{ height: '1px', background: BORDER, marginBottom: '14px' }} />
+            <div style={{ fontFamily: FONT_UI, fontSize: '10px', letterSpacing: '2px', textTransform: 'uppercase', color: TEXT_OFF, marginBottom: '10px' }}>
+              Kill Probability ({killEntries.length} model{killEntries.length !== 1 ? 's' : ''})
+            </div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '7px' }}>
+              {killEntries.map(([k, prob]) => {
+                const pct = Math.round(prob * 100)
+                return (
+                  <div key={k} style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                    <div style={{ fontFamily: FONT_UI, fontSize: '10px', letterSpacing: '1px', color: TEXT_SEC, width: '56px', flexShrink: 0 }}>
+                      Kill {k}×
+                    </div>
+                    <div style={{ flex: 1, height: '8px', background: BORDER, position: 'relative', overflow: 'hidden', borderRadius: '1px' }}>
+                      <div style={{ position: 'absolute', left: 0, top: 0, height: '100%', width: `${pct}%`, background: pct >= 50 ? SUCCESS : `${ACCENT}88` }} />
+                    </div>
+                    <div style={{ fontFamily: "'Space Mono', monospace", fontSize: '11px', fontWeight: 700, color: pct >= 50 ? SUCCESS : ACCENT_TEXT, width: '36px', textAlign: 'right', flexShrink: 0 }}>
+                      {pct}%
+                    </div>
+                  </div>
+                )
+              })}
+            </div>
+          </>
+        )}
+      </div>
+    </>
+  )
+}
+
 // ── Synergy toolbar ───────────────────────────────────────────────────────────
 
 function SynergyToolbar({ onAdd }) {
@@ -529,16 +712,16 @@ function SynergyToolbar({ onAdd }) {
 
 // ── Matrix table ──────────────────────────────────────────────────────────────
 
-function MatrixTable({ matrix, activeCols, defenders, onEditDef, onEditCol, isMobile }) {
-  const [hoveredDefId, setHoveredDefId] = useState(null)
-  const [hoveredColId, setHoveredColId] = useState(null)
-  const cols    = activeCols
-  const baseId  = 'base'
-  const baseDmg = matrix[baseId] ?? {}
+function MatrixTable({ matrix, activeCols, defenders, onEditDef, onEditCol, onCellClick, isMobile }) {
+  const [hoveredDefId,   setHoveredDefId]   = useState(null)
+  const [hoveredColId,   setHoveredColId]   = useState(null)
+  const [hoveredCellKey, setHoveredCellKey] = useState(null)
+  const cols   = activeCols
+  const baseId = 'base'
 
   const rowStats = {}
   for (const def of defenders) {
-    const vals = cols.map((col) => matrix[col.id]?.[def.id] ?? 0)
+    const vals = cols.map((col) => matrix[col.id]?.[def.id]?.mean ?? 0)
     rowStats[def.id] = { min: Math.min(...vals), max: Math.max(...vals) }
   }
 
@@ -602,20 +785,32 @@ function MatrixTable({ matrix, activeCols, defenders, onEditDef, onEditCol, isMo
                   </div>
                 </td>
                 {cols.map((col) => {
-                  const val    = matrix[col.id]?.[def.id] ?? 0
-                  const isBase = col.id === baseId
-                  const range  = stats.max - stats.min
-                  const ratio  = range < 0.001 ? 0 : (val - stats.min) / range
-                  const base   = baseDmg[def.id] ?? 0
-                  const pct    = isBase ? null : ((val - base) / Math.max(base, 0.01)) * 100
+                  const cell    = matrix[col.id]?.[def.id]
+                  const val     = cell?.mean ?? 0
+                  const isBase  = col.id === baseId
+                  const range   = stats.max - stats.min
+                  const ratio   = range < 0.001 ? 0 : (val - stats.min) / range
+                  const base    = matrix[baseId]?.[def.id]?.mean ?? 0
+                  const pct     = isBase ? null : ((val - base) / Math.max(base, 0.01)) * 100
+                  const cellKey = `${col.id}:${def.id}`
+                  const isHov   = hoveredCellKey === cellKey
                   return (
-                    <td key={col.id} style={{ padding: '10px 8px', textAlign: 'center', verticalAlign: 'middle', background: cellBg(ratio) }}>
+                    <td key={col.id}
+                      onClick={() => cell && onCellClick(col.id, def.id)}
+                      onMouseEnter={() => setHoveredCellKey(cellKey)}
+                      onMouseLeave={() => setHoveredCellKey(null)}
+                      style={{ padding: '10px 8px', textAlign: 'center', verticalAlign: 'middle', background: cellBg(ratio), cursor: 'pointer', boxShadow: isHov ? `inset 0 0 0 1px ${ACCENT}` : 'none', transition: 'box-shadow 80ms' }}>
                       <div style={{ fontFamily: FONT_UI, fontSize: '15px', fontWeight: 700, color: ratio > 0.6 ? SUCCESS : TEXT, lineHeight: 1 }}>
                         {val.toFixed(1)}
                       </div>
                       {!isBase && pct !== null && (
                         <div style={{ fontFamily: FONT_UI, fontSize: '10px', color: pct > 0.5 ? SUCCESS : TEXT_OFF, marginTop: '3px', lineHeight: 1 }}>
                           {pct > 0.5 ? `+${pct.toFixed(0)}%` : '—'}
+                        </div>
+                      )}
+                      {isHov && (
+                        <div style={{ fontFamily: FONT_UI, fontSize: '8px', letterSpacing: '1px', color: ACCENT, marginTop: '3px', textTransform: 'uppercase', lineHeight: 1 }}>
+                          ▸ detail
                         </div>
                       )}
                     </td>
@@ -646,6 +841,7 @@ export function ComboPage() {
   const [defRows,       setDefRows]       = useState(DEFENDERS.map((d) => ({ ...d })))
   const [editingDefIdx, setEditingDefIdx] = useState(null)
   const [editColState,  setEditColState]  = useState(null)
+  const [detailCell,    setDetailCell]    = useState(null)
   const [matrix,        setMatrix]        = useState(null)
   const [running,       setRunning]       = useState(false)
   const [resetHover,    setResetHover]    = useState(false)
@@ -708,6 +904,14 @@ export function ComboPage() {
     }
   }, [attacks, activeCols, defRows]) // eslint-disable-line
 
+  function handleCellClick(colId, defId) {
+    const col  = orderedCols.find((c) => c.id === colId)
+    const def  = defRows.find((d) => d.id === defId)
+    const data = matrix?.[colId]?.[defId]
+    if (!col || !def || !data) return
+    setDetailCell({ colLabel: col.label, defLabel: def.label, defSub: def.sub, data })
+  }
+
   const hasAttacks = attacks.length > 0
   const squadLabel = unitName
     ? `${unitName} · ${attacks.length} weapon${attacks.length !== 1 ? 's' : ''}`
@@ -725,6 +929,10 @@ export function ComboPage() {
           onApply={(updated) => handleApplyDefender(editingDefIdx, updated)}
           onClose={() => setEditingDefIdx(null)}
         />
+      )}
+
+      {detailCell !== null && (
+        <CellDetailModal cell={detailCell} onClose={() => setDetailCell(null)} />
       )}
 
       {editColState !== null && (
@@ -809,6 +1017,7 @@ export function ComboPage() {
               defenders={defRows}
               onEditDef={setEditingDefIdx}
               onEditCol={handleEditCol}
+              onCellClick={handleCellClick}
               isMobile={isMobile}
             />
             <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginTop: '14px', flexWrap: 'wrap' }}>
