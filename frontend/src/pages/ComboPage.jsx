@@ -599,10 +599,11 @@ export function ComboPage() {
   const isMobile  = useIsMobile()
   const attacks   = useSimulatorStore((s) => s.attacks)
   const context   = useSimulatorStore((s) => s.context)
-  const resetAll  = useSimulatorStore((s) => s.resetAll)
+  const _resetAll = useSimulatorStore((s) => s.resetAll)
+  const resetAll  = useCallback(() => { _resetAll(); setSquadOpen(true) }, [_resetAll])
   const unitName  = useSimulatorStore((s) => s.attackerUnit?.name ?? null)
 
-  const [squadOpen,    setSquadOpen]    = useState(false)
+  const [squadOpen,    setSquadOpen]    = useState(attacks.length === 0)
   const [activeCols,   setActiveCols]   = useState(SYNERGY_PRESETS.map((c) => c.id))
   const [defRows,      setDefRows]      = useState(DEFENDERS.map((d) => ({ ...d })))
   const [editingDefIdx, setEditingDefIdx] = useState(null)
