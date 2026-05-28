@@ -3,6 +3,7 @@ import { useIsMobile } from '../hooks/useIsMobile'
 import { useSimulatorStore } from '../store/simulatorStore'
 import { AttackerPanel } from '../components/AttackerPanel'
 import { AbilityText } from '../components/AbilityText'
+import { UnitDrawer } from '../components/UnitDrawer'
 import { simulate } from '../engine/simulation'
 import { KEYWORD_BY_TYPE } from '../engine/keywords.js'
 import {
@@ -307,11 +308,28 @@ function FieldRow({ label, children }) {
 }
 
 function DefenderEditModal({ defender, onApply, onClose }) {
-  const [form, setForm] = useState({ ...defender })
+  const [form,        setForm]        = useState({ ...defender })
+  const [unitDrawerOpen, setUnitDrawerOpen] = useState(false)
   const f = (key) => (val) => setForm((p) => ({ ...p, [key]: val }))
 
   function applyPreset(p) {
     setForm((prev) => ({ ...p, id: prev.id }))
+  }
+
+  function handleUnitSelect(u) {
+    setForm((prev) => ({
+      ...prev,
+      label:          u.name,
+      toughness:      u.T,
+      save:           u.Sv,
+      wounds:         u.W,
+      invuln:         u.invuln ?? null,
+      models:         u.min_models ?? u.max_models ?? prev.models,
+      fnp:            null,
+      dmg_reduction:  false,
+      debuff_hit_roll: false,
+      keywords:       (u.kw ?? []).map((k) => k.toUpperCase()).filter((k) => UNIT_KEYWORDS.includes(k)),
+    }))
   }
 
   function toggleKw(kw) {
@@ -355,7 +373,17 @@ function DefenderEditModal({ defender, onApply, onClose }) {
           </div>
         </div>
 
-        {/* Quick presets */}
+        {/* Unit browser + quick presets */}
+        <div style={{ fontFamily: FONT_UI, fontSize: '10px', letterSpacing: '2px', textTransform: 'uppercase', color: TEXT_OFF, marginBottom: '8px' }}>From database</div>
+        <button
+          onClick={() => setUnitDrawerOpen(true)}
+          style={{ width: '100%', padding: '10px', marginBottom: '16px', background: `${ACCENT}14`, border: `1px solid ${ACCENT}55`, color: ACCENT_TEXT, fontFamily: FONT_UI, fontSize: '10px', fontWeight: 700, letterSpacing: '2px', textTransform: 'uppercase', cursor: 'pointer', transition: 'all 80ms' }}
+          onMouseEnter={(e) => { e.currentTarget.style.background = `${ACCENT}24` }}
+          onMouseLeave={(e) => { e.currentTarget.style.background = `${ACCENT}14` }}
+        >
+          Browse units →
+        </button>
+
         <div style={{ fontFamily: FONT_UI, fontSize: '10px', letterSpacing: '2px', textTransform: 'uppercase', color: TEXT_OFF, marginBottom: '8px' }}>Quick preset</div>
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', marginBottom: '20px' }}>
           {DEFENDERS.map((p) => (
@@ -417,6 +445,12 @@ function DefenderEditModal({ defender, onApply, onClose }) {
           </div>
         </FieldRow>
       </div>
+      <UnitDrawer
+        isOpen={unitDrawerOpen}
+        onClose={() => setUnitDrawerOpen(false)}
+        role="defender"
+        onSelect={(u) => { handleUnitSelect(u); setUnitDrawerOpen(false) }}
+      />
     </>
   )
 }
