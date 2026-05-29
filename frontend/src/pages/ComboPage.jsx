@@ -621,11 +621,11 @@ function DamageFunnel({ funnel }) {
   const { attacks, hits, wounds, unsaved, damage } = funnel
 
   const phases = [
-    { key: 'attacks', label: 'Attaques',   value: attacks },
-    { key: 'hits',    label: 'Touches',    value: hits    },
-    { key: 'wounds',  label: 'Blessures',  value: wounds  },
-    { key: 'unsaved', label: 'Non sauvé',  value: unsaved },
-    { key: 'damage',  label: 'Dégâts',     value: damage  },
+    { key: 'attacks', label: 'Attacks',  value: attacks },
+    { key: 'hits',    label: 'Hits',     value: hits    },
+    { key: 'wounds',  label: 'Wounds',   value: wounds  },
+    { key: 'unsaved', label: 'Unsaved',  value: unsaved },
+    { key: 'damage',  label: 'Damage',   value: damage  },
   ]
 
   const scale = attacks > 0 ? attacks : 1
@@ -747,7 +747,7 @@ function CellDetailModal({ cell, onClose }) {
         <div style={{ display: 'flex', gap: '16px', marginTop: '8px', marginBottom: '20px', flexWrap: 'wrap' }}>
           {[
             { color: ACCENT,         label: 'Mean (μ)' },
-            { color: `${ACCENT}55`,  label: 'Autres valeurs' },
+            { color: `${ACCENT}55`,  label: 'Other values' },
             { color: `${ACCENT}10`,  label: 'IQR P25–P75', border: `1px solid ${ACCENT}40` },
             ...(defWounds > 1 ? [{ color: 'transparent', label: '1× 2× = kills', border: `1px dashed ${TEXT_OFF}60` }] : []),
           ].map(({ color, label, border }) => (
@@ -761,7 +761,7 @@ function CellDetailModal({ cell, onClose }) {
         {/* Damage funnel */}
         <div style={{ height: '1px', background: BORDER, marginBottom: '14px' }} />
         <div style={{ fontFamily: FONT_UI, fontSize: '10px', letterSpacing: '2px', textTransform: 'uppercase', color: TEXT_OFF, marginBottom: '10px' }}>
-          Funnel de dégâts
+          Damage Funnel
         </div>
         <div style={{ marginBottom: '20px' }}>
           <DamageFunnel funnel={phaseFunnel} />
