@@ -12,7 +12,7 @@ Pick a unit, configure the attack, and get the full damage distribution in under
 
 In Warhammer 40,000, every attack rolls through four sequential phases — Hit, Wound, Save, and Feel No Pain. Each phase introduces randomness, making it hard to know before you play whether your unit will wipe a squad or barely scratch it.
 
-Prob'Hammer runs 1,000 Monte Carlo iterations through every phase and gives you the full probability distribution of the outcome: not just an average, but the realistic spread of what you can expect your attacks to actually do.
+Prob'Hammer runs 2,000 Monte Carlo iterations through every phase and gives you the full probability distribution of the outcome: not just an average, but the realistic spread of what you can expect your attacks to actually do.
 
 ---
 
@@ -94,7 +94,7 @@ Data files are bundled in `frontend/public/data/` — no pipeline run needed for
 
 | Layer | Technology |
 |---|---|
-| Frontend | React 19 + Vite + Zustand + Recharts |
+| Frontend | React 19 + Vite + Zustand (SVG inline) |
 | Simulation engine | Monte Carlo, runs entirely in the browser |
 | Backend | FastAPI (Python 3.12) — JWT auth + army lists CRUD |
 | Database | PostgreSQL 17 |
