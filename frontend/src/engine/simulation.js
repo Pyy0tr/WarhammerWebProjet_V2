@@ -340,7 +340,7 @@ function simulateOnce(req) {
     }
   }
 
-  return totalDamage
+  return { damage: totalDamage, phaseAttacks: numAttacks, phaseHits: hits, phaseWounds: woundsNormal + mortalWounds + autoWounds, phaseUnsaved: totalUnsaved }
 }
 
 // ── Aggregation ───────────────────────────────────────────────────────────────
@@ -352,16 +352,24 @@ export function simulate(req) {
   const attackList = req.attacks ?? [req.attacker ?? { models: req.attacker?.models ?? 1, weapon: req.attacker?.weapon, buffs: req.attacker?.buffs ?? [] }]
 
   const trials = []
+  let sumA = 0, sumH = 0, sumW = 0, sumU = 0
   for (let i = 0; i < n; i++) {
     let totalDmg = 0
+    let trialA = 0, trialH = 0, trialW = 0, trialU = 0
     for (const atk of attackList) {
-      totalDmg += simulateOnce({
+      const r = simulateOnce({
         attacker: { models: atk.models, weapon: atk.weapon, buffs: atk.buffs ?? [] },
         defender: req.defender,
         context:  req.context,
       })
+      totalDmg += r.damage
+      trialA   += r.phaseAttacks
+      trialH   += r.phaseHits
+      trialW   += r.phaseWounds
+      trialU   += r.phaseUnsaved
     }
     trials.push(totalDmg)
+    sumA += trialA; sumH += trialH; sumW += trialW; sumU += trialU
   }
 
   const sorted = [...trials].sort((a, b) => a - b)
@@ -405,7 +413,14 @@ export function simulate(req) {
     },
     damage_histogram:   histogram,
     kill_probabilities: killProbs,
-    n_trials:           n,
+    phase_funnel: {
+      attacks: round2(sumA / n),
+      hits:    round2(sumH / n),
+      wounds:  round2(sumW / n),
+      unsaved: round2(sumU / n),
+      damage:  round2(mean),
+    },
+    n_trials: n,
   }
 }
 

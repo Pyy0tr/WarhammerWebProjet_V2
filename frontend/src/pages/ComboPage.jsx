@@ -68,10 +68,11 @@ function computeMatrix(baseAttacks, colObjects, defenders, context) {
       const { id: _i, label: _l, sub: _s, ...defStats } = def
       const res = simulate({ attacks, defender: defStats, context, n_trials: N_TRIALS })
       result[col.id][def.id] = {
-        mean:      res.summary.mean_damage,
-        summary:   res.summary,
-        histogram: res.damage_histogram,
-        killProbs: res.kill_probabilities,
+        mean:        res.summary.mean_damage,
+        summary:     res.summary,
+        histogram:   res.damage_histogram,
+        killProbs:   res.kill_probabilities,
+        phaseFunnel: res.phase_funnel,
       }
     }
   }
@@ -514,10 +515,10 @@ function DefenderEditModal({ defender, onApply, onClose }) {
 
 // ── Damage distribution chart ─────────────────────────────────────────────────
 
-function DamageHistogram({ histogram, summary }) {
+function DamageHistogram({ histogram, summary, defWounds }) {
   if (!histogram?.length) return null
   const VW = 480, VH = 170
-  const PAD = { top: 16, right: 12, bottom: 26, left: 32 }
+  const PAD = { top: 20, right: 12, bottom: 26, left: 32 }
   const PW  = VW - PAD.left - PAD.right
   const PH  = VH - PAD.top  - PAD.bottom
   const n       = histogram.length
@@ -532,21 +533,53 @@ function DamageHistogram({ histogram, summary }) {
 
   const tickInterval = Math.max(1, Math.ceil(n / 9))
 
+  // Kill threshold lines: multiples of defWounds
+  const killThresholds = []
+  if (defWounds && defWounds > 1) {
+    for (let k = 1; k * defWounds <= n; k++) {
+      killThresholds.push({ k, x: toX(k * defWounds) })
+    }
+  }
+
   return (
     <svg viewBox={`0 0 ${VW} ${VH}`} width="100%" style={{ display: 'block' }}>
       <g transform={`translate(${PAD.left},${PAD.top})`}>
         {/* IQR band */}
         <rect x={p25X} y={0} width={Math.max(0, p75X - p25X)} height={PH} fill={`${ACCENT}10`} />
 
-        {/* Bars */}
+        {/* Kill threshold lines */}
+        {killThresholds.map(({ k, x }) => (
+          <g key={k}>
+            <line x1={x} y1={0} x2={x} y2={PH}
+              stroke={`${TEXT_OFF}60`} strokeWidth={1} strokeDasharray="3 3" />
+            <text x={x + 2} y={PH - 3} textAnchor="start"
+              fill={TEXT_OFF} fontSize={8} fontFamily="monospace">
+              {k}×
+            </text>
+          </g>
+        ))}
+
+        {/* Bars + probability labels */}
         {histogram.map((h, i) => {
-          const bh = Math.max(1, (h.probability / maxProb) * PH)
+          const bh     = Math.max(1, (h.probability / maxProb) * PH)
           const atMean = h.damage === Math.round(summary.mean_damage)
+          const pct    = Math.round(h.probability * 100)
+          const showPctLabel = h.probability >= 0.08 && barW >= 14
           return (
-            <rect key={h.damage}
-              x={i * barW + 0.5} y={PH - bh}
-              width={Math.max(1, barW - 1)} height={bh}
-              fill={atMean ? ACCENT : `${ACCENT}55`} rx={1} />
+            <g key={h.damage}>
+              <rect
+                x={i * barW + 0.5} y={PH - bh}
+                width={Math.max(1, barW - 1)} height={bh}
+                fill={atMean ? ACCENT : `${ACCENT}55`} rx={1} />
+              {showPctLabel && (
+                <text
+                  x={(i + 0.5) * barW} y={PH - bh - 3}
+                  textAnchor="middle" dominantBaseline="auto"
+                  fill={atMean ? ACCENT : TEXT_SEC} fontSize={8} fontFamily="monospace">
+                  {pct}%
+                </text>
+              )}
+            </g>
           )
         })}
 
@@ -555,7 +588,7 @@ function DamageHistogram({ histogram, summary }) {
           stroke={ACCENT} strokeWidth={1.5} />
 
         {/* Mean label */}
-        <text x={meanX + 3} y={3} textAnchor="start" dominantBaseline="hanging"
+        <text x={meanX + 3} y={2} textAnchor="start" dominantBaseline="hanging"
           fill={ACCENT} fontSize={9} fontFamily="monospace">
           μ {summary.mean_damage}
         </text>
@@ -581,11 +614,98 @@ function DamageHistogram({ histogram, summary }) {
   )
 }
 
+// ── Damage funnel ─────────────────────────────────────────────────────────────
+
+function DamageFunnel({ funnel }) {
+  if (!funnel) return null
+  const { attacks, hits, wounds, unsaved, damage } = funnel
+
+  const phases = [
+    { key: 'attacks', label: 'Attaques',   value: attacks },
+    { key: 'hits',    label: 'Touches',    value: hits    },
+    { key: 'wounds',  label: 'Blessures',  value: wounds  },
+    { key: 'unsaved', label: 'Non sauvé',  value: unsaved },
+    { key: 'damage',  label: 'Dégâts',     value: damage  },
+  ]
+
+  const scale = attacks > 0 ? attacks : 1
+
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+      {phases.map((phase, i) => {
+        const barPct = Math.min(100, (phase.value / scale) * 100)
+        const prev   = i > 0 ? phases[i - 1].value : null
+        const delta  = prev !== null ? phase.value - prev : null
+
+        let deltaText  = ''
+        let deltaColor = 'transparent'
+        if (delta !== null && Math.abs(delta) >= 0.005) {
+          deltaText  = (delta > 0 ? '+' : '') + delta.toFixed(2)
+          deltaColor = delta < 0 ? ERROR : SUCCESS
+        }
+
+        const isLast = i === phases.length - 1
+
+        return (
+          <div key={phase.key} style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            {/* Phase label */}
+            <div style={{
+              fontFamily: FONT_UI, fontSize: '9px', letterSpacing: '1.5px',
+              textTransform: 'uppercase', color: TEXT_OFF,
+              width: '68px', flexShrink: 0,
+            }}>
+              {phase.label}
+            </div>
+
+            {/* Bar track */}
+            <div style={{
+              flex: 1, height: '14px', background: BORDER,
+              position: 'relative', overflow: 'hidden', borderRadius: '1px',
+            }}>
+              <div style={{
+                position: 'absolute', left: 0, top: 0, height: '100%',
+                width: `${barPct}%`,
+                background: isLast ? ACCENT : `${ACCENT}70`,
+              }} />
+            </div>
+
+            {/* Value */}
+            <div style={{
+              fontFamily: "'Space Mono', monospace", fontSize: '11px',
+              fontWeight: 700, color: ACCENT_TEXT,
+              width: '40px', textAlign: 'right', flexShrink: 0,
+            }}>
+              {phase.value.toFixed(2)}
+            </div>
+
+            {/* % of attacks */}
+            <div style={{
+              fontFamily: FONT_UI, fontSize: '9px', color: TEXT_OFF,
+              width: '30px', textAlign: 'right', flexShrink: 0,
+            }}>
+              {Math.round(barPct)}%
+            </div>
+
+            {/* Delta vs previous phase */}
+            <div style={{
+              fontFamily: "'Space Mono', monospace", fontSize: '9px',
+              color: deltaColor,
+              width: '46px', textAlign: 'right', flexShrink: 0,
+            }}>
+              {deltaText}
+            </div>
+          </div>
+        )
+      })}
+    </div>
+  )
+}
+
 // ── Cell detail modal ─────────────────────────────────────────────────────────
 
 function CellDetailModal({ cell, onClose }) {
-  const { colLabel, defLabel, defSub, data } = cell
-  const { summary, histogram, killProbs } = data
+  const { colLabel, defLabel, defSub, defWounds, data } = cell
+  const { summary, histogram, killProbs, phaseFunnel } = data
   const killEntries = Object.entries(killProbs ?? {})
     .map(([k, p]) => [Number(k), p])
     .sort((a, b) => a[0] - b[0])
@@ -620,15 +740,16 @@ function CellDetailModal({ cell, onClose }) {
 
         {/* Chart */}
         <div style={{ background: SURFACE, border: `1px solid ${BORDER}`, padding: '14px 6px 8px' }}>
-          <DamageHistogram histogram={histogram} summary={summary} />
+          <DamageHistogram histogram={histogram} summary={summary} defWounds={defWounds} />
         </div>
 
         {/* Legend */}
         <div style={{ display: 'flex', gap: '16px', marginTop: '8px', marginBottom: '20px', flexWrap: 'wrap' }}>
           {[
             { color: ACCENT,         label: 'Mean (μ)' },
-            { color: `${ACCENT}55`,  label: 'Other values' },
+            { color: `${ACCENT}55`,  label: 'Autres valeurs' },
             { color: `${ACCENT}10`,  label: 'IQR P25–P75', border: `1px solid ${ACCENT}40` },
+            ...(defWounds > 1 ? [{ color: 'transparent', label: '1× 2× = kills', border: `1px dashed ${TEXT_OFF}60` }] : []),
           ].map(({ color, label, border }) => (
             <div key={label} style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
               <div style={{ width: '12px', height: '10px', background: color, borderRadius: '1px', border: border ?? 'none', flexShrink: 0 }} />
@@ -637,24 +758,13 @@ function CellDetailModal({ cell, onClose }) {
           ))}
         </div>
 
-        {/* Stats */}
+        {/* Damage funnel */}
         <div style={{ height: '1px', background: BORDER, marginBottom: '14px' }} />
-        <div style={{ fontFamily: FONT_UI, fontSize: '10px', letterSpacing: '2px', textTransform: 'uppercase', color: TEXT_OFF, marginBottom: '10px' }}>Statistics</div>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(100px, 1fr))', gap: '8px', marginBottom: '20px' }}>
-          {[
-            { l: 'Mean',    v: summary.mean_damage },
-            { l: 'Median',  v: summary.median_damage },
-            { l: 'Std Dev', v: summary.std_dev },
-            { l: 'P10',     v: summary.p10 },
-            { l: 'P25',     v: summary.p25 },
-            { l: 'P75',     v: summary.p75 },
-            { l: 'P90',     v: summary.p90 },
-          ].map(({ l, v }) => (
-            <div key={l} style={{ background: SURFACE, border: `1px solid ${BORDER}`, padding: '8px 10px' }}>
-              <div style={{ fontFamily: FONT_UI, fontSize: '9px', letterSpacing: '1.5px', textTransform: 'uppercase', color: TEXT_OFF, marginBottom: '4px' }}>{l}</div>
-              <div style={{ fontFamily: "'Space Mono', monospace", fontSize: '14px', fontWeight: 700, color: ACCENT_TEXT }}>{v}</div>
-            </div>
-          ))}
+        <div style={{ fontFamily: FONT_UI, fontSize: '10px', letterSpacing: '2px', textTransform: 'uppercase', color: TEXT_OFF, marginBottom: '10px' }}>
+          Funnel de dégâts
+        </div>
+        <div style={{ marginBottom: '20px' }}>
+          <DamageFunnel funnel={phaseFunnel} />
         </div>
 
         {/* Kill probabilities */}
@@ -909,7 +1019,7 @@ export function ComboPage() {
     const def  = defRows.find((d) => d.id === defId)
     const data = matrix?.[colId]?.[defId]
     if (!col || !def || !data) return
-    setDetailCell({ colLabel: col.label, defLabel: def.label, defSub: def.sub, data })
+    setDetailCell({ colLabel: col.label, defLabel: def.label, defSub: def.sub, defWounds: def.wounds, data })
   }
 
   const hasAttacks = attacks.length > 0
