@@ -36,11 +36,10 @@ All official 10th Edition weapon special rules are implemented:
 | **Twin-Linked** | Re-roll all Wound rolls |
 | **ANTI [keyword] X+** | Wound roll of X+ is always a Critical Wound vs matching targets |
 | **Melta X** | Add X to Damage when targeting units within half range |
-| **Blast** | Minimum 3 attacks vs units of 6+ models |
-| **Rapid Fire X** | Add X × number of models to attacks at half range |
+| **Blast** | +1 attack per 5 models in the target unit |
+| **Rapid Fire X** | Add X attacks per model at half range |
 | **Lance** | +1 to Wound rolls on the turn the unit charged |
 | **Heavy** | +1 to Hit rolls if unit Remained Stationary |
-| **Assault** | No penalty to Hit rolls after Advancing |
 | **Indirect Fire** | -1 to Hit rolls when firing indirectly |
 | **Ignores Cover** | Target's Cover bonus is ignored |
 
@@ -51,6 +50,12 @@ All official 10th Edition weapon special rules are implemented:
 - Multi-role squads (e.g. Deathwing Knights + Knight Master) show weapons grouped by model role
 - Squad sizes accurately reflect mandatory leaders and attached models (Boss Nob, Terminator Champion, etc.)
 - Search across 1,495 units and 3,561 weapons
+
+### Synergy Matrix
+Compare multiple weapon configurations against multiple defender profiles in a single view:
+- Define up to 8 synergy columns (Lethal Hits, Sustained 1, Dev. Wounds, Re-rolls, custom buffs, etc.)
+- Configure up to 6 defender rows with full stat blocks
+- Click any cell to see the full damage distribution, phase-by-phase funnel (Attacks → Hits → Wounds → Unsaved → Damage), and kill probabilities
 
 ### Army builder *(account required)*
 - Create and save named army lists
