@@ -122,7 +122,7 @@ function formToSynergy(id, form) {
 
 // ── Shared UI primitives ──────────────────────────────────────────────────────
 
-const SAVE_OPTS = [{ v: null, l: 'None' }, { v: 4, l: '4+' }, { v: 5, l: '5+' }, { v: 6, l: '6+' }]
+const SAVE_OPTS = [{ v: null, l: 'None' }, { v: 3, l: '3+' }, { v: 4, l: '4+' }, { v: 5, l: '5+' }, { v: 6, l: '6+' }]
 const FNP_OPTS  = [{ v: null, l: 'None' }, { v: 4, l: '4+' }, { v: 5, l: '5+' }, { v: 6, l: '6+' }]
 
 function Separator() {
