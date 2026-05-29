@@ -1,6 +1,6 @@
 {
-  "sha": "4f6b31d3f1fa69282c89cea73e16b3f5d93478fc",
-  "sha_short": "4f6b31d3",
-  "committed_at": "2026-05-27T16:33:58Z",
-  "message": "Speed Freeks ability indexing fix"
+  "sha": "0011117b971ea7343308a682287b6105290ddc4a",
+  "sha_short": "0011117b",
+  "committed_at": "2026-05-28T08:41:24Z",
+  "message": "Fixes #7324"
 }
