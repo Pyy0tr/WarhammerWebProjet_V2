@@ -27,8 +27,9 @@ function NavbarConditional() {
 }
 
 function OnboardingGuard({ children }) {
+  const isBot = /bot|googlebot|crawler|spider|robot|bingbot|slurp|duckduckbot|baiduspider|yandexbot|facebot|facebookexternalhit/i.test(navigator.userAgent)
   const done = localStorage.getItem('ph_onboarding_done')
-  if (!done) return <Navigate to="/welcome" replace />
+  if (!done && !isBot) return <Navigate to="/welcome" replace />
   return children
 }
 
