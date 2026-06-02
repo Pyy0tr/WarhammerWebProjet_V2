@@ -1,6 +1,6 @@
 {
-  "sha": "3503b72e1b124beab7fcc13fdeee7d1ebe8ceb80",
-  "sha_short": "3503b72e",
-  "committed_at": "2026-05-29T08:48:51Z",
-  "message": "AM Crucible characters"
+  "sha": "b08610d8752a496a87657dd9cffaf3ff9b270cd2",
+  "sha_short": "b08610d8",
+  "committed_at": "2026-06-01T14:07:38Z",
+  "message": "Fixes #7335"
 }
