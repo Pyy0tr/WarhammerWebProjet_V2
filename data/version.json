@@ -1,6 +1,6 @@
 {
-  "sha": "ff2c5b4a954c8b925252d9ebf7e7161b56d91864",
-  "sha_short": "ff2c5b4a",
-  "committed_at": "2026-06-02T19:22:59Z",
-  "message": "Tank Ace refactor + Heretic units"
+  "sha": "799153a4be8e76341c7ff4043d4020029f4ef734",
+  "sha_short": "799153a4",
+  "committed_at": "2026-06-03T05:36:28Z",
+  "message": "Fixes #7311"
 }
