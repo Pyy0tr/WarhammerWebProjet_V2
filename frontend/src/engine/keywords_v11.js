@@ -51,7 +51,7 @@ export const KEYWORD_REGISTRY_V11 = [
     tip: "+1 to hit if unengaged, not deployed this turn, moved ≤3\"",
     phase: 'Hit Roll',
     rule: "In your Shooting phase, each time an attack is made with this weapon, add 1 to the Hit roll if all of the following apply to the attacking unit: that unit is unengaged; that unit was not set up on the battlefield this turn; no model in that unit has moved more than 3\" this turn.",
-    note: "CHANGED FOR V11 (confirmed via the community dataset's rule text). V10 required the unit to be fully stationary (Remained Stationary); V11 allows up to 3\" of movement, but adds two extra conditions — unengaged, and not set up this turn (so a unit that just arrived via Deep Strike doesn't get the bonus). The +1 still doesn't affect whether a roll is a Critical Hit. The engine hasn't been updated for this yet — the simulator's 'Remained stationary' toggle still models the old V10 all-or-nothing condition, not the three V11 conditions.",
+    note: "CHANGED FOR V11 (confirmed via the community dataset's rule text) — but not an engine change. V10 required the unit to be fully stationary (Remained Stationary); V11 allows up to 3\" of movement, but adds two extra conditions — unengaged, and not set up this turn (so a unit that just arrived via Deep Strike doesn't get the bonus). The dice math is identical either way (a flat +1 to the Hit roll, applied after the roll, never affecting Critical Hit): only the real-world justification for checking the 'Remained stationary' toggle changes, not what the toggle does. Both simulation.js and simulation_v11.js implement Heavy the same way.",
     when: "In V11, track three things: did any model move more than 3\"? Is the unit unengaged? Did it arrive this turn? All three must hold to get the bonus — a looser bar than V10's full immobility requirement, so Heavy weapons see more use on the move.",
     implemented: true,
   },
@@ -190,9 +190,9 @@ export const KEYWORD_REGISTRY_V11 = [
     tip: 'Melee Blast — +X attacks per 5 models in target unit',
     phase: 'Number of Attacks',
     rule: "This ability always takes the form [CLEAVE X]. Each time you gather attack dice for a [CLEAVE] weapon, if you only selected one target for all of that weapon's attacks, add X additional attack dice for every five models that were in the target unit in the Select Targets step (rounding down).",
-    note: "NEW IN V11. The melee equivalent of Blast — confirmed identical in formula via the community dataset's rule text, and seen in live use (Ork 'Two-handed big choppa', tagged Cleave 1). Requires a single target for the whole attack, same restriction as Blast. Not yet implemented in the engine — there is no melee-context version of the Blast logic in simulation.js yet.",
-    when: "Set 'Number of targets' to the full size of the enemy unit you're charging, same reasoning as Blast — large blobs get hit by proportionally more attack dice. No current effect in the simulator.",
-    implemented: false, notSimulated: true,
+    note: "NEW IN V11. The melee equivalent of Blast — confirmed identical in formula via the community dataset's rule text, and seen in live use (Ork 'Two-handed big choppa', tagged Cleave 1). Requires a single target for the whole attack, same restriction as Blast. Implemented in simulation_v11.js — literally the same +floor(models/5) bonus as Blast, added into the attack count in Phase 1.",
+    when: "Set 'Number of targets' to the full size of the enemy unit you're charging, same reasoning as Blast — large blobs get hit by proportionally more attack dice.",
+    implemented: true,
   },
   {
     type: 'PRECISION', label: 'Precision', group: 'other',
@@ -217,9 +217,9 @@ export const KEYWORD_REGISTRY_V11 = [
     tip: 'Ignores BS/WS and Hit roll modifiers',
     phase: 'Hit Roll',
     rule: "Each time an attack is made with a [PSYCHIC] weapon, you can ignore any or all modifiers to that attack's BS or WS characteristic, and any or all modifiers to the Hit roll. Attacks made this way are known as psychic attacks.",
-    note: "CHANGED FOR V11 (confirmed via the community dataset's rule text). In V10, Psychic weapons function exactly like normal weapons. In V11, Psychic becomes a real mechanical effect — but note it only cancels Hit-phase modifiers (BS/WS and the Hit roll itself), NOT Wound roll modifiers. An earlier blog/video summary claimed it ignored both; the actual rule text found in the data only supports the Hit-phase claim, so treat the Wound-phase part as unconfirmed/likely incorrect. Not yet implemented in the engine — Psychic still behaves as a normal weapon in the simulator.",
-    when: "Most useful when the target would otherwise apply a Hit-roll penalty — V11's new Cover malus (-1 BS), Indirect Fire, or a defensive stratagem/ability. Psychic attacks would bypass all of it once implemented. No current effect in the simulator.",
-    implemented: false, notSimulated: true,
+    note: "CHANGED FOR V11 (confirmed via the community dataset's rule text). In V10, Psychic weapons function exactly like normal weapons. In V11, Psychic becomes a real mechanical effect — but note it only cancels Hit-phase modifiers (BS/WS and the Hit roll itself), NOT Wound roll modifiers. An earlier blog/video summary claimed it ignored both; the actual rule text found in the data only supports the Hit-phase claim, so treat the Wound-phase part as unconfirmed/likely incorrect. Implemented in simulation_v11.js: negative Hit-roll modifiers (Cover, Indirect Fire, a defender's hit-roll debuff) are ignored, positive ones (Heavy) still apply, and Wound roll modifiers are untouched.",
+    when: "Most useful when the target would otherwise apply a Hit-roll penalty — V11's new Cover malus (-1 BS), Indirect Fire, or a defensive stratagem/ability. Psychic attacks bypass all of it.",
+    implemented: true,
   },
 
   // ── Ability section ────────────────────────────────────────────────────────
@@ -248,10 +248,10 @@ export const KEYWORD_REGISTRY_V11 = [
   {
     type: 'IGNORES_COVER', label: 'Ignores Cover', group: 'ability',
     tip: 'Target cannot claim cover bonus',
-    phase: 'Saving Throw',
+    phase: 'Hit Roll',
     rule: "Each time an attack is made with this weapon, the target cannot claim the Benefit of Cover against that attack.",
-    note: "CHANGED CONTEXT FOR V11 (see Cover in V11_CHANGES.md — not yet its own page entry here). Cover no longer grants +1 to the save; instead it subtracts 1 from the attacker's Hit roll, and Monsters/Vehicles reportedly no longer benefit from it at all. Ignores Cover should now cancel that Hit-roll malus rather than a save bonus, but this engine's Cover implementation (and the scenario below) still uses the V10 model (cover = +1 save) since simulation.js hasn't been updated for V11 yet — so the numbers shown are a V10 approximation, not a V11-accurate comparison.",
-    when: "Enable whenever the target has cover — from terrain or from an Indirect Fire shot. In V10 terms (current engine behaviour), negating a +1 save is worth roughly the same as increasing AP by 1. Once V11 Cover is implemented, this will instead cancel a -1 Hit-roll malus on the attacker.",
+    note: "CHANGED CONTEXT FOR V11 (see Cover in V11_CHANGES.md — not yet its own page entry here). Cover no longer grants +1 to the save; instead it subtracts 1 from the attacker's Hit roll. Implemented in simulation_v11.js: Ignores Cover now cancels that Hit-roll malus instead of a save bonus — same role (negates Cover), different phase. Monsters/Vehicles reportedly no longer benefiting from Cover at all is still unconfirmed by the rule text and NOT modeled — Cover applies universally in the engine regardless of target keywords, same as V10.",
+    when: "Enable whenever the target has cover — from terrain or from an Indirect Fire shot. In V11, this cancels a -1 Hit-roll malus on the attacker rather than improving the target's save.",
     implemented: true,
   },
   {

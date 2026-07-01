@@ -12,6 +12,21 @@ Sources jusqu'ici : (1) article récapitulatif V10 vs V11 (blog non officiel), (
 
 Fichiers concernés : `frontend/src/engine/simulation.js`, `frontend/src/engine/keywords.js`.
 
+### Statut d'implémentation (2026-07-01) : moteur V11 codé et branché
+`frontend/src/engine/simulation_v11.js` — fork littéral de `simulation.js` (même logique, mêmes bugs "intentionnels" comme le cap anti-overkill), avec seulement les 3 changements moteur réels appliqués :
+- **Cover** : déplacé de `armorSv -= 1` (phase Save) vers `hitMalus -= 1` (phase Hit), y compris dans le pré-calcul SET_ROLL_TO_6 (qui ne soustrait plus 1 pour cover sur `arSvPre`). `IGNORES_COVER` annule maintenant ce malus de tir au lieu du bonus de sauvegarde — même rôle, autre phase.
+- **Psychic** : ignore les malus de tir négatifs (Cover, Indirect Fire, debuff défenseur) mais garde les bonus positifs (Heavy) ; le jet pour blesser (`woundMod`) n'est pas touché, conformément au texte de règle confirmé.
+- **Cleave** : ajouté en Phase 1 (`cleaveBonus = hasCleave ? Math.floor(d.models / 5) : 0`), sommé avec `blastBonus` dans `numAttacks` — copie exacte de la logique Blast.
+- **Heavy** : **aucun changement de code** au final — le calcul (+1 au jet pour toucher, ne touche pas les critiques) est identique entre V10 et V11 ; seules les conditions réelles qui justifient de cocher la case changent (3" + non engagé + pas déployé ce tour), ce qui relève de la doc/UI, pas du moteur.
+- Exclusion Cover pour MONSTRES/VÉHICULES : **non implémentée**, reste non confirmée par le texte de règle (vidéo seule) — Cover s'applique universellement dans les deux moteurs pour l'instant.
+
+Branchement edition-aware (`useDataStore().edition === 'v11' ? simulate_v11 : simulate_v10`) dans :
+- `frontend/src/store/simulatorStore.js` (`runSimulation`, lu à chaque clic sur "Run")
+- `frontend/src/pages/ComboPage.jsx` (Synergy Matrix — `computeMatrix` reçoit la fonction en paramètre, recalcule aussi au toggle d'édition)
+- `frontend/src/pages/KeywordsPage.jsx` (démos "Live comparison" — désormais réellement différentes entre éditions pour Cover/Psychic/Cleave, plus plausibles pour Heavy puisque le calcul est identique)
+
+Testé en local (navigateur headless) : Cleave 2.67→4.43 dmg moyen (vs 20 modèles), Psychic 0.88→1.38 (annule le malus Cover), Ignores Cover 0.99→1.36 — tous cohérents. Vérif de non-régression V10 : Psychic V10 montre ~0 différence (no-op confirmé), Heavy V10 inchangé (+0.50 comme avant). Aucune erreur console sur Simulator/Synergy Matrix/Keywords dans les deux éditions.
+
 ### Cover
 - V10 : +1 à la sauvegarde du défenseur. Impl. actuelle : `simulation.js:128` et `:281`, `if (ctx.cover && !hasIgCover) armorSv -= 1`.
 - V11 : **-1 à la CB (BS) de l'attaquant** à la place — passe donc de la phase Save à la phase Hit.
@@ -63,9 +78,9 @@ Fichiers concernés : `frontend/src/engine/simulation.js`, `frontend/src/engine/
 | Pistol | Close-Quarters | **Oui, confirmé** — voir section 1 | Les deux noms coexistent encore dans les données `vflam/wh40k-11e` ; mécanique différente de V10 (pas juste un renommage) |
 | Grenades | Explosives | Pas encore vu dans les données V11 | Aucun des deux mots n'apparaît dans `data/cache_v11/` (keywords ou rules) — à surveiller |
 | Tank Shock | Crushing Impact | Pas encore vu dans les données V11 | Idem — hors scope moteur de toute façon (mécanique de charge véhicule) |
-| — | **Cleave** (nouveau) | Oui — formule confirmée, voir section 1 | Vu en usage réel : "Two-handed big choppa" (Ork) = `Cleave 1` |
-| Psychic | Psychic (devient réel) | Oui, mais portée plus limitée que prévu — voir section 1 | Ignore BS/WS + jet pour toucher seulement, PAS le jet pour blesser (contredit la source blog/vidéo) |
-| Heavy | Heavy (conditions précisées) | Oui — voir section 1 | Texte officiel confirmé : distance 3" + unengaged + pas arrivé ce tour |
+| — | **Cleave** (nouveau) | Oui — formule confirmée, voir section 1 | Vu en usage réel : "Two-handed big choppa" (Ork) = `Cleave 1`. **Implémenté** dans `simulation_v11.js` |
+| Psychic | Psychic (devient réel) | Oui, mais portée plus limitée que prévu — voir section 1 | Ignore BS/WS + jet pour toucher seulement, PAS le jet pour blesser (contredit la source blog/vidéo). **Implémenté** dans `simulation_v11.js` |
+| Heavy | Heavy (conditions précisées) | Oui côté règles, non côté code — voir section 1 | Texte officiel confirmé : distance 3" + unengaged + pas arrivé ce tour. Le calcul (+1 to hit) reste identique entre éditions, donc aucun changement dans `simulation_v11.js` |
 | Hazardous | Hazardous (seuil à confirmer) | Seuil 1-ou-2 pas encore confirmé par les données de jeu | Toujours au niveau "blog/vidéo" uniquement |
 | Fly | Fly (+ option "Take to the Sky") | Non — mouvement, hors scope moteur | Voir section 3 |
 | Stealth | Stealth (inchangé) | Non | Confirmé toujours présent — voir section 1 |
@@ -156,7 +171,7 @@ Décision mise à jour : au lieu de rester purement en staging local, le premier
 
 - ~~Cleave : formule exacte~~ → **Résolu** : identique à Blast (+X/5 figurines, cible unique), confirmé par le texte de règle dans `vflam/wh40k-11e`.
 - ~~Stealth existe-t-il toujours en V11 ?~~ → **Résolu** : oui, inchangé (bénéfice de couverture si tout le squad a l'ability).
-- **Psychic** : divergence entre sources — le texte de règle (`vflam/wh40k-11e`) ne mentionne QUE BS/WS + jet pour toucher, pas le jet pour blesser, contrairement au résumé blog/vidéo. À trancher avant d'implémenter (privilégier la source données de jeu).
+- ~~Psychic : divergence entre sources~~ → **Tranché** : implémenté selon le texte de règle (`vflam/wh40k-11e`, hit-only) plutôt que le résumé blog/vidéo — voir section 1. À revoir si une source plus fiable contredit ça plus tard.
 - **Close-Quarters/Pistol** : confirmé que ce n'est PAS qu'un renommage — nouvelle mécanique "close-quarters shooting" avec exclusivité par modèle. Detail exact de la section 10.06 (référencée mais absente du texte extrait) à creuser si on modélise un jour ce keyword.
 - **Hazardous** : seuil 1-ou-2 toujours pas confirmé par une source fiable (renvoie vers une section "hazard rolls 06.03" non incluse dans les données). Reste à vérifier.
 - Cover nul pour Monstres/Véhicules : toujours pas confirmé par les données de jeu (rien trouvé dans `rules.json` sur ce point) — reste au niveau vidéo seul. À chercher plus spécifiquement (peut-être dans le texte de la règle Cover elle-même, pas encore localisée/nommée dans nos extractions).
@@ -172,3 +187,5 @@ Décision mise à jour : au lieu de rester purement en staging local, le premier
 - Création du document.
 - 2026-07-01 : ajout de la 1ère vague de données (article récapitulatif : structure de tour, charge, couvert, détachements/PD, stratagèmes, keywords renommés/nouveaux, terrain/objectifs) + 2ème vague (transcript vidéo Creative Wargame : détail Cover monstres/véhicules, Plunging Fire, séquence de charge affinée, traversée de portée d'engagement, Overrun, Fly/Take to the Sky, débarquement en engagement, Heroic Intervention). Sources non officielles.
 - 2026-07-01 : identification du repo communautaire `vflam/wh40k-11e` (même schéma BattleScribe que la V10, mais JSON au lieu de XML .cat/.gst). Décision : pipeline de staging isolée. Construction de `fetch_bsdata_v11.py` + `parse_bsdata_v11.py` (adaptateur JsonNode) → 1706 unités/6414 armes/36 règles extraites avec succès. Exploitation du texte de règles réel pour confirmer/corriger plusieurs points : Cleave (formule = Blast confirmée), Stealth (toujours présent), Heavy (conditions précisées), Psychic (portée plus limitée que prévu — hit seulement, pas wound), Close-Quarters/Pistol (vraie mécanique différente, pas qu'un renommage).
+- 2026-07-01 : premier jeu de données V11 copié dans `frontend/public/data/v11/`, sélecteur V10/V11 ajouté dans la navbar (`dataStore.js` + `Navbar.jsx`), page Keywords rendue edition-aware (`keywords_v11.js`). Pushé et testé en prod.
+- 2026-07-01 : moteur de simulation V11 codé (`simulation_v11.js`, fork de `simulation.js`) — Cover déplacé en malus de tir, Psychic implémenté (hit-only), Cleave ajouté (= Blast en mêlée), Heavy laissé inchangé (aucun impact sur le calcul). Branché dans SimulatorPage, Synergy Matrix et Keywords (démos live désormais réellement différentes entre éditions). Testé en local sans régression V10.

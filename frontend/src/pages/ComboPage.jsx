@@ -1,9 +1,11 @@
 import { useState, useEffect, useCallback, useMemo, useRef } from 'react'
 import { useIsMobile } from '../hooks/useIsMobile'
 import { useSimulatorStore } from '../store/simulatorStore'
+import { useDataStore } from '../store/dataStore'
 import { AttackerPanel } from '../components/AttackerPanel'
 import { UnitDrawer } from '../components/UnitDrawer'
-import { simulate } from '../engine/simulation'
+import { simulate as simulateV10 } from '../engine/simulation'
+import { simulate as simulateV11 } from '../engine/simulation_v11'
 import {
   ACCENT_TEXT, ACCENT, BG, BORDER, ERROR, SURFACE,
   TEXT, TEXT_OFF, TEXT_SEC, TEXT_WEAK, SUCCESS, FONT_UI,
@@ -59,7 +61,7 @@ function buildAttacksForColumn(baseAttacks, col) {
   })
 }
 
-function computeMatrix(baseAttacks, colObjects, defenders, context) {
+function computeMatrix(baseAttacks, colObjects, defenders, context, simulate) {
   const result = {}
   for (const col of colObjects) {
     result[col.id] = {}
@@ -943,6 +945,8 @@ export function ComboPage() {
   const context   = useSimulatorStore((s) => s.context)
   const _resetAll = useSimulatorStore((s) => s.resetAll)
   const unitName  = useSimulatorStore((s) => s.attackerUnit?.name ?? null)
+  const edition   = useDataStore((s) => s.edition)
+  const simulate  = edition === 'v11' ? simulateV11 : simulateV10
 
   const colCounter = useRef(100)
 
@@ -999,12 +1003,12 @@ export function ComboPage() {
     setRunning(true)
     setTimeout(() => {
       try {
-        setMatrix(computeMatrix(attacks, orderedCols, defRows, context))
+        setMatrix(computeMatrix(attacks, orderedCols, defRows, context, simulate))
       } finally {
         setRunning(false)
       }
     }, 0)
-  }, [attacks, orderedCols, defRows, context])
+  }, [attacks, orderedCols, defRows, context, simulate])
 
   useEffect(() => {
     if (attacks.length > 0) {
@@ -1012,7 +1016,7 @@ export function ComboPage() {
     } else {
       setMatrix(null)
     }
-  }, [attacks, activeCols, defRows]) // eslint-disable-line
+  }, [attacks, activeCols, defRows, edition]) // eslint-disable-line
 
   function handleCellClick(colId, defId) {
     const col  = orderedCols.find((c) => c.id === colId)

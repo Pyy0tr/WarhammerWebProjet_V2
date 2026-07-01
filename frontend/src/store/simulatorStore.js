@@ -1,5 +1,7 @@
 import { create } from 'zustand'
-import { simulate } from '../engine/simulation.js'
+import { simulate as simulateV10 } from '../engine/simulation.js'
+import { simulate as simulateV11 } from '../engine/simulation_v11.js'
+import { useDataStore } from './dataStore'
 
 const defaultWeapon = {
   name: '',
@@ -136,6 +138,7 @@ export const useSimulatorStore = create((set) => ({
         set({ error: 'No attacks configured', loading: false })
         return
       }
+      const simulate = useDataStore.getState().edition === 'v11' ? simulateV11 : simulateV10
       const result = simulate({
         attacks:  s.attacks,
         defender: s.defender,

@@ -3,7 +3,8 @@ import { useIsMobile } from '../hooks/useIsMobile'
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts'
 import { KEYWORD_REGISTRY } from '../engine/keywords'
 import { KEYWORD_REGISTRY_V11 } from '../engine/keywords_v11'
-import { simulate } from '../engine/simulation'
+import { simulate as simulateV10 } from '../engine/simulation'
+import { simulate as simulateV11 } from '../engine/simulation_v11'
 import { useDataStore } from '../store/dataStore'
 import { ACCENT_TEXT, ACCENT, BORDER, SURFACE, TEXT, TEXT_OFF, TEXT_SEC, TEXT_WEAK, SUCCESS, WARNING, TYPE , FONT_UI, ACCENT_LIGHT} from '../theme'
 
@@ -253,7 +254,7 @@ const SCENARIOS = {
   },
   IGNORES_COVER: {
     label: '6 attacks · AP-1 · vs target in cover (Sv4+)',
-    note: 'Cover upgrades the save to 3+ — Ignores Cover removes that bonus entirely.',
+    note: 'Cover makes this attack harder to land (V10: +1 save for the target · V11: -1 to hit for the attacker) — Ignores Cover removes that penalty entirely, whichever phase it lands in.',
     without: {
       attacks: [{ models: 1, weapon: { name: '', attacks: '6', skill: 3, strength: 4, ap: -1, damage: '1', keywords: [] }, buffs: [] }],
       defender: { toughness: 4, save: 4, invuln: null, wounds: 1, models: 10, fnp: null, keywords: [] },
@@ -263,6 +264,34 @@ const SCENARIOS = {
       attacks: [{ models: 1, weapon: { name: '', attacks: '6', skill: 3, strength: 4, ap: -1, damage: '1', keywords: [{ type: 'IGNORES_COVER' }] }, buffs: [] }],
       defender: { toughness: 4, save: 4, invuln: null, wounds: 1, models: 10, fnp: null, keywords: [] },
       context: { cover: true, half_range: false, attacker_moved: false, attacker_charged: false, target_visible: true },
+    },
+  },
+  PSYCHIC: {
+    label: '6 attacks · BS 4+ · vs target in cover (V11: -1 to hit)',
+    note: 'V11 only. Psychic ignores the Hit-roll penalty from Cover — the attack hits as if the target were in the open.',
+    without: {
+      attacks: [{ models: 1, weapon: { name: '', attacks: '6', skill: 4, strength: 5, ap: -1, damage: '1', keywords: [] }, buffs: [] }],
+      defender: { toughness: 4, save: 4, invuln: null, wounds: 1, models: 10, fnp: null, keywords: [] },
+      context: { cover: true, half_range: false, attacker_moved: false, attacker_charged: false, target_visible: true },
+    },
+    with: {
+      attacks: [{ models: 1, weapon: { name: '', attacks: '6', skill: 4, strength: 5, ap: -1, damage: '1', keywords: [{ type: 'PSYCHIC' }] }, buffs: [] }],
+      defender: { toughness: 4, save: 4, invuln: null, wounds: 1, models: 10, fnp: null, keywords: [] },
+      context: { cover: true, half_range: false, attacker_moved: false, attacker_charged: false, target_visible: true },
+    },
+  },
+  CLEAVE: {
+    label: '1× melee weapon (6 attacks, S6, AP-2, D2) · Cleave 1 · vs 20-model squad',
+    note: 'V11 only. Against 20 models, Cleave 1 adds +4 attacks before rolling — same formula as Blast, applied in melee.',
+    without: {
+      attacks: [{ models: 1, weapon: { name: '', attacks: '6', skill: 3, strength: 6, ap: -2, damage: '2', keywords: [] }, buffs: [] }],
+      defender: { toughness: 5, save: 5, invuln: null, wounds: 1, models: 20, fnp: null, keywords: [] },
+      context: { cover: false, half_range: false, attacker_moved: false, attacker_charged: false, target_visible: true },
+    },
+    with: {
+      attacks: [{ models: 1, weapon: { name: '', attacks: '6', skill: 3, strength: 6, ap: -2, damage: '2', keywords: [{ type: 'CLEAVE', value: '1' }] }, buffs: [] }],
+      defender: { toughness: 5, save: 5, invuln: null, wounds: 1, models: 20, fnp: null, keywords: [] },
+      context: { cover: false, half_range: false, attacker_moved: false, attacker_charged: false, target_visible: true },
     },
   },
 }
@@ -315,7 +344,7 @@ const BLAST_WPN_KW  = { ...BLAST_WPN, keywords: [{ type: 'BLAST' }] }
 const BLAST_CTX     = { cover: false, half_range: false, attacker_moved: false, attacker_charged: false, target_visible: true }
 const BLAST_TIERS   = [5, 10, 15, 20]
 
-function BlastTierTable() {
+function BlastTierTable({ simulate }) {
   const tiers = useMemo(() =>
     BLAST_TIERS.map((n) => {
       const def = { toughness: 5, save: 5, invuln: 5, wounds: 1, models: n, fnp: null, keywords: [] }
@@ -331,7 +360,7 @@ function BlastTierTable() {
         killsBlast:  r1.summary.mean_damage,
       }
     })
-  , [])
+  , [simulate])
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
@@ -399,7 +428,7 @@ function BlastTierTable() {
 
 // ── Comparison panel ───────────────────────────────────────────────────────────
 
-function ComparisonPanel({ kwType }) {
+function ComparisonPanel({ kwType, simulate }) {
   const results = useMemo(() => {
     const scenario = SCENARIOS[kwType]
     if (!scenario) return null
@@ -410,7 +439,7 @@ function ComparisonPanel({ kwType }) {
     } catch {
       return null
     }
-  }, [kwType])
+  }, [kwType, simulate])
 
   const scenario = SCENARIOS[kwType]
   if (!scenario || !results) return null
@@ -606,7 +635,7 @@ function KeywordRow({ kw, selected, onClick }) {
 
 // ── Detail panel ───────────────────────────────────────────────────────────────
 
-function DetailPanel({ kw }) {
+function DetailPanel({ kw, simulate }) {
   if (!kw) {
     return (
       <div style={{
@@ -686,7 +715,7 @@ function DetailPanel({ kw }) {
               <span>Threshold breakdown</span>
               <div style={{ flex: 1, height: '1px', background: BORDER }} />
             </div>
-            <BlastTierTable />
+            <BlastTierTable simulate={simulate} />
           </div>
         )}
 
@@ -702,7 +731,7 @@ function DetailPanel({ kw }) {
               <span>Live comparison</span>
               <div style={{ flex: 1, height: '1px', background: BORDER }} />
             </div>
-            <ComparisonPanel kwType={kw.type} />
+            <ComparisonPanel kwType={kw.type} simulate={simulate} />
           </div>
         )}
 
@@ -724,6 +753,7 @@ function DetailPanel({ kw }) {
 export function KeywordsPage() {
   const edition = useDataStore((s) => s.edition)
   const registry = edition === 'v11' ? KEYWORD_REGISTRY_V11 : KEYWORD_REGISTRY
+  const simulate = edition === 'v11' ? simulateV11 : simulateV10
   const [selected, setSelected] = useState(registry[0])
   const isMobile = useIsMobile()
 
@@ -807,11 +837,11 @@ export function KeywordsPage() {
       {/* Body */}
       <div style={{ flex: 1, display: 'flex', overflow: 'hidden', minHeight: 0 }}>
         {isMobile ? (
-          selected ? <DetailPanel kw={selected} /> : listEl
+          selected ? <DetailPanel kw={selected} simulate={simulate} /> : listEl
         ) : (
           <>
             {listEl}
-            <DetailPanel kw={selected} />
+            <DetailPanel kw={selected} simulate={simulate} />
           </>
         )}
       </div>
