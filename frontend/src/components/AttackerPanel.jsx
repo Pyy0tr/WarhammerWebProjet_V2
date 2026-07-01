@@ -165,15 +165,16 @@ function ArmyPicker() {
   const [weaponId, setWeaponId] = useState('')
   const [firing,   setFiring]   = useState(1)
 
-  // Auto-select the first army once loaded, and reset the selection if the
-  // current one no longer exists in the list (e.g. after switching edition).
+  // Auto-select the first army once loaded, and re-select the new list's
+  // first army if the current one no longer exists (e.g. after switching
+  // edition) — done in one step, or the fallback never actually applies
+  // since this effect only re-runs when `armies` itself changes again.
   useEffect(() => {
-    if (armyId && !armies.some((a) => a.id === armyId)) {
-      setArmyId('')
+    const stillValid = armies.some((a) => a.id === armyId)
+    if (!stillValid) {
+      setArmyId(armies[0]?.id ?? '')
       setUnitUid('')
       setWeaponId('')
-    } else if (!armyId && armies.length > 0) {
-      setArmyId(armies[0].id)
     }
   }, [armies])  // eslint-disable-line
 
