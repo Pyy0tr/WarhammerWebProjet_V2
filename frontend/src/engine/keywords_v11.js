@@ -173,6 +173,20 @@ export const KEYWORD_REGISTRY_V11 = [
     implemented: true,
   },
 
+  // ── Context / positioning ────────────────────────────────────────────────
+  // Not a per-weapon keyword — a firing-unit condition, toggled in context
+  // (like Cover), not attachable via the weapon keyword chip picker.
+
+  {
+    type: 'PLUNGING_FIRE', label: 'Plunging Fire', group: 'context',
+    tip: 'Elevated firing unit (≥3") vs a ground-level target: +1 to hit',
+    phase: 'Hit Roll',
+    rule: "NEW UNIVERSAL RULE IN V11. If every model in the firing unit is on a terrain feature at least 3\" in height and the unit shoots at an enemy unit at ground level, that unit gets +1 to its Hit roll. TOWERING units get the same bonus against ground-level targets within 12\", without needing to be on elevated terrain themselves.",
+    note: "CHANGED FOR V11 — in V10 there was no universal rulebook version of this (height only mattered for line-of-sight; a real Hit-roll bonus for firing from elevation only existed via specific faction/unit abilities, case by case). V11 makes it a generic rule available to any unit. Directly counters V11's Cover malus (-1 to hit) — a unit on a ruin shooting at a target with cover effectively cancels that penalty out. The 12\" range for TOWERING units (e.g. Imperial Knights) is not tracked as a literal distance by the engine — it's approximated the same way as Half Range: a manual context toggle.",
+    when: "Enable whenever the firing unit is fully on terrain ≥3\" tall and the target is on the ground, or the firing unit has TOWERING and the target is within roughly 12\". Especially strong when combined with Ignores Cover or against targets already suffering the Cover malus — the two effectively cancel out, restoring full accuracy.",
+    implemented: true,
+  },
+
   // ── Other ──────────────────────────────────────────────────────────────────
 
   {

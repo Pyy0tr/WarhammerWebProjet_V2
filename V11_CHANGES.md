@@ -34,10 +34,21 @@ Testé en local (navigateur headless) : Cleave 2.67→4.43 dmg moyen (vs 20 mod�
 - **Nouveau (source vidéo) : les MONSTRES et VÉHICULES ne bénéficient plus du Cover du tout en V11** (ils en bénéficiaient en V10). À vérifier si c'est une règle générale officielle ou un raccourci du vidéaste — mais l'exemple est explicite et répété (Repulsor sans cover).
 - Impact code : déplacer `ctx.cover` de la phase Save vers HIT_MODIFIER (phase Hit) ; conditionner l'éligibilité du bonus au(x) keyword(s) MONSTER/VEHICLE de la cible si confirmé.
 
-### Plunging Fire (indirectement lié au Cover)
-- V10 : unité en hauteur tirant sur cible à l'étage inférieur → +1 à la pénétration d'armure (AP).
-- V11 : devient **+1 à la CB (to-hit)** au lieu de +1 AP — compense exactement le nouveau malus de Cover (-1 CB) de la cible.
-- Pas modélisé actuellement dans le moteur (pas de contexte d'élévation) — à garder en tête si un jour on ajoute un toggle "hauteur".
+### Plunging Fire — implémenté (2026-07-01)
+Correction par rapport à la note précédente (qui donnait "V10 = +1 AP" d'après la vidéo) : source plus détaillée fournie par l'utilisateur, à privilégier.
+- **V11 (règle universelle, nouvelle)** : si TOUTES les figurines de l'unité qui tire sont sur un élément de terrain ≥3" de hauteur et tirent sur une unité ennemie au niveau du sol → **+1 à la CB (hit roll)**. Contre efficacement le nouveau malus de Cover (-1 CB) ou permet de toucher plus facilement des cibles à découvert.
+- **V11, unités IMPOSANTES/Towering** (ex. Chevaliers Impériaux) : bénéficient du même bonus sans condition de hauteur, dès lors que la cible au sol est à ≤12" — une figurine assez grande "voit par-dessus" sans avoir besoin d'être sur du terrain élevé.
+- **V10** : **pas de bonus universel**. La hauteur ne servait qu'à la gestion des lignes de vue (ignorer certains masquages / voir par-dessus des décors) ; un "vrai" Tir Plongeant façon V11 n'existait qu'au cas par cas via des règles de faction ou des capacités d'unité spécifiques (pas dans le corpus de règles de base).
+- **Décision d'implémentation** : ajouter un keyword/contexte `PLUNGING_FIRE` **dans les deux éditions** — en V10 il sert à modéliser les capacités spécifiques de faction/unité qui donnent cet effet (à activer manuellement au cas par cas, pas une règle universelle) ; en V11 c'est une règle générique activable pour n'importe quelle unité en hauteur. Le calcul moteur (+1 au jet pour toucher) est identique dans les deux moteurs — seule la justification/l'applicabilité change, même principe que Heavy (voir plus bas).
+- Le 12" pour les unités Imposantes n'est pas une distance trackée par le moteur (comme Half Range, Attacker Moved, etc. — approximé par un simple toggle) ; documenté comme tel dans le tooltip plutôt que modélisé littéralement.
+
+**Implémentation (2026-07-01)** :
+- `simulation.js` + `simulation_v11.js` : nouveau contexte booléen `ctx.plunging_fire`, +1 au hit modifier (même formule que Heavy). Dans `simulation_v11.js`, ajouté côté `hitBonus` (donc Psychic le garde, cohérent avec Heavy).
+- `keywords.js` + `keywords_v11.js` : nouvelle entrée `PLUNGING_FIRE`, nouveau **groupe `context`** (ni un mot-clé d'arme attachable via le chip picker, ni une mécanique de sauvegarde — une condition de positionnement du tireur, comme Cover). Exclu de `KW_GROUPS`/`SIMPLE_KW_TYPES` comme `save`.
+- `KeywordsPage.jsx` : nouvelle section "Context" dans `SECTIONS`, nouveau scénario `PLUNGING_FIRE` dans `SCENARIOS` pour la démo live.
+- `DefenderPanel.jsx` : nouveau toggle "Plunging Fire" dans le bloc Context, libellé edition-aware (au passage, le libellé du toggle Cover existant est aussi devenu edition-aware — bonus cohérent avec le fait que son mécanisme diffère déjà entre V10/V11).
+- `simulatorStore.js` : `plunging_fire: false` ajouté à `defaultContext`.
+- **Testé** : page Keywords en navigateur réel, V10 (1.31→1.79 dmg moyen, +0.48) et V11 (1.37→1.72, +0.35) — cohérent dans les deux moteurs, 0 erreur console. Le toggle dans le Simulateur (`DefenderPanel.jsx`) suit un pattern strictement identique aux 4 autres toggles de contexte déjà fonctionnels — non testé bout en bout via le flow complet du Simulateur (drawer de sélection d'unité pas automatisable facilement en test headless), mais code revu manuellement.
 
 ### Heavy — texte officiel confirmé (extrait des données `vflam/wh40k-11e`, rule "Heavy")
 > "In your Shooting phase, each time an attack is made with a [HEAVY] weapon, add 1 to the hit roll if all of the following apply to the attacking unit: That unit is unengaged. That unit was not set up on the battlefield this turn. No model in that unit has moved more than 3" this turn."
@@ -84,6 +95,7 @@ Testé en local (navigateur headless) : Cleave 2.67→4.43 dmg moyen (vs 20 mod�
 | Hazardous | Hazardous (seuil à confirmer) | Seuil 1-ou-2 pas encore confirmé par les données de jeu | Toujours au niveau "blog/vidéo" uniquement |
 | Fly | Fly (+ option "Take to the Sky") | Non — mouvement, hors scope moteur | Voir section 3 |
 | Stealth | Stealth (inchangé) | Non | Confirmé toujours présent — voir section 1 |
+| Plunging Fire (cas par cas, faction/unité) | Plunging Fire (règle universelle) | Oui — voir section 1 | **Implémenté** dans les deux moteurs (`ctx.plunging_fire`, +1 to hit), nouveau groupe `context` dans le registre |
 
 ---
 
@@ -172,7 +184,18 @@ Problème identifié : les armées sauvegardées embarquent un instantané compl
 - `backend/routes/armies.py` : `POST /armies` enregistre l'édition courante ; `GET /armies?edition=` filtre côté serveur.
 - `frontend/src/store/armyStore.js` : cache `init()` invalidé par `(user, édition)` ; `create()` tague la nouvelle armée ; **pour les invités (localStorage)**, correction d'un bug de fond potentiel — l'ancien `lsSave()` écrasait tout le localStorage avec seulement les armées de l'édition affichée, ce qui aurait supprimé silencieusement les armées de l'autre édition à la moindre modification. Remplacé par `lsSaveForEdition()` qui fusionne avec les armées de l'autre édition déjà sur disque.
 - `ArmiesPage.jsx` et `AttackerPanel.jsx` (sélecteur d'armée dans le Simulateur) : re-fetch au changement d'édition, reset propre de la sélection si l'armée active n'existe plus dans la liste filtrée.
-- **Testé** : le chemin invité/localStorage en navigateur réel (créer une armée par édition, basculer, vérifier qu'aucune ne fuite vers l'autre, vérifier la fusion localStorage) — comportement correct, 0 erreur console. **Pas testé** : le chemin backend/Postgres réel (migration + endpoints), faute de Docker/Postgres disponible dans cet environnement sandbox — vérifié uniquement par relecture + `flake8` + compilation Python. À valider après déploiement.
+- **Testé** : le chemin invité/localStorage en navigateur réel (créer une armée par édition, basculer, vérifier qu'aucune ne fuite vers l'autre, vérifier la fusion localStorage) — comportement correct, 0 erreur console. Le chemin backend/Postgres réel (migration + endpoints) n'a pas pu être testé en sandbox (pas de Docker/Postgres disponible), vérifié seulement par relecture + `flake8` + compilation Python — **confirmé fonctionnel en prod par l'utilisateur après déploiement**.
+
+### Cache HTTP sur `data/*.json` (2026-07-01)
+Symptôme rapporté : après un changement d'édition (ou une mise à jour de données), il fallait un hard refresh (Ctrl/Cmd+Shift+R) pour voir les nouvelles données — un rechargement normal (F5) ne suffisait pas.
+- Cause : `units.json`/`weapons.json`/`factions.json` (V10 et V11) gardent un nom de fichier stable d'un build à l'autre (contrairement aux JS/CSS hashés par Vite). Le sync S3 (`ci-cd.yml`) ne fixait aucun `Cache-Control` → CloudFront appliquait son TTL par défaut (~24h) et le navigateur mettait en cache la réponse pour la même durée, sans jamais revalider (un F5 normal respecte le cache HTTP ; seul un hard refresh l'ignore).
+- Fix : `ci-cd.yml` sync maintenant `data/*` séparément avec `Cache-Control: no-cache, must-revalidate` (revalidation systématique, sans casser le cache long des assets hashés). Comme le build est refait à zéro à chaque run CI, les fichiers `data/*.json` ont un nouveau timestamp local à chaque déploiement donc `aws s3 sync` les re-uploade avec le nouvel en-tête automatiquement — pas d'étape de migration supplémentaire nécessaire.
+
+### Bug ArmyPicker : sélection d'armée jamais réappliquée après changement d'édition (2026-07-01)
+Symptôme rapporté : sur la page Simulator, onglet "From Army", changer d'édition faisait apparaître le nom de la nouvelle armée dans le menu déroulant mais la liste SQUAD restait vide — sans rapport avec le cache HTTP cette fois.
+- Cause : la logique de reset (`AttackerPanel.jsx`, composant `ArmyPicker`) séparait "vider la sélection obsolète" et "resélectionner la première armée de la nouvelle liste" en deux branches du même `useEffect(..., [armies])`. Une fois la sélection vidée dans un rendu, rien ne redéclenchait l'effet pour exécuter la seconde branche (l'effet ne réagit qu'aux changements de `armies`, pas de `armyId`) — le menu déroulant affichait une armée par défaut du navigateur (rendu non contrôlé), mais en interne `armyId` restait vide, donc `army` était `null` et la section SQUAD ne s'affichait pas.
+- Fix : les deux étapes fusionnées en une seule mise à jour d'état (`setArmyId(armies[0]?.id ?? '')`) dans la même exécution de l'effet.
+- **Testé et confirmé** : en local (créer une armée par édition avec unité, basculer dans les deux sens) et en prod par l'utilisateur.
 
 ---
 
@@ -198,4 +221,6 @@ Problème identifié : les armées sauvegardées embarquent un instantané compl
 - 2026-07-01 : identification du repo communautaire `vflam/wh40k-11e` (même schéma BattleScribe que la V10, mais JSON au lieu de XML .cat/.gst). Décision : pipeline de staging isolée. Construction de `fetch_bsdata_v11.py` + `parse_bsdata_v11.py` (adaptateur JsonNode) → 1706 unités/6414 armes/36 règles extraites avec succès. Exploitation du texte de règles réel pour confirmer/corriger plusieurs points : Cleave (formule = Blast confirmée), Stealth (toujours présent), Heavy (conditions précisées), Psychic (portée plus limitée que prévu — hit seulement, pas wound), Close-Quarters/Pistol (vraie mécanique différente, pas qu'un renommage).
 - 2026-07-01 : premier jeu de données V11 copié dans `frontend/public/data/v11/`, sélecteur V10/V11 ajouté dans la navbar (`dataStore.js` + `Navbar.jsx`), page Keywords rendue edition-aware (`keywords_v11.js`). Pushé et testé en prod.
 - 2026-07-01 : moteur de simulation V11 codé (`simulation_v11.js`, fork de `simulation.js`) — Cover déplacé en malus de tir, Psychic implémenté (hit-only), Cleave ajouté (= Blast en mêlée), Heavy laissé inchangé (aucun impact sur le calcul). Branché dans SimulatorPage, Synergy Matrix et Keywords (démos live désormais réellement différentes entre éditions). Testé en local sans régression V10.
-- 2026-07-01 : séparation des armées sauvegardées par édition (colonne `edition` sur `Army`, migration auto, filtrage `GET /armies?edition=`, `armyStore.js` edition-aware côté front + fix d'un bug de fusion localStorage au passage). Chemin invité testé en navigateur réel ; chemin backend/Postgres non testé (pas de Docker dans ce sandbox) — à valider après déploiement.
+- 2026-07-01 : séparation des armées sauvegardées par édition (colonne `edition` sur `Army`, migration auto, filtrage `GET /armies?edition=`, `armyStore.js` edition-aware côté front + fix d'un bug de fusion localStorage au passage). Chemin invité testé en navigateur réel ; chemin backend/Postgres confirmé fonctionnel en prod par l'utilisateur après déploiement.
+- 2026-07-01 : fix cache HTTP sur `data/*.json` (`Cache-Control: no-cache` dans `ci-cd.yml`, plus besoin de hard refresh pour voir les nouvelles données) + fix bug ArmyPicker (la sélection d'armée ne se réappliquait jamais correctement après un changement d'édition — logique de reset fusionnée en une seule étape). Les deux confirmés fonctionnels en prod par l'utilisateur.
+- 2026-07-01 : Plunging Fire précisé (règle universelle V11 confirmée : +1 to hit si tireur ≥3" de haut vs cible au sol, ou Towering ≤12") et implémenté dans les deux moteurs + les deux registres de keywords (nouveau groupe `context`) + page Keywords + Simulateur. Testé en local sur la page Keywords (V10 et V11), cohérent dans les deux éditions.

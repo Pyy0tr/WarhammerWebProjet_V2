@@ -36,6 +36,7 @@ const defaultContext = {
   attacker_moved: false,
   attacker_charged: false,
   target_visible: true,
+  plunging_fire: false,
 }
 
 let _atkId = 0

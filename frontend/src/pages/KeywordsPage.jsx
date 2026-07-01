@@ -294,6 +294,20 @@ const SCENARIOS = {
       context: { cover: false, half_range: false, attacker_moved: false, attacker_charged: false, target_visible: true },
     },
   },
+  PLUNGING_FIRE: {
+    label: '6 attacks · BS 4+ · firing unit elevated ≥3" vs ground-level target',
+    note: 'A flat +1 to hit — same mechanic in both editions, only the real-world justification differs (V10: unit/faction ability · V11: universal rule for elevated terrain or TOWERING).',
+    without: {
+      attacks: [{ models: 1, weapon: { name: '', attacks: '6', skill: 4, strength: 5, ap: -1, damage: '1', keywords: [] }, buffs: [] }],
+      defender: { toughness: 4, save: 4, invuln: null, wounds: 1, models: 10, fnp: null, keywords: [] },
+      context: { cover: false, half_range: false, attacker_moved: false, attacker_charged: false, target_visible: true, plunging_fire: false },
+    },
+    with: {
+      attacks: [{ models: 1, weapon: { name: '', attacks: '6', skill: 4, strength: 5, ap: -1, damage: '1', keywords: [] }, buffs: [] }],
+      defender: { toughness: 4, save: 4, invuln: null, wounds: 1, models: 10, fnp: null, keywords: [] },
+      context: { cover: false, half_range: false, attacker_moved: false, attacker_charged: false, target_visible: true, plunging_fire: true },
+    },
+  },
 }
 
 // ── Sections ───────────────────────────────────────────────────────────────────
@@ -302,6 +316,7 @@ const SECTIONS = [
   { label: 'Hit Phase',   group: 'hit' },
   { label: 'Wound Phase', group: 'wound' },
   { label: 'Save Phase',  group: 'save' },
+  { label: 'Context',     group: 'context' },
   { label: 'Other',       group: 'other' },
   { label: 'Abilities',   group: 'ability' },
 ]

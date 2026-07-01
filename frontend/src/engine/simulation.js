@@ -8,7 +8,7 @@
  * {
  *   attacker: { models, weapon: { name, attacks, skill, strength, ap, damage, keywords }, buffs },
  *   defender: { toughness, save, invuln, wounds, models, fnp, keywords },
- *   context:  { cover, half_range, attacker_moved, attacker_charged, target_visible },
+ *   context:  { cover, half_range, attacker_moved, attacker_charged, target_visible, plunging_fire },
  *   n_trials: number
  * }
  */
@@ -98,6 +98,7 @@ function simulateOnce(req) {
   if (hasHeavy && !ctx.attacker_moved)    hitMod += 1
   if (hasLance && ctx.attacker_charged)  woundMod += 1
   if (hasIndirect && !ctx.target_visible) hitMod -= 1
+  if (ctx.plunging_fire)                 hitMod += 1   // firing unit elevated (unit/faction ability in V10)
   if (d.debuff_hit_roll)                 hitMod -= 1   // defender ability: -1 to attacker hit rolls
 
   hitMod   = clamp(hitMod,   -1, 1)

@@ -234,6 +234,7 @@ export function DefenderPanel() {
   const context     = useSimulatorStore((s) => s.context)
   const setDefender = useSimulatorStore((s) => s.setDefender)
   const setContext  = useSimulatorStore((s) => s.setContext)
+  const edition     = useDataStore((s) => s.edition)
 
   const selectedUnit    = useSimulatorStore((s) => s.defenderUnit)
   const setSelectedUnit = useSimulatorStore((s) => s.setDefenderUnit)
@@ -451,7 +452,7 @@ export function DefenderPanel() {
           Context
         </div>
         <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
-          <Toggle label="In cover (+1 to armour save)" checked={context.cover}
+          <Toggle label={edition === 'v11' ? 'In cover (-1 to attacker\'s hit roll)' : 'In cover (+1 to armour save)'} checked={context.cover}
             onChange={(v) => setContext({ cover: v })} />
           <Toggle label="Within half range (Melta, Rapid Fire)" checked={context.half_range}
             onChange={(v) => setContext({ half_range: v })} />
@@ -459,6 +460,8 @@ export function DefenderPanel() {
             onChange={(v) => setContext({ attacker_charged: v })} />
           <Toggle label="Attacker moved this turn (Heavy penalty)" checked={context.attacker_moved}
             onChange={(v) => setContext({ attacker_moved: v })} />
+          <Toggle label={edition === 'v11' ? 'Plunging Fire (elevated ≥3", +1 to hit)' : 'Plunging Fire (unit/faction ability, +1 to hit)'} checked={context.plunging_fire}
+            onChange={(v) => setContext({ plunging_fire: v })} />
         </div>
       </div>
     </section>

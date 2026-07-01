@@ -178,6 +178,20 @@ export const KEYWORD_REGISTRY = [
     implemented: true,
   },
 
+  // ── Context / positioning ────────────────────────────────────────────────
+  // Not a per-weapon keyword — a firing-unit condition, toggled in context
+  // (like Cover), not attachable via the weapon keyword chip picker.
+
+  {
+    type: 'PLUNGING_FIRE', label: 'Plunging Fire', group: 'context',
+    tip: 'Elevated firing unit vs a ground-level target: +1 to hit',
+    phase: 'Hit Roll',
+    rule: "Not a core 10th Edition rule. Some individual unit/faction abilities grant a shooting unit +1 to the Hit roll against ground-level targets when firing from an elevated position — there is no universal rulebook version of this in V10 (that arrives in V11, see the V11 tooltip). Use this toggle only when the attacking unit has such a specific ability.",
+    note: "In V10, Plunging Fire isn't a generic rule — it's modelled here purely to represent faction/unit-specific abilities that grant this effect (e.g. certain Ruins-dwelling or elevated-emplacement units). Only enable the context toggle when the attacking unit's own rules actually grant it. Configured via the DefenderPanel 'Context' section.",
+    when: "Enable only if the specific unit/faction ability you're modelling grants a Hit-roll bonus for firing from height. Most V10 units have no such ability — leave this off by default.",
+    implemented: true,
+  },
+
   // ── Other ──────────────────────────────────────────────────────────────────
 
   {
@@ -283,7 +297,7 @@ export const KW_GROUPS = [
 ]
 
 // Non-valued, non-special keyword types — used by mapKeywords() to parse BSData keyword strings
-// Excludes 'save' group: those are defender mechanics, not weapon keywords
+// Excludes 'save' (defender mechanics) and 'context' (firing-unit conditions) — neither are weapon keywords
 export const SIMPLE_KW_TYPES = KEYWORD_REGISTRY
-  .filter((k) => !k.valued && !k.special && k.group !== 'save')
+  .filter((k) => !k.valued && !k.special && k.group !== 'save' && k.group !== 'context')
   .map((k) => k.type)

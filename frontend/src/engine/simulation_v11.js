@@ -17,6 +17,11 @@
  *     claimed. Positive modifiers (Heavy) still apply normally.
  *   - CLEAVE: new keyword, melee equivalent of Blast — same formula
  *     (+X attacks per 5 defender models, rounding down).
+ *   - PLUNGING_FIRE: new universal rule — +1 to hit when the firing unit is
+ *     on terrain ≥3" tall shooting at a ground-level target (or a TOWERING
+ *     unit within ~12", approximated by the same context toggle). In V10
+ *     this same toggle models faction/unit-specific abilities instead (no
+ *     universal rule existed) — same math either way, see keywords.js.
  *
  * NOT changed here (confirmed no math impact, see V11_CHANGES.md):
  *   - HEAVY: still +1 to hit under the same "attacker_moved" toggle. V11's
@@ -38,7 +43,7 @@
  * {
  *   attacker: { models, weapon: { name, attacks, skill, strength, ap, damage, keywords }, buffs },
  *   defender: { toughness, save, invuln, wounds, models, fnp, keywords },
- *   context:  { cover, half_range, attacker_moved, attacker_charged, target_visible },
+ *   context:  { cover, half_range, attacker_moved, attacker_charged, target_visible, plunging_fire },
  *   n_trials: number
  * }
  */
@@ -133,6 +138,7 @@ function simulateOnce(req) {
   let hitMalus = buffHitMod < 0 ? buffHitMod : 0
 
   if (hasHeavy && !ctx.attacker_moved)     hitBonus += 1
+  if (ctx.plunging_fire)                   hitBonus += 1   // elevated firing unit vs ground-level target
   if (hasIndirect && !ctx.target_visible)  hitMalus -= 1
   if (ctx.cover && !hasIgCover)            hitMalus -= 1   // V11: cover malus, not a save bonus
   if (d.debuff_hit_roll)                   hitMalus -= 1   // defender ability: -1 to attacker hit rolls
