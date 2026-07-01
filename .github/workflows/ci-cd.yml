@@ -81,7 +81,14 @@ jobs:
           path: frontend/dist/
 
       - name: Sync vers S3
-        run: aws s3 sync frontend/dist/ s3://probhammer-frontend-prod --delete
+        run: |
+          # data/*.json (units/weapons/factions V10 + V11) gardent un nom de fichier stable
+          # d'un build à l'autre (contrairement aux JS/CSS hashés) — sans Cache-Control
+          # explicite, CloudFront/le navigateur les cache silencieusement (TTL par défaut
+          # 24h), ce qui masque les mises à jour de données tant qu'on ne fait pas un hard
+          # refresh. On les force à toujours revalider auprès du serveur.
+          aws s3 sync frontend/dist/ s3://probhammer-frontend-prod --delete --exclude "data/*"
+          aws s3 sync frontend/dist/data/ s3://probhammer-frontend-prod/data/ --delete --cache-control "no-cache, must-revalidate"
 
       - name: Invalider le cache CloudFront
         run: aws cloudfront create-invalidation --distribution-id ${{ secrets.CLOUDFRONT_DISTRIBUTION_ID }} --paths "/*"
