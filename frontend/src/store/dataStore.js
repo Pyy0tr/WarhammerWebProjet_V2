@@ -1,6 +1,22 @@
 import { create } from 'zustand'
 
+// V11 data is a staging preview — parsed from a community dataset, engine
+// mechanics (simulation.js/keywords.js) still reflect 10th edition rules.
+const EDITION_DATA_DIR = { v10: '/data', v11: '/data/v11' }
+const VALID_EDITIONS = Object.keys(EDITION_DATA_DIR)
+const EDITION_STORAGE_KEY = 'probhammer_edition'
+
+function readStoredEdition() {
+  try {
+    const stored = localStorage.getItem(EDITION_STORAGE_KEY)
+    return VALID_EDITIONS.includes(stored) ? stored : 'v10'
+  } catch {
+    return 'v10'
+  }
+}
+
 export const useDataStore = create((set, get) => ({
+  edition: readStoredEdition(),
   units: [],
   weapons: [],
   weaponsById: {},
@@ -11,10 +27,26 @@ export const useDataStore = create((set, get) => ({
 
   load: async () => {
     if (get().loaded) return
+    await get()._fetchEdition(get().edition)
+  },
+
+  setEdition: async (edition) => {
+    if (!VALID_EDITIONS.includes(edition) || edition === get().edition) return
+    try {
+      localStorage.setItem(EDITION_STORAGE_KEY, edition)
+    } catch {
+      // localStorage unavailable (private browsing etc.) — edition just won't persist
+    }
+    set({ edition, loaded: false })
+    await get()._fetchEdition(edition)
+  },
+
+  _fetchEdition: async (edition) => {
+    const dir = EDITION_DATA_DIR[edition]
     const [units, weapons, factions] = await Promise.all([
-      fetch('/data/units.json').then((r) => r.json()),
-      fetch('/data/weapons.json').then((r) => r.json()),
-      fetch('/data/factions.json').then((r) => r.json()),
+      fetch(`${dir}/units.json`).then((r) => r.json()),
+      fetch(`${dir}/weapons.json`).then((r) => r.json()),
+      fetch(`${dir}/factions.json`).then((r) => r.json()),
     ])
 
     const weaponsById = {}

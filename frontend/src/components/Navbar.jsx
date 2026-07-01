@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { useAuthStore } from '../store/authStore'
+import { useDataStore } from '../store/dataStore'
 import { useIsMobile } from '../hooks/useIsMobile'
 import { AuthModal } from './AuthModal'
 import {
@@ -167,6 +168,51 @@ function UserChip({ user, onLogout }) {
   )
 }
 
+function EditionToggle({ compact }) {
+  const edition = useDataStore((s) => s.edition)
+  const setEdition = useDataStore((s) => s.setEdition)
+
+  return (
+    <div
+      title={edition === 'v11' ? "V11 preview — data from a community dataset, simulator still uses 10th edition rules" : undefined}
+      style={{
+        display: 'flex',
+        border: `1px solid ${BORDER}`,
+        borderRadius: RADIUS,
+        overflow: 'hidden',
+        flexShrink: 0,
+        width: compact ? '100%' : undefined,
+        marginRight: compact ? undefined : '20px',
+      }}
+    >
+      {['v10', 'v11'].map((ed) => {
+        const active = edition === ed
+        return (
+          <button
+            key={ed}
+            onClick={() => setEdition(ed)}
+            style={{
+              flex: compact ? 1 : undefined,
+              background: active ? ACCENT : 'transparent',
+              color: active ? '#FFFFFF' : TEXT_SEC,
+              border: 'none',
+              fontFamily: FONT_UI,
+              fontSize: '12px',
+              fontWeight: 600,
+              padding: compact ? '10px 12px' : '5px 10px',
+              cursor: 'pointer',
+              lineHeight: 1.4,
+              transition: 'background 120ms, color 120ms',
+            }}
+          >
+            {ed.toUpperCase()}
+          </button>
+        )
+      })}
+    </div>
+  )
+}
+
 function HamburgerIcon({ open }) {
   return (
     <svg width="22" height="18" viewBox="0 0 22 18" fill="none">
@@ -228,6 +274,8 @@ export function Navbar() {
         >
           Prob'Hammer
         </Link>
+
+        {!isMobile && <EditionToggle />}
 
         {isMobile ? (
           /* ── Mobile: hamburger ── */
@@ -302,6 +350,10 @@ export function Navbar() {
             overflowY: 'auto',
             maxHeight: 'calc(100vh - 56px)',
           }}>
+            <div style={{ padding: '16px 24px', borderBottom: `1px solid ${BORDER}` }}>
+              <EditionToggle compact />
+            </div>
+
             {NAV_LINKS.map(({ to, label }) => (
               <MobileNavLink key={to} to={to} active={pathname === to} onClick={closeMenu}>
                 {label}

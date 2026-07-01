@@ -12,6 +12,13 @@ data/raw/
 data/cache/
 data/users.db
 
+# V11 staging pipeline — expérimental, pas encore de données stables à commiter
+data/raw_v11/
+data/cache_v11/
+data/cache_stable_v11/
+data/frontend_preview_v11/
+data/version_v11.json
+
 # Environment
 .env
 .env.local
@@ -72,3 +79,4 @@ data/ml/venv/
 # Interne — ne pas exposer publiquement
 bugsRequest/
 CLAUDE.md
+*_NOTES.txt

@@ -1,0 +1,329 @@
+"""
+build_frontend_data_v11.py
+---------------------------
+Pipeline de STAGING pour la V11 — écrit dans data/frontend_preview_v11/,
+JAMAIS dans frontend/public/, pour garantir qu'aucune donnée V11 (encore
+non stabilisée) ne peut être servie accidentellement en prod.
+
+Génère des JSON allégés pour un futur frontend depuis data/cache_v11/.
+Fork de build_frontend_data.py, logique de slimming inchangée.
+
+Sortie : data/frontend_preview_v11/units.json + weapons.json + factions.json
+"""
+
+import json
+import re
+from pathlib import Path
+
+ROOT     = Path(__file__).resolve().parents[1]
+CACHE    = ROOT / "data" / "cache_v11"
+OUT_DIR  = ROOT / "data" / "frontend_preview_v11"
+
+
+def parse_int(s: str, fallback: int = 0) -> int:
+    """'3+' → 3, '2+' → 2, '-1' → -1, '5' → 5"""
+    m = re.search(r"-?\d+", str(s))
+    return int(m.group()) if m else fallback
+
+
+def extract_invuln(unit: dict) -> int | None:
+    """Try to find invulnerable save value from abilities."""
+    for ab in unit.get("abilities", []):
+        desc = ab.get("description", "").lower()
+        name = ab.get("name", "").lower()
+        if "invulnerable" in name or "invulnerable" in desc:
+            m = re.search(r"(\d)\+\s*invuln", desc)
+            if m:
+                return int(m.group(1))
+            m = re.search(r"invuln\w*\s+\w*\s*(\d)\+", desc)
+            if m:
+                return int(m.group(1))
+            m = re.search(r"(\d)\+", desc)
+            if m:
+                return int(m.group(1))
+    return None
+
+
+def slim_weapon(w: dict) -> dict:
+    return {
+        "id":    w["bsdata_id"],
+        "name":  w["name"],
+        "type":  w.get("type", "Ranged"),
+        "range": w.get("range", "—"),
+        "A":     w.get("A", "1"),
+        "BS":    parse_int(w.get("BS_WS", "4+")),
+        "S":     parse_int(w.get("S", "4")),
+        "AP":    parse_int(w.get("AP", "0")),
+        "D":     w.get("D", "1"),
+        "kw":    w.get("keywords", []),
+    }
+
+
+def collect_weapons(u: dict, id_aliases: dict[str, str]) -> list[dict]:
+    """Collect all weapon refs (default + options) as flat deduped list of {id, name}.
+    Uses id_aliases to resolve bsdata_ids to their canonical dedup id."""
+    seen, result = set(), []
+
+    def add(w: dict):
+        raw_id = w.get("bsdata_id")
+        if not raw_id:
+            return
+        canonical = id_aliases.get(raw_id, raw_id)  # fallback to raw if not in aliases
+        if canonical not in seen:
+            seen.add(canonical)
+            result.append({"id": canonical, "name": w["name"]})
+
+    for w in u.get("weapons_default", []):
+        add(w)
+    for wo in u.get("weapon_options", []):
+        if "bsdata_id" in wo:
+            add(wo)
+        for sub_w in wo.get("weapons", []):
+            add(sub_w)
+        for sg in wo.get("sub_groups", []):
+            for sub_w in sg.get("weapons", []):
+                add(sub_w)
+            for ssg in sg.get("sub_groups", []):
+                for sub_w in ssg.get("weapons", []):
+                    add(sub_w)
+    return result
+
+
+def slim_unit(u: dict, id_aliases: dict[str, str]) -> dict:
+    stats       = u.get("stats", {}) or {}
+    invuln      = extract_invuln(u)
+    constraints = u.get("constraints", {}) or {}
+    weapons     = collect_weapons(u, id_aliases)
+    min_models  = constraints.get("min_models")
+    max_models  = constraints.get("max_models")
+
+    # Keywords — strip BSData internal "Faction:" prefixes for the UI
+    useful_kw = [k for k in u.get("keywords", []) if not k.startswith("Faction:")]
+
+    # Abilities — name + description, markup preserved for frontend highlighting
+    abilities = []
+    for ab in (u.get("abilities", []) or [])[:10]:
+        name = ab.get("name", "").strip()
+        desc = (ab.get("description", "") or "").strip()
+        if name:
+            abilities.append({"name": name, "desc": desc})
+
+    # Secondary stat blocks (e.g. Cenobyte Servitors attached to Grimaldus)
+    model_profiles = []
+    for p in (u.get("model_profiles", []) or []):
+        ps = p.get("stats", {}) or {}
+        entry: dict = {
+            "name": p["name"],
+            "M":    ps.get("M", ""),
+            "T":    parse_int(ps.get("T", "4")),
+            "Sv":   parse_int(ps.get("SV", "4+")),
+            "W":    parse_int(ps.get("W", "1")),
+            "LD":   ps.get("LD", ""),
+            "OC":   ps.get("OC", ""),
+        }
+        if p.get("count"):
+            entry["count"] = p["count"]
+        model_profiles.append(entry)
+
+    # Role-based weapon grouping (e.g. Deathwing Knights vs Knight Master)
+    # Each role has named weapon-choice groups (pick N from M options).
+    # Sub-groups are BSData duplicates of the parent weapons list — skipped.
+    model_options = []
+    for mo in (u.get("model_options", []) or []):
+        slim_groups = []
+        for wg in mo.get("weapon_options", []):
+            wids = [
+                id_aliases.get(w["bsdata_id"], w["bsdata_id"])
+                for w in wg.get("weapons", [])
+                if "bsdata_id" in w
+            ]
+            if wids:
+                slim_groups.append({
+                    "group": wg.get("group_name") or "",
+                    "pick":  wg.get("max_select"),
+                    "wids":  wids,
+                })
+        if slim_groups:
+            slim_mo: dict = {
+                "name": mo["name"],
+                "groups": slim_groups,
+                "min": mo.get("min_count"),
+                "max": mo.get("max_count"),
+            }
+            # Per-model stats — only include if they differ from the unit's main profile
+            m_raw = mo.get("stats") or {}
+            unit_raw = stats  # already extracted above
+            if m_raw and any(
+                str(m_raw.get(k, "")) != str(unit_raw.get(k, ""))
+                for k in ("M", "T", "SV", "W", "LD", "OC")
+            ):
+                slim_mo["stats"] = {
+                    "M":  m_raw.get("M", ""),
+                    "T":  parse_int(m_raw.get("T", "4")),
+                    "Sv": parse_int(m_raw.get("SV", "4+")),
+                    "W":  parse_int(m_raw.get("W", "1")),
+                    "LD": m_raw.get("LD", ""),
+                    "OC": m_raw.get("OC", ""),
+                }
+            model_options.append(slim_mo)
+
+    # Fix model counts using per-role constraints.
+    # Case 1 — all roles fixed (e.g. Deathwing Knights: DK×4 + Master×1 = 5).
+    #           BSData unit constraint only saw the variable part; override with sum.
+    # Case 2 — mixed: some roles fixed, some variable (e.g. Boyz: 9-19 Boyz + Boss Nob×1).
+    #           BSData unit constraint tracks variable models only; add the fixed leaders.
+    if model_options:
+        role_maxes = [mo["max"] for mo in model_options]
+        role_mins  = [mo["min"] for mo in model_options]
+        all_fixed  = all(
+            mn is not None and mx is not None and mn == mx
+            for mn, mx in zip(role_mins, role_maxes)
+        )
+        if all_fixed:
+            total = sum(role_maxes)
+            cur_max = constraints.get("max_models") or 0
+            if total > cur_max:
+                min_models = total
+                max_models = total
+        else:
+            cur_max = max_models or 0
+            max_variable = max(
+                (mx for mn, mx in zip(role_mins, role_maxes)
+                 if mx is not None
+                 and not (mn is not None and mx is not None and mn == mx)),
+                default=0,
+            )
+            # If exactly one fixed role has max == cur_max AND all variable roles are small
+            # (max_variable ≤ cur_max), that single fixed role is the main body already
+            # counted in BSData constraints. Exclude it so we only add truly extra leaders.
+            main_body_count = sum(
+                1 for mn, mx in zip(role_mins, role_maxes)
+                if mn is not None and mx is not None and mn == mx and mx == cur_max
+            )
+            if max_variable <= cur_max and main_body_count == 1:
+                fixed_sum = sum(
+                    mx for mn, mx in zip(role_mins, role_maxes)
+                    if mn is not None and mx is not None and mn == mx and mx != cur_max
+                )
+            else:
+                fixed_sum = sum(
+                    mx for mn, mx in zip(role_mins, role_maxes)
+                    if mn is not None and mx is not None and mn == mx
+                )
+            if fixed_sum > 0:
+                if max_variable + fixed_sum != cur_max:
+                    if min_models is not None:
+                        min_models += fixed_sum
+                    if max_models is not None:
+                        max_models += fixed_sum
+
+    return {
+        "id":         u["bsdata_id"],
+        "name":       u["name"],
+        "faction":    u.get("faction", ""),
+        "is_legends": bool(u.get("is_legends", False)),
+        "pts":        u.get("pts"),
+        "pts_options": u.get("pts_options") or [],
+        "M":          stats.get("M", ""),
+        "T":          parse_int(stats.get("T", "4")),
+        "Sv":         parse_int(stats.get("SV", "4+")),
+        "W":          parse_int(stats.get("W", "1")),
+        "LD":         stats.get("LD", ""),
+        "OC":         stats.get("OC", ""),
+        "invuln":     invuln,
+        "kw":         useful_kw,
+        "abilities":  abilities,
+        "min_models": min_models,
+        "max_models": max_models,
+        "weapons":       weapons,
+        "factions":      u.get("playable_in", []),
+        "model_profiles": model_profiles if model_profiles else None,
+        "model_options":  model_options  if model_options  else None,
+    }
+
+
+def build_weapon_users(units_raw: list) -> dict[str, list[str]]:
+    """Build mapping: weapon bsdata_id → list of unit names that use it."""
+    w2u: dict[str, list[str]] = {}
+
+    def _add(wid: str, uname: str):
+        users = w2u.setdefault(wid, [])
+        if uname not in users:
+            users.append(uname)
+
+    for u in units_raw:
+        name = u["name"]
+        for w in u.get("weapons_default", []):
+            if "bsdata_id" in w:
+                _add(w["bsdata_id"], name)
+        for wo in u.get("weapon_options", []):
+            if "bsdata_id" in wo:
+                _add(wo["bsdata_id"], name)
+            for sub_w in wo.get("weapons", []):
+                if "bsdata_id" in sub_w:
+                    _add(sub_w["bsdata_id"], name)
+            for sg in wo.get("sub_groups", []):
+                for sub_w in sg.get("weapons", []):
+                    if "bsdata_id" in sub_w:
+                        _add(sub_w["bsdata_id"], name)
+    return w2u
+
+
+def main():
+    if not CACHE.exists() or not (CACHE / "units.json").exists():
+        print("Erreur : data/cache_v11/ introuvable ou incomplet.")
+        print("Lance d'abord : python pipeline/fetch_bsdata_v11.py && python pipeline/parse_bsdata_v11.py")
+        return
+
+    OUT_DIR.mkdir(parents=True, exist_ok=True)
+
+    # Load raw data
+    weapons_raw = json.loads((CACHE / "weapons.json").read_text())
+    units_raw   = json.loads((CACHE / "units.json").read_text())
+
+    # Build weapon → users map
+    w2u = build_weapon_users(units_raw)
+
+    # Weapons — deduplicate by (name, A, BS, S, AP, D, keywords) and merge users
+    # Also build id_aliases: original bsdata_id → canonical id (first occurrence kept)
+    seen: dict[str, dict] = {}       # dedup key → merged weapon
+    id_aliases: dict[str, str] = {}  # bsdata_id → canonical id
+
+    for w in weapons_raw:
+        sw = slim_weapon(w)
+        kw_key = ",".join(sorted(sw["kw"]))
+        dedup_key = f"{sw['name']}|{sw['A']}|{sw['BS']}|{sw['S']}|{sw['AP']}|{sw['D']}|{kw_key}"
+
+        users = w2u.get(w["bsdata_id"], [])
+
+        if dedup_key in seen:
+            canonical_id = seen[dedup_key]["id"]
+            id_aliases[w["bsdata_id"]] = canonical_id
+            existing = seen[dedup_key]
+            for u in users:
+                if u not in existing["users"] and len(existing["users"]) < 3:
+                    existing["users"].append(u)
+        else:
+            id_aliases[w["bsdata_id"]] = sw["id"]   # maps to itself (canonical)
+            sw["users"] = users[:3]
+            seen[dedup_key] = sw
+
+    weapons = list(seen.values())
+    (OUT_DIR / "weapons.json").write_text(json.dumps(weapons, separators=(",", ":")))
+    print(f"[build-v11] {len(weapons)} weapons (deduped from {len(weapons_raw)}) → {(OUT_DIR / 'weapons.json').stat().st_size // 1024} KB")
+
+    # Units — pass id_aliases so weapon refs use canonical ids
+    units = [slim_unit(u, id_aliases) for u in units_raw]
+    (OUT_DIR / "units.json").write_text(json.dumps(units, separators=(",", ":")))
+    print(f"[build-v11] {len(units)} units → {(OUT_DIR / 'units.json').stat().st_size // 1024} KB")
+
+    # Factions (already small)
+    factions = json.loads((CACHE / "factions.json").read_text())
+    (OUT_DIR / "factions.json").write_text(json.dumps(factions, separators=(",", ":")))
+    print(f"[build-v11] {len(factions)} factions")
+
+    print(f"\n[build-v11] Sortie écrite dans {OUT_DIR} (staging — pas dans frontend/public/)")
+
+
+if __name__ == "__main__":
+    main()
