@@ -2,7 +2,9 @@ import { useEffect, useState, useMemo } from 'react'
 import { useIsMobile } from '../hooks/useIsMobile'
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts'
 import { KEYWORD_REGISTRY } from '../engine/keywords'
+import { KEYWORD_REGISTRY_V11 } from '../engine/keywords_v11'
 import { simulate } from '../engine/simulation'
+import { useDataStore } from '../store/dataStore'
 import { ACCENT_TEXT, ACCENT, BORDER, SURFACE, TEXT, TEXT_OFF, TEXT_SEC, TEXT_WEAK, SUCCESS, WARNING, TYPE , FONT_UI, ACCENT_LIGHT} from '../theme'
 
 const N_TRIALS = 1200
@@ -720,12 +722,20 @@ function DetailPanel({ kw }) {
 // ── Page ───────────────────────────────────────────────────────────────────────
 
 export function KeywordsPage() {
-  const [selected, setSelected] = useState(KEYWORD_REGISTRY[0])
+  const edition = useDataStore((s) => s.edition)
+  const registry = edition === 'v11' ? KEYWORD_REGISTRY_V11 : KEYWORD_REGISTRY
+  const [selected, setSelected] = useState(registry[0])
   const isMobile = useIsMobile()
 
   useEffect(() => {
     document.title = "Keywords — Prob'Hammer"
   }, [])
+
+  // Registry changes when the edition toggle flips — reset selection so we
+  // don't keep a stale keyword object from the other edition around.
+  useEffect(() => {
+    setSelected(registry[0])
+  }, [registry])
 
   const listEl = (
     <div style={{
@@ -735,7 +745,7 @@ export function KeywordsPage() {
       paddingTop: '8px', paddingBottom: '24px',
     }}>
       {SECTIONS.map(({ label, group }) => {
-        const keys = KEYWORD_REGISTRY.filter((k) => k.group === group)
+        const keys = registry.filter((k) => k.group === group)
         if (!keys.length) return null
         return (
           <div key={group} style={{ marginBottom: '8px' }}>
@@ -780,7 +790,7 @@ export function KeywordsPage() {
           </h1>
           {!isMobile && (
             <span style={{ fontFamily: FONT_UI, fontSize: '10px', letterSpacing: '2px', textTransform: 'uppercase', color: TEXT_WEAK }}>
-              {KEYWORD_REGISTRY.length} keywords · 10th Edition
+              {registry.length} keywords · {edition === 'v11' ? '11th Edition (preview)' : '10th Edition'}
             </span>
           )}
         </div>
