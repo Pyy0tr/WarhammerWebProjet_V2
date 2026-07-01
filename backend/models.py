@@ -30,6 +30,7 @@ class Army(Base):
     id         = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     name       = Column(String, nullable=False)
     units      = Column(JSONB, default=list)
+    edition    = Column(String, nullable=False, default="v10")  # 'v10' | 'v11' — fixed at creation, never changes
     user_id    = Column(UUID(as_uuid=True), ForeignKey("users.id"), nullable=False)
     created_at = Column(DateTime(timezone=True), default=utcnow)
     updated_at = Column(DateTime(timezone=True), default=utcnow, onupdate=utcnow)

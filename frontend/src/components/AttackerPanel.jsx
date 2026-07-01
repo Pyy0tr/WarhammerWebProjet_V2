@@ -155,17 +155,26 @@ function ArmyPicker() {
   const setAttacker = useSimulatorStore((s) => s.setAttacker)
   const setAttackerUnit = useSimulatorStore((s) => s.setAttackerUnit)
   const weapon      = useSimulatorStore((s) => s.attacker.weapon)
+  const edition     = useDataStore((s) => s.edition)
 
-  useEffect(() => { init(user) }, [])  // eslint-disable-line
+  // Re-fetch whenever the V10/V11 toggle flips — armies are edition-locked.
+  useEffect(() => { init(user) }, [edition])  // eslint-disable-line
 
   const [armyId,   setArmyId]   = useState('')
   const [unitUid,  setUnitUid]  = useState('')
   const [weaponId, setWeaponId] = useState('')
   const [firing,   setFiring]   = useState(1)
 
-  // Once armies load, auto-select the first one if nothing is selected yet
+  // Auto-select the first army once loaded, and reset the selection if the
+  // current one no longer exists in the list (e.g. after switching edition).
   useEffect(() => {
-    if (!armyId && armies.length > 0) setArmyId(armies[0].id)
+    if (armyId && !armies.some((a) => a.id === armyId)) {
+      setArmyId('')
+      setUnitUid('')
+      setWeaponId('')
+    } else if (!armyId && armies.length > 0) {
+      setArmyId(armies[0].id)
+    }
   }, [armies])  // eslint-disable-line
 
   const army    = armies.find((a) => a.id === armyId) ?? null

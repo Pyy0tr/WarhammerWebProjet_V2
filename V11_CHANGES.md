@@ -165,6 +165,15 @@ Décision mise à jour : au lieu de rester purement en staging local, le premier
 - Toggle contexte `cover` → redocumenter comme malus CB attaquant (pas bonus save défenseur), potentiellement conditionné à un keyword MONSTER/VEHICLE absent chez la cible.
 - SEO/branding : mentions "V11 / 11th edition" (déjà noté dans `V11_NOTES.txt`).
 
+### Séparation des armées V10/V11 (2026-07-01)
+Problème identifié : les armées sauvegardées embarquent un instantané complet des unités (stats + refs d'armes) sans notion d'édition — une armée créée en V10 devenait silencieusement cassée si on la consultait en V11 (IDs d'armes qui ne correspondent à rien dans l'autre catalogue BattleScribe).
+- `backend/models.py` : colonne `edition` (`'v10'`/`'v11'`, défaut `'v10'`) ajoutée au modèle `Army`, fixée à la création, jamais modifiable ensuite.
+- `backend/main.py` : migration auto au démarrage (`ALTER TABLE armies ADD COLUMN IF NOT EXISTS edition ... DEFAULT 'v10'`) — même pattern que les migrations `users` existantes, non destructif, les armées existantes deviennent `v10`.
+- `backend/routes/armies.py` : `POST /armies` enregistre l'édition courante ; `GET /armies?edition=` filtre côté serveur.
+- `frontend/src/store/armyStore.js` : cache `init()` invalidé par `(user, édition)` ; `create()` tague la nouvelle armée ; **pour les invités (localStorage)**, correction d'un bug de fond potentiel — l'ancien `lsSave()` écrasait tout le localStorage avec seulement les armées de l'édition affichée, ce qui aurait supprimé silencieusement les armées de l'autre édition à la moindre modification. Remplacé par `lsSaveForEdition()` qui fusionne avec les armées de l'autre édition déjà sur disque.
+- `ArmiesPage.jsx` et `AttackerPanel.jsx` (sélecteur d'armée dans le Simulateur) : re-fetch au changement d'édition, reset propre de la sélection si l'armée active n'existe plus dans la liste filtrée.
+- **Testé** : le chemin invité/localStorage en navigateur réel (créer une armée par édition, basculer, vérifier qu'aucune ne fuite vers l'autre, vérifier la fusion localStorage) — comportement correct, 0 erreur console. **Pas testé** : le chemin backend/Postgres réel (migration + endpoints), faute de Docker/Postgres disponible dans cet environnement sandbox — vérifié uniquement par relecture + `flake8` + compilation Python. À valider après déploiement.
+
 ---
 
 ## 6. Questions ouvertes / à vérifier
@@ -189,3 +198,4 @@ Décision mise à jour : au lieu de rester purement en staging local, le premier
 - 2026-07-01 : identification du repo communautaire `vflam/wh40k-11e` (même schéma BattleScribe que la V10, mais JSON au lieu de XML .cat/.gst). Décision : pipeline de staging isolée. Construction de `fetch_bsdata_v11.py` + `parse_bsdata_v11.py` (adaptateur JsonNode) → 1706 unités/6414 armes/36 règles extraites avec succès. Exploitation du texte de règles réel pour confirmer/corriger plusieurs points : Cleave (formule = Blast confirmée), Stealth (toujours présent), Heavy (conditions précisées), Psychic (portée plus limitée que prévu — hit seulement, pas wound), Close-Quarters/Pistol (vraie mécanique différente, pas qu'un renommage).
 - 2026-07-01 : premier jeu de données V11 copié dans `frontend/public/data/v11/`, sélecteur V10/V11 ajouté dans la navbar (`dataStore.js` + `Navbar.jsx`), page Keywords rendue edition-aware (`keywords_v11.js`). Pushé et testé en prod.
 - 2026-07-01 : moteur de simulation V11 codé (`simulation_v11.js`, fork de `simulation.js`) — Cover déplacé en malus de tir, Psychic implémenté (hit-only), Cleave ajouté (= Blast en mêlée), Heavy laissé inchangé (aucun impact sur le calcul). Branché dans SimulatorPage, Synergy Matrix et Keywords (démos live désormais réellement différentes entre éditions). Testé en local sans régression V10.
+- 2026-07-01 : séparation des armées sauvegardées par édition (colonne `edition` sur `Army`, migration auto, filtrage `GET /armies?edition=`, `armyStore.js` edition-aware côté front + fix d'un bug de fusion localStorage au passage). Chemin invité testé en navigateur réel ; chemin backend/Postgres non testé (pas de Docker dans ce sandbox) — à valider après déploiement.

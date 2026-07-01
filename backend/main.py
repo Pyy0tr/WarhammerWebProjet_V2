@@ -44,6 +44,11 @@ async def lifespan(_app: FastAPI):
                         created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
                     );
                 """))
+                # V10/V11 army separation — existing armies default to 'v10'
+                # (the only edition that existed before this column was added).
+                conn.execute(text("""
+                    ALTER TABLE armies ADD COLUMN IF NOT EXISTS edition VARCHAR NOT NULL DEFAULT 'v10';
+                """))
                 conn.commit()
             logger.info("Database tables ready")
             break

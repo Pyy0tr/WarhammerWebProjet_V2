@@ -910,6 +910,7 @@ export function ArmiesPage() {
   const create   = useArmyStore((s) => s.create)
   const activeId = useArmyStore((s) => s.activeId)
   const setActive = useArmyStore((s) => s.setActive)
+  const edition  = useDataStore((s) => s.edition)
   const isMobile = useIsMobile()
 
   useEffect(() => {
@@ -918,7 +919,8 @@ export function ArmiesPage() {
 
   const [showModal, setShowModal] = useState(false)
 
-  useEffect(() => { init(user) }, [user, init])
+  // Re-fetch whenever the V10/V11 toggle flips — armies are edition-locked.
+  useEffect(() => { init(user) }, [user, init, edition])
 
   const handleCreate = async (name) => {
     await create(user, name)
