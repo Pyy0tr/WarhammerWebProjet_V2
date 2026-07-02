@@ -298,7 +298,7 @@ function StepContent({ step, onNext, onSynergies }) {
         </p>
       </div>
       <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-        <ContinueBtn onClick={onSynergies} label="Découverte des synergies →" primary />
+        <ContinueBtn onClick={onSynergies} label="Explore synergies →" primary />
         <span
           onClick={onNext}
           style={{ fontFamily: FONT_UI, fontSize: '10px', letterSpacing: '2px', textTransform: 'uppercase', color: TEXT_OFF, cursor: 'pointer', textDecoration: 'underline', textUnderlineOffset: '3px', alignSelf: 'flex-start' }}
