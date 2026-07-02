@@ -106,6 +106,19 @@ Data files are bundled in `frontend/public/data/` — no pipeline run needed for
 | Data pipeline | Python — fetches, parses and builds JSON from BSData |
 | Hosting | AWS CloudFront + S3 (frontend) · EC2 (backend) |
 
+### Routing & SEO
+
+The S3 origin uses Origin Access Control (not static-website-hosting), so
+CloudFront has no built-in directory-index resolution beyond the exact root
+`/`. A CloudFront Function (`infra/functions/spa-index-rewrite.js`) rewrites
+extensionless requests (e.g. `/simulator`) to `<path>/index.html` at the
+edge, resolving to the page-specific prerendered HTML that
+`frontend/scripts/generate-pages.js` generates at build time — each with its
+own `<title>`, canonical URL, and noscript content for crawlers. Without it,
+every route 403'd and fell through to the SPA error fallback, serving the
+homepage's canonical on every page (which is why Google wouldn't index them
+as distinct pages).
+
 ---
 
 *Unofficial. Not affiliated with Games Workshop. Warhammer 40,000 © Games Workshop Ltd.*
