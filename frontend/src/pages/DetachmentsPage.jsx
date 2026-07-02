@@ -3,7 +3,7 @@ import { useIsMobile } from '../hooks/useIsMobile'
 import { useDataStore } from '../store/dataStore'
 import { AbilityText } from '../components/AbilityText'
 import {
-  ACCENT_TEXT, ACCENT, BORDER, BG, ERROR, SUCCESS, SURFACE, SURFACE_E, TEXT, TEXT_OFF,
+  ACCENT_TEXT, ACCENT, BORDER, BG, ERROR, HIGHLIGHT, SUCCESS, SURFACE, SURFACE_E, TEXT, TEXT_OFF,
   TEXT_SEC, TEXT_WEAK, TYPE, WARNING, FONT_UI, ACCENT_LIGHT} from '../theme'
 
 // ── Phase colors ─────────────────────────────────────────────────────────────
@@ -164,7 +164,8 @@ function EnhCard({ enh }) {
 
 function DetachmentSection({ det }) {
   const [open, setOpen] = useState(false)
-  const hasContent = det.stratagems.length > 0 || det.enhancements.length > 0
+  const hasRules = det.rules?.length > 0
+  const hasContent = hasRules || det.stratagems.length > 0 || det.enhancements.length > 0
 
   return (
     <div style={{ border: `1px solid ${BORDER}`, borderRadius: '6px', overflow: 'hidden' }}>
@@ -185,6 +186,11 @@ function DetachmentSection({ det }) {
           {det.name}
         </div>
         <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+          {hasRules && (
+            <span style={{ ...TYPE.label, color: HIGHLIGHT, border: `1px solid rgba(194,143,133,0.3)`, padding: '1px 7px', borderRadius: '4px' }}>
+              rule
+            </span>
+          )}
           {det.stratagems.length > 0 && (
             <span style={{ ...TYPE.label, color: ACCENT_TEXT, border: `1px solid rgba(47,224,255,0.3)`, padding: '1px 7px', borderRadius: '4px' }}>
               {det.stratagems.length} strats
@@ -206,9 +212,22 @@ function DetachmentSection({ det }) {
       {/* Content */}
       {open && (
         <div style={{ background: SURFACE }}>
+          {/* Detachment rule (passive ability) */}
+          {hasRules && (
+            <div style={{ padding: '16px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
+              <div style={{ ...TYPE.label, color: HIGHLIGHT, marginBottom: '-4px' }}>Detachment Rule</div>
+              {det.rules.map((r) => (
+                <div key={r.name}>
+                  {r.name && <div style={{ ...TYPE.heading, color: TEXT, marginBottom: '8px' }}>{r.name}</div>}
+                  <p style={{ ...TYPE.body, fontSize: '13px', margin: 0, whiteSpace: 'pre-wrap' }}><AbilityText text={r.text} /></p>
+                </div>
+              ))}
+            </div>
+          )}
+
           {/* Enhancements */}
           {det.enhancements.length > 0 && (
-            <div style={{ padding: '16px' }}>
+            <div style={{ padding: '16px', borderTop: hasRules ? `1px solid ${BORDER}` : 'none' }}>
               <div style={{ ...TYPE.label, color: SUCCESS, marginBottom: '10px' }}>Enhancements</div>
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '10px' }}>
                 {det.enhancements.map((e) => <EnhCard key={e.name} enh={e} />)}
@@ -218,7 +237,7 @@ function DetachmentSection({ det }) {
 
           {/* Stratagems */}
           {det.stratagems.length > 0 && (
-            <div style={det.enhancements.length > 0 ? { borderTop: `1px solid ${BORDER}` } : {}}>
+            <div style={(hasRules || det.enhancements.length > 0) ? { borderTop: `1px solid ${BORDER}` } : {}}>
               <div style={{ ...TYPE.label, color: ACCENT_TEXT, padding: '12px 16px 0' }}>Stratagems</div>
               {det.stratagems.map((s) => <StratRow key={s.name} strat={s} />)}
             </div>

@@ -126,6 +126,31 @@ def army_rules(rules_obj) -> list[dict]:
     return out
 
 
+def detachment_rules(rules_obj) -> dict[str, list[dict]]:
+    """dict: detachment name -> list of {name, text} rule blocks — the
+    detachment's own passive ability (e.g. Black Templars' Companions of
+    Vehemence -> Righteous Fervour). Same source shape as army_rules, one
+    level deeper (grouped by detachment under rules.detachment). The
+    "detachment" key on each group is already a plain string in this
+    source, same as stratagems/enhancements' "detachment" key — only the
+    nested rule name/text fields need the locale-object unwrap."""
+    if not rules_obj or not isinstance(rules_obj, dict):
+        return {}
+    out: dict[str, list[dict]] = {}
+    for det_group in rules_obj.get("detachment", []):
+        det_name = det_group.get("detachment", "")
+        blocks = []
+        for group in det_group.get("rules", []):
+            name = text(group.get("name"))
+            texts = [text(r.get("text")) for r in group.get("rules", [])]
+            rule_text = "\n\n".join(t for t in texts if t)
+            if name or rule_text:
+                blocks.append({"name": name, "text": rule_text})
+        if blocks:
+            out[det_name] = blocks
+    return out
+
+
 def process(data: dict) -> dict:
     detachments = data.get("detachments", [])
     strats_raw  = data.get("stratagems", [])
@@ -136,6 +161,7 @@ def process(data: dict) -> dict:
     det_names = [text(d.get("name")) for d in detachments]
     strat_by = {n: [] for n in det_names}
     enh_by   = {n: [] for n in det_names}
+    rules_by = detachment_rules(data.get("rules", {}))
 
     for s in strats_raw:
         key = s.get("detachment", "")
@@ -150,6 +176,7 @@ def process(data: dict) -> dict:
     det_list = [
         {
             "name":         n,
+            "rules":        rules_by.get(n, []),
             "stratagems":   strat_by.get(n, []),
             "enhancements": enh_by.get(n, []),
         }

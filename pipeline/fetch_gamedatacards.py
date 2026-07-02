@@ -64,6 +64,27 @@ def army_rules(rules_obj) -> list[dict]:
     return out
 
 
+def detachment_rules(rules_obj) -> dict[str, list[dict]]:
+    """dict: detachment name -> list of {name, text} rule blocks — the
+    detachment's own passive ability (e.g. Black Templars' Companions of
+    Vehemence -> Righteous Fervour). Same source shape as army_rules, one
+    level deeper (grouped by detachment under rules.detachment)."""
+    if not rules_obj or not isinstance(rules_obj, dict):
+        return {}
+    out: dict[str, list[dict]] = {}
+    for det_group in rules_obj.get("detachment", []):
+        det_name = det_group.get("detachment", "")
+        blocks = []
+        for group in det_group.get("rules", []):
+            name = group.get("name", "")
+            text = "\n\n".join(r.get("text", "") for r in group.get("rules", []) if r.get("text"))
+            if name or text:
+                blocks.append({"name": name, "text": text})
+        if blocks:
+            out[det_name] = blocks
+    return out
+
+
 def process(data: dict) -> dict:
     detachments = data.get("detachments", [])
     strats_raw  = data.get("stratagems", [])
@@ -71,6 +92,7 @@ def process(data: dict) -> dict:
 
     strat_by = {d["name"]: [] for d in detachments}
     enh_by   = {d["name"]: [] for d in detachments}
+    rules_by = detachment_rules(data.get("rules", {}))
 
     for s in strats_raw:
         key = s.get("detachment", "")
@@ -85,6 +107,7 @@ def process(data: dict) -> dict:
     det_list = [
         {
             "name":         d["name"],
+            "rules":        rules_by.get(d["name"], []),
             "stratagems":   strat_by.get(d["name"], []),
             "enhancements": enh_by.get(d["name"], []),
         }
