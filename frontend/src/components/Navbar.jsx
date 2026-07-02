@@ -21,6 +21,11 @@ const NAV_LINKS = [
   { to: '/combos',      label: 'Combos' },
 ]
 
+// Pages with real edition-specific data/behavior (own dataset, engine, or
+// content per V10/V11). Everywhere else — Home, Learn, auth/account pages —
+// the toggle would just be dead UI with nothing to switch.
+const EDITION_AWARE_PATHS = ['/factions', '/armies', '/simulator', '/keywords', '/detachments', '/combos']
+
 function NavLink({ to, children, active, onClick }) {
   const [hov, setHov] = useState(false)
   return (
@@ -174,7 +179,7 @@ function EditionToggle({ compact }) {
 
   return (
     <div
-      title={edition === 'v11' ? "V11 preview — data from a community dataset, simulator still uses 10th edition rules" : undefined}
+      title={edition === 'v11' ? "V11 preview — data and simulation rules from an unofficial community dataset, not yet cross-checked against the official GW rulebook" : undefined}
       style={{
         display: 'flex',
         border: `1px solid ${BORDER}`,
@@ -240,6 +245,7 @@ export function Navbar() {
   const [modal, setModal] = useState(null)
   const [menuOpen, setMenuOpen] = useState(false)
   const isAdmin = user?.username === 'admin'
+  const showEditionToggle = EDITION_AWARE_PATHS.includes(pathname)
 
   function closeMenu() { setMenuOpen(false) }
 
@@ -275,7 +281,7 @@ export function Navbar() {
           Prob'Hammer
         </Link>
 
-        {!isMobile && <EditionToggle />}
+        {!isMobile && showEditionToggle && <EditionToggle />}
 
         {isMobile ? (
           /* ── Mobile: hamburger ── */
@@ -350,9 +356,11 @@ export function Navbar() {
             overflowY: 'auto',
             maxHeight: 'calc(100vh - 56px)',
           }}>
-            <div style={{ padding: '16px 24px', borderBottom: `1px solid ${BORDER}` }}>
-              <EditionToggle compact />
-            </div>
+            {showEditionToggle && (
+              <div style={{ padding: '16px 24px', borderBottom: `1px solid ${BORDER}` }}>
+                <EditionToggle compact />
+              </div>
+            )}
 
             {NAV_LINKS.map(({ to, label }) => (
               <MobileNavLink key={to} to={to} active={pathname === to} onClick={closeMenu}>

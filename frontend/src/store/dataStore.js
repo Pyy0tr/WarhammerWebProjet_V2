@@ -1,7 +1,9 @@
 import { create } from 'zustand'
 
-// V11 data is a staging preview — parsed from a community dataset, engine
-// mechanics (simulation.js/keywords.js) still reflect 10th edition rules.
+// V11 data is a staging preview — parsed from an unofficial community
+// dataset. Its own simulation engine (simulation_v11.js/keywords_v11.js)
+// is wired in via edition-aware stores, but the underlying rules are not
+// yet cross-checked against the official GW rulebook.
 const EDITION_DATA_DIR = { v10: '/data', v11: '/data/v11' }
 const VALID_EDITIONS = Object.keys(EDITION_DATA_DIR)
 const EDITION_STORAGE_KEY = 'probhammer_edition'

@@ -458,7 +458,7 @@ export function DefenderPanel() {
             onChange={(v) => setContext({ half_range: v })} />
           <Toggle label="Attacker charged this turn (Lance)" checked={context.attacker_charged}
             onChange={(v) => setContext({ attacker_charged: v })} />
-          <Toggle label="Attacker moved this turn (Heavy penalty)" checked={context.attacker_moved}
+          <Toggle label={edition === 'v11' ? 'Engaged, deployed this turn, or moved >3" (loses Heavy +1)' : 'Attacker moved this turn (Heavy penalty)'} checked={context.attacker_moved}
             onChange={(v) => setContext({ attacker_moved: v })} />
           <Toggle label={edition === 'v11' ? 'Plunging Fire (elevated ≥3", +1 to hit)' : 'Plunging Fire (unit/faction ability, +1 to hit)'} checked={context.plunging_fire}
             onChange={(v) => setContext({ plunging_fire: v })} />
