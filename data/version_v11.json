@@ -1,6 +1,6 @@
 {
-  "sha": "d9953b676f5d7d6bc3257443af5a14a100078c8d",
-  "sha_short": "d9953b67",
-  "committed_at": "2026-07-01T15:13:19Z",
-  "message": "v0.33 \u2014 Enhancements linked to CHARACTER units only (Upgrades stay on all)"
+  "sha": "399fab2a82358fe9136294c108abdbb922e89fdf",
+  "sha_short": "399fab2a",
+  "committed_at": "2026-07-02T11:44:31Z",
+  "message": "v0.36 \u2014 chapter catalogues get Upgrades links; enhancement gating completed"
 }
