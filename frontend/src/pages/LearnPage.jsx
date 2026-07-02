@@ -525,10 +525,10 @@ export function LearnPage() {
   const currentStep = STEPS[activeStep]
 
   return (
-    <div style={{ minHeight: '100vh', background: BG, display: 'flex', flexDirection: 'column' }}>
+    <div style={{ minHeight: '100vh', background: BG, display: 'flex', flexDirection: 'column', paddingTop: '52px' }}>
 
-      {/* Top bar */}
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 24px', borderBottom: `1px solid ${BORDER}`, height: '52px', flexShrink: 0, position: 'sticky', top: 0, zIndex: 10, background: BG }}>
+      {/* Top bar — sits below the fixed site Navbar (52px) */}
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 24px', borderBottom: `1px solid ${BORDER}`, height: '52px', flexShrink: 0, position: 'sticky', top: '52px', zIndex: 10, background: BG }}>
         <div style={{ fontFamily: FONT_UI, fontSize: '12px', fontWeight: 700, letterSpacing: '3px', color: ACCENT_TEXT }}>
           PROB<span style={{ opacity: 0.4 }}>'</span>HAMMER
         </div>

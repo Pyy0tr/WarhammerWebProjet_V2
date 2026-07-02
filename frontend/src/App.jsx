@@ -18,7 +18,7 @@ import { useDataStore } from './store/dataStore'
 import { useAuthStore } from './store/authStore'
 import { useArmyStore } from './store/armyStore'
 
-const NO_NAVBAR = ['/welcome', '/onboarding', '/learn', '/reset-password']
+const NO_NAVBAR = ['/welcome', '/onboarding', '/reset-password']
 
 function NavbarConditional() {
   const { pathname } = useLocation()

@@ -8,7 +8,7 @@ import { simulate as simulateV10 } from '../engine/simulation'
 import { simulate as simulateV11 } from '../engine/simulation_v11'
 import {
   ACCENT_TEXT, ACCENT, BG, BORDER, ERROR, SURFACE,
-  TEXT, TEXT_OFF, TEXT_SEC, TEXT_WEAK, SUCCESS, FONT_UI,
+  TEXT, TEXT_OFF, TEXT_SEC, TEXT_WEAK, SUCCESS, WARNING, FONT_UI,
 } from '../theme'
 
 const N_TRIALS = 2000
@@ -346,7 +346,7 @@ function SquadDrawer({ open, onClose }) {
 
   if (!open) return null
   return (
-    <div style={{ position: 'fixed', inset: 0, background: BG, zIndex: 200, overflowY: 'auto', paddingTop: '52px' }}>
+    <div style={{ position: 'fixed', inset: 0, background: BG, zIndex: 90, overflowY: 'auto', paddingTop: '52px' }}>
       <div style={{ padding: '0 32px' }}>
         <Separator />
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '16px 0 14px' }}>
@@ -1068,6 +1068,12 @@ export function ComboPage() {
               <h1 style={{ fontFamily: FONT_UI, fontWeight: 700, fontSize: isMobile ? '16px' : 'clamp(18px, 2vw, 26px)', letterSpacing: '0.05em', textTransform: 'uppercase', lineHeight: 1, color: TEXT, margin: 0 }}>
                 Synergy Matrix
               </h1>
+              <span
+                title="Functional but still evolving — layout, edge cases and V11 support may change"
+                style={{ display: 'inline-flex', border: `1px solid ${WARNING}`, color: WARNING, fontFamily: FONT_UI, fontSize: '9px', fontWeight: 700, letterSpacing: '1.5px', textTransform: 'uppercase', padding: '2px 6px', lineHeight: 1.4 }}
+              >
+                Beta
+              </span>
               {!isMobile && (
                 <span style={{ fontFamily: FONT_UI, fontSize: '10px', letterSpacing: '2px', textTransform: 'uppercase', color: TEXT_WEAK }}>
                   Combo Builder · WH40K 10e
