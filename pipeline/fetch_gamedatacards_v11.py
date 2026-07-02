@@ -17,11 +17,17 @@ Schema differences vs the V10 source, handled here:
   - No 11th/gdc/core.json (404, confirmed) — the universal/core stratagems
     (Command Re-roll, Insane Bravery, etc.) are not published in this repo
     for V11 yet. core_stratagems ships as an empty list until they appear.
+  - Text also carries inline HTML-ish markup (<k>, <b>, <i>, <u>, <ul><li>)
+    on top of the **bold**/^^highlight^^ markdown BSData already uses.
+    convert_markup() below folds it all into that one existing convention
+    (frontend/src/components/AbilityText.jsx already renders it — see
+    V11_CHANGES.md) instead of inventing a second rendering path.
 
 Output: frontend/public/data/gdc_v11.json
 """
 
 import json
+import re
 import time
 import urllib.request
 from datetime import datetime, timezone
@@ -46,12 +52,41 @@ def fetch(url: str) -> dict | list:
         return json.loads(r.read())
 
 
+def convert_markup(s: str) -> str:
+    """
+    Fold this source's HTML-ish markup into the **bold**/^^highlight^^/■
+    convention BSData text already uses (and AbilityText.jsx already knows
+    how to render) — one rendering path for both data sources instead of two.
+
+    Order matters: inline tags first, so a <b>/<k> nested inside a <li>
+    is already converted by the time the list is unwrapped into bullets.
+    """
+    if not s:
+        return s
+
+    s = re.sub(r"<k>(.*?)</k>", r"^^\1^^", s, flags=re.DOTALL)
+    s = re.sub(r"<(?:b|i|u)>(.*?)</(?:b|i|u)>", r"**\1**", s, flags=re.DOTALL)
+
+    def _list_to_bullets(m):
+        items = re.findall(r"<li>(.*?)</li>", m.group(0), flags=re.DOTALL)
+        return "\n" + "\n".join(f"■ {item.strip()}" for item in items)
+
+    s = re.sub(r"<ul>.*?</ul>", _list_to_bullets, s, flags=re.DOTALL)
+
+    # Safety net — never leak an unrecognised tag into the rendered text.
+    s = re.sub(r"<[^>]+>", "", s)
+
+    # Tidy up whitespace left behind by the list conversion.
+    s = re.sub(r"[ \t]+\n", "\n", s)
+    s = re.sub(r"\n{3,}", "\n\n", s)
+    return s.strip()
+
+
 def text(field, default: str = "") -> str:
     """Unwrap a V11 GDC locale-object text field ({"en": "...", ...}); passes
     through plain strings unchanged for robustness against schema drift."""
-    if isinstance(field, dict):
-        return field.get("en", default)
-    return field or default
+    raw = field.get("en", default) if isinstance(field, dict) else (field or default)
+    return convert_markup(raw)
 
 
 def slim_strat(s: dict) -> dict:

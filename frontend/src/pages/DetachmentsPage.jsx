@@ -1,6 +1,7 @@
 import { useEffect, useState, useMemo } from 'react'
 import { useIsMobile } from '../hooks/useIsMobile'
 import { useDataStore } from '../store/dataStore'
+import { AbilityText } from '../components/AbilityText'
 import {
   ACCENT_TEXT, ACCENT, BORDER, BG, ERROR, SUCCESS, SURFACE, SURFACE_E, TEXT, TEXT_OFF,
   TEXT_SEC, TEXT_WEAK, TYPE, WARNING, FONT_UI, ACCENT_LIGHT} from '../theme'
@@ -103,25 +104,25 @@ function StratRow({ strat }) {
           {strat.when && (
             <div>
               <div style={{ ...TYPE.label, color: TEXT_WEAK, marginBottom: '4px' }}>When</div>
-              <p style={{ ...TYPE.body, fontSize: '13px', margin: 0 }}>{strat.when}</p>
+              <p style={{ ...TYPE.body, fontSize: '13px', margin: 0, whiteSpace: 'pre-wrap' }}><AbilityText text={strat.when} /></p>
             </div>
           )}
           {strat.target && (
             <div>
               <div style={{ ...TYPE.label, color: TEXT_WEAK, marginBottom: '4px' }}>Target</div>
-              <p style={{ ...TYPE.body, fontSize: '13px', margin: 0 }}>{strat.target}</p>
+              <p style={{ ...TYPE.body, fontSize: '13px', margin: 0, whiteSpace: 'pre-wrap' }}><AbilityText text={strat.target} /></p>
             </div>
           )}
           {strat.effect && (
             <div>
               <div style={{ ...TYPE.label, color: TEXT_WEAK, marginBottom: '4px' }}>Effect</div>
-              <p style={{ ...TYPE.body, fontSize: '13px', margin: 0 }}>{strat.effect}</p>
+              <p style={{ ...TYPE.body, fontSize: '13px', margin: 0, whiteSpace: 'pre-wrap' }}><AbilityText text={strat.effect} /></p>
             </div>
           )}
           {strat.restrictions && (
             <div>
               <div style={{ ...TYPE.label, color: WARNING, marginBottom: '4px' }}>Restrictions</div>
-              <p style={{ ...TYPE.body, fontSize: '13px', margin: 0, color: TEXT_WEAK }}>{strat.restrictions}</p>
+              <p style={{ ...TYPE.body, fontSize: '13px', margin: 0, color: TEXT_WEAK, whiteSpace: 'pre-wrap' }}><AbilityText text={strat.restrictions} /></p>
             </div>
           )}
         </div>
@@ -149,7 +150,7 @@ function EnhCard({ enh }) {
           </span>
         )}
       </div>
-      <p style={{ ...TYPE.body, fontSize: '13px', margin: 0 }}>{enh.description}</p>
+      <p style={{ ...TYPE.body, fontSize: '13px', margin: 0, whiteSpace: 'pre-wrap' }}><AbilityText text={enh.description} /></p>
       {enh.excludes?.length > 0 && (
         <div style={{ ...TYPE.label, color: WARNING }}>
           Excludes: {enh.excludes.join(', ')}
@@ -255,7 +256,7 @@ function ArmyRulesSection({ rules }) {
           {rules.map((r) => (
             <div key={r.name}>
               {r.name && <div style={{ ...TYPE.heading, color: TEXT, marginBottom: '8px' }}>{r.name}</div>}
-              <p style={{ ...TYPE.body, fontSize: '13px', margin: 0, whiteSpace: 'pre-wrap' }}>{r.text}</p>
+              <p style={{ ...TYPE.body, fontSize: '13px', margin: 0, whiteSpace: 'pre-wrap' }}><AbilityText text={r.text} /></p>
             </div>
           ))}
         </div>
