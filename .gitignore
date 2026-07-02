@@ -12,12 +12,14 @@ data/raw/
 data/cache/
 data/users.db
 
-# V11 staging pipeline — expérimental, pas encore de données stables à commiter
+# V11 staging pipeline — artefacts régénérables, pas commités
+# (data/version_v11.json reste tracké : c'est l'état persistant utilisé par
+# fetch_bsdata_v11.py pour détecter les mises à jour d'un run CI à l'autre,
+# même rôle que data/version.json pour la V10)
 data/raw_v11/
 data/cache_v11/
 data/cache_stable_v11/
 data/frontend_preview_v11/
-data/version_v11.json
 
 # Environment
 .env

@@ -281,7 +281,8 @@ def extract_unit_stats(profile: JsonNode) -> dict | None:
     return {
         "M":  chars.get("M", "-"),
         "T":  chars.get("T", "-"),
-        "SV": chars.get("SV", "-"),
+        # V11 data uses "Sv" (not "SV" like V10's BSData) for the Save characteristic.
+        "SV": chars.get("SV") or chars.get("Sv", "-"),
         "W":  chars.get("W", "-"),
         "LD": chars.get("LD", "-"),
         "OC": chars.get("OC", "-"),

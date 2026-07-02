@@ -13,6 +13,7 @@ Vérifie les anomalies dans data/cache/*.json :
 Usage :
     python pipeline/audit.py
     python pipeline/audit.py --json     # sortie JSON pour intégration CI
+    python pipeline/audit.py --cache-dir data/cache_v11   # auditer un autre cache (ex: V11)
 """
 
 import json
@@ -22,17 +23,17 @@ import argparse
 from pathlib import Path
 from collections import defaultdict
 
-CACHE_DIR = Path(__file__).resolve().parent.parent / "data" / "cache"
+DEFAULT_CACHE_DIR = Path(__file__).resolve().parent.parent / "data" / "cache"
 
 # ---------------------------------------------------------------------------
 # Chargement
 # ---------------------------------------------------------------------------
 
-def load():
+def load(cache_dir: Path):
     files = ["units.json", "weapons.json", "factions.json", "faction_units.json", "rules.json"]
     data = {}
     for f in files:
-        path = CACHE_DIR / f
+        path = cache_dir / f
         if not path.exists():
             print(f"ERREUR : {path} introuvable — lance parse_bsdata.py d'abord")
             sys.exit(1)
@@ -300,9 +301,11 @@ def err(msg):
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--json", action="store_true", help="Sortie JSON")
+    parser.add_argument("--cache-dir", default=None, help="Répertoire cache à auditer (défaut: data/cache)")
     args = parser.parse_args()
 
-    data = load()
+    cache_dir = Path(args.cache_dir) if args.cache_dir else DEFAULT_CACHE_DIR
+    data = load(cache_dir)
     units        = data["units"]
     weapons      = data["weapons"]
     factions     = data["factions"]

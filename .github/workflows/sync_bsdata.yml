@@ -58,3 +58,51 @@ jobs:
             git commit -m "chore: sync BSData [$(date -u '+%Y-%m-%d %H:%M UTC')]"
             git push
           fi
+
+      # ─────────────────────────────────────────────
+      # V11 — pipeline de staging (repo communautaire vflam/wh40k-11e).
+      # Même principe que la V10 ci-dessus, mais :
+      #   - pas d'étape "promote cache" (parse_bsdata_v11.py écrit directement
+      #     dans data/cache_v11/, pas de data/cache_stable_v11/ pour l'instant)
+      #   - commit séparé, propre à la V11, pour ne pas coupler l'historique
+      #     des deux datasets (rythmes de mise à jour indépendants)
+      # ─────────────────────────────────────────────
+
+      - name: Fetch BSData V11
+        id: fetch_v11
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: python pipeline/fetch_bsdata_v11.py
+
+      - name: Parse BSData V11
+        if: steps.fetch_v11.outputs.updated == 'true'
+        run: python pipeline/parse_bsdata_v11.py
+
+      - name: Build frontend data V11
+        if: steps.fetch_v11.outputs.updated == 'true'
+        run: |
+          python pipeline/build_frontend_data_v11.py
+          mkdir -p frontend/public/data/v11
+          cp data/frontend_preview_v11/*.json frontend/public/data/v11/
+
+      - name: Audit data quality V11
+        if: steps.fetch_v11.outputs.updated == 'true'
+        # Informational only, unlike the V10 audit above: the V11 community dataset
+        # is early-stage (a handful of legitimate/edge-case gaps remain, e.g. OC
+        # blank on some flyers), and a failing audit shouldn't block every sync
+        # forever. Findings are visible in the job log for manual follow-up.
+        continue-on-error: true
+        run: python pipeline/audit.py --cache-dir data/cache_v11
+
+      - name: Commit frontend data V11 (si changements)
+        if: steps.fetch_v11.outputs.updated == 'true'
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add frontend/public/data/v11/ data/version_v11.json
+          if git diff --cached --quiet; then
+            echo "Aucun changement — BSData V11 n'a pas été mis à jour."
+          else
+            git commit -m "chore: sync BSData V11 [$(date -u '+%Y-%m-%d %H:%M UTC')]"
+            git push
+          fi
