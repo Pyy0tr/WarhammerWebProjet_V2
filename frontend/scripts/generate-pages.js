@@ -4,8 +4,14 @@
  * Run after `vite build` — reads dist/index.html (already has hashed JS/CSS)
  * and writes dist/<route>/index.html for each SPA route.
  *
- * S3+CloudFront serves dist/simulator/index.html when /simulator is requested,
- * giving crawlers (Google, Reddit, Discord) page-specific titles and descriptions.
+ * A CloudFront Function (infra/functions/spa-index-rewrite.js) rewrites
+ * extensionless requests to <path>/index.html at the edge, so /simulator
+ * actually resolves to this dist/simulator/index.html instead of falling
+ * through to the generic root page — without it, the S3 origin (OAC, not
+ * static-website-hosting mode) has no directory-index resolution for
+ * anything but "/", and every route would 403 -> serve the homepage.
+ * That's what gives crawlers (Google, Reddit, Discord) page-specific titles
+ * and descriptions instead of duplicate homepage content on every route.
  * Noscript blocks provide real text content for Googlebot's first-wave HTML crawl.
  */
 

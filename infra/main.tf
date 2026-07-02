@@ -76,6 +76,17 @@ resource "aws_cloudfront_origin_access_control" "frontend" {
   signing_protocol                  = "sigv4"
 }
 
+# Resolves extensionless SPA routes (e.g. /simulator) to their prerendered
+# index.html — see infra/functions/spa-index-rewrite.js for why this is
+# needed (OAC has no S3-website-style directory index resolution).
+resource "aws_cloudfront_function" "spa_index_rewrite" {
+  name    = "${var.project}-spa-index-rewrite"
+  runtime = "cloudfront-js-2.0"
+  comment = "Rewrites extensionless SPA paths to <path>/index.html for crawler SEO"
+  publish = true
+  code    = file("${path.module}/functions/spa-index-rewrite.js")
+}
+
 resource "aws_cloudfront_distribution" "frontend" {
   origin {
     domain_name              = aws_s3_bucket.frontend.bucket_regional_domain_name
@@ -85,6 +96,13 @@ resource "aws_cloudfront_distribution" "frontend" {
 
   enabled             = true
   default_root_object = "index.html"
+
+  # Custom domain — was configured manually in AWS outside Terraform at some
+  # point (drift discovered 2026-07-02 via `terraform plan`, which would
+  # otherwise have stripped this and broken HTTPS on 40k.probhammer.com).
+  # ACM cert must live in us-east-1 for CloudFront regardless of the
+  # distribution's own region.
+  aliases = ["40k.probhammer.com"]
 
   default_cache_behavior {
     allowed_methods        = ["GET", "HEAD"]
@@ -96,6 +114,11 @@ resource "aws_cloudfront_distribution" "frontend" {
     forwarded_values {
       query_string = false
       cookies { forward = "none" }
+    }
+
+    function_association {
+      event_type   = "viewer-request"
+      function_arn = aws_cloudfront_function.spa_index_rewrite.arn
     }
   }
 
@@ -116,7 +139,9 @@ resource "aws_cloudfront_distribution" "frontend" {
   }
 
   viewer_certificate {
-    cloudfront_default_certificate = true
+    acm_certificate_arn      = "arn:aws:acm:us-east-1:712532371701:certificate/b592092f-f25f-41bb-a172-f1e4f20a3a9c"
+    ssl_support_method       = "sni-only"
+    minimum_protocol_version = "TLSv1.2_2021"
   }
 
   tags = {
