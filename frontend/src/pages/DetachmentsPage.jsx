@@ -1,5 +1,6 @@
 import { useEffect, useState, useMemo } from 'react'
 import { useIsMobile } from '../hooks/useIsMobile'
+import { useDataStore } from '../store/dataStore'
 import {
   ACCENT_TEXT, ACCENT, BORDER, BG, ERROR, SUCCESS, SURFACE, SURFACE_E, TEXT, TEXT_OFF,
   TEXT_SEC, TEXT_WEAK, TYPE, WARNING, FONT_UI, ACCENT_LIGHT} from '../theme'
@@ -265,7 +266,7 @@ function ArmyRulesSection({ rules }) {
 
 // ── Core stratagems panel ─────────────────────────────────────────────────────
 
-function CorePanel({ stratagems }) {
+function CorePanel({ stratagems, edition }) {
   return (
     <div style={{ flex: 1, minWidth: 0, overflowY: 'auto', padding: '24px 28px' }}>
       <div style={{ ...TYPE.display, fontSize: '16px', color: TEXT, marginBottom: '6px' }}>
@@ -274,9 +275,18 @@ function CorePanel({ stratagems }) {
       <div style={{ ...TYPE.body, fontSize: '13px', color: TEXT_SEC, marginBottom: '20px' }}>
         Universal stratagems available to every army.
       </div>
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
-        {stratagems.map((s) => <StratRow key={s.name} strat={s} />)}
-      </div>
+      {stratagems.length === 0 && edition === 'v11' ? (
+        <div style={{ ...TYPE.body, fontSize: '13px', color: TEXT_WEAK, border: `1px dashed ${BORDER}`, borderRadius: '6px', padding: '16px' }}>
+          Not published yet by the data source (game-datacards/datasources has no 11th/gdc/core.json
+          at the time of writing) — universal stratagems like Command Re-roll still exist in V11's
+          rules, they're just not available here as structured data yet. Check back once the source
+          catches up.
+        </div>
+      ) : (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
+          {stratagems.map((s) => <StratRow key={s.name} strat={s} />)}
+        </div>
+      )}
     </div>
   )
 }
@@ -357,14 +367,21 @@ export function DetachmentsPage() {
   const [query, setQuery] = useState('')
   const [selected, setSelected] = useState('core')
   const isMobile = useIsMobile()
+  const edition = useDataStore((s) => s.edition)
 
+  // Re-fetch whenever the V10/V11 toggle flips — factions/detachments use
+  // unrelated IDs between editions, so the previous selection can't carry over.
   useEffect(() => {
     document.title = "Detachments — Prob'Hammer"
-    fetch('/data/gdc.json')
+    setLoading(true)
+    setError(null)
+    setSelected('core')
+    const path = edition === 'v11' ? '/data/gdc_v11.json' : '/data/gdc.json'
+    fetch(path)
       .then((r) => { if (!r.ok) throw new Error(r.status); return r.json() })
       .then((d) => { setData(d); setLoading(false) })
       .catch((e) => { setError(e.message); setLoading(false) })
-  }, [])
+  }, [edition])
 
   const filtered = useMemo(() => {
     if (!data) return []
@@ -435,7 +452,7 @@ export function DetachmentsPage() {
         {/* Data source info */}
         <div style={{ padding: '8px 16px', borderBottom: `1px solid ${BORDER}` }}>
           <div style={{ ...TYPE.label, color: TEXT_OFF, lineHeight: 1.5 }}>
-            game-datacards/datasources
+            game-datacards/datasources ({edition === 'v11' ? '11th' : '10th'}/gdc)
           </div>
           {fetchedDate && (
             <div style={{ ...TYPE.label, color: TEXT_OFF, marginTop: '2px' }}>
@@ -503,7 +520,7 @@ export function DetachmentsPage() {
           )}
           <div style={{ flex: 1, overflow: 'hidden', display: 'flex', flexDirection: 'column', paddingTop: isMobile ? '44px' : 0 }}>
             {selected === 'core' && data ? (
-              <CorePanel stratagems={data.core_stratagems} />
+              <CorePanel stratagems={data.core_stratagems} edition={edition} />
             ) : selectedFaction ? (
               <FactionPanel faction={selectedFaction} />
             ) : (
