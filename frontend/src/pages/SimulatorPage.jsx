@@ -5,7 +5,7 @@ import { AttackerPanel } from '../components/AttackerPanel'
 import { DefenderPanel } from '../components/DefenderPanel'
 import { ResultsPanel } from '../components/ResultsPanel'
 import { AbilityText } from '../components/AbilityText'
-import { ACCENT_TEXT, ACCENT, ACCENT_H, BG, SURFACE, SURFACE_E, BORDER, TEXT, TEXT_SEC, TEXT_WEAK, TEXT_OFF, ERROR, FONT_UI, SHADOW_SM, SHADOW_MD, RADIUS , ACCENT_LIGHT} from '../theme'
+import { ACCENT_TEXT, ACCENT, ACCENT_H, BG, SURFACE, SURFACE_E, BORDER, TEXT, TEXT_SEC, TEXT_WEAK, TEXT_OFF, ERROR, FONT_UI, SHADOW_MD, RADIUS , ACCENT_LIGHT} from '../theme'
 import { KEYWORD_BY_TYPE } from '../engine/keywords.js'
 
 // ── Step indicator ───────────────────────────────────────────────────────────
@@ -491,10 +491,6 @@ function injectTrackerStyles() {
       80%  { transform: scale(0.92); }
       100% { transform: scale(1); opacity: 1; }
     }
-    @keyframes trackerNodeIn {
-      from { opacity: 0; transform: translateY(12px); }
-      to   { opacity: 1; transform: translateY(0); }
-    }
     @keyframes trackerLabelScan {
       0%   { letter-spacing: 3px; opacity: 0.3; }
       60%  { letter-spacing: 1.5px; opacity: 1; }
@@ -508,18 +504,18 @@ function injectTrackerStyles() {
     .tracker-scrollbar::-webkit-scrollbar-track { background: transparent; }
     .tracker-scrollbar::-webkit-scrollbar-thumb { background: ${ACCENT}22; border-radius: 2px; }
     .tracker-scrollbar::-webkit-scrollbar-thumb:hover { background: ${ACCENT}44; }
-    .tracker-node-completed:hover .tracker-summary { color: ${ACCENT} !important; }
+    .tracker-node-completed:hover .tracker-label { color: ${ACCENT} !important; }
   `
   document.head.appendChild(style)
 }
 
 const TRACKER_NODES = [
-  { id: 1, label: 'Attacker Unit',             hint: 'Browse units or pick from an army',               nav: 1 },
-  { id: 2, label: 'Weapon',                    hint: 'Select your weapon — check the ability panel →',  nav: 1 },
-  { id: 3, label: 'Abilities & Keywords',      hint: 'Review abilities — any rerolls or crit thresholds?', nav: 1 },
-  { id: 4, label: 'Attack Roster',             hint: 'Will you fire more weapons at the same target?',  nav: 2 },
-  { id: 5, label: 'Target',                    hint: 'Choose your defender — review their abilities',   nav: 3 },
-  { id: 6, label: 'Simulate',                  hint: 'Run simulation →',                               nav: 4 },
+  { id: 1, label: 'Attacker Unit',             nav: 1 },
+  { id: 2, label: 'Weapon',                    nav: 1 },
+  { id: 3, label: 'Abilities & Keywords',      nav: 1 },
+  { id: 4, label: 'Attack Roster',             nav: 2 },
+  { id: 5, label: 'Target',                    nav: 3 },
+  { id: 6, label: 'Simulate',                  nav: 4 },
 ]
 
 function ProgressTracker() {
@@ -528,8 +524,6 @@ function ProgressTracker() {
   const attackerUnit   = useSimulatorStore((s) => s.attackerUnit)
   const weapon         = useSimulatorStore((s) => s.attacker.weapon)
   const attacks        = useSimulatorStore((s) => s.attacks)
-  const buffs          = useSimulatorStore((s) => s.attacker.buffs)
-  const defender       = useSimulatorStore((s) => s.defender)
   const result         = useSimulatorStore((s) => s.result)
   const hoveredKeyword = useSimulatorStore((s) => s.hoveredKeyword)
 
@@ -564,44 +558,6 @@ function ProgressTracker() {
     }
   }
 
-  function getSummary(id) {
-    switch (id) {
-      case 1: {
-        if (attackerUnit) return `${attackerUnit.name} · T${attackerUnit.T} · Sv${attackerUnit.Sv}+ · W${attackerUnit.W}`
-        return weapon.name || '—'
-      }
-      case 2: {
-        // weapon resets after addAttack() — fall back to last confirmed attack
-        const src = weapon.name ? weapon : attacks[attacks.length - 1]?.weapon
-        if (!src) return '—'
-        const kwCount = src.keywords?.length ?? 0
-        return `${src.name}${kwCount > 0 ? ` · ${kwCount} kw` : ''}`
-      }
-      case 3: {
-        // same: read from last attack when current attacker was reset
-        const srcBuffs  = buffs.length > 0 ? buffs  : (attacks[attacks.length - 1]?.buffs ?? [])
-        const srcKws    = weapon.keywords.length > 0 ? weapon.keywords : (attacks[attacks.length - 1]?.weapon.keywords ?? [])
-        const parts = []
-        srcBuffs.forEach((b) => {
-          if (b.type === 'REROLL_HITS')   parts.push(b.value === 'all' ? 'RR hits' : 'RR hit 1s')
-          if (b.type === 'REROLL_WOUNDS') parts.push(b.value === 'all' ? 'RR wounds' : 'RR wound 1s')
-        })
-        const critKw = srcKws.find((k) => k.type === 'CRITICAL_HIT_ON')
-        if (critKw) parts.push(`Crit ${critKw.value}+`)
-        return parts.length > 0 ? parts.join(' · ') : 'No extra abilities'
-      }
-      case 4:
-        return `${attacks.length} attack${attacks.length !== 1 ? 's' : ''} configured`
-      case 5: {
-        const d = defender
-        return `T${d.toughness} · Sv${d.save}+${d.invuln ? ` · ${d.invuln}++` : ''} · W${d.wounds}`
-      }
-      case 6:
-        return 'Done — results below'
-      default: return ''
-    }
-  }
-
   // Update circleKeys — detect status transitions to re-mount circles for animations
   // (placed after getStatus so all deps are in scope)
   TRACKER_NODES.forEach((node) => {
@@ -633,11 +589,7 @@ function ProgressTracker() {
       opacity: hoveredKeyword ? 0.12 : 1,
       transition: 'opacity 150ms ease',
       pointerEvents: hoveredKeyword ? 'none' : 'auto',
-      padding: '16px 8px 16px 20px',
-      background: SURFACE,
-      border: `1px solid ${BORDER}`,
-      borderRadius: '6px',
-      boxShadow: SHADOW_SM,
+      padding: '16px 8px',
     }}>
       {/* Header */}
       <div style={{
@@ -712,18 +664,20 @@ function ProgressTracker() {
                 )}
               </div>
 
-              {/* Right column: label + content */}
+              {/* Right column: label */}
               <div
                 onClick={() => isCompleted && setStep(node.nav)}
                 style={{
                   flex: 1,
-                  paddingBottom: isLast ? '4px' : '28px',
+                  paddingBottom: isLast ? '4px' : '18px',
                   cursor: isCompleted ? 'pointer' : 'default',
+                  display: 'flex',
+                  alignItems: 'center',
                 }}
               >
-                {/* Label */}
                 <div
                   key={isActive ? `label-active-${node.id}` : `label-${node.id}`}
+                  className="tracker-label"
                   style={{
                     fontFamily: FONT_UI,
                     fontSize: '10px',
@@ -732,44 +686,12 @@ function ProgressTracker() {
                     color: isActive ? ACCENT : isCompleted ? TEXT_SEC : TEXT_WEAK,
                     fontWeight: isActive ? 700 : 400,
                     lineHeight: 1,
-                    marginBottom: (isActive || isCompleted) ? '8px' : 0,
                     transition: 'color 300ms',
                     animation: isActive ? 'trackerLabelScan 400ms ease forwards' : 'none',
                   }}
                 >
                   {node.label}
                 </div>
-
-                {isActive && (
-                  <div
-                    key={`hint-${node.id}-${circleKey}`}
-                    style={{
-                      fontFamily: 'Inter, -apple-system, system-ui, sans-serif',
-                      fontSize: '12px',
-                      color: TEXT_WEAK,
-                      lineHeight: 1.65,
-                      animation: 'trackerNodeIn 320ms ease forwards',
-                    }}
-                  >
-                    {node.hint}
-                  </div>
-                )}
-
-                {isCompleted && (
-                  <div
-                    className="tracker-summary"
-                    style={{
-                      fontFamily: FONT_UI,
-                      fontSize: '10px',
-                      color: TEXT_WEAK,
-                      letterSpacing: '0.3px',
-                      lineHeight: 1.55,
-                      transition: 'color 150ms',
-                    }}
-                  >
-                    {getSummary(node.id)}
-                  </div>
-                )}
               </div>
             </div>
           )
