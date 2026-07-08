@@ -743,7 +743,7 @@ function injectAbilitiesStyles() {
   document.head.appendChild(style)
 }
 
-function UnitAbilitiesPanel({ role }) {
+function UnitAbilitiesPanel({ role, embedded = false }) {
   const unit = useSimulatorStore((s) =>
     role === 'attacker' ? s.attackerUnit : s.defenderUnit
   )
@@ -767,6 +767,104 @@ function UnitAbilitiesPanel({ role }) {
     }
   }, [unit?.id])
 
+  const card = (
+    <div
+      className="abilities-scrollbar"
+      style={{
+        border: `1px solid ${BORDER}`,
+        background: SURFACE,
+        padding: '18px',
+        ...(embedded
+          ? {}
+          : { maxHeight: 'calc(100vh - 160px)', overflowY: 'auto', borderRadius: RADIUS, boxShadow: SHADOW_MD }),
+      }}
+    >
+      {/* Header */}
+      <div style={{
+        fontFamily: FONT_UI, fontSize: '11px',
+        letterSpacing: '2.5px', textTransform: 'uppercase',
+        color: TEXT_OFF, marginBottom: '6px',
+      }}>
+        {role === 'attacker' ? 'Attacker' : 'Defender'} unit
+      </div>
+      <div
+        key={`name-${animKey}`}
+        style={{
+          fontFamily: FONT_UI, fontSize: '13px',
+          fontWeight: 700, textTransform: 'uppercase',
+          color: ACCENT_TEXT, marginBottom: '14px', lineHeight: 1.2,
+          animation: 'headerScan 400ms ease forwards',
+        }}
+      >
+        {unit.name}
+      </div>
+      <div
+        key={`divider-${animKey}`}
+        style={{
+          height: '1px',
+          background: `linear-gradient(to right, ${ACCENT}44, ${BORDER})`,
+          marginBottom: '14px',
+          animation: 'dividerGrow 350ms ease forwards',
+        }}
+      />
+
+      {/* Abilities count */}
+      <div style={{
+        fontFamily: FONT_UI, fontSize: '11px',
+        letterSpacing: '2px', textTransform: 'uppercase',
+        color: TEXT_WEAK, marginBottom: '12px',
+      }}>
+        {abilities.length} abilit{abilities.length !== 1 ? 'ies' : 'y'}
+      </div>
+
+      {/* Ability cards */}
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+        {abilities.map((ab, i) => (
+          <div
+            key={`${animKey}-${i}`}
+            className="ability-card"
+            style={{
+              animation: `abilityCardIn 280ms ease forwards`,
+              animationDelay: `${i * 40}ms`,
+              opacity: 0,
+            }}
+          >
+            <div style={{
+              fontFamily: FONT_UI, fontSize: '10px',
+              fontWeight: 700, letterSpacing: '0.5px', textTransform: 'uppercase',
+              color: TEXT, marginBottom: '6px',
+            }}>
+              {ab.name}
+            </div>
+            {ab.desc && (
+              <p style={{
+                fontFamily: 'Inter, -apple-system, system-ui, sans-serif', fontSize: '11px',
+                lineHeight: 1.65, color: TEXT_SEC, margin: 0,
+              }}>
+                <AbilityText text={ab.desc} />
+              </p>
+            )}
+          </div>
+        ))}
+      </div>
+    </div>
+  )
+
+  // Embedded (mobile drawer): plain flow, no viewport-relative fixed positioning.
+  if (embedded) {
+    if (!hasAbilities) {
+      return (
+        <div style={{
+          fontFamily: FONT_UI, fontSize: '12px', color: TEXT_WEAK,
+          textAlign: 'center', padding: '40px 0',
+        }}>
+          No abilities listed for this unit.
+        </div>
+      )
+    }
+    return card
+  }
+
   return (
     <div style={{
       position: 'fixed',
@@ -783,89 +881,7 @@ function UnitAbilitiesPanel({ role }) {
         transform: hasAbilities ? 'translateX(0)' : 'translateX(16px)',
         transition: 'opacity 300ms ease, transform 300ms ease',
       }}>
-        {hasAbilities && (
-          <div
-            className="abilities-scrollbar"
-            style={{
-              border: `1px solid ${BORDER}`,
-              background: SURFACE,
-              padding: '18px',
-              maxHeight: 'calc(100vh - 160px)',
-              overflowY: 'auto',
-              borderRadius: RADIUS,
-              boxShadow: SHADOW_MD,
-            }}
-          >
-            {/* Header */}
-            <div style={{
-              fontFamily: FONT_UI, fontSize: '11px',
-              letterSpacing: '2.5px', textTransform: 'uppercase',
-              color: TEXT_OFF, marginBottom: '6px',
-            }}>
-              {role === 'attacker' ? 'Attacker' : 'Defender'} unit
-            </div>
-            <div
-              key={`name-${animKey}`}
-              style={{
-                fontFamily: FONT_UI, fontSize: '13px',
-                fontWeight: 700, textTransform: 'uppercase',
-                color: ACCENT_TEXT, marginBottom: '14px', lineHeight: 1.2,
-                animation: 'headerScan 400ms ease forwards',
-              }}
-            >
-              {unit.name}
-            </div>
-            <div
-              key={`divider-${animKey}`}
-              style={{
-                height: '1px',
-                background: `linear-gradient(to right, ${ACCENT}44, ${BORDER})`,
-                marginBottom: '14px',
-                animation: 'dividerGrow 350ms ease forwards',
-              }}
-            />
-
-            {/* Abilities count */}
-            <div style={{
-              fontFamily: FONT_UI, fontSize: '11px',
-              letterSpacing: '2px', textTransform: 'uppercase',
-              color: TEXT_WEAK, marginBottom: '12px',
-            }}>
-              {abilities.length} abilit{abilities.length !== 1 ? 'ies' : 'y'}
-            </div>
-
-            {/* Ability cards */}
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-              {abilities.map((ab, i) => (
-                <div
-                  key={`${animKey}-${i}`}
-                  className="ability-card"
-                  style={{
-                    animation: `abilityCardIn 280ms ease forwards`,
-                    animationDelay: `${i * 40}ms`,
-                    opacity: 0,
-                  }}
-                >
-                  <div style={{
-                    fontFamily: FONT_UI, fontSize: '10px',
-                    fontWeight: 700, letterSpacing: '0.5px', textTransform: 'uppercase',
-                    color: TEXT, marginBottom: '6px',
-                  }}>
-                    {ab.name}
-                  </div>
-                  {ab.desc && (
-                    <p style={{
-                      fontFamily: 'Inter, -apple-system, system-ui, sans-serif', fontSize: '11px',
-                      lineHeight: 1.65, color: TEXT_SEC, margin: 0,
-                    }}>
-                      <AbilityText text={ab.desc} />
-                    </p>
-                  )}
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
+        {hasAbilities && card}
       </div>
     </div>
   )
@@ -873,25 +889,27 @@ function UnitAbilitiesPanel({ role }) {
 
 // ── Mobile drawer ────────────────────────────────────────────────────────────
 
-function MobileDrawer({ title, open, onClose, children }) {
+function MobileDrawer({ title, open, onClose, children, fullScreen = false }) {
   if (!open) return null
   return (
     <>
-      <div
-        onClick={onClose}
-        style={{
-          position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)',
-          zIndex: 200,
-        }}
-      />
+      {!fullScreen && (
+        <div
+          onClick={onClose}
+          style={{
+            position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)',
+            zIndex: 200,
+          }}
+        />
+      )}
       <div style={{
-        position: 'fixed', bottom: 0, left: 0, right: 0,
-        background: SURFACE,
-        borderTop: `1px solid ${BORDER}`,
-        borderRadius: '12px 12px 0 0',
+        position: 'fixed',
         zIndex: 201,
-        maxHeight: '80vh',
+        background: SURFACE,
         display: 'flex', flexDirection: 'column',
+        ...(fullScreen
+          ? { inset: 0 }
+          : { bottom: 0, left: 0, right: 0, maxHeight: '80vh', borderTop: `1px solid ${BORDER}`, borderRadius: '12px 12px 0 0' }),
       }}>
         <div style={{
           display: 'flex', alignItems: 'center', justifyContent: 'space-between',
@@ -904,9 +922,16 @@ function MobileDrawer({ title, open, onClose, children }) {
           </span>
           <button
             onClick={onClose}
-            style={{ background: 'none', border: 'none', cursor: 'pointer', color: TEXT_WEAK, fontSize: '20px', lineHeight: 1, padding: '0 4px' }}
+            aria-label="Close"
+            style={{
+              background: 'transparent', border: `1px solid ${BORDER}`,
+              color: TEXT_WEAK, fontFamily: FONT_UI, fontSize: '10px',
+              letterSpacing: '1.5px', textTransform: 'uppercase',
+              padding: '7px 12px', cursor: 'pointer',
+              display: 'flex', alignItems: 'center', gap: '6px',
+            }}
           >
-            ×
+            Close ×
           </button>
         </div>
         <div style={{ overflowY: 'auto', padding: '16px 20px', flex: 1 }}>
@@ -1111,8 +1136,9 @@ export function SimulatorPage() {
             title={step === 1 ? 'Attacker abilities' : 'Defender abilities'}
             open={abilitiesOpen}
             onClose={() => setAbilitiesOpen(false)}
+            fullScreen
           >
-            <UnitAbilitiesPanel role={step === 1 ? 'attacker' : 'defender'} />
+            <UnitAbilitiesPanel role={step === 1 ? 'attacker' : 'defender'} embedded />
           </MobileDrawer>
         </>
       )}
