@@ -60,7 +60,9 @@ jobs:
           fi
 
       # ─────────────────────────────────────────────
-      # V11 — pipeline de staging (repo communautaire vflam/wh40k-11e).
+      # V11 — pipeline de staging (repo communautaire BSData/wh40k-11e,
+      # anciennement vflam/wh40k-11e avant adoption par l'org BSData le
+      # ~2026-07-03 ; l'ancien fork n'existe plus sur GitHub).
       # Même principe que la V10 ci-dessus, mais :
       #   - pas d'étape "promote cache" (parse_bsdata_v11.py écrit directement
       #     dans data/cache_v11/, pas de data/cache_stable_v11/ pour l'instant)

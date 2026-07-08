@@ -15,7 +15,7 @@ Usage :
     python pipeline/fetch_bsdata_v11.py
 
 Variables d'environnement optionnelles :
-    BSDATA_V11_REPO : repo GitHub (défaut: vflam/wh40k-11e)
+    BSDATA_V11_REPO : repo GitHub (défaut: BSData/wh40k-11e)
     GITHUB_TOKEN    : token GitHub pour éviter le rate-limit (optionnel)
 """
 
@@ -27,7 +27,7 @@ from pathlib import Path
 
 import requests
 
-BSDATA_V11_REPO = os.getenv("BSDATA_V11_REPO", "vflam/wh40k-11e")
+BSDATA_V11_REPO = os.getenv("BSDATA_V11_REPO", "BSData/wh40k-11e")
 GITHUB_TOKEN     = os.getenv("GITHUB_TOKEN", "")
 BRANCH           = "main"
 COMMIT_URL       = f"https://api.github.com/repos/{BSDATA_V11_REPO}/commits/{BRANCH}"
