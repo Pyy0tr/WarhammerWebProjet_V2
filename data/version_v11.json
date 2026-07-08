@@ -1,6 +1,6 @@
 {
-  "sha": "5a2d53c92ea30f7623f9f9c92334d50f41a88582",
-  "sha_short": "5a2d53c9",
-  "committed_at": "2026-07-02T14:15:34Z",
-  "message": "v0.38 \u2014 enhancement eligibility: Character OR Epic Hero + exact source filters ("
+  "sha": "bb9467df809faa8fbf55470cf4380df2e0f8de21",
+  "sha_short": "bb9467df",
+  "committed_at": "2026-07-08T05:06:34Z",
+  "message": "Fixes #164"
 }
