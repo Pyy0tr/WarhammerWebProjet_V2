@@ -33,6 +33,13 @@ function OnboardingGuard({ children }) {
   return children
 }
 
+function AdminGuard({ children }) {
+  const { user, loading } = useAuthStore()
+  if (loading) return null
+  if (!user || user.username !== 'admin') return <Navigate to="/" replace />
+  return children
+}
+
 export default function App() {
   const load      = useDataStore((s) => s.load)
   const authInit  = useAuthStore((s) => s.init)
@@ -58,7 +65,7 @@ export default function App() {
         <Route path="/armies"         element={<OnboardingGuard><ArmiesPage /></OnboardingGuard>} />
         <Route path="/keywords"       element={<OnboardingGuard><KeywordsPage /></OnboardingGuard>} />
         <Route path="/detachments"    element={<OnboardingGuard><DetachmentsPage /></OnboardingGuard>} />
-        <Route path="/combos"         element={<OnboardingGuard><ComboPage /></OnboardingGuard>} />
+        <Route path="/combos"         element={<AdminGuard><ComboPage /></AdminGuard>} />
         <Route path="/feedback"       element={<FeedbackPage />} />
         <Route path="/admin/feedback" element={<AdminFeedbackPage />} />
         <Route path="*"               element={<Navigate to="/" replace />} />

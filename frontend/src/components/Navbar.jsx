@@ -246,6 +246,7 @@ export function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false)
   const isAdmin = user?.username === 'admin'
   const showEditionToggle = EDITION_AWARE_PATHS.includes(pathname)
+  const navLinks = NAV_LINKS.filter(({ to }) => to !== '/combos' || isAdmin)
 
   function closeMenu() { setMenuOpen(false) }
 
@@ -311,7 +312,7 @@ export function Navbar() {
           /* ── Desktop: horizontal links ── */
           <>
             <div style={{ display: 'flex', alignItems: 'center', gap: '20px', height: '100%' }}>
-              {NAV_LINKS.map(({ to, label }) => (
+              {navLinks.map(({ to, label }) => (
                 <NavLink key={to} to={to} active={pathname === to}>{label}</NavLink>
               ))}
             </div>
@@ -362,7 +363,7 @@ export function Navbar() {
               </div>
             )}
 
-            {NAV_LINKS.map(({ to, label }) => (
+            {navLinks.map(({ to, label }) => (
               <MobileNavLink key={to} to={to} active={pathname === to} onClick={closeMenu}>
                 {label}
               </MobileNavLink>
