@@ -8,7 +8,7 @@ import {
   ACCENT, ACCENT_H, ACCENT_TEXT, ACCENT_LIGHT,
   BG, BORDER, SURFACE, SURFACE_E,
   TEXT, TEXT_SEC, TEXT_WEAK,
-  FONT_UI, RADIUS, SHADOW_SM, SHADOW_MD,
+  FONT_UI, FONT_DISPLAY, RADIUS, SHADOW_SM, SHADOW_MD,
 } from '../theme'
 
 const NAV_LINKS = [
@@ -110,7 +110,7 @@ function PrimaryButton({ children, onClick }) {
       style={{
         background: hov ? ACCENT_H : ACCENT,
         border: `1px solid ${hov ? ACCENT_H : ACCENT}`,
-        color: '#FFFFFF',
+        color: BG,
         fontFamily: FONT_UI,
         fontSize: '13px',
         fontWeight: 600,
@@ -199,7 +199,7 @@ function EditionToggle({ compact }) {
             style={{
               flex: compact ? 1 : undefined,
               background: active ? ACCENT : 'transparent',
-              color: active ? '#FFFFFF' : TEXT_SEC,
+              color: active ? BG : TEXT_SEC,
               border: 'none',
               fontFamily: FONT_UI,
               fontSize: '12px',
@@ -271,9 +271,10 @@ export function Navbar() {
           onClick={closeMenu}
           style={{
             textDecoration: 'none',
-            fontFamily: FONT_UI,
+            fontFamily: FONT_DISPLAY,
             fontSize: '15px',
             fontWeight: 700,
+            letterSpacing: '0.5px',
             color: TEXT,
             marginRight: '24px',
             flexShrink: 0,
@@ -415,7 +416,7 @@ export function Navbar() {
                     onClick={() => { setModal('register'); closeMenu() }}
                     style={{
                       flex: 1, background: ACCENT, border: `1px solid ${ACCENT}`,
-                      color: '#FFFFFF', fontFamily: FONT_UI, fontSize: '14px',
+                      color: BG, fontFamily: FONT_UI, fontSize: '14px',
                       fontWeight: 600, padding: '12px', cursor: 'pointer', borderRadius: RADIUS,
                     }}
                   >

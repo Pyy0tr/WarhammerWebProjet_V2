@@ -8,7 +8,7 @@ import { simulate as simulateV10 } from '../engine/simulation'
 import { simulate as simulateV11 } from '../engine/simulation_v11'
 import {
   ACCENT_TEXT, ACCENT, BG, BORDER, ERROR, SURFACE,
-  TEXT, TEXT_OFF, TEXT_SEC, TEXT_WEAK, SUCCESS, WARNING, FONT_UI,
+  TEXT, TEXT_OFF, TEXT_SEC, TEXT_WEAK, SUCCESS, WARNING, FONT_UI, FONT_DISPLAY,
 } from '../theme'
 
 const N_TRIALS = 2000
@@ -82,7 +82,7 @@ function computeMatrix(baseAttacks, colObjects, defenders, context, simulate) {
 }
 
 function cellBg(ratio) {
-  return `rgba(61,220,151,${(0.05 + ratio * 0.40).toFixed(2)})`
+  return `rgba(90,158,111,${(0.05 + ratio * 0.40).toFixed(2)})`
 }
 
 // ── Synergy form helpers ──────────────────────────────────────────────────────
@@ -322,9 +322,9 @@ function AttackCard({ attack, idx, onEdit, onRemove }) {
           Edit
         </button>
         <button onClick={() => onRemove(idx)}
-          style={{ background: 'none', border: `1px solid rgba(255,92,122,0.3)`, color: ERROR, fontFamily: FONT_UI, fontSize: '11px', letterSpacing: '1px', textTransform: 'uppercase', padding: '4px 8px', cursor: 'pointer' }}
+          style={{ background: 'none', border: `1px solid rgba(192,86,74,0.3)`, color: ERROR, fontFamily: FONT_UI, fontSize: '11px', letterSpacing: '1px', textTransform: 'uppercase', padding: '4px 8px', cursor: 'pointer' }}
           onMouseEnter={(e) => { e.currentTarget.style.borderColor = ERROR }}
-          onMouseLeave={(e) => { e.currentTarget.style.borderColor = 'rgba(255,92,122,0.3)' }}>
+          onMouseLeave={(e) => { e.currentTarget.style.borderColor = 'rgba(192,86,74,0.3)' }}>
           ×
         </button>
       </div>
@@ -1065,7 +1065,7 @@ export function ComboPage() {
         <div style={{ padding: '18px 0 14px' }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '12px', flexWrap: 'wrap' }}>
             <div style={{ display: 'flex', alignItems: 'baseline', gap: '12px' }}>
-              <h1 style={{ fontFamily: FONT_UI, fontWeight: 700, fontSize: isMobile ? '16px' : 'clamp(18px, 2vw, 26px)', letterSpacing: '0.05em', textTransform: 'uppercase', lineHeight: 1, color: TEXT, margin: 0 }}>
+              <h1 style={{ fontFamily: FONT_DISPLAY, fontWeight: 700, fontSize: isMobile ? '16px' : 'clamp(18px, 2vw, 26px)', letterSpacing: '0.05em', textTransform: 'uppercase', lineHeight: 1, color: TEXT, margin: 0 }}>
                 Synergy Matrix
               </h1>
               <span

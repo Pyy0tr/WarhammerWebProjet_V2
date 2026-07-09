@@ -60,7 +60,7 @@ function ContinueBtn({ onClick, label = 'Continue ↓', primary = false }) {
   return (
     <button
       onClick={onClick}
-      style={{ border: 'none', background: ACCENT, color: TEXT, fontFamily: FONT_UI, fontSize: '10px', letterSpacing: '2px', textTransform: 'uppercase', fontWeight: 700, padding: '12px 24px', cursor: 'pointer', alignSelf: 'flex-start', transition: 'opacity 150ms' }}
+      style={{ border: 'none', background: ACCENT, color: BG, fontFamily: FONT_UI, fontSize: '10px', letterSpacing: '2px', textTransform: 'uppercase', fontWeight: 700, padding: '12px 24px', cursor: 'pointer', alignSelf: 'flex-start', transition: 'opacity 150ms' }}
       onMouseEnter={(e) => { e.currentTarget.style.opacity = '0.8' }}
       onMouseLeave={(e) => { e.currentTarget.style.opacity = '1' }}
     >
@@ -138,7 +138,7 @@ function DefenderStatCard({ highlight = [], dim = [] }) {
           const isHighlight = highlight.includes(s.key)
           const isDim       = dim.includes(s.key) || !s.sim
           return (
-            <div key={s.key} style={{ padding: isMobile ? '8px 2px' : '14px 4px', borderRight: i < stats.length - 1 ? `1px solid ${BORDER}` : 'none', textAlign: 'center', transition: 'background 300ms', background: isHighlight ? 'rgba(194,143,133,0.08)' : 'transparent', opacity: isDim && !isHighlight ? 0.25 : 1 }}>
+            <div key={s.key} style={{ padding: isMobile ? '8px 2px' : '14px 4px', borderRight: i < stats.length - 1 ? `1px solid ${BORDER}` : 'none', textAlign: 'center', transition: 'background 300ms', background: isHighlight ? 'rgba(166,106,74,0.08)' : 'transparent', opacity: isDim && !isHighlight ? 0.25 : 1 }}>
               <div style={{ fontFamily: FONT_UI, fontSize: isMobile ? '14px' : '18px', fontWeight: 700, color: isHighlight ? HIGHLIGHT : s.sim ? TEXT_SEC : TEXT_WEAK, lineHeight: 1, transition: 'color 300ms' }}>{s.value}</div>
               <div style={{ fontFamily: FONT_UI, fontSize: '10px', letterSpacing: '1px', textTransform: 'uppercase', color: isHighlight ? HIGHLIGHT : TEXT_WEAK, marginTop: '4px', transition: 'color 300ms' }}>{s.key}</div>
             </div>
@@ -234,7 +234,7 @@ function StepContent({ step, onNext, onSynergies }) {
           { cond: 'S < T',    thr: '5+', active: true  },
           { cond: 'S ≤ T÷2', thr: '6+', active: false },
         ].map(({ cond, thr, active }) => (
-          <div key={cond} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '8px 14px', borderBottom: `1px solid ${BORDER}`, background: active ? 'rgba(47,224,255,0.05)' : 'transparent' }}>
+          <div key={cond} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '8px 14px', borderBottom: `1px solid ${BORDER}`, background: active ? 'rgba(201,169,110,0.05)' : 'transparent' }}>
             <span style={{ fontFamily: FONT_UI, fontSize: '10px', color: active ? TEXT : TEXT_OFF }}>{cond}</span>
             <span style={{ fontFamily: FONT_UI, fontSize: '12px', fontWeight: 700, color: active ? ACCENT : TEXT_OFF }}>Wound on {thr}</span>
           </div>
@@ -333,7 +333,7 @@ function CombatFunnel({ activePhase }) {
           const isActive = activePhase === phaseIdx
           const isPast   = activePhase > phaseIdx
           const barWidth = `${(expected / maxVal) * 100}%`
-          const color    = isActive ? ACCENT : isPast ? 'rgba(47,224,255,0.3)' : SURFACE_E
+          const color    = isActive ? ACCENT : isPast ? 'rgba(201,169,110,0.3)' : SURFACE_E
           const txtColor = isActive ? TEXT : isPast ? TEXT_SEC : TEXT_OFF
 
           return (
@@ -443,7 +443,7 @@ function HistoPanel({ result }) {
         <BarChart data={damage_histogram} margin={{ top: 0, right: 0, bottom: 0, left: -20 }} barCategoryGap="18%">
           <XAxis dataKey="damage" tick={{ fill: TEXT_WEAK, fontSize: 8, fontFamily: FONT_UI }} tickLine={{ stroke: BORDER }} axisLine={{ stroke: BORDER }} />
           <YAxis tickFormatter={(v) => `${(v * 100).toFixed(0)}%`} tick={{ fill: TEXT_WEAK, fontSize: 8, fontFamily: FONT_UI }} tickLine={{ stroke: BORDER }} axisLine={{ stroke: BORDER }} />
-          <Tooltip content={<CustomTooltip />} cursor={{ fill: 'rgba(47,224,255,0.04)' }} />
+          <Tooltip content={<CustomTooltip />} cursor={{ fill: 'rgba(201,169,110,0.04)' }} />
           <Bar dataKey="probability" radius={0} isAnimationActive animationDuration={350}>
             {damage_histogram.map((entry) => (
               <Cell key={entry.damage} fill={entry.probability === maxProb ? HIGHLIGHT : ACCENT} opacity={entry.probability === maxProb ? 0.9 : 0.45} />

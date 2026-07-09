@@ -3,9 +3,9 @@ import { useNavigate } from 'react-router-dom'
 import { useIsMobile } from '../hooks/useIsMobile'
 import {
   ACCENT, ACCENT_H, ACCENT_TEXT, ACCENT_LIGHT,
-  BORDER, SURFACE, SURFACE_E,
+  BG, BORDER, SURFACE, SURFACE_E,
   TEXT, TEXT_SEC, TEXT_WEAK, TEXT_OFF,
-  FONT_UI, FONT_STAT,
+  FONT_UI, FONT_STAT, FONT_DISPLAY,
   RADIUS, SHADOW_SM, SHADOW_MD,
 } from '../theme'
 
@@ -253,7 +253,7 @@ export function HomePage() {
 
           {/* Headline */}
           <h1 style={{
-            fontFamily: FONT_UI,
+            fontFamily: FONT_DISPLAY,
             fontSize: 'clamp(36px, 4vw, 60px)',
             fontWeight: 700,
             lineHeight: 1.1,
@@ -280,7 +280,7 @@ export function HomePage() {
             <button
               onClick={() => navigate('/simulator')}
               style={{
-                border: `1px solid ${ACCENT}`, background: ACCENT, color: '#FFFFFF',
+                border: `1px solid ${ACCENT}`, background: ACCENT, color: BG,
                 fontFamily: FONT_UI, fontSize: '14px', fontWeight: 600,
                 padding: '10px 24px', borderRadius: RADIUS, cursor: 'pointer',
                 transition: 'background 120ms, border-color 120ms',

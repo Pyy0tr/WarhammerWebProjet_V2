@@ -4,7 +4,7 @@ import { useIsMobile } from '../hooks/useIsMobile'
 import { useDataStore }  from '../store/dataStore'
 import { useArmyStore }  from '../store/armyStore'
 import { useAuthStore }  from '../store/authStore'
-import { ACCENT_TEXT, ACCENT, BG, SURFACE, SURFACE_E, BORDER, TEXT, TEXT_SEC, TEXT_WEAK, TEXT_OFF , FONT_UI, ACCENT_LIGHT} from '../theme'
+import { ACCENT_TEXT, ACCENT, BG, SURFACE, SURFACE_E, BORDER, TEXT, TEXT_SEC, TEXT_WEAK, TEXT_OFF , FONT_UI, FONT_DISPLAY, ACCENT_LIGHT} from '../theme'
 import { AbilityText } from '../components/AbilityText'
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
@@ -211,7 +211,7 @@ function FactionsView({ onSelectFaction }) {
           Warhammer 40,000 — 10th Edition
         </div>
         <h1 style={{
-          fontFamily: FONT_UI, fontSize: 'clamp(22px, 2.5vw, 34px)',
+          fontFamily: FONT_DISPLAY, fontSize: 'clamp(22px, 2.5vw, 34px)',
           fontWeight: 700, letterSpacing: '0.05em', textTransform: 'uppercase',
           lineHeight: 1, color: TEXT, marginBottom: '28px',
         }}>
@@ -845,7 +845,7 @@ function WeaponSubTable({ title, rows }) {
           </thead>
           <tbody>
             {rows.map((w) => (
-              <tr key={w.id} style={{ borderBottom: `1px solid rgba(30,58,76,0.5)` }}>
+              <tr key={w.id} style={{ borderBottom: `1px solid rgba(42,42,42,0.5)` }}>
                 <td style={{ fontFamily: FONT_UI, fontSize: '12px', fontWeight: 700, color: TEXT, padding: '10px 12px 10px 0', whiteSpace: 'nowrap' }}>{w.name}</td>
                 <td style={tdStyle}>{w.type === 'Melee' ? '—' : (w.range ?? '—')}</td>
                 <td style={tdStyle}>{w.A}</td>
@@ -1170,7 +1170,7 @@ function UnitDetailView({ unit, onBack, factionLabel }) {
               onClick={handleAddToArmy}
               disabled={added}
               style={{
-                background: added ? 'rgba(47,224,255,0.12)' : ACCENT,
+                background: added ? 'rgba(201,169,110,0.12)' : ACCENT,
                 border: `1px solid ${ACCENT}`,
                 color: added ? ACCENT : BG,
                 fontFamily: FONT_UI, fontSize: '10px',

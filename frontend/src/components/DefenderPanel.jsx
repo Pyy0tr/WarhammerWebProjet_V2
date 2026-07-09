@@ -320,7 +320,7 @@ export function DefenderPanel() {
             onClick={() => setDrawerOpen(true)}
             style={{
               background: ACCENT, border: `1px solid ${ACCENT}`,
-              color: TEXT, fontFamily: FONT_UI, fontSize: '10px',
+              color: BG, fontFamily: FONT_UI, fontSize: '10px',
               fontWeight: 700, letterSpacing: '2px', textTransform: 'uppercase',
               padding: '12px 28px', cursor: 'pointer', borderRadius: '6px',
               transition: 'opacity 100ms',

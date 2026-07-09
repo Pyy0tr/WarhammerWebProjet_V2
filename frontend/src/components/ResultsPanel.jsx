@@ -132,7 +132,7 @@ export function ResultsPanel({ result }) {
             tickLine={{ stroke: BORDER }}
             axisLine={{ stroke: BORDER }}
           />
-          <Tooltip content={<CustomTooltip />} cursor={{ fill: 'rgba(47,224,255,0.04)' }} />
+          <Tooltip content={<CustomTooltip />} cursor={{ fill: 'rgba(201,169,110,0.04)' }} />
           <Bar dataKey="probability" radius={0}>
             {damage_histogram.map((entry) => (
               <Cell

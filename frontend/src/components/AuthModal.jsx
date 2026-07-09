@@ -133,7 +133,7 @@ export function AuthModal({ isOpen, onClose, initialTab = 'login' }) {
   return (
     <div onClick={onClose} style={{
       position: 'fixed', inset: 0, zIndex: 200,
-      background: 'rgba(248,250,251,0.94)',
+      background: 'rgba(15,15,15,0.94)',
       backdropFilter: 'blur(8px)',
       display: 'flex', alignItems: 'center', justifyContent: 'center',
       padding: '20px',

@@ -7,18 +7,12 @@
 }
 
 :root {
-  --primary: #2FE0FF;
-  --bg:      #F8FAFB;
-  --surface: #FFFFFF;
-  --border:  #C8D8E4;
-  --text:    #0F1B24;
-  --mono:    'Space Mono', 'Courier New', monospace;
-  --sans:    Inter, -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+  --sans: 'Inter', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
 }
 
 body {
-  background-color: #F7F9F5;
-  color: #141A12;
+  background-color: #0F0F0F;
+  color: #E8E6E0;
   font-family: var(--sans);
   -webkit-font-smoothing: antialiased;
 }

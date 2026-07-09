@@ -19,7 +19,7 @@ function IconBtn({ children, onClick, danger, title }) {
       onMouseLeave={() => setHov(false)}
       style={{
         background: 'none', border: 'none',
-        color: danger ? (hov ? ERROR : 'rgba(255,92,122,0.4)') : (hov ? TEXT : TEXT_WEAK),
+        color: danger ? (hov ? ERROR : 'rgba(192,86,74,0.4)') : (hov ? TEXT : TEXT_WEAK),
         cursor: 'pointer', padding: '2px 6px',
         fontFamily: FONT_UI, fontSize: '13px', lineHeight: 1,
         transition: 'color 100ms',
@@ -33,12 +33,12 @@ function IconBtn({ children, onClick, danger, title }) {
 function SmallBtn({ children, onClick, primary, danger }) {
   const [hov, setHov] = useState(false)
   const bgColor = primary
-    ? (hov ? 'rgba(47,224,255,0.85)' : ACCENT)
+    ? (hov ? 'rgba(201,169,110,0.85)' : ACCENT)
     : danger
-      ? (hov ? 'rgba(255,92,122,0.12)' : 'none')
+      ? (hov ? 'rgba(192,86,74,0.12)' : 'none')
       : (hov ? SURFACE_E : 'none')
-  const borderColor = primary ? ACCENT : danger ? (hov ? ERROR : 'rgba(255,92,122,0.4)') : (hov ? ACCENT : BORDER)
-  const textColor = primary ? BG : danger ? (hov ? ERROR : 'rgba(255,92,122,0.6)') : (hov ? ACCENT : TEXT_WEAK)
+  const borderColor = primary ? ACCENT : danger ? (hov ? ERROR : 'rgba(192,86,74,0.4)') : (hov ? ACCENT : BORDER)
+  const textColor = primary ? BG : danger ? (hov ? ERROR : 'rgba(192,86,74,0.6)') : (hov ? ACCENT : TEXT_WEAK)
   return (
     <button
       onClick={onClick}
@@ -134,7 +134,7 @@ function EditableName({ value, onSave, style }) {
         onKeyDown={(e) => { if (e.key === 'Enter') commit(); if (e.key === 'Escape') { setDraft(value); setEditing(false) } }}
         style={{
           ...style,
-          background: 'rgba(47,224,255,0.05)',
+          background: 'rgba(201,169,110,0.05)',
           border: `1px solid ${ACCENT}`,
           outline: 'none', padding: '4px 8px',
           borderRadius: '4px',
@@ -152,7 +152,7 @@ function EditableName({ value, onSave, style }) {
       style={{
         ...style,
         cursor: 'text',
-        borderBottom: hovering ? `1px dashed rgba(47,224,255,0.5)` : '1px dashed transparent',
+        borderBottom: hovering ? `1px dashed rgba(201,169,110,0.5)` : '1px dashed transparent',
         transition: 'border-bottom-color 120ms',
       }}
     >
@@ -265,8 +265,8 @@ function ArmyUnitCard({ entry, user }) {
           title="Remove unit"
           style={{
             flexShrink: 0, cursor: 'pointer', background: 'none',
-            border: `1px solid ${hov ? ERROR : 'rgba(255,92,122,0.3)'}`,
-            color: hov ? ERROR : 'rgba(255,92,122,0.55)',
+            border: `1px solid ${hov ? ERROR : 'rgba(192,86,74,0.3)'}`,
+            color: hov ? ERROR : 'rgba(192,86,74,0.55)',
             fontFamily: FONT_UI, fontSize: '18px', lineHeight: 1,
             padding: '5px 12px', transition: 'all 120ms',
           }}
@@ -387,7 +387,7 @@ function ArmyEditor({ user, onNewArmy }) {
           onClick={onNewArmy}
           style={{
             background: ACCENT, border: `1px solid ${ACCENT}`,
-            color: TEXT, fontFamily: FONT_UI,
+            color: BG, fontFamily: FONT_UI,
             fontSize: '10px', letterSpacing: '3px', textTransform: 'uppercase',
             fontWeight: 700, padding: '12px 28px', cursor: 'pointer',
             transition: 'opacity 100ms',
@@ -499,7 +499,7 @@ function ArmyEditor({ user, onNewArmy }) {
       }}>
         Units
         <span style={{
-          color: ACCENT_TEXT, border: `1px solid rgba(47,224,255,0.3)`,
+          color: ACCENT_TEXT, border: `1px solid rgba(201,169,110,0.3)`,
           padding: '1px 6px', fontSize: '11px',
         }}>
           {army.units.length}
@@ -625,11 +625,11 @@ function ArmySidebarItem({ army, active, onClick, animDelay }) {
         padding: '14px 18px',
         cursor: 'pointer',
         borderBottom: `1px solid ${BORDER}`,
-        borderLeft: `3px solid ${active ? ACCENT : hov ? 'rgba(47,224,255,0.25)' : 'transparent'}`,
+        borderLeft: `3px solid ${active ? ACCENT : hov ? 'rgba(201,169,110,0.25)' : 'transparent'}`,
         background: active
           ? SURFACE_E
           : hov ? ACCENT_LIGHT : 'transparent',
-        boxShadow: active ? 'inset 0 0 20px rgba(47,224,255,0.04)' : 'none',
+        boxShadow: active ? 'inset 0 0 20px rgba(201,169,110,0.04)' : 'none',
         transition: 'background 160ms ease, border-left-color 160ms ease, box-shadow 160ms ease',
         animationDelay: `${animDelay}ms`,
       }}
@@ -689,7 +689,7 @@ function ArmySidebar({ user, onNewArmy }) {
           {armies.length > 0 && (
             <span style={{
               fontFamily: FONT_UI, fontSize: '11px',
-              color: ACCENT_TEXT, border: `1px solid rgba(47,224,255,0.3)`,
+              color: ACCENT_TEXT, border: `1px solid rgba(201,169,110,0.3)`,
               padding: '1px 6px',
             }}>{armies.length}</span>
           )}
@@ -720,7 +720,7 @@ function ArmySidebar({ user, onNewArmy }) {
       </div>
 
       {/* Divider */}
-      <div style={{ height: '1px', background: `linear-gradient(to right, rgba(47,224,255,0.15), ${BORDER}, transparent)` }} />
+      <div style={{ height: '1px', background: `linear-gradient(to right, rgba(201,169,110,0.15), ${BORDER}, transparent)` }} />
 
       {/* List */}
       <div style={{ flex: 1, overflowY: 'auto' }}>
@@ -803,7 +803,7 @@ function NewArmyModal({ onClose, onCreate }) {
       onClick={onClose}
       style={{
         position: 'fixed', inset: 0, zIndex: 200,
-        background: 'rgba(248,250,251,0.95)', backdropFilter: 'blur(8px)',
+        background: 'rgba(15,15,15,0.95)', backdropFilter: 'blur(8px)',
         display: 'flex', alignItems: 'center', justifyContent: 'center',
       }}
     >
@@ -850,7 +850,7 @@ function NewArmyModal({ onClose, onCreate }) {
           placeholder="e.g. Ultramarines Strike Force"
           maxLength={60}
           style={{
-            background: 'rgba(47,224,255,0.05)',
+            background: 'rgba(201,169,110,0.05)',
             border: `1px solid ${error ? ERROR : (name ? ACCENT : BORDER)}`,
             color: TEXT_SEC, fontFamily: FONT_UI, fontSize: '13px',
             padding: '12px 14px', outline: 'none', width: '100%', boxSizing: 'border-box',
@@ -874,7 +874,7 @@ function NewArmyModal({ onClose, onCreate }) {
             disabled={busy || !name.trim()}
             style={{
               flex: 1,
-              background: busy || !name.trim() ? 'rgba(47,224,255,0.15)' : ACCENT,
+              background: busy || !name.trim() ? 'rgba(201,169,110,0.15)' : ACCENT,
               border: 'none',
               color: busy || !name.trim() ? TEXT_WEAK : BG,
               fontFamily: FONT_UI, fontSize: '10px',

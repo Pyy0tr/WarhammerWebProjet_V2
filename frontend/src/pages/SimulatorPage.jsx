@@ -5,7 +5,7 @@ import { AttackerPanel } from '../components/AttackerPanel'
 import { DefenderPanel } from '../components/DefenderPanel'
 import { ResultsPanel } from '../components/ResultsPanel'
 import { AbilityText } from '../components/AbilityText'
-import { ACCENT_TEXT, ACCENT, ACCENT_H, BG, SURFACE, SURFACE_E, BORDER, TEXT, TEXT_SEC, TEXT_WEAK, TEXT_OFF, ERROR, FONT_UI, SHADOW_MD, RADIUS , ACCENT_LIGHT} from '../theme'
+import { ACCENT_TEXT, ACCENT, ACCENT_H, BG, SURFACE, SURFACE_E, BORDER, TEXT, TEXT_SEC, TEXT_WEAK, TEXT_OFF, ERROR, FONT_UI, FONT_DISPLAY, SHADOW_MD, RADIUS , ACCENT_LIGHT} from '../theme'
 import { KEYWORD_BY_TYPE } from '../engine/keywords.js'
 
 // ── Step indicator ───────────────────────────────────────────────────────────
@@ -114,7 +114,7 @@ function AttackCard({ attack, idx, onEdit, onRemove }) {
         {attack.buffs?.length > 0 && (
           <div style={{
             fontFamily: FONT_UI, fontSize: '11px',
-            color: 'rgba(194,143,133,0.7)', marginTop: '3px', letterSpacing: '0.5px', textTransform: 'uppercase',
+            color: 'rgba(166,106,74,0.7)', marginTop: '3px', letterSpacing: '0.5px', textTransform: 'uppercase',
           }}>
             {attack.buffs.map((b) => `${b.type.replace(/_/g, ' ')} (${b.value})`).join(' \u00b7 ')}
           </div>
@@ -137,13 +137,13 @@ function AttackCard({ attack, idx, onEdit, onRemove }) {
         <button
           onClick={() => onRemove(idx)}
           style={{
-            background: 'none', border: `1px solid rgba(255,92,122,0.3)`,
+            background: 'none', border: `1px solid rgba(192,86,74,0.3)`,
             color: ERROR, fontFamily: FONT_UI, fontSize: '11px',
             letterSpacing: '1px', textTransform: 'uppercase', padding: '4px 8px',
             cursor: 'pointer', transition: 'border-color 100ms',
           }}
           onMouseEnter={(e) => { e.currentTarget.style.borderColor = ERROR }}
-          onMouseLeave={(e) => { e.currentTarget.style.borderColor = 'rgba(255,92,122,0.3)' }}
+          onMouseLeave={(e) => { e.currentTarget.style.borderColor = 'rgba(192,86,74,0.3)' }}
         >
           ×
         </button>
@@ -208,7 +208,7 @@ function ReviewStep() {
             style={{
               flex: 1, padding: '12px',
               background: ACCENT, border: `1px solid ${ACCENT}`,
-              color: TEXT, fontFamily: FONT_UI, fontSize: '10px',
+              color: BG, fontFamily: FONT_UI, fontSize: '10px',
               fontWeight: 700, letterSpacing: '1.5px', textTransform: 'uppercase',
               cursor: 'pointer', transition: 'opacity 100ms',
             }}
@@ -237,7 +237,7 @@ function DefenderStep() {
 
       {error && (
         <div style={{
-          marginTop: '16px', border: `1px solid rgba(255,92,122,0.5)`,
+          marginTop: '16px', border: `1px solid rgba(192,86,74,0.5)`,
           padding: '10px 14px', fontFamily: FONT_UI,
           fontSize: '10px', letterSpacing: '1.5px', textTransform: 'uppercase',
           color: ERROR,
@@ -729,13 +729,13 @@ function injectAbilitiesStyles() {
     .abilities-scrollbar::-webkit-scrollbar-thumb:hover { background: ${ACCENT}66; }
     .ability-card {
       padding: 10px 12px;
-      background: rgba(47,224,255,0.03);
+      background: rgba(201,169,110,0.03);
       border-left: 2px solid ${ACCENT}44;
       transition: background 150ms ease, border-left-color 150ms ease, border-left-width 150ms ease;
       cursor: default;
     }
     .ability-card:hover {
-      background: rgba(47,224,255,0.07);
+      background: rgba(201,169,110,0.07);
       border-left-color: ${ACCENT}99;
       border-left-width: 3px;
     }
@@ -767,7 +767,7 @@ function UnitAbilitiesPanel({ role, embedded = false }) {
     }
   }, [unit?.id])
 
-  const card = (
+  const card = !unit ? null : (
     <div
       className="abilities-scrollbar"
       style={{
@@ -965,7 +965,7 @@ function AttackStep() {
             flex: 1, padding: '14px',
             background: hasWeapon ? ACCENT : SURFACE_E,
             border: `1px solid ${hasWeapon ? ACCENT : BORDER}`,
-            color: hasWeapon ? '#FFFFFF' : TEXT_WEAK,
+            color: hasWeapon ? BG : TEXT_WEAK,
             fontFamily: FONT_UI, fontSize: '13px',
             fontWeight: 600, borderRadius: RADIUS,
             cursor: hasWeapon ? 'pointer' : 'default',
@@ -1033,7 +1033,7 @@ export function SimulatorPage() {
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '12px', flexWrap: 'wrap' }}>
             <div style={{ display: 'flex', alignItems: 'baseline', gap: '12px' }}>
               <h1 style={{
-                fontFamily: FONT_UI, fontWeight: 700,
+                fontFamily: FONT_DISPLAY, fontWeight: 700,
                 fontSize: isMobile ? '16px' : 'clamp(18px, 2vw, 26px)', letterSpacing: '0.05em',
                 textTransform: 'uppercase', lineHeight: 1, color: TEXT,
               }}>

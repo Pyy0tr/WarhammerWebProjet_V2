@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { ACCENT_TEXT, ACCENT, BG, SURFACE, BORDER, TEXT, TEXT_SEC, TEXT_WEAK, TEXT_OFF , FONT_UI, ACCENT_LIGHT} from '../theme'
+import { ACCENT_TEXT, ACCENT, BG, SURFACE, BORDER, TEXT, TEXT_SEC, TEXT_WEAK, TEXT_OFF , FONT_UI, FONT_DISPLAY, ACCENT_LIGHT} from '../theme'
 
 const LEVELS = [
   {
@@ -172,7 +172,7 @@ export function WelcomePage() {
               Welcome — first visit
             </div>
             <h1 style={{
-              fontFamily: FONT_UI,
+              fontFamily: FONT_DISPLAY,
               fontSize: 'clamp(18px, 2.5vw, 28px)',
               fontWeight: 700,
               letterSpacing: '2px',
@@ -277,7 +277,7 @@ export function WelcomePage() {
             style={{
               background: ACCENT,
               border: 'none',
-              color: TEXT,
+              color: BG,
               fontFamily: FONT_UI,
               fontSize: '11px',
               letterSpacing: '3px',

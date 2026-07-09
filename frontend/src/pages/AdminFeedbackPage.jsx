@@ -4,7 +4,7 @@ import { useAuthStore } from '../store/authStore'
 import { api } from '../lib/api'
 import {
   ACCENT_TEXT, ACCENT, BG, BORDER, HIGHLIGHT, SURFACE, SURFACE_E,
-  TEXT, TEXT_SEC, TEXT_WEAK, TEXT_OFF, FONT_UI} from '../theme'
+  TEXT, TEXT_SEC, TEXT_WEAK, TEXT_OFF, FONT_UI, FONT_DISPLAY} from '../theme'
 
 const ADMIN_USERNAME = 'admin'
 
@@ -133,7 +133,7 @@ export function AdminFeedbackPage() {
 
       {/* Header */}
       <div style={{ display: 'flex', alignItems: 'baseline', gap: '16px', marginBottom: '32px' }}>
-        <h1 style={{ fontFamily: FONT_UI, fontSize: '18px', fontWeight: 700, letterSpacing: '3px', textTransform: 'uppercase', color: TEXT, margin: 0 }}>
+        <h1 style={{ fontFamily: FONT_DISPLAY, fontSize: '18px', fontWeight: 700, letterSpacing: '3px', textTransform: 'uppercase', color: TEXT, margin: 0 }}>
           Feedback
         </h1>
         {unread > 0 && (

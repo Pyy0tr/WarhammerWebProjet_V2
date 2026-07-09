@@ -70,7 +70,7 @@ function KeywordPicker() {
   const chipActive = {
     ...chipBase,
     border: `1px solid ${ACCENT}`,
-    background: 'rgba(47,224,255,0.15)',
+    background: 'rgba(201,169,110,0.15)',
     color: TEXT,
   }
 
@@ -385,7 +385,7 @@ function ArmyPicker() {
 
         <div style={{
           padding: '10px 12px', border: `1px solid ${BORDER}`,
-          background: 'rgba(47,224,255,0.05)',
+          background: 'rgba(201,169,110,0.05)',
           fontFamily: FONT_UI, fontSize: '10px',
           color: ACCENT_TEXT, letterSpacing: '1px',
         }}>
@@ -409,7 +409,7 @@ function AbilityBtn({ active, onClick, children }) {
     <button
       onClick={onClick}
       style={{
-        background: active ? 'rgba(47,224,255,0.15)' : SURFACE,
+        background: active ? 'rgba(201,169,110,0.15)' : SURFACE,
         border: `1px solid ${active ? ACCENT : BORDER}`,
         color: active ? TEXT : TEXT_SEC,
         fontFamily: FONT_UI, fontSize: '12px',
@@ -661,7 +661,7 @@ export function AttackerPanel() {
             onClick={() => setDrawerOpen(true)}
             style={{
               background: ACCENT, border: `1px solid ${ACCENT}`,
-              color: TEXT, fontFamily: FONT_UI, fontSize: '10px',
+              color: BG, fontFamily: FONT_UI, fontSize: '10px',
               fontWeight: 700, letterSpacing: '2px', textTransform: 'uppercase',
               padding: '12px 28px', cursor: 'pointer', borderRadius: '6px',
               transition: 'opacity 100ms',

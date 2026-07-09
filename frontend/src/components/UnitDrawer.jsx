@@ -331,7 +331,7 @@ export function UnitDrawer({ isOpen, onClose, role, onSelect, zIndex = 200 }) {
         onClick={onClose}
         style={{
           position: 'fixed', inset: 0, zIndex: zIndex,
-          background: 'rgba(248,250,251,0.92)',
+          background: 'rgba(15,15,15,0.92)',
           opacity: isOpen ? 1 : 0,
           pointerEvents: isOpen ? 'auto' : 'none',
           transition: 'opacity 180ms ease',

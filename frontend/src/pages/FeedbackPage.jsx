@@ -4,7 +4,7 @@ import { useAuthStore } from '../store/authStore'
 import { api } from '../lib/api'
 import {
   ACCENT_TEXT, ACCENT, BG, BORDER, HIGHLIGHT, SURFACE, SURFACE_E,
-  TEXT, TEXT_SEC, TEXT_WEAK, TEXT_OFF, FONT_UI} from '../theme'
+  TEXT, TEXT_SEC, TEXT_WEAK, TEXT_OFF, FONT_UI, FONT_DISPLAY} from '../theme'
 
 const TYPES = [
   { id: 'bug',        label: 'Bug',        desc: 'Something is broken or gives wrong results' },
@@ -51,7 +51,7 @@ export function FeedbackPage() {
       <div style={{ minHeight: 'calc(100vh - 52px)', marginTop: '52px', background: BG, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '40px 24px' }}>
         <div style={{ maxWidth: '480px', width: '100%', display: 'flex', flexDirection: 'column', gap: '24px', border: `1px solid ${ACCENT}`, background: SURFACE, padding: '48px 44px' }}>
           <div style={{ fontFamily: FONT_UI, fontSize: '10px', letterSpacing: '3px', textTransform: 'uppercase', color: ACCENT_TEXT }}>Envoyé</div>
-          <h1 style={{ fontFamily: FONT_UI, fontSize: '20px', fontWeight: 700, letterSpacing: '2px', textTransform: 'uppercase', color: TEXT, margin: 0 }}>
+          <h1 style={{ fontFamily: FONT_DISPLAY, fontSize: '20px', fontWeight: 700, letterSpacing: '2px', textTransform: 'uppercase', color: TEXT, margin: 0 }}>
             Merci pour ton feedback
           </h1>
           <p style={{ fontFamily: 'Inter, -apple-system, system-ui, sans-serif', fontSize: '15px', lineHeight: 1.7, color: TEXT_SEC, margin: 0 }}>
@@ -79,7 +79,7 @@ export function FeedbackPage() {
           <div style={{ fontFamily: FONT_UI, fontSize: '10px', letterSpacing: '3px', textTransform: 'uppercase', color: TEXT_WEAK }}>
             Prob'Hammer — Feedback
           </div>
-          <h1 style={{ fontFamily: FONT_UI, fontSize: 'clamp(18px, 2.5vw, 26px)', fontWeight: 700, letterSpacing: '2px', textTransform: 'uppercase', color: TEXT, margin: 0 }}>
+          <h1 style={{ fontFamily: FONT_DISPLAY, fontSize: 'clamp(18px, 2.5vw, 26px)', fontWeight: 700, letterSpacing: '2px', textTransform: 'uppercase', color: TEXT, margin: 0 }}>
             Envoie un feedback
           </h1>
           <p style={{ fontFamily: 'Inter, -apple-system, system-ui, sans-serif', fontSize: '15px', lineHeight: 1.7, color: TEXT_SEC, margin: 0 }}>
@@ -185,7 +185,7 @@ export function FeedbackPage() {
             type="submit"
             disabled={loading}
             style={{
-              background: ACCENT, border: 'none', color: TEXT,
+              background: ACCENT, border: 'none', color: BG,
               fontFamily: FONT_UI, fontSize: '10px',
               letterSpacing: '2px', textTransform: 'uppercase', fontWeight: 700,
               padding: '14px 28px', cursor: loading ? 'wait' : 'pointer',

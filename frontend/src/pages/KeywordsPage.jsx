@@ -6,7 +6,7 @@ import { KEYWORD_REGISTRY_V11 } from '../engine/keywords_v11'
 import { simulate as simulateV10 } from '../engine/simulation'
 import { simulate as simulateV11 } from '../engine/simulation_v11'
 import { useDataStore } from '../store/dataStore'
-import { ACCENT_TEXT, ACCENT, BORDER, SURFACE, TEXT, TEXT_OFF, TEXT_SEC, TEXT_WEAK, SUCCESS, WARNING, TYPE , FONT_UI, ACCENT_LIGHT} from '../theme'
+import { ACCENT_TEXT, ACCENT, BG, BORDER, SURFACE, TEXT, TEXT_OFF, TEXT_SEC, TEXT_WEAK, SUCCESS, WARNING, ERROR, TYPE , FONT_UI, FONT_DISPLAY, ACCENT_LIGHT} from '../theme'
 
 const N_TRIALS = 1200
 
@@ -327,7 +327,7 @@ function ChartTooltip({ active, payload, label }) {
   if (!active || !payload?.length) return null
   return (
     <div style={{
-      background: '#0F2230', border: `1px solid #1E3A4C`,
+      background: SURFACE, border: `1px solid ${BORDER}`,
       padding: '8px 12px',
       fontFamily: FONT_UI, fontSize: '10px',
     }}>
@@ -345,7 +345,7 @@ function ChartTooltip({ active, payload, label }) {
 
 function StatChip({ label, value, color }) {
   return (
-    <div style={{ flex: 1, padding: '14px 16px', background: '#0A1621', border: `1px solid #1E3A4C` }}>
+    <div style={{ flex: 1, padding: '14px 16px', background: BG, border: `1px solid ${BORDER}` }}>
       <div style={{ ...TYPE.label, marginBottom: '8px' }}>{label}</div>
       <div style={{ ...TYPE.statLg, color }}>{value}</div>
     </div>
@@ -394,21 +394,21 @@ function BlastTierTable({ simulate }) {
         ))}
 
         {/* Base attacks row */}
-        <div style={{ background: '#0A1621', padding: '10px 10px', ...TYPE.label, display: 'flex', alignItems: 'center' }}>
+        <div style={{ background: BG, padding: '10px 10px', ...TYPE.label, display: 'flex', alignItems: 'center' }}>
           Attacks<br/>no Blast
         </div>
         {tiers.map(({ n, totalBase }) => (
-          <div key={n} style={{ background: '#0A1621', padding: '10px 6px', textAlign: 'center', ...TYPE.heading, color: TEXT_SEC, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <div key={n} style={{ background: BG, padding: '10px 6px', textAlign: 'center', ...TYPE.heading, color: TEXT_SEC, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
             {totalBase}
           </div>
         ))}
 
         {/* Blast bonus row */}
-        <div style={{ background: '#0A1621', padding: '10px 10px', ...TYPE.label, display: 'flex', alignItems: 'center' }}>
+        <div style={{ background: BG, padding: '10px 10px', ...TYPE.label, display: 'flex', alignItems: 'center' }}>
           Blast<br/>bonus
         </div>
         {tiers.map(({ n, bonus }) => (
-          <div key={n} style={{ background: '#0A1621', padding: '10px 6px', textAlign: 'center', ...TYPE.statMd, color: ACCENT_TEXT, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <div key={n} style={{ background: BG, padding: '10px 6px', textAlign: 'center', ...TYPE.statMd, color: ACCENT_TEXT, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
             +{bonus}
           </div>
         ))}
@@ -424,13 +424,13 @@ function BlastTierTable({ simulate }) {
         ))}
 
         {/* Avg kills row */}
-        <div style={{ background: '#0A1621', padding: '10px 10px', ...TYPE.label, display: 'flex', alignItems: 'center' }}>
+        <div style={{ background: BG, padding: '10px 10px', ...TYPE.label, display: 'flex', alignItems: 'center' }}>
           Avg kills<br/>(simul.)
         </div>
         {tiers.map(({ n, killsBase, killsBlast }) => {
           const diff = (killsBlast - killsBase).toFixed(1)
           return (
-            <div key={n} style={{ background: '#0A1621', padding: '10px 6px', textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '3px' }}>
+            <div key={n} style={{ background: BG, padding: '10px 6px', textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '3px' }}>
               <span style={{ ...TYPE.statMd, color: ACCENT_TEXT }}>{killsBlast}</span>
               <span style={{ ...TYPE.label, color: SUCCESS }}>+{diff}</span>
             </div>
@@ -477,7 +477,7 @@ function ComparisonPanel({ kwType, simulate }) {
 
   const meanDiff = r1.summary.mean_damage - r0.summary.mean_damage
   const diffSign = meanDiff >= 0 ? '+' : ''
-  const diffColor = meanDiff > 0.05 ? SUCCESS : meanDiff < -0.05 ? '#FF5C7A' : TEXT_WEAK
+  const diffColor = meanDiff > 0.05 ? SUCCESS : meanDiff < -0.05 ? ERROR : TEXT_WEAK
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
@@ -494,8 +494,8 @@ function ComparisonPanel({ kwType, simulate }) {
         <div style={{
           fontFamily: FONT_UI, fontSize: '10px',
           letterSpacing: '1px', color: TEXT_SEC,
-          padding: '8px 12px', border: `1px solid #1E3A4C`,
-          background: '#0A1621',
+          padding: '8px 12px', border: `1px solid ${BORDER}`,
+          background: BG,
         }}>
           {scenario.label}
         </div>
@@ -508,10 +508,10 @@ function ComparisonPanel({ kwType, simulate }) {
       <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
         <div style={{
           display: 'grid', gridTemplateColumns: '1fr 1fr',
-          gap: '1px', background: '#1E3A4C',
+          gap: '1px', background: BORDER,
         }}>
           {/* Labels row */}
-          <div style={{ background: '#0F2230', padding: '8px 16px' }}>
+          <div style={{ background: SURFACE, padding: '8px 16px' }}>
             <span style={{
               fontFamily: FONT_UI, fontSize: '10px',
               letterSpacing: '2px', textTransform: 'uppercase', color: TEXT_WEAK,
@@ -519,7 +519,7 @@ function ComparisonPanel({ kwType, simulate }) {
               Without
             </span>
           </div>
-          <div style={{ background: '#0F2230', padding: '8px 16px', borderLeft: `2px solid ${ACCENT}` }}>
+          <div style={{ background: SURFACE, padding: '8px 16px', borderLeft: `2px solid ${ACCENT}` }}>
             <span style={{
               fontFamily: FONT_UI, fontSize: '10px',
               letterSpacing: '2px', textTransform: 'uppercase', color: ACCENT_TEXT,
@@ -529,11 +529,11 @@ function ComparisonPanel({ kwType, simulate }) {
           </div>
 
           {/* Mean */}
-          <div style={{ background: '#0A1621', padding: '16px 16px 12px' }}>
+          <div style={{ background: BG, padding: '16px 16px 12px' }}>
             <div style={{ fontFamily: FONT_UI, fontSize: '10px', ...TYPE.label, marginBottom: '6px' }}>Mean dmg</div>
             <div style={{ fontFamily: FONT_UI, fontSize: '22px', fontWeight: 700, color: TEXT }}>{r0.summary.mean_damage}</div>
           </div>
-          <div style={{ background: '#0A1621', padding: '16px 16px 12px', borderLeft: `2px solid ${ACCENT}` }}>
+          <div style={{ background: BG, padding: '16px 16px 12px', borderLeft: `2px solid ${ACCENT}` }}>
             <div style={{ fontFamily: FONT_UI, fontSize: '10px', ...TYPE.label, marginBottom: '6px' }}>Mean dmg</div>
             <div style={{ display: 'flex', alignItems: 'baseline', gap: '10px' }}>
               <div style={{ fontFamily: FONT_UI, fontSize: '22px', fontWeight: 700, color: ACCENT_TEXT }}>{r1.summary.mean_damage}</div>
@@ -542,11 +542,11 @@ function ComparisonPanel({ kwType, simulate }) {
           </div>
 
           {/* P90 */}
-          <div style={{ background: '#0A1621', padding: '12px 16px 16px' }}>
+          <div style={{ background: BG, padding: '12px 16px 16px' }}>
             <div style={{ fontFamily: FONT_UI, fontSize: '10px', ...TYPE.label, marginBottom: '6px' }}>P90 (best 10%)</div>
             <div style={{ fontFamily: FONT_UI, fontSize: '22px', fontWeight: 700, color: TEXT }}>{r0.summary.p90}</div>
           </div>
-          <div style={{ background: '#0A1621', padding: '12px 16px 16px', borderLeft: `2px solid ${ACCENT}` }}>
+          <div style={{ background: BG, padding: '12px 16px 16px', borderLeft: `2px solid ${ACCENT}` }}>
             <div style={{ fontFamily: FONT_UI, fontSize: '10px', ...TYPE.label, marginBottom: '6px' }}>P90 (best 10%)</div>
             <div style={{ display: 'flex', alignItems: 'baseline', gap: '10px' }}>
               <div style={{ fontFamily: FONT_UI, fontSize: '22px', fontWeight: 700, color: ACCENT_TEXT }}>{r1.summary.p90}</div>
@@ -572,7 +572,7 @@ function ComparisonPanel({ kwType, simulate }) {
 
         {/* Legend */}
         <div style={{ display: 'flex', gap: '20px', marginBottom: '10px' }}>
-          {[['#4A6A7A', 'Without'], [ACCENT, 'With keyword']].map(([color, label]) => (
+          {[[TEXT_WEAK, 'Without'], [ACCENT, 'With keyword']].map(([color, label]) => (
             <div key={label} style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
               <div style={{ width: 10, height: 10, background: color }} />
               <span style={{ ...TYPE.label }}>{label}</span>
@@ -585,7 +585,7 @@ function ComparisonPanel({ kwType, simulate }) {
             <XAxis
               dataKey="damage"
               tick={{ fontFamily: FONT_UI, fontSize: 9, fill: TEXT_OFF }}
-              axisLine={{ stroke: '#1E3A4C' }}
+              axisLine={{ stroke: BORDER }}
               tickLine={false}
               label={{ value: 'Damage', position: 'insideBottom', offset: -2, fontFamily: FONT_UI, fontSize: 8, fill: TEXT_OFF }}
             />
@@ -596,8 +596,8 @@ function ComparisonPanel({ kwType, simulate }) {
               tickLine={false}
               width={34}
             />
-            <Tooltip content={<ChartTooltip />} cursor={{ fill: 'rgba(47,224,255,0.06)' }} />
-            <Bar dataKey="without" name="Without" fill="#4A6A7A" radius={0} />
+            <Tooltip content={<ChartTooltip />} cursor={{ fill: 'rgba(201,169,110,0.06)' }} />
+            <Bar dataKey="without" name="Without" fill={TEXT_WEAK} radius={0} />
             <Bar dataKey="with"    name="With"    fill={ACCENT}   radius={0} opacity={0.85} />
           </BarChart>
         </ResponsiveContainer>
@@ -618,7 +618,7 @@ function KeywordRow({ kw, selected, onClick }) {
       style={{
         padding: '10px 16px',
         borderLeft: `2px solid ${selected ? ACCENT : 'transparent'}`,
-        background: selected ? 'rgba(47,224,255,0.06)' : hov ? ACCENT_LIGHT : 'transparent',
+        background: selected ? 'rgba(201,169,110,0.06)' : hov ? ACCENT_LIGHT : 'transparent',
         cursor: 'pointer',
         transition: 'background 100ms, border-color 100ms',
         display: 'flex', alignItems: 'center', justifyContent: 'space-between',
@@ -639,7 +639,7 @@ function KeywordRow({ kw, selected, onClick }) {
           fontFamily: FONT_UI, fontSize: '11px',
           letterSpacing: '1px', textTransform: 'uppercase',
           color: TEXT_OFF, padding: '2px 6px',
-          border: `1px solid #1E3A4C`, flexShrink: 0,
+          border: `1px solid ${BORDER}`, flexShrink: 0,
         }}>
           display only
         </span>
@@ -688,8 +688,8 @@ function DetailPanel({ kw, simulate }) {
           <div style={{
             display: 'flex', alignItems: 'center', gap: '6px',
             padding: '6px 12px',
-            border: `1px solid ${kw.notSimulated ? BORDER : 'rgba(61,220,151,0.3)'}`,
-            background: kw.notSimulated ? 'transparent' : 'rgba(61,220,151,0.06)',
+            border: `1px solid ${kw.notSimulated ? BORDER : 'rgba(90,158,111,0.3)'}`,
+            background: kw.notSimulated ? 'transparent' : 'rgba(90,158,111,0.06)',
             flexShrink: 0,
           }}>
             <div style={{ width: 6, height: 6, borderRadius: '50%', background: kw.notSimulated ? TEXT_OFF : SUCCESS }} />

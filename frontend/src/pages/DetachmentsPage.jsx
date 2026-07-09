@@ -179,7 +179,7 @@ function DetachmentSection({ det }) {
           cursor: hasContent ? 'pointer' : 'default',
           transition: 'background 120ms',
         }}
-        onMouseEnter={(e) => { if (hasContent) e.currentTarget.style.background = 'rgba(47,224,255,0.06)' }}
+        onMouseEnter={(e) => { if (hasContent) e.currentTarget.style.background = 'rgba(201,169,110,0.06)' }}
         onMouseLeave={(e) => { e.currentTarget.style.background = SURFACE_E }}
       >
         <div style={{ ...TYPE.heading, color: open ? ACCENT : TEXT, transition: 'color 120ms', flex: 1 }}>
@@ -187,17 +187,17 @@ function DetachmentSection({ det }) {
         </div>
         <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
           {hasRules && (
-            <span style={{ ...TYPE.label, color: HIGHLIGHT, border: `1px solid rgba(194,143,133,0.3)`, padding: '1px 7px', borderRadius: '4px' }}>
+            <span style={{ ...TYPE.label, color: HIGHLIGHT, border: `1px solid rgba(166,106,74,0.3)`, padding: '1px 7px', borderRadius: '4px' }}>
               rule
             </span>
           )}
           {det.stratagems.length > 0 && (
-            <span style={{ ...TYPE.label, color: ACCENT_TEXT, border: `1px solid rgba(47,224,255,0.3)`, padding: '1px 7px', borderRadius: '4px' }}>
+            <span style={{ ...TYPE.label, color: ACCENT_TEXT, border: `1px solid rgba(201,169,110,0.3)`, padding: '1px 7px', borderRadius: '4px' }}>
               {det.stratagems.length} strats
             </span>
           )}
           {det.enhancements.length > 0 && (
-            <span style={{ ...TYPE.label, color: SUCCESS, border: `1px solid rgba(61,220,151,0.3)`, padding: '1px 7px', borderRadius: '4px' }}>
+            <span style={{ ...TYPE.label, color: SUCCESS, border: `1px solid rgba(90,158,111,0.3)`, padding: '1px 7px', borderRadius: '4px' }}>
               {det.enhancements.length} enhs
             </span>
           )}
@@ -262,7 +262,7 @@ function ArmyRulesSection({ rules }) {
           display: 'flex', alignItems: 'center', gap: '12px',
           cursor: 'pointer',
         }}
-        onMouseEnter={(e) => { e.currentTarget.style.background = 'rgba(47,224,255,0.06)' }}
+        onMouseEnter={(e) => { e.currentTarget.style.background = 'rgba(201,169,110,0.06)' }}
         onMouseLeave={(e) => { e.currentTarget.style.background = SURFACE_E }}
       >
         <div style={{ ...TYPE.heading, color: open ? ACCENT : TEXT, flex: 1, transition: 'color 120ms' }}>
@@ -360,7 +360,7 @@ function FactionItem({ faction, selected, onClick }) {
       style={{
         padding: '9px 16px',
         cursor: 'pointer',
-        background: selected ? SURFACE_E : hov ? 'rgba(47,224,255,0.06)' : 'transparent',
+        background: selected ? SURFACE_E : hov ? 'rgba(201,169,110,0.06)' : 'transparent',
         borderLeft: `2px solid ${selected ? ACCENT : 'transparent'}`,
         transition: 'background 100ms, border-color 100ms',
         display: 'flex', flexDirection: 'column', gap: '2px',

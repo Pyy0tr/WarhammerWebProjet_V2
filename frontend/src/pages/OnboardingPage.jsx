@@ -613,7 +613,7 @@ function FullDamagePanel({ result, label }) {
         <BarChart data={damage_histogram} margin={{ top: 0, right: 0, bottom: 0, left: -20 }} barCategoryGap="18%">
           <XAxis dataKey="damage" tick={{ fill: TEXT_WEAK, fontSize: 8, fontFamily: FONT_UI }} tickLine={{ stroke: BORDER }} axisLine={{ stroke: BORDER }} />
           <YAxis tickFormatter={(v) => `${(v * 100).toFixed(0)}%`} tick={{ fill: TEXT_WEAK, fontSize: 8, fontFamily: FONT_UI }} tickLine={{ stroke: BORDER }} axisLine={{ stroke: BORDER }} />
-          <Tooltip content={<CustomTooltip />} cursor={{ fill: 'rgba(47,224,255,0.04)' }} />
+          <Tooltip content={<CustomTooltip />} cursor={{ fill: 'rgba(201,169,110,0.04)' }} />
           <Bar dataKey="probability" radius={0} isAnimationActive animationDuration={350}>
             {damage_histogram.map((entry) => (
               <Cell key={entry.damage} fill={entry.probability === maxProb ? HIGHLIGHT : ACCENT} opacity={entry.probability === maxProb ? 0.9 : 0.45} />
