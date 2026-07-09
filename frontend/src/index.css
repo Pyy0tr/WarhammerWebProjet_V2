@@ -8,6 +8,7 @@
 
 :root {
   --sans: 'Inter', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+  color-scheme: dark;
 }
 
 body {
@@ -15,6 +16,27 @@ body {
   color: #E8E6E0;
   font-family: var(--sans);
   -webkit-font-smoothing: antialiased;
+}
+
+/* Scrollbars — dark theme (Firefox + WebKit/Chromium) */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #2A2A2A #0F0F0F;
+}
+
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: #0F0F0F;
+}
+::-webkit-scrollbar-thumb {
+  background: #2A2A2A;
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #3A3A3A;
 }
 
 button {
