@@ -2,7 +2,7 @@ name: Sync BSData
 
 on:
   schedule:
-    - cron: "0 */12 * * *"   # toutes les 12h
+    - cron: "0 0 */2 * *"     # toutes les 48h
   workflow_dispatch:           # déclenchable manuellement depuis GitHub Actions
 
 permissions:
