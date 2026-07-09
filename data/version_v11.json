@@ -1,6 +1,6 @@
 {
-  "sha": "1ab5957a507a3d69a24419d21f5e0d96b3149bcc",
-  "sha_short": "1ab5957a",
-  "committed_at": "2026-07-08T11:16:04Z",
-  "message": "Allies tidy up"
+  "sha": "0ab64518bdf172943314e2ab0cdb4758981f3b8d",
+  "sha_short": "0ab64518",
+  "committed_at": "2026-07-08T19:20:55Z",
+  "message": "Fixes #230"
 }
