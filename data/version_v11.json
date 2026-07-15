@@ -1,6 +1,6 @@
 {
-  "sha": "de42f4c238a4ed7e76bab8b7bca763dd9cf0ff00",
-  "sha_short": "de42f4c2",
-  "committed_at": "2026-07-11T17:08:39Z",
-  "message": "Fixes #301"
+  "sha": "90e0355bc372389abbd524c88cee8ffc2a97d4b7",
+  "sha_short": "90e0355b",
+  "committed_at": "2026-07-14T22:41:34Z",
+  "message": "Fixes #384"
 }
