@@ -1,6 +1,6 @@
 {
-  "sha": "6a960b070f85872bbd33a44e0835a79de6deace5",
-  "sha_short": "6a960b07",
-  "committed_at": "2026-07-17T14:48:16Z",
-  "message": "Ciaphas Cain Legends hide logic"
+  "sha": "940be8990bfdea76bc132ce489741fd168875aa3",
+  "sha_short": "940be899",
+  "committed_at": "2026-07-20T16:38:25Z",
+  "message": "Fixes #464"
 }
