@@ -1,6 +1,6 @@
 {
-  "sha": "a9fd7b49aab8d55e74561be6e3a51464e96254e3",
-  "sha_short": "a9fd7b49",
-  "committed_at": "2026-09-12T12:53:05Z",
-  "message": "Fixes #1887"
+  "sha": "8347d3f94e146aafe1951c0af0928a79c2b1bbfb",
+  "sha_short": "8347d3f9",
+  "committed_at": "2026-09-14T18:50:04Z",
+  "message": "Coldstar associated modifiers fix"
 }
