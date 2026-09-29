@@ -1,6 +1,6 @@
 {
-  "sha": "6fca2d1818f6b308c00f8eb9bc2026f48c9936ef",
-  "sha_short": "6fca2d18",
-  "committed_at": "2026-09-25T10:46:09Z",
-  "message": "Fixes #2039"
+  "sha": "951d5900d1b4a952a4ba560a30c43788e622ccfc",
+  "sha_short": "951d5900",
+  "committed_at": "2026-09-27T12:03:19Z",
+  "message": "Fix weapon limits for Berzerkers"
 }
