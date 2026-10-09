@@ -1,6 +1,6 @@
 {
-  "sha": "23e89b5cdac19658bd431128120f6ddd7a6bf940",
-  "sha_short": "23e89b5c",
-  "committed_at": "2026-10-06T19:09:57Z",
-  "message": "Squiggoth Kannon limit app overrule"
+  "sha": "6166445ea55740a9b4d0d2aedc1234c727a6d513",
+  "sha_short": "6166445e",
+  "committed_at": "2026-10-07T21:59:51Z",
+  "message": "Fixes #2337"
 }
