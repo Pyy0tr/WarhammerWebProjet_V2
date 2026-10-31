@@ -1,6 +1,6 @@
 {
-  "sha": "95a3ef032c0178001976e2e54d410456ba4ae482",
-  "sha_short": "95a3ef03",
-  "committed_at": "2026-10-28T21:26:34Z",
-  "message": "Weapon hidden categories"
+  "sha": "c729d4694288e934dfb9fcec143c9d4027f812b5",
+  "sha_short": "c729d469",
+  "committed_at": "2026-10-30T22:09:16Z",
+  "message": "Fixes #1394"
 }
