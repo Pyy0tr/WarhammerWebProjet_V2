@@ -1,6 +1,6 @@
 {
-  "sha": "6530077baf71155644fad99e932974436bc559ee",
-  "sha_short": "6530077b",
-  "committed_at": "2026-11-04T12:32:53Z",
-  "message": "Astartes fixes"
+  "sha": "11ad64c81c058e5deeccd1cb23e64a972029c7b0",
+  "sha_short": "11ad64c8",
+  "committed_at": "2026-11-06T18:46:37Z",
+  "message": "Fixes #3389"
 }
